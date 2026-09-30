@@ -35,12 +35,12 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: ${{ github.ref_name }}
-          generate_release_notes: true
+          generate_release_notes: false
           body: |
-            ## Cobertura de la decompilación
+            ## Decompiled source coverage
 
-            **${{ steps.decompilation-match.outputs.percentage }}%** — ${{ steps.decompilation-match.outputs.matched }} de ${{ steps.decompilation-match.outputs.total }} clases originales de nivel superior tienen su archivo fuente Java correspondiente.
+            **${{ steps.decompilation-match.outputs.percentage }}%** — ${{ steps.decompilation-match.outputs.matched }} of ${{ steps.decompilation-match.outputs.total }} top-level classes from the original mod JAR have corresponding Java source files in this decompilation.
 
-            *La cobertura se calcula comparando los nombres de clase del JAR original con las fuentes Java; no representa una comparación de similitud del bytecode.*
+            *This measures class-name/source-file coverage; it does not compare source-code or bytecode similarity.*
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: build/libs/luxium-*.jar
