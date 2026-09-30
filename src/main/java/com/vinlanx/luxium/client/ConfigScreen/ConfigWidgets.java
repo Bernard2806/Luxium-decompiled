@@ -74,12 +74,12 @@ final class ConfigWidgets {
         EnumCycle(int x, int y, int width, ConfigOption<E> option) {
             super(x, y, width, 20, option.label());
             this.option = option;
-            this.value = (Enum)option.get();
+            this.value = (E)option.get();
         }
 
         public void m_5716_(double mouseX, double mouseY) {
             int index = this.option.choices().indexOf(this.value);
-            this.value = (Enum)this.option.choices().get((index + 1) % this.option.choices().size());
+            this.value = (E)this.option.choices().get((index + 1) % this.option.choices().size());
             this.option.set(this.value);
             this.pulse = 1.0f;
         }
@@ -237,11 +237,11 @@ final class ConfigWidgets {
         }
 
         private void setInteger(int value) {
-            this.option.set(value);
+            this.option.set((T)Integer.valueOf(value));
         }
 
         private void setDecimal(double value) {
-            this.option.set(value);
+            this.option.set((T)Double.valueOf(value));
         }
 
         public void m_87963_(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
@@ -306,4 +306,3 @@ final class ConfigWidgets {
         }
     }
 }
-

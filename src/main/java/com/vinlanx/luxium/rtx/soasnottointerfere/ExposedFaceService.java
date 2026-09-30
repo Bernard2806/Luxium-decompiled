@@ -275,7 +275,7 @@ public final class ExposedFaceService {
         if (!ExposedFaceService.isCacheActive() || level == null || center == null) {
             return;
         }
-        Long2ObjectOpenHashMap updatedSections = new Long2ObjectOpenHashMap();
+        Long2ObjectOpenHashMap<Long2ByteOpenHashMap> updatedSections = new Long2ObjectOpenHashMap<>();
         LongOpenHashSet changedBlocksForNotify = new LongOpenHashSet();
         LongOpenHashSet affectedSections = new LongOpenHashSet();
         changedBlocksForNotify.add(center.m_121878_());
@@ -288,12 +288,12 @@ public final class ExposedFaceService {
             long sectionKey = sectionIt.nextLong();
             this.requestSectionCapture(sectionKey, 0.0);
         }
-        this.updateLocalBlock(level, center, (Long2ObjectOpenHashMap<Long2ByteOpenHashMap>)updatedSections);
+        this.updateLocalBlock(level, center, updatedSections);
         for (Direction face : FACES) {
-            this.updateLocalBlock(level, center.m_121945_(face), (Long2ObjectOpenHashMap<Long2ByteOpenHashMap>)updatedSections);
+            this.updateLocalBlock(level, center.m_121945_(face), updatedSections);
         }
         boolean changed = false;
-        for (Long2ObjectMap.Entry entry : updatedSections.long2ObjectEntrySet()) {
+        for (Long2ObjectMap.Entry<Long2ByteOpenHashMap> entry : updatedSections.long2ObjectEntrySet()) {
             changed |= this.applySection(entry.getLongKey(), new SectionFaceData((Long2ByteOpenHashMap)entry.getValue()));
         }
         if (changed) {
@@ -305,7 +305,7 @@ public final class ExposedFaceService {
         if (!ExposedFaceService.isCacheActive() || level == null || center == null || horizontalRadius < 0 || verticalRadius < 0) {
             return;
         }
-        Long2ObjectOpenHashMap updatedSections = new Long2ObjectOpenHashMap();
+        Long2ObjectOpenHashMap<Long2ByteOpenHashMap> updatedSections = new Long2ObjectOpenHashMap<>();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         int radiusSq = horizontalRadius * horizontalRadius;
         for (int y = center.m_123342_() - verticalRadius; y <= center.m_123342_() + verticalRadius; ++y) {
@@ -315,12 +315,12 @@ public final class ExposedFaceService {
                     int dx = x - center.m_123341_();
                     if (dx * dx + dz * dz > radiusSq) continue;
                     pos.m_122178_(x, y, z);
-                    this.updateLocalBlock(level, (BlockPos)pos, (Long2ObjectOpenHashMap<Long2ByteOpenHashMap>)updatedSections);
+                    this.updateLocalBlock(level, (BlockPos)pos, updatedSections);
                 }
             }
         }
         boolean changed = false;
-        for (Long2ObjectMap.Entry entry : updatedSections.long2ObjectEntrySet()) {
+        for (Long2ObjectMap.Entry<Long2ByteOpenHashMap> entry : updatedSections.long2ObjectEntrySet()) {
             changed |= this.applySection(entry.getLongKey(), new SectionFaceData((Long2ByteOpenHashMap)entry.getValue()));
         }
         if (changed) {
@@ -357,22 +357,22 @@ public final class ExposedFaceService {
         if (batch.isEmpty()) {
             return;
         }
-        Long2ObjectOpenHashMap updatedSections = new Long2ObjectOpenHashMap();
+        Long2ObjectOpenHashMap<Long2ByteOpenHashMap> updatedSections = new Long2ObjectOpenHashMap<>();
         LongOpenHashSet changedBlocksForNotify = new LongOpenHashSet();
         LongIterator batchIt = batch.iterator();
         while (batchIt.hasNext()) {
             long blockKey = batchIt.nextLong();
             BlockPos center = BlockPos.m_122022_((long)blockKey);
             changedBlocksForNotify.add(blockKey);
-            this.updateLocalBlock(level, center, (Long2ObjectOpenHashMap<Long2ByteOpenHashMap>)updatedSections);
+            this.updateLocalBlock(level, center, updatedSections);
             for (Direction face : FACES) {
-                this.updateLocalBlock(level, center.m_121945_(face), (Long2ObjectOpenHashMap<Long2ByteOpenHashMap>)updatedSections);
+                this.updateLocalBlock(level, center.m_121945_(face), updatedSections);
             }
         }
         if (updatedSections.isEmpty()) {
             return;
         }
-        for (Long2ObjectMap.Entry entry : updatedSections.long2ObjectEntrySet()) {
+        for (Long2ObjectMap.Entry<Long2ByteOpenHashMap> entry : updatedSections.long2ObjectEntrySet()) {
             this.fullyCapturedSections.remove(entry.getLongKey());
             this.scheduleSectionBuild(entry.getLongKey(), new SectionFaceData((Long2ByteOpenHashMap)entry.getValue(), true), false);
         }
@@ -529,12 +529,12 @@ public final class ExposedFaceService {
 
     private void updateLocalBlock(ClientLevel level, BlockPos pos, Long2ObjectOpenHashMap<Long2ByteOpenHashMap> updatedSections) {
         long sectionKey = ExposedFaceService.sectionKeyForBlock(pos.m_121878_());
-        Long2ByteOpenHashMap sectionMap = (Long2ByteOpenHashMap)updatedSections.get(sectionKey);
+        Long2ByteOpenHashMap sectionMap = updatedSections.get(sectionKey);
         if (sectionMap == null) {
             SectionFaceData current = this.sectionFaces.get(sectionKey);
             sectionMap = current != null ? current.copyFaces() : new Long2ByteOpenHashMap();
             sectionMap.defaultReturnValue((byte)0);
-            updatedSections.put(sectionKey, (Object)sectionMap);
+            updatedSections.put(sectionKey, sectionMap);
         }
         long blockKey = pos.m_121878_();
         byte faceMask = this.computeExposedFaceMask(level, pos);
@@ -1354,4 +1354,3 @@ public final class ExposedFaceService {
         }
     }
 }
-

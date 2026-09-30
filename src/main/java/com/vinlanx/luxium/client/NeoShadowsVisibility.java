@@ -372,7 +372,7 @@ final class NeoShadowsVisibility {
             bestScore = score;
         }
         if (bestScore != null) {
-            List<Object> contributions;
+            List<NeoShadowsTypes.SourceContribution> contributions;
             if (scoresBySource.size() == 1 || totalScore <= 0.0) {
                 contributions = Collections.singletonList(new NeoShadowsTypes.SourceContribution(bestScore.sourceKey, bestScore.representativeSamplePosKey, bestScore.bestEmission, 1.0f, receiverBounds));
             } else {
@@ -783,4 +783,3 @@ final class NeoShadowsVisibility {
         }
     }
 }
-

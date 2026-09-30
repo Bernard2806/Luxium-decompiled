@@ -355,7 +355,7 @@ public final class NeoCpuShadowsEngine {
     }
 
     private static void mergeAndApplyPolygons(List<NeoCpuShadowTypes.ShadowPolygon> blockPolygons, List<NeoCpuShadowTypes.ShadowPolygon> entityPolygons) {
-        List<Object> merged;
+        List<NeoCpuShadowTypes.ShadowPolygon> merged;
         if (blockPolygons.isEmpty() && entityPolygons.isEmpty()) {
             merged = Collections.emptyList();
         } else if (entityPolygons.isEmpty()) {
@@ -597,4 +597,3 @@ public final class NeoCpuShadowsEngine {
         }
     }
 }
-

@@ -106,7 +106,7 @@ extends Screen {
         gfx.m_280509_(cx - dividerHalfWidth, textY += 9 * 2 + 14, cx + dividerHalfWidth, textY + 1, 1442829419);
         textY += 9;
         for (Component line : AlphaWarningScreen.bodyText()) {
-            List wrapped = this.f_96547_.m_92923_((FormattedText)line, textWidth);
+            List<FormattedCharSequence> wrapped = this.f_96547_.m_92923_((FormattedText)line, textWidth);
             for (FormattedCharSequence seq : wrapped) {
                 int lineW = this.f_96547_.m_92724_(seq);
                 gfx.m_280649_(this.f_96547_, seq, cx - lineW / 2, textY, -1317421, false);
@@ -206,4 +206,3 @@ extends Screen {
         return false;
     }
 }
-

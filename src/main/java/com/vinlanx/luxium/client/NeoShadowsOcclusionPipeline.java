@@ -147,11 +147,11 @@ final class NeoShadowsOcclusionPipeline {
             NeoShadowsTypes.Box[][] hitBoxes = new NeoShadowsTypes.Box[n][];
             NeoShadowsTypes.UvPoint[][] probesPerHit = new NeoShadowsTypes.UvPoint[n][];
             int i = 0;
-            for (Long2ObjectMap.Entry entry : faceScratch.probesByHit.long2ObjectEntrySet()) {
+            for (Long2ObjectMap.Entry<List<NeoShadowsTypes.UvPoint>> entry : faceScratch.probesByHit.long2ObjectEntrySet()) {
                 long key;
                 hitKeys[i] = key = entry.getLongKey();
                 hitBoxes[i] = (NeoShadowsTypes.Box[])faceScratch.boxesByHit.get(key);
-                List probes = (List)entry.getValue();
+                List<NeoShadowsTypes.UvPoint> probes = entry.getValue();
                 probesPerHit[i] = probes.toArray(new NeoShadowsTypes.UvPoint[0]);
                 ++i;
             }
@@ -276,12 +276,12 @@ final class NeoShadowsOcclusionPipeline {
         }
 
         List<NeoShadowsTypes.UvPoint> rentList() {
-            List<Object> list;
+            List<NeoShadowsTypes.UvPoint> list;
             if (this.listPoolUsed < this.listPool.size()) {
                 list = this.listPool.get(this.listPoolUsed);
                 list.clear();
             } else {
-                list = new ArrayList(4);
+                list = new ArrayList<>(4);
                 this.listPool.add(list);
             }
             ++this.listPoolUsed;
@@ -477,7 +477,7 @@ final class NeoShadowsOcclusionPipeline {
             if (state.m_60838_((BlockGetter)level, pos)) {
                 return FULL_BLOCK_BOXES;
             }
-            ArrayList boxes = new ArrayList();
+            ArrayList<NeoShadowsTypes.Box> boxes = new ArrayList<>();
             shape.m_83286_((minX, minY, minZ, maxX, maxY, maxZ) -> {
                 if (maxX - minX > 1.0E-6 && maxY - minY > 1.0E-6 && maxZ - minZ > 1.0E-6) {
                     boxes.add(new NeoShadowsTypes.Box(minX, minY, minZ, maxX, maxY, maxZ));
@@ -487,4 +487,3 @@ final class NeoShadowsOcclusionPipeline {
         }
     }
 }
-

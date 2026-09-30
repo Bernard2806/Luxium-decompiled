@@ -754,7 +754,7 @@ final class NeoShadowsTypes {
                 }
                 fullFacePosByCell.put(cellKey, receiverKey);
             }
-            for (Long2ObjectMap.Entry entry : fullFacePosByCell.long2LongEntrySet()) {
+            for (it.unimi.dsi.fastutil.longs.Long2LongMap.Entry entry : fullFacePosByCell.long2LongEntrySet()) {
                 long nextCellKey;
                 long nextPosKey;
                 long startCellKey = entry.getLongKey();
@@ -1105,16 +1105,16 @@ final class NeoShadowsTypes {
             Long2ByteOpenHashMap mergedMasks = new Long2ByteOpenHashMap(Math.max(16, this.replacedFacesByBlock.size() + output.affectedFacesByBlock.size()));
             mergedMasks.defaultReturnValue((byte)0);
             mergedMasks.putAll((Map)this.replacedFacesByBlock);
-            Long2ObjectOpenHashMap mergedByBlock = new Long2ObjectOpenHashMap(Math.max(16, this.polygonsByBlock.size() + output.affectedFacesByBlock.size()));
-            for (Long2ObjectMap.Entry entry : this.polygonsByBlock.long2ObjectEntrySet()) {
-                mergedByBlock.put(entry.getLongKey(), StaticHotPatchOverlay.copyFaceBuckets((List[])entry.getValue()));
+            Long2ObjectOpenHashMap<List<ShadowPolygon>[]> mergedByBlock = new Long2ObjectOpenHashMap<>(Math.max(16, this.polygonsByBlock.size() + output.affectedFacesByBlock.size()));
+            for (Long2ObjectMap.Entry<List<ShadowPolygon>[]> entry : this.polygonsByBlock.long2ObjectEntrySet()) {
+                mergedByBlock.put(entry.getLongKey(), StaticHotPatchOverlay.copyFaceBuckets(entry.getValue()));
             }
-            for (Long2ObjectMap.Entry entry : output.affectedFacesByBlock.long2ByteEntrySet()) {
+            for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry : output.affectedFacesByBlock.long2ByteEntrySet()) {
                 blockKey = entry.getLongKey();
                 byte faceMask = entry.getByteValue();
                 if (faceMask == 0) continue;
                 mergedMasks.put(blockKey, (byte)(mergedMasks.get(blockKey) | faceMask));
-                List[] buckets = (List[])mergedByBlock.get(blockKey);
+                List<ShadowPolygon>[] buckets = mergedByBlock.get(blockKey);
                 if (buckets == null) {
                     buckets = StaticHotPatchOverlay.newFaceBuckets();
                 }
@@ -1127,9 +1127,9 @@ final class NeoShadowsTypes {
             }
             for (ShadowPolygon polygon : output.shadowPolygons) {
                 int faceIndex;
-                ArrayList<ShadowPolygon> facePolygons;
+                List<ShadowPolygon> facePolygons;
                 blockKey = polygon.blockPos.m_121878_();
-                List[] buckets = (List[])mergedByBlock.get(blockKey);
+                List<ShadowPolygon>[] buckets = mergedByBlock.get(blockKey);
                 if (buckets == null) {
                     buckets = StaticHotPatchOverlay.newFaceBuckets();
                 }
@@ -1139,7 +1139,7 @@ final class NeoShadowsTypes {
                 facePolygons.add(polygon);
                 mergedByBlock.put(blockKey, (Object)buckets);
             }
-            return new StaticHotPatchOverlay(mergedMasks, (Long2ObjectOpenHashMap<List<ShadowPolygon>[]>)mergedByBlock, StaticHotPatchOverlay.flattenPolygons((Long2ObjectOpenHashMap<List<ShadowPolygon>[]>)mergedByBlock));
+            return new StaticHotPatchOverlay(mergedMasks, mergedByBlock, StaticHotPatchOverlay.flattenPolygons(mergedByBlock));
         }
 
         private static byte faceMask(Direction face) {
@@ -1539,4 +1539,3 @@ final class NeoShadowsTypes {
         }
     }
 }
-

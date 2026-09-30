@@ -146,7 +146,7 @@ final class NeoCpuShadowShapeBaker {
         if (shape.m_83281_()) {
             return List.of();
         }
-        List aabbs = shape.m_83299_();
+        List<AABB> aabbs = shape.m_83299_();
         if (aabbs.isEmpty()) {
             return List.of();
         }
@@ -166,7 +166,7 @@ final class NeoCpuShadowShapeBaker {
         if (state.m_60838_((BlockGetter)level, pos)) {
             return new NeoCpuShadowTypes.Box[]{new NeoCpuShadowTypes.Box(0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0L, 1.0f)};
         }
-        ArrayList boxes = new ArrayList();
+        ArrayList<NeoCpuShadowTypes.Box> boxes = new ArrayList<>();
         shape.m_83286_((minX, minY, minZ, maxX, maxY, maxZ) -> {
             if (maxX - minX <= 1.0E-5 || maxY - minY <= 1.0E-5 || maxZ - minZ <= 1.0E-5) {
                 return;
@@ -490,4 +490,3 @@ final class NeoCpuShadowShapeBaker {
     private record AtlasUv(double u, double v) {
     }
 }
-

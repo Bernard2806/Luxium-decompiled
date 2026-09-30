@@ -42,7 +42,7 @@ public final class LuxiumMasterKeyHandler {
             return;
         }
         while (LuxiumMasterKeyMapping.TOGGLE.m_90859_()) {
-            Config.CLIENT.luxiumEnabled.set((Object)(!Config.isEnabled() ? 1 : 0));
+            Config.CLIENT.luxiumEnabled.set(!Config.isEnabled());
             Config.CLIENT.luxiumEnabled.save();
             LuxiumMasterKeyHandler.refresh();
         }
@@ -67,4 +67,3 @@ public final class LuxiumMasterKeyHandler {
         ((GameRendererAccessor)minecraft.f_91063_).luxium$reloadShaders((ResourceProvider)minecraft.m_91098_());
     }
 }
-

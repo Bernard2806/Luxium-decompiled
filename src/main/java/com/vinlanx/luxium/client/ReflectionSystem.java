@@ -792,7 +792,7 @@ public final class ReflectionSystem {
         if (planes.isEmpty()) {
             return;
         }
-        ArrayList<Object> sorted = new ArrayList(planes.values());
+        ArrayList<MirrorPlane> sorted = new ArrayList<>(planes.values());
         sorted.sort((a, b) -> {
             int byFaceCount = Integer.compare(b.faces.size(), a.faces.size());
             if (byFaceCount != 0) {
@@ -1668,4 +1668,3 @@ public final class ReflectionSystem {
         }
     }
 }
-

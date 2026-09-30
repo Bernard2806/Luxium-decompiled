@@ -186,8 +186,8 @@ public final class RainPuddleManager {
     }
 
     private void loadFromResourceManager(ResourceManager resourceManager, Map<ResourceLocation, RainHeightmap> loaded) {
-        Map resources = resourceManager.m_214159_(RAIN_RESOURCE_ROOT, location -> location.m_135827_().equals("luxium") && location.m_135815_().toLowerCase(Locale.ROOT).endsWith(PNG_SUFFIX));
-        ArrayList ids = new ArrayList(resources.keySet());
+        Map<ResourceLocation, Resource> resources = resourceManager.m_214159_(RAIN_RESOURCE_ROOT, location -> location.m_135827_().equals("luxium") && location.m_135815_().toLowerCase(Locale.ROOT).endsWith(PNG_SUFFIX));
+        ArrayList<ResourceLocation> ids = new ArrayList<>(resources.keySet());
         ids.sort(Comparator.comparing(ResourceLocation::m_135815_));
         for (ResourceLocation id : ids) {
             Resource resource = (Resource)resources.get(id);
@@ -279,4 +279,3 @@ public final class RainPuddleManager {
         }
     }
 }
-

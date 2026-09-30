@@ -178,11 +178,11 @@ extends Screen {
     private AbstractWidget createWidget(ConfigOption<?> option, int width) {
         return switch (option.type()) {
             default -> throw new IncompatibleClassChangeError();
-            case ConfigOption.Type.BOOLEAN -> new ConfigWidgets.Toggle(0, 0, Math.min(width, 116), option);
-            case ConfigOption.Type.INTEGER -> new ConfigWidgets.Slider(0, 0, width, option);
-            case ConfigOption.Type.DOUBLE -> new ConfigWidgets.Slider(0, 0, width, option);
-            case ConfigOption.Type.ENUM -> new ConfigWidgets.EnumCycle<Integer>(0, 0, Math.min(width, 150), option);
-            case ConfigOption.Type.COLOR -> ConfigWidgets.colorEditor(0, 0, Math.min(width, 112), option);
+            case ConfigOption.Type.BOOLEAN -> new ConfigWidgets.Toggle(0, 0, Math.min(width, 116), (ConfigOption)option);
+            case ConfigOption.Type.INTEGER -> new ConfigWidgets.Slider(0, 0, width, (ConfigOption)option);
+            case ConfigOption.Type.DOUBLE -> new ConfigWidgets.Slider(0, 0, width, (ConfigOption)option);
+            case ConfigOption.Type.ENUM -> new ConfigWidgets.EnumCycle(0, 0, Math.min(width, 150), (ConfigOption)option);
+            case ConfigOption.Type.COLOR -> ConfigWidgets.colorEditor(0, 0, Math.min(width, 112), (ConfigOption)option);
         };
     }
 
@@ -469,7 +469,7 @@ extends Screen {
                 LuxiumConfigScreen.drawBorder(graphics, contentX, contentY, textWidth, imageHeight, -6249040);
                 contentY += imageHeight + 28;
             }
-            for (FormattedCharSequence line : lines) {
+            for (FormattedCharSequence line : (List<FormattedCharSequence>)lines) {
                 graphics.m_280649_(this.f_96547_, line, contentX, contentY, -6249040, false);
                 contentY += 11;
             }
@@ -765,4 +765,3 @@ extends Screen {
     private record PreviewImageBounds(int x, int y, int width, int height) {
     }
 }
-

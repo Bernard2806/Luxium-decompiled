@@ -234,7 +234,7 @@ final class NeoShadowsProjection {
                 }
             }
         }
-        return (int[][])offsets.toArray((T[])new int[0][]);
+        return offsets.toArray(new int[offsets.size()][]);
     }
 
     static List<NeoShadowsTypes.UvPoint> buildConvexHull(List<NeoShadowsTypes.UvPoint> points) {
@@ -662,4 +662,3 @@ final class NeoShadowsProjection {
         public NeoShadowsTypes.UvPoint create(NeoShadowsTypes.UvPoint var1, NeoShadowsTypes.UvPoint var2);
     }
 }
-

@@ -78,7 +78,7 @@ public final class RainPuddleManager {
         }
         ResourceLocation selected = maps.get(ThreadLocalRandom.current().nextInt(maps.size()));
         RainPuddleInstance instance = new RainPuddleInstance(selected, size, minX, minZ, maxX, maxZ, patches);
-        List placements = this.byDimension.computeIfAbsent((ResourceKey<Level>)level.m_46472_(), ignored -> new ArrayList());
+        List<RainPuddleInstance> placements = this.byDimension.computeIfAbsent((ResourceKey<Level>)level.m_46472_(), ignored -> new ArrayList<>());
         placements.removeIf(existing -> existing.intersects(minX, minZ, maxX, maxZ));
         placements.add(instance);
         while (placements.size() > 48) {
@@ -153,4 +153,3 @@ public final class RainPuddleManager {
         return patches;
     }
 }
-
