@@ -7,6 +7,7 @@ version="${modVersion}"
 displayName="Luxium: Let there be light"
 logoFile="logo.png"
 authors="vinlanx"
+credits="Luxium: Let there be light by Vinlanx. Original project: https://www.curseforge.com/minecraft/mc-mods/luxium. Copyright (c) Vinlanx; distributed under the Luxium Custom License (LICENSE.txt). This is an unofficial decompilation and is not affiliated with or endorsed by the original author."
 description='''
 A performance-focused graphics mod that makes Minecraft look better without turning it into a slideshow.
 '''

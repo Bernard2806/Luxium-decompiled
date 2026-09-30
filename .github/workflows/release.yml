@@ -42,5 +42,17 @@ jobs:
             **${{ steps.decompilation-match.outputs.percentage }}%** — ${{ steps.decompilation-match.outputs.matched }} of ${{ steps.decompilation-match.outputs.total }} top-level classes from the original mod JAR have corresponding Java source files in this decompilation.
 
             *This measures class-name/source-file coverage; it does not compare source-code or bytecode similarity.*
+
+            ## Credits
+
+            Based on **Luxium: Let there be light** by **Vinlanx** — https://www.curseforge.com/minecraft/mc-mods/luxium
+
+            All original code, shaders, assets, and branding are Copyright © Vinlanx and are distributed under the Luxium Custom License (`LICENSE.txt`). This is an unofficial decompilation and is not affiliated with or endorsed by the original author.
+
+            ## Requirements
+
+            - Minecraft 1.20.1, Forge 47.1.3 or newer (tested with 47.4.10).
+            - Embeddium `0.3.31+mc1.20.1` (mandatory).
+            - Not compatible with Oculus/OptiFine.
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: build/libs/luxium-*.jar

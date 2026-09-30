@@ -1,5 +1,9 @@
 # Luxium
 
+> Unofficial decompilation of **Luxium: Let there be light**, originally created by **Vinlanx**.
+> Original project: https://www.curseforge.com/minecraft/mc-mods/luxium
+> All original code, shaders, assets, and branding are Copyright © Vinlanx and are distributed under the Luxium Custom License included in `src/main/resources/LICENSE.txt`. This repository is not affiliated with or endorsed by the original author.
+
 - Mod: `Luxium: Let there be light` (`luxium`), version `2.8.0-pre-alpha`.
 - Input artifact: `Luxium Let there be light-2.8.0-pre-alpha.jar`.
 - Decompiler: CFR 0.152.
@@ -11,6 +15,14 @@
 - `src/main/resources/`: non-class resources extracted from the JAR, including mod metadata, mixin configuration, shaders, and assets.
 
 This is a decompilation, not the original source tree. CFR reports one class/method it could not fully decompile: `com.vinlanx.luxium.rtx.TorchRtxState.drainFrontierChecks(int)`; see `src/main/java/summary.txt`.
+
+## Dependencies and requirements
+
+- Minecraft 1.20.1.
+- Forge 47.1.3 or newer. The original project page reports it works with Forge 47.4.10 (and may also work with 47.4.20).
+- Embeddium `0.3.31+mc1.20.1`, mandatory. Embeddium 0.4.x is not compatible.
+- Java 17.
+- Not compatible with Oculus/OptiFine. For low-memory crashes the original author recommends adding ImmediatelyFast and ModernFix.
 
 ## Build
 
