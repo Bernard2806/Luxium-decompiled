@@ -24,6 +24,10 @@ jobs:
       - name: Preparar Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Calcular cobertura de clases decompiladas
+        id: decompilation-match
+        run: python3 scripts/calculate_decompilation_match.py
+
       - name: Compilar JAR de release
         run: ./gradlew --no-daemon clean build -PmodVersion="${GITHUB_REF_NAME#v}"
 
@@ -32,5 +36,11 @@ jobs:
         with:
           name: ${{ github.ref_name }}
           generate_release_notes: true
+          body: |
+            ## Cobertura de la decompilación
+
+            **${{ steps.decompilation-match.outputs.percentage }}%** — ${{ steps.decompilation-match.outputs.matched }} de ${{ steps.decompilation-match.outputs.total }} clases originales de nivel superior tienen su archivo fuente Java correspondiente.
+
+            *La cobertura se calcula comparando los nombres de clase del JAR original con las fuentes Java; no representa una comparación de similitud del bytecode.*
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: build/libs/luxium-*.jar

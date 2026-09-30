@@ -44,26 +44,26 @@ mixin {
 }
 
 def mappedSourcesDir = layout.buildDirectory.dir('generated/sources/srgToOfficial/main')
-def srgToOfficialMappings = providers.provider {
-    def mappingFiles = fileTree("${gradle.gradleUserHomeDir}/caches/forge_gradle/minecraft_user_repo/de/oceanlabs/mcp/mcp_config") {
-        include '**/srg_to_official_1.20.1.tsrg'
-    }.files
-    if (mappingFiles.isEmpty()) {
-        throw new GradleException('ForgeGradle did not generate the Minecraft 1.20.1 SRG-to-official mappings.')
-    }
-    mappingFiles.first()
+def srgToOfficialMappings = fileTree("${gradle.gradleUserHomeDir}/caches/forge_gradle/minecraft_user_repo/de/oceanlabs/mcp/mcp_config") {
+    include '**/srg_to_official_1.20.1.tsrg'
 }
 
 tasks.register('remapSrgSources') {
     dependsOn 'createMcpToSrg'
     inputs.dir(layout.projectDirectory.dir('src/main/java'))
-    inputs.file(srgToOfficialMappings)
+    inputs.files(srgToOfficialMappings)
     outputs.dir(mappedSourcesDir)
 
     doLast {
+        def mappingFiles = srgToOfficialMappings.files
+        if (mappingFiles.isEmpty()) {
+            throw new GradleException('ForgeGradle did not generate the Minecraft 1.20.1 SRG-to-official mappings.')
+        }
+        def mappingFile = mappingFiles.first()
+
         // The decompiler output uses Forge SRG identifiers while ForgeGradle compiles official names.
         def memberNames = [:]
-        srgToOfficialMappings.get().eachLine('UTF-8') { line ->
+        mappingFile.eachLine('UTF-8') { line ->
             if (!line.startsWith('\t') || line.startsWith('\t\t')) {
                 return
             }
