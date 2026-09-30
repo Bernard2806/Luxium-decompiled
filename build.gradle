@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'com.vinlanx.luxium'
-version = '2.8.0-pre-alpha'
+version = providers.gradleProperty('modVersion').getOrElse('2.8.0-pre-alpha')
 base {
     archivesName = 'luxium'
 }
@@ -135,6 +135,9 @@ tasks.withType(JavaCompile).configureEach {
 
 processResources {
     exclude 'luxium.mixins.refmap.json'
+    filesMatching('META-INF/mods.toml') {
+        expand 'modVersion': project.version
+    }
 }
 
 jar {
