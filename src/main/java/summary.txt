@@ -1,0 +1,9 @@
+Summary for Luxium Let there be light-2.8.0-pre-alpha.jar
+Decompiled with CFR 0.152
+
+
+com.vinlanx.luxium.rtx.TorchRtxState
+----------------------------
+
+drainFrontierChecks(int )
+  Exception : org.benf.cfr.reader.util.ConfusedCFRException: Tried to end blocks [3[TRYBLOCK]], but top level block is 25[FORLOOP]
