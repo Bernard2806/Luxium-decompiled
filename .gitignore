@@ -2,6 +2,9 @@
 build/
 run/
 out/
+bin/
 *.iml
 .idea/
-.eclipse/
+.classpath
+.project
+.settings/
