@@ -18,3 +18,7 @@ This is a decompilation, not the original source tree. CFR reports one class/met
 - Gradle wrapper is included; it downloads Gradle 8.1.1 on first use.
 
 Run `./gradlew build` to compile and package the mod. The build remaps the decompiled SRG member names to Minecraft's official mappings and targets Minecraft 1.20.1, Forge 47.2.0, and Embeddium 0.3.31.
+
+## Releases
+
+Push a tag matching `v*` (for example, `v2.8.1`) to trigger the GitHub Actions release workflow. It builds the mod using the tag as the version, creates a GitHub Release, and attaches the JAR. Tags containing a hyphen are marked as prereleases.
