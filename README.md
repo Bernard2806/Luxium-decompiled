@@ -2,7 +2,11 @@
 
 > Unofficial decompilation of **Luxium: Let there be light**, originally created by **Vinlanx**.
 > Original project: https://www.curseforge.com/minecraft/mc-mods/luxium
-> All original code, shaders, assets, and branding are Copyright © Vinlanx and are distributed under the Luxium Custom License included in `src/main/resources/LICENSE.txt`. This repository is not affiliated with or endorsed by the original author.
+> All original code, shaders, assets, and branding are Copyright © Vinlanx and are distributed under the Luxium Custom License included in `src/main/resources/LICENSE.txt`. This repository is not affiliated with or endorsed by the original author. See `NOTICE.md`.
+
+## Takedown and contact
+
+This is an unofficial decompilation. If you are the original author or a rights holder and want this repository or its release artifacts (including the built JAR) removed, email **berramuspegonzalez@gmail.com** and the request will be honored promptly.
 
 - Mod: `Luxium: Let there be light` (`luxium`), version `2.8.0-pre-alpha`.
 - Input artifact: `Luxium Let there be light-2.8.0-pre-alpha.jar`.

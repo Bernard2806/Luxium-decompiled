@@ -54,5 +54,9 @@ jobs:
             - Minecraft 1.20.1, Forge 47.1.3 or newer (tested with 47.4.10).
             - Embeddium `0.3.31+mc1.20.1` (mandatory).
             - Not compatible with Oculus/OptiFine.
+
+            ## Takedown
+
+            This is an unofficial decompilation and is not affiliated with the original author. If you are the rights holder and want this release removed, contact **berramuspegonzalez@gmail.com** and it will be honored promptly.
           prerelease: ${{ contains(github.ref_name, '-') }}
           files: build/libs/luxium-*.jar
