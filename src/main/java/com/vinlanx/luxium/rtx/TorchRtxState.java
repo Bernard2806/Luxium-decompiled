@@ -304,8 +304,14 @@ public final class TorchRtxState {
             this.tickLoadedChunkInvalidations();
             this.engine.tick();
         } else {
-            Vec3 registryCenter;
-            Object object = mc.f_91074_ != null ? mc.f_91074_.m_20182_() : (mc.f_91075_ != null ? mc.f_91075_.m_20182_() : (registryCenter = mc.f_91063_ != null && mc.f_91063_.m_109153_() != null ? mc.f_91063_.m_109153_().m_90583_() : null));
+            Vec3 registryCenter = null;
+            if (mc.f_91074_ != null) {
+                registryCenter = mc.f_91074_.m_20182_();
+            } else if (mc.f_91075_ != null) {
+                registryCenter = mc.f_91075_.m_20182_();
+            } else if (mc.f_91063_ != null && mc.f_91063_.m_109153_() != null) {
+                registryCenter = mc.f_91063_.m_109153_().m_90583_();
+            }
             if (NeoGpuVanilla.isConfiguredEnabled()) {
                 this.discoverLoadedChunkSources(level, registryCenter);
             }
@@ -478,10 +484,10 @@ public final class TorchRtxState {
             }
             GpuShadowCache.get().onSourcesRemoved(removed);
         }
-        it = discovered.long2ByteEntrySet().fastIterator();
-        while (it.hasNext()) {
+        ObjectIterator<Long2ByteMap.Entry> entries = discovered.long2ByteEntrySet().fastIterator();
+        while (entries.hasNext()) {
             int oldEmission;
-            Long2ByteMap.Entry entry = (Long2ByteMap.Entry)it.next();
+            Long2ByteMap.Entry entry = entries.next();
             long key = entry.getLongKey();
             byte emission = entry.getByteValue();
             int n = oldEmission = this.lightSources.containsKey(key) ? this.lightSources.get(key) & 0xFF : -1;
@@ -1314,16 +1320,14 @@ public final class TorchRtxState {
             populatedSections += scannedPopulated;
             ++queueVisits;
             if (task.sectionIndex >= task.chunk.m_7103_().length) {
-                var12_14 = this.chunkLifecycleLock;
-                synchronized (var12_14) {
+                synchronized (this.chunkLifecycleLock) {
                     if (this.pendingChunkScans.get(chunkKey) == task) {
                         this.pendingChunkScans.remove(chunkKey);
                     }
                 }
                 this.finishChunkScan(task, batch);
             } else {
-                var12_14 = this.chunkLifecycleLock;
-                synchronized (var12_14) {
+                synchronized (this.chunkLifecycleLock) {
                     if (this.pendingChunkScans.get(chunkKey) == task) {
                         this.pendingChunkScanOrder.enqueue(chunkKey);
                     }
@@ -1443,9 +1447,8 @@ public final class TorchRtxState {
             this.scannedLightChunks.add(chunkKey);
         }
         if (task.scanReflective) {
-            boolean reflectionChunkChanged;
             LongOpenHashSet oldReflections = (LongOpenHashSet)this.reflectiveByChunk.get(chunkKey);
-            boolean bl = oldReflections == null ? !task.reflections.isEmpty() : (reflectionChunkChanged = !oldReflections.equals((Object)task.reflections));
+            boolean reflectionChunkChanged = oldReflections == null ? !task.reflections.isEmpty() : !oldReflections.equals((Object)task.reflections);
             if (reflectionChunkChanged) {
                 if (oldReflections != null) {
                     LongIterator it = oldReflections.iterator();
@@ -1567,14 +1570,12 @@ public final class TorchRtxState {
                     long[] bucket = sourceSnapshot.get(ChunkPos.m_45589_((int)(chunkX + dx), (int)(chunkZ + dz)));
                     if (bucket == null) continue;
                     for (long sourceKey : bucket) {
-                        double distZ;
-                        double distX;
                         long sourceChunkKey = ChunkPos.m_45589_((int)(BlockPos.m_121983_((long)sourceKey) >> 4), (int)(BlockPos.m_122015_((long)sourceKey) >> 4));
                         if (loadedChunks.contains(sourceChunkKey)) continue;
                         double sourceX = (double)BlockPos.m_121983_((long)sourceKey) + 0.5;
                         double sourceZ = (double)BlockPos.m_122015_((long)sourceKey) + 0.5;
-                        double d = sourceX < minX ? minX - sourceX : (distX = sourceX > maxX ? sourceX - maxX : 0.0);
-                        double d2 = sourceZ < minZ ? minZ - sourceZ : (distZ = sourceZ > maxZ ? sourceZ - maxZ : 0.0);
+                        double distX = sourceX < minX ? minX - sourceX : sourceX > maxX ? sourceX - maxX : 0.0;
+                        double distZ = sourceZ < minZ ? minZ - sourceZ : sourceZ > maxZ ? sourceZ - maxZ : 0.0;
                         if (!(distX * distX + distZ * distZ <= maxSq)) continue;
                         nearby.add(sourceKey);
                     }
@@ -2094,4 +2095,3 @@ public final class TorchRtxState {
         }
     }
 }
-

@@ -93,7 +93,7 @@ public final class VanillaLavaLightEngine {
         this.drainSourceChecks();
         BlockLightEngine current = this.engine;
         if (current != null && current.m_75808_()) {
-            ((LuxiumLightEngineExtension)current).luxium$runLightUpdatesBudgeted(8000);
+            ((LuxiumLightEngineExtension)(Object)current).luxium$runLightUpdatesBudgeted(8000);
         }
     }
 
@@ -215,7 +215,7 @@ public final class VanillaLavaLightEngine {
             return;
         }
         BlockLightEngine created = new BlockLightEngine((LightChunkGetter)level.m_7726_());
-        ((LuxiumBlockLightEngineExtension)created).luxium$setLavaOnly(true);
+        ((LuxiumBlockLightEngineExtension)(Object)created).luxium$setLavaOnly(true);
         this.engine = created;
         this.active = true;
         LongIterator iterator = this.loadedChunks.iterator();
@@ -322,8 +322,7 @@ public final class VanillaLavaLightEngine {
         int baseY = scan.sectionY << 4;
         int baseZ = scan.chunkZ << 4;
         while (scan.cursor < 4096) {
-            int index;
-            ++scan.cursor;
+            int index = scan.cursor++;
             int localX = index & 0xF;
             int localY = index >>> 8 & 0xF;
             int localZ = index >>> 4 & 0xF;
@@ -417,4 +416,3 @@ public final class VanillaLavaLightEngine {
         }
     }
 }
-

@@ -288,7 +288,7 @@ public final class GpuShadowCache {
         }
         double scanRadius = GpuNeoShadows.getLightSearchRadius() + LightRtMath.getEntityShadowRadius(15) + 6.0;
         double scanRadiusSq = scanRadius * scanRadius;
-        Long2ObjectOpenHashMap nextCasters = new Long2ObjectOpenHashMap();
+        Long2ObjectOpenHashMap<AABB> nextCasters = new Long2ObjectOpenHashMap<>();
         this.scanDynamicCasters(level, center, cameraPos, scanRadiusSq, (Long2ObjectOpenHashMap<AABB>)nextCasters);
         this.lastDynamicScanMs = nowMs;
         if (levelChanged) {
@@ -563,6 +563,8 @@ public final class GpuShadowCache {
             NeoGpuVanillaGpuDebug.beginCapture();
             try {
                 int dynamicFacesThisFrame = 0;
+                int staticBuildsThisFrame = 0;
+                Entry nearestDirty;
                 if (NeoGpuVanilla.isConfiguredEnabled()) {
                     int faceBudget = this.neoGpuFaceRebuildBudget();
                     for (staticBuildsThisFrame = 0; staticBuildsThisFrame < faceBudget; ++staticBuildsThisFrame) {
@@ -682,7 +684,6 @@ public final class GpuShadowCache {
             }
             finally {
                 NeoShadowsEngine.endGpuShadowAtlasCapture();
-                continue;
             }
             entry.validFaceMask |= singleFaceMask;
             entry.dirtyFaceMask &= ~singleFaceMask;
@@ -1232,4 +1233,3 @@ public final class GpuShadowCache {
         }
     }
 }
-

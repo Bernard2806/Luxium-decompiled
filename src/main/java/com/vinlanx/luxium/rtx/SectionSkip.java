@@ -40,8 +40,6 @@ public final class SectionSkip {
 
     public static double skipEmptySection(TraversalState state, int chunkX, int chunkZ, int sectionIndex, int minBuildHeight, double maxDistance, double exitPadding) {
         double nextTraveled;
-        double ty;
-        double tx;
         double posX = state.currentX();
         double posY = state.currentY();
         double posZ = state.currentZ();
@@ -51,8 +49,8 @@ public final class SectionSkip {
         double maxY = minY + 16.0;
         double minZ = (double)chunkZ * 16.0;
         double maxZ = minZ + 16.0;
-        double d = state.stepX > 0 ? (maxX - posX) / state.dirX : (tx = state.stepX < 0 ? (minX - posX) / state.dirX : Double.MAX_VALUE);
-        double d2 = state.stepY > 0 ? (maxY - posY) / state.dirY : (ty = state.stepY < 0 ? (minY - posY) / state.dirY : Double.MAX_VALUE);
+        double tx = state.stepX > 0 ? (maxX - posX) / state.dirX : state.stepX < 0 ? (minX - posX) / state.dirX : Double.MAX_VALUE;
+        double ty = state.stepY > 0 ? (maxY - posY) / state.dirY : state.stepY < 0 ? (minY - posY) / state.dirY : Double.MAX_VALUE;
         double tz = state.stepZ > 0 ? (maxZ - posZ) / state.dirZ : (state.stepZ < 0 ? (minZ - posZ) / state.dirZ : Double.MAX_VALUE);
         double skip = Math.max(0.0, Math.min(tx, Math.min(ty, tz)) + exitPadding);
         state.traveled = nextTraveled = Math.min(maxDistance, state.traveled + skip);
@@ -128,4 +126,3 @@ public final class SectionSkip {
         }
     }
 }
-

@@ -28,34 +28,14 @@ public final class NeoSkyTerrainNormalMaterials {
         if (!axisAligned || direction == null) {
             return material;
         }
-        switch (direction) {
-            default: {
-                throw new IncompatibleClassChangeError();
-            }
-            case DOWN: {
-                int n = 1;
-                break;
-            }
-            case UP: {
-                int n = 2;
-                break;
-            }
-            case NORTH: {
-                int n = 3;
-                break;
-            }
-            case SOUTH: {
-                int n = 4;
-                break;
-            }
-            case WEST: {
-                int n = 5;
-                break;
-            }
-            case EAST: {
-                int n = code = 6;
-            }
-        }
+        code = switch (direction) {
+            case DOWN -> 1;
+            case UP -> 2;
+            case NORTH -> 3;
+            case SOUTH -> 4;
+            case WEST -> 5;
+            case EAST -> 6;
+        };
         if (material == DefaultMaterials.SOLID) {
             return SOLID[code];
         }
@@ -94,4 +74,3 @@ public final class NeoSkyTerrainNormalMaterials {
         }
     }
 }
-

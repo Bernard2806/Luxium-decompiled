@@ -223,8 +223,8 @@ final class NeoShadowsStaticPipeline {
                 pool.execute(() -> {
                     try {
                         for (int i = shard; i < n; i += workerCount) {
-                            NeoShadowsTypes.FaceCandidate candidate = (NeoShadowsTypes.FaceCandidate)candidates.get(i);
-                            lightingByIndex[i] = this.engine.visibility.resolveFaceLightingCached(torchState, state, candidate);
+                            NeoShadowsTypes.FaceCandidate shardCandidate = candidates.get(i);
+                            lightingByIndex[i] = this.engine.visibility.resolveFaceLightingCached(torchState, state, shardCandidate);
                         }
                     }
                     catch (Throwable throwable) {
@@ -809,4 +809,3 @@ final class NeoShadowsStaticPipeline {
         ++scratch.shadowPolygonCount;
     }
 }
-

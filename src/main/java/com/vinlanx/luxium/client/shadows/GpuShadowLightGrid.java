@@ -110,10 +110,8 @@ final class GpuShadowLightGrid {
             }
             for (int tileY = minTileY; tileY <= maxTileY; ++tileY) {
                 for (int tileX = minTileX; tileX <= maxTileX; ++tileX) {
-                    int slot;
-                    int tile;
-                    int n = tile = tileY * tilesX + tileX;
-                    this.tileCounts[n] = this.tileCounts[n] + 1;
+                    int tile = tileY * tilesX + tileX;
+                    int slot = this.tileCounts[tile]++;
                     if (slot >= 32) continue;
                     int texelX = tileX * 8 + slot / 4;
                     int channel = slot % 4;
@@ -154,4 +152,3 @@ final class GpuShadowLightGrid {
         return Math.max(0, Math.min(count - 1, value));
     }
 }
-

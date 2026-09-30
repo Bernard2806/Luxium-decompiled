@@ -363,7 +363,7 @@ public final class NeoCpuFloodShadowBuilder {
             return (Long)this.dominantSourceCache.get(sampleKey);
         }
         long dominant = torchState.getDominantSource(sampleKey);
-        this.dominantSourceCache.put(sampleKey, (Object)dominant);
+        this.dominantSourceCache.put(Long.valueOf(sampleKey), Long.valueOf(dominant));
         return dominant;
     }
 
@@ -476,11 +476,6 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private Hit traceFirstHit(NeoCpuLocalBlockAccessor accessor, double sourceX, double sourceY, double sourceZ, double targetX, double targetY, double targetZ, long sourceKey, NeoCpuShadowTypes.ReceiverSurface receiver) {
-        double tMaxY;
-        double tMaxX;
-        int stepZ;
-        int stepY;
-        int stepX;
         double dx = targetX - sourceX;
         double dy = targetY - sourceY;
         double dz = targetZ - sourceZ;
@@ -497,11 +492,11 @@ public final class NeoCpuFloodShadowBuilder {
         int blockX = Mth.m_14107_((double)sourceX);
         int blockY = Mth.m_14107_((double)sourceY);
         int blockZ = Mth.m_14107_((double)sourceZ);
-        int n = dirX > 0.0 ? 1 : (stepX = dirX < 0.0 ? -1 : 0);
-        int n2 = dirY > 0.0 ? 1 : (stepY = dirY < 0.0 ? -1 : 0);
-        int n3 = dirZ > 0.0 ? 1 : (stepZ = dirZ < 0.0 ? -1 : 0);
-        double d = stepX == 0 ? Double.POSITIVE_INFINITY : (tMaxX = ((stepX > 0 ? (double)blockX + 1.0 : (double)blockX) - sourceX) / dirX);
-        double d2 = stepY == 0 ? Double.POSITIVE_INFINITY : (tMaxY = ((stepY > 0 ? (double)blockY + 1.0 : (double)blockY) - sourceY) / dirY);
+        int stepX = dirX > 0.0 ? 1 : dirX < 0.0 ? -1 : 0;
+        int stepY = dirY > 0.0 ? 1 : dirY < 0.0 ? -1 : 0;
+        int stepZ = dirZ > 0.0 ? 1 : dirZ < 0.0 ? -1 : 0;
+        double tMaxX = stepX == 0 ? Double.POSITIVE_INFINITY : ((stepX > 0 ? (double)blockX + 1.0 : (double)blockX) - sourceX) / dirX;
+        double tMaxY = stepY == 0 ? Double.POSITIVE_INFINITY : ((stepY > 0 ? (double)blockY + 1.0 : (double)blockY) - sourceY) / dirY;
         double tMaxZ = stepZ == 0 ? Double.POSITIVE_INFINITY : ((stepZ > 0 ? (double)blockZ + 1.0 : (double)blockZ) - sourceZ) / dirZ;
         double tDeltaX = stepX == 0 ? Double.POSITIVE_INFINITY : Math.abs(invDirX);
         double tDeltaY = stepY == 0 ? Double.POSITIVE_INFINITY : Math.abs(invDirY);
@@ -781,50 +776,20 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private static CpuProjection projectWorldPoint(Vec3 source, NeoCpuShadowTypes.ReceiverSurface receiver, double x, double y, double z) {
-        double t;
-        double denominator;
+        double denominator = switch (receiver.face()) {
+            case UP, DOWN -> y - source.f_82480_;
+            case NORTH, SOUTH -> z - source.f_82481_;
+            case WEST, EAST -> x - source.f_82479_;
+        };
         double planeCoordinate = receiver.plane();
-        switch (receiver.face()) {
-            default: {
-                throw new IncompatibleClassChangeError();
-            }
-            case UP: 
-            case DOWN: {
-                double d = y - source.f_82480_;
-                break;
-            }
-            case NORTH: 
-            case SOUTH: {
-                double d = z - source.f_82481_;
-                break;
-            }
-            case WEST: 
-            case EAST: {
-                double d = denominator = x - source.f_82479_;
-            }
-        }
         if (Math.abs(denominator) <= 1.0E-9) {
             return new CpuProjection(denominator, Double.NaN, null);
         }
-        switch (receiver.face()) {
-            default: {
-                throw new IncompatibleClassChangeError();
-            }
-            case UP: 
-            case DOWN: {
-                double d = (planeCoordinate - source.f_82480_) / denominator;
-                break;
-            }
-            case NORTH: 
-            case SOUTH: {
-                double d = (planeCoordinate - source.f_82481_) / denominator;
-                break;
-            }
-            case WEST: 
-            case EAST: {
-                double d = t = (planeCoordinate - source.f_82479_) / denominator;
-            }
-        }
+        double t = (planeCoordinate - switch (receiver.face()) {
+            case UP, DOWN -> source.f_82480_;
+            case NORTH, SOUTH -> source.f_82481_;
+            case WEST, EAST -> source.f_82479_;
+        }) / denominator;
         if (t <= 0.0) {
             return new CpuProjection(denominator, t, null);
         }
@@ -1182,40 +1147,25 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private static boolean isReceiverSurfaceSelfHit(NeoCpuShadowTypes.ReceiverSurface receiver, double sourceX, double sourceY, double sourceZ, double dirX, double dirY, double dirZ, double hitT) {
-        double dv;
-        double hitPlane;
         if (!Double.isFinite(hitT)) {
             return false;
         }
         double hitX = sourceX + dirX * hitT;
         double hitY = sourceY + dirY * hitT;
         double hitZ = sourceZ + dirZ * hitT;
-        switch (receiver.face()) {
-            default: {
-                throw new IncompatibleClassChangeError();
-            }
-            case UP: 
-            case DOWN: {
-                double d = hitY;
-                break;
-            }
-            case NORTH: 
-            case SOUTH: {
-                double d = hitZ;
-                break;
-            }
-            case WEST: 
-            case EAST: {
-                double d = hitPlane = hitX;
-            }
-        }
+        double hitPlane = switch (receiver.face()) {
+            case UP, DOWN -> hitY;
+            case NORTH, SOUTH -> hitZ;
+            case WEST, EAST -> hitX;
+        };
         if (Math.abs(hitPlane - receiver.plane()) > 1.0E-4) {
             return false;
         }
         NeoCpuShadowTypes.Uv hitUv = receiver.worldToUv(hitX, hitY, hitZ);
         NeoCpuShadowTypes.Uv sourceUv = receiver.worldToUv(sourceX, sourceY, sourceZ);
         double du = hitUv.u() - sourceUv.u();
-        return du * du + (dv = hitUv.v() - sourceUv.v()) * dv <= 1.0E-8;
+        double dv = hitUv.v() - sourceUv.v();
+        return du * du + dv * dv <= 1.0E-8;
     }
 
     private static boolean isSuspiciousProbe(NeoCpuShadowTypes.ReceiverSurface receiver, double dx, double dy, double dz, double distance, Hit hit) {
@@ -1537,4 +1487,3 @@ public final class NeoCpuFloodShadowBuilder {
         private static final ProbeSample NONE = new ProbeSample(null, false);
     }
 }
-

@@ -742,40 +742,28 @@ public final class NeoFloodEngine {
         AtomicInteger remainingLanes = new AtomicInteger(lanes);
         for (int lane = 0; lane < lanes; ++lane) {
             executor.execute(() -> {
-                block8: {
-                    block5: while (true) {
-                        int index;
-                        while ((index = nextIndex.getAndIncrement()) < captures.size()) {
-                            TraceCapture capture = (TraceCapture)captures.get(index);
-                            try {
-                                NeoFloodRtEngine.Result solved = NeoFloodRtEngine.solve(capture.state.key, capture.emission, level);
-                                completed[index] = new CompletedTrace(capture, PackedSourceData.from(capture.state.key, solved));
-                                continue block5;
-                            }
-                            catch (Throwable error) {
-                                this.restoreFailedTrace(capture);
-                            }
+                try {
+                    int index;
+                    while ((index = nextIndex.getAndIncrement()) < captures.size()) {
+                        TraceCapture capture = captures.get(index);
+                        try {
+                            NeoFloodRtEngine.Result solved = NeoFloodRtEngine.solve(capture.state.key, capture.emission, level);
+                            completed[index] = new CompletedTrace(capture, PackedSourceData.from(capture.state.key, solved));
+                        } catch (Throwable error) {
+                            this.restoreFailedTrace(capture);
                         }
-                        break block8;
-                        {
-                            continue block5;
-                            break;
-                        }
-                        break;
                     }
-                    finally {
-                        if (remainingLanes.decrementAndGet() == 0) {
-                            this.publishExecutor.execute(() -> {
-                                try {
-                                    this.publishTraceBatch(completed, highPriority);
+                } finally {
+                    if (remainingLanes.decrementAndGet() == 0) {
+                        this.publishExecutor.execute(() -> {
+                            try {
+                                this.publishTraceBatch(completed, highPriority);
+                            } finally {
+                                if (!highPriority) {
+                                    this.backgroundBatchInFlight.set(false);
                                 }
-                                finally {
-                                    if (!highPriority) {
-                                        this.backgroundBatchInFlight.set(false);
-                                    }
-                                }
-                            });
-                        }
+                            }
+                        });
                     }
                 }
             });
@@ -1634,4 +1622,3 @@ public final class NeoFloodEngine {
         public void visit(long var1, long[] var3);
     }
 }
-

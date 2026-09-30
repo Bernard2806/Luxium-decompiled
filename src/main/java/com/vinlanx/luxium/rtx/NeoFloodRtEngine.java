@@ -245,6 +245,8 @@ final class NeoFloodRtEngine {
         float nearest;
         float smooth;
         float v000;
+        float v001;
+        float v100;
         int shell = Math.max(ax, Math.max(ay, az));
         int row = shell * 37;
         int lowX = scratch.projectionLow[row + ax] & 0xFF;
@@ -299,7 +301,7 @@ final class NeoFloodRtEngine {
                 nearest = nearHighX ? v100 : v000;
             } else {
                 v100 = throughput[base + stepX];
-                float v001 = throughput[base + stepZ];
+                v001 = throughput[base + stepZ];
                 float v101 = throughput[base + stepX + stepZ];
                 minimum = Math.min(Math.min(v000, v100), Math.min(v001, v101));
                 maximum = Math.max(Math.max(v000, v100), Math.max(v001, v101));
@@ -488,4 +490,3 @@ final class NeoFloodRtEngine {
         }
     }
 }
-
