@@ -1,0 +1,166 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+}
+
+group = 'com.vinlanx.luxium'
+version = '2.8.0-pre-alpha'
+base {
+    archivesName = 'luxium'
+}
+
+repositories {
+    maven { url = 'https://maven.minecraftforge.net/' }
+    maven { url = 'https://api.modrinth.com/maven' }
+    mavenCentral()
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                luxium {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+mixin {
+    add sourceSets.main, 'luxium.mixins.refmap.json'
+    config 'luxium.mixins.json'
+}
+
+def mappedSourcesDir = layout.buildDirectory.dir('generated/sources/srgToOfficial/main')
+def srgToOfficialMappings = providers.provider {
+    def mappingFiles = fileTree("${gradle.gradleUserHomeDir}/caches/forge_gradle/minecraft_user_repo/de/oceanlabs/mcp/mcp_config") {
+        include '**/srg_to_official_1.20.1.tsrg'
+    }.files
+    if (mappingFiles.isEmpty()) {
+        throw new GradleException('ForgeGradle did not generate the Minecraft 1.20.1 SRG-to-official mappings.')
+    }
+    mappingFiles.first()
+}
+
+tasks.register('remapSrgSources') {
+    dependsOn 'createMcpToSrg'
+    inputs.dir(layout.projectDirectory.dir('src/main/java'))
+    inputs.file(srgToOfficialMappings)
+    outputs.dir(mappedSourcesDir)
+
+    doLast {
+        // The decompiler output uses Forge SRG identifiers while ForgeGradle compiles official names.
+        def memberNames = [:]
+        srgToOfficialMappings.get().eachLine('UTF-8') { line ->
+            if (!line.startsWith('\t') || line.startsWith('\t\t')) {
+                return
+            }
+            def parts = line.trim().split('\\s+')
+            if (parts.length >= 3 && parts[0] ==~ /[mf]_[0-9]+_/ && parts[1].startsWith('(')) {
+                memberNames[parts[0]] = parts[2]
+            } else if (parts.length >= 2 && parts[0] ==~ /f_[0-9]+_/ && !parts[1].startsWith('(')) {
+                memberNames[parts[0]] = parts[1]
+            }
+        }
+
+        def tokenPattern = java.util.regex.Pattern.compile('\\b([mf]_[0-9]+_)\\b')
+        def sourceRoot = file('src/main/java').toPath()
+        fileTree('src/main/java').matching { include '**/*.java' }.each { source ->
+            def relativeSourcePath = sourceRoot.relativize(source.toPath()).toString()
+            def destination = new File(mappedSourcesDir.get().asFile, relativeSourcePath)
+            destination.parentFile.mkdirs()
+            def matcher = tokenPattern.matcher(source.getText('UTF-8'))
+            def remapped = new StringBuffer()
+            while (matcher.find()) {
+                def replacement = memberNames[matcher.group(1)]
+                if (replacement == null) {
+                    matcher.appendReplacement(remapped, java.util.regex.Matcher.quoteReplacement(matcher.group(1)))
+                } else {
+                    matcher.appendReplacement(remapped, java.util.regex.Matcher.quoteReplacement(replacement))
+                }
+            }
+            matcher.appendTail(remapped)
+            def javaSource = remapped.toString()
+                    .replace('(Object)', '')
+                    .replace('(GuiEventListener)', '')
+                    .replace('ResourceLocation.fromNamespaceAndPath(', 'new ResourceLocation(')
+                    .replace('ResourceLocation.withDefaultNamespace(', 'new ResourceLocation(')
+            if (source.name == 'VanillaLavaLightEngine.java') {
+                javaSource = javaSource
+                        .replace('(LuxiumLightEngineExtension)current', '(LuxiumLightEngineExtension)(Object)current')
+                        .replace('(LuxiumBlockLightEngineExtension)created', '(LuxiumBlockLightEngineExtension)(Object)created')
+            }
+            javaSource = javaSource.replaceAll(/(?m)(case\s+)([^\n]*?)(\s*->)/) { full, prefix, labels, suffix ->
+                prefix + labels.replaceAll(/\b[A-Za-z_][A-Za-z0-9_]*\./, '') + suffix
+            }
+            def normalizedSourcePath = source.absolutePath.replace('\\', '/')
+            if (normalizedSourcePath.contains('/mixin/')) {
+                javaSource = javaSource.replaceAll(/\(([A-Z][A-Za-z0-9_$.]*)\)this/, '($1)(Object)this')
+                javaSource = javaSource.replaceAll(/\(([A-Z][A-Za-z0-9_$.]*)\)([A-Za-z_$][A-Za-z0-9_$]*Mixin)/, '($1)(Object)$2')
+                javaSource = javaSource.replaceAll(/\b(this|[A-Za-z_$][A-Za-z0-9_$]*)\s+instanceof\s+([A-Za-z_$][A-Za-z0-9_$.]*)/) { full, value, type ->
+                    '(Object)' + value + ' instanceof ' + type
+                }
+            }
+            destination.setText(javaSource, 'UTF-8')
+        }
+    }
+}
+
+sourceSets.main.java.setSrcDirs([mappedSourcesDir])
+tasks.named('compileJava') {
+    dependsOn tasks.named('remapSrgSources')
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+    implementation fg.deobf('maven.modrinth:sk9rgfiA:UTbfe5d1')
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    exclude 'luxium.mixins.refmap.json'
+}
+
+jar {
+    manifest {
+        attributes([
+            'Specification-Title'     : 'luxium',
+            'Specification-Vendor'    : 'vinlanx',
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : project.name,
+            'Implementation-Version'  : project.version,
+            'Implementation-Vendor'   : 'vinlanx',
+            'MixinConfigs'            : 'luxium.mixins.json'
+        ])
+    }
+    finalizedBy 'reobfJar'
+}
+
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir('repo')
+        }
+    }
+}
