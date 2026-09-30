@@ -44,35 +44,46 @@ mixin {
 }
 
 def mappedSourcesDir = layout.buildDirectory.dir('generated/sources/srgToOfficial/main')
-def srgToOfficialMappings = fileTree("${gradle.gradleUserHomeDir}/caches/forge_gradle/minecraft_user_repo/de/oceanlabs/mcp/mcp_config") {
-    include '**/srg_to_official_1.20.1.tsrg'
+configurations {
+    officialMappings {
+        canBeConsumed = false
+        canBeResolved = true
+        transitive = false
+    }
 }
 
 tasks.register('remapSrgSources') {
     dependsOn 'createMcpToSrg'
     inputs.dir(layout.projectDirectory.dir('src/main/java'))
-    inputs.files(srgToOfficialMappings)
+    inputs.files(configurations.officialMappings)
     outputs.dir(mappedSourcesDir)
 
     doLast {
-        def mappingFiles = srgToOfficialMappings.files
-        if (mappingFiles.isEmpty()) {
-            throw new GradleException('ForgeGradle did not generate the Minecraft 1.20.1 SRG-to-official mappings.')
-        }
-        def mappingFile = mappingFiles.first()
-
-        // The decompiler output uses Forge SRG identifiers while ForgeGradle compiles official names.
+        // ForgeGradle exposes the SRG-to-official mappings as net.minecraft:mappings_official:<mcVersion>@zip.
+        def mappingsZip = configurations.officialMappings.singleFile
         def memberNames = [:]
-        mappingFile.eachLine('UTF-8') { line ->
-            if (!line.startsWith('\t') || line.startsWith('\t\t')) {
-                return
+        def zip = new java.util.zip.ZipFile(mappingsZip)
+        try {
+            ['fields.csv', 'methods.csv'].each { entryName ->
+                def entry = zip.getEntry(entryName)
+                if (entry == null) {
+                    return
+                }
+                zip.getInputStream(entry).withReader('UTF-8') { reader ->
+                    reader.readLine()
+                    reader.eachLine { line ->
+                        if (!line) {
+                            return
+                        }
+                        def parts = line.split(',', -1)
+                        if (parts.length >= 2 && parts[0] ==~ /[mf]_[0-9]+_/) {
+                            memberNames[parts[0]] = parts[1]
+                        }
+                    }
+                }
             }
-            def parts = line.trim().split('\\s+')
-            if (parts.length >= 3 && parts[0] ==~ /[mf]_[0-9]+_/ && parts[1].startsWith('(')) {
-                memberNames[parts[0]] = parts[2]
-            } else if (parts.length >= 2 && parts[0] ==~ /f_[0-9]+_/ && !parts[1].startsWith('(')) {
-                memberNames[parts[0]] = parts[1]
-            }
+        } finally {
+            zip.close()
         }
 
         def tokenPattern = java.util.regex.Pattern.compile('\\b([mf]_[0-9]+_)\\b')
@@ -127,6 +138,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
     implementation fg.deobf('maven.modrinth:sk9rgfiA:UTbfe5d1')
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    officialMappings 'net.minecraft:mappings_official:1.20.1@zip'
 }
 
 tasks.withType(JavaCompile).configureEach {
