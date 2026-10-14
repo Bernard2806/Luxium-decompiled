@@ -1,0 +1,40 @@
+# Normalize all text files to LF in the repository and in the working tree,
+# regardless of each contributor's core.autocrlf setting.
+* text=auto eol=lf
+
+# Source and build files
+*.java       text eol=lf diff=java
+*.gradle     text eol=lf diff=java
+*.py         text eol=lf diff=python
+*.properties text eol=lf
+*.toml       text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+*.md         text eol=lf diff=markdown
+*.txt        text eol=lf
+*.MF         text eol=lf
+
+# Shaders and resource data
+*.fsh        text eol=lf
+*.vsh        text eol=lf
+*.glsl       text eol=lf
+*.json       text eol=lf
+*.mcmeta     text eol=lf
+
+# Scripts: the Gradle wrapper must stay LF to run on Linux/macOS (CI),
+# and Windows batch files need CRLF.
+gradlew      text eol=lf
+*.sh         text eol=lf
+*.bat        text eol=crlf
+*.cmd        text eol=crlf
+
+# Binary files
+*.jar        binary
+*.zip        binary
+*.class      binary
+*.png        binary
+*.jpg        binary
+*.jpeg       binary
+*.gif        binary
+*.ogg        binary
+*.nbt        binary
