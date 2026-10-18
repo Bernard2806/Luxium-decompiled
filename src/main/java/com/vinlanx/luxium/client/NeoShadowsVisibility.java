@@ -412,14 +412,14 @@ final class NeoShadowsVisibility {
         int bestFallbackEmission = 0;
         double bestFallbackScore = Double.NEGATIVE_INFINITY;
         for (index = 0; index < closestSources.length; ++index) {
-            double score;
             sourceKey = closestSources[index];
             int sourceEmission = torchState.getSourceEmission(sourceKey);
             if (sourceEmission <= 0) continue;
             double dx = (double)BlockPos.m_121983_((long)sourceKey) + 0.5 - sampleX;
             double dy = (double)BlockPos.m_122008_((long)sourceKey) + 0.5 - sampleY;
             double dz = (double)BlockPos.m_122015_((long)sourceKey) + 0.5 - sampleZ;
-            fallbackScores[index] = score = 1.0 / Math.max(0.25, dx * dx + dy * dy + dz * dz);
+            double score = 1.0 / Math.max(0.25, dx * dx + dy * dy + dz * dz);
+            fallbackScores[index] = score;
             totalFallbackScore += score;
             if (score > bestFallbackScore) {
                 bestFallbackScore = score;

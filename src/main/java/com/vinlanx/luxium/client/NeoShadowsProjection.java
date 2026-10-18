@@ -36,8 +36,8 @@ final class NeoShadowsProjection {
         NeoShadowsTypes.ProjectionPoint[] projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
         List<NeoShadowsTypes.UvPoint> points = new ArrayList<NeoShadowsTypes.UvPoint>(corners.length + BOX_EDGE_VERTEX_INDICES.length * 2);
         for (int index = 0; index < corners.length; ++index) {
-            NeoShadowsTypes.ProjectionPoint projection;
-            projectedCorners[index] = projection = plane.projectPoint(source, corners[index]);
+            NeoShadowsTypes.ProjectionPoint projection = plane.projectPoint(source, corners[index]);
+            projectedCorners[index] = projection;
             if (projection.uv != null) {
                 points.add(projection.uv);
             }
@@ -69,8 +69,8 @@ final class NeoShadowsProjection {
         NeoShadowsTypes.ProjectionPoint[] projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
         List<NeoShadowsTypes.UvPoint> points = new ArrayList<NeoShadowsTypes.UvPoint>(corners.length + BOX_EDGE_VERTEX_INDICES.length * 2);
         for (int index = 0; index < corners.length; ++index) {
-            NeoShadowsTypes.ProjectionPoint projection;
-            projectedCorners[index] = projection = plane.projectPoint(source, corners[index]);
+            NeoShadowsTypes.ProjectionPoint projection = plane.projectPoint(source, corners[index]);
+            projectedCorners[index] = projection;
             if (projection.uv != null) {
                 points.add(projection.uv);
             }

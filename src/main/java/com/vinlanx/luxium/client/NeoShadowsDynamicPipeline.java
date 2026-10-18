@@ -169,7 +169,6 @@ final class NeoShadowsDynamicPipeline {
     void addDynamicCasterShadows(NeoShadowsTypes.ReceiverPlaneGroup group, NeoShadowsTypes.GeometryBuildState state, NeoShadowsTypes.BuildScratch scratch) {
         double maxDist = Math.min(LightRtMath.getMaxDistance(group.sourceEmission), 30.0);
         for (NeoShadowsTypes.DynamicCaster caster : state.dynamicCasters) {
-            List<NeoShadowsTypes.UvPoint> projected;
             if (scratch.shadowPolygons.size() >= 12288) {
                 return;
             }
@@ -188,7 +187,8 @@ final class NeoShadowsDynamicPipeline {
                     continue;
                 }
             }
-            List<NeoShadowsTypes.UvPoint> polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected = NeoShadowsProjection.collectProjectedBoxPoints(group.plane, group.source, caster.boxCorners, scratch.projectedPointBuf), scratch);
+            List<NeoShadowsTypes.UvPoint> projected = NeoShadowsProjection.collectProjectedBoxPoints(group.plane, group.source, caster.boxCorners, scratch.projectedPointBuf);
+            List<NeoShadowsTypes.UvPoint> polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected, scratch);
             if (polygon == null) continue;
             this.engine.staticPipeline.addPlaneShadowPolygons(group, polygon, scratch);
             ++scratch.occluderHitCount;

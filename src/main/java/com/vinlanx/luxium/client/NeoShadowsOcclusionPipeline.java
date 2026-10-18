@@ -149,8 +149,8 @@ final class NeoShadowsOcclusionPipeline {
             NeoShadowsTypes.UvPoint[][] probesPerHit = new NeoShadowsTypes.UvPoint[n][];
             int i = 0;
             for (Long2ObjectMap.Entry<List<NeoShadowsTypes.UvPoint>> entry : faceScratch.probesByHit.long2ObjectEntrySet()) {
-                long key;
-                hitKeys[i] = key = entry.getLongKey();
+                long key = entry.getLongKey();
+                hitKeys[i] = key;
                 hitBoxes[i] = (NeoShadowsTypes.Box[])faceScratch.boxesByHit.get(key);
                 List<NeoShadowsTypes.UvPoint> probes = entry.getValue();
                 probesPerHit[i] = probes.toArray(new NeoShadowsTypes.UvPoint[0]);

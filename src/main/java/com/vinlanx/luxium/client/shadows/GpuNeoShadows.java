@@ -203,13 +203,13 @@ public final class GpuNeoShadows {
         float searchRadius = (float)GpuNeoShadows.getLightSearchRadius();
         float blendStart = searchRadius * 0.8f;
         for (int i = 0; i < lightCount; ++i) {
-            float gpuWeight;
             int lightBase = i * 4;
             float x = LIGHT_POS_RADIUS_BUF[lightBase];
             float y = LIGHT_POS_RADIUS_BUF[lightBase + 1];
             float z = LIGHT_POS_RADIUS_BUF[lightBase + 2];
             float cameraDistance = (float)Math.sqrt(x * x + y * y + z * z);
-            GpuNeoShadows.VISIBLE_GPU_WEIGHTS_BUF[i] = gpuWeight = 1.0f - GpuNeoShadows.smoothstep(blendStart, searchRadius, cameraDistance);
+            float gpuWeight = 1.0f - GpuNeoShadows.smoothstep(blendStart, searchRadius, cameraDistance);
+            GpuNeoShadows.VISIBLE_GPU_WEIGHTS_BUF[i] = gpuWeight;
             long sourceKey = VISIBLE_SOURCE_KEYS_BUF[i];
             GpuLocalLightResolver.resolve(mc.f_91073_, sourceKey, VISIBLE_EMISSIONS_BUF[i], LIGHT_COLOR_INTENSITY_BUF, lightBase);
             GpuLocalLightResolver.SourceGeometry geometry = GpuLocalLightResolver.resolveGeometry(mc.f_91073_, sourceKey);

@@ -526,7 +526,6 @@ extends Screen {
         int y = sidebarTop - (int)this.sidebarScroll;
         for (SidebarEntry entry : this.sidebarEntries()) {
             if (mouseY >= (double)sidebarTop && mouseY < (double)sidebarBottom && LuxiumConfigScreen.inside(mouseX, mouseY, this.panelX, y, this.sidebarWidth, tabHeight)) {
-                ConfigScreenModel.Category item;
                 if (entry.isFolder()) {
                     String id = entry.folder().id();
                     if (!this.expandedFolders.add(id)) {
@@ -534,7 +533,8 @@ extends Screen {
                     }
                     return true;
                 }
-                this.category = item = entry.category();
+                ConfigScreenModel.Category item = entry.category();
+                this.category = item;
                 this.buildControls();
                 this.previewOption = null;
                 return true;

@@ -201,9 +201,9 @@ final class NeoCpuShadowShapeBaker {
         for (int pixelY = 0; pixelY < height; ++pixelY) {
             int rowOffset = pixelY * width;
             for (int pixelX = 0; pixelX < width; ++pixelX) {
-                boolean solid;
                 int alpha = FastColor.ARGB32.m_13655_((int)sprite.getPixelRGBA(0, pixelX, pixelY));
-                opaque[rowOffset + pixelX] = solid = alpha >= 16;
+                boolean solid = alpha >= 16;
+                opaque[rowOffset + pixelX] = solid;
                 anyOpaque |= solid;
                 anyTransparent |= !solid;
                 if (solid) {

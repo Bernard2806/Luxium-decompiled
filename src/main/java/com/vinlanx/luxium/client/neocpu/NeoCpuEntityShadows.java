@@ -284,9 +284,9 @@ public final class NeoCpuEntityShadows {
     }
 
     private static boolean quadFacesSource(Vec3[] quad, Vec3 source) {
-        Vec3 edgeB;
         Vec3 edgeA = quad[1].m_82546_(quad[0]);
-        Vec3 normal = edgeA.m_82537_(edgeB = quad[3].m_82546_(quad[0]));
+        Vec3 edgeB = quad[3].m_82546_(quad[0]);
+        Vec3 normal = edgeA.m_82537_(edgeB);
         if (normal.m_82556_() <= 1.0E-8) {
             return false;
         }

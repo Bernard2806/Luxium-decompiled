@@ -514,9 +514,9 @@ final class NeoShadowsStaticPipeline {
         for (int pixelY = 0; pixelY < height; ++pixelY) {
             int rowOffset = pixelY * width;
             for (int pixelX = 0; pixelX < width; ++pixelX) {
-                boolean opaque;
                 int alpha = FastColor.ARGB32.m_13655_((int)sprite.getPixelRGBA(0, pixelX, pixelY));
-                opaquePixels[rowOffset + pixelX] = opaque = alpha >= 16;
+                boolean opaque = alpha >= 16;
+                opaquePixels[rowOffset + pixelX] = opaque;
                 anyOpaque |= opaque;
                 anyTransparent |= !opaque;
             }
@@ -655,8 +655,8 @@ final class NeoShadowsStaticPipeline {
         NeoShadowsTypes.ProjectionPoint[] projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
         List<NeoShadowsTypes.UvPoint> points = new ArrayList<NeoShadowsTypes.UvPoint>(corners.length + NeoShadowsEngine.QUAD_EDGE_VERTEX_INDICES.length * 2);
         for (int index = 0; index < corners.length; ++index) {
-            NeoShadowsTypes.ProjectionPoint projection;
-            projectedCorners[index] = projection = plane.projectPoint(source, corners[index]);
+            NeoShadowsTypes.ProjectionPoint projection = plane.projectPoint(source, corners[index]);
+            projectedCorners[index] = projection;
             if (projection.uv != null) {
                 points.add(projection.uv);
             }

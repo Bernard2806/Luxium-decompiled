@@ -103,7 +103,6 @@ public final class ExposedFaceService {
     }
 
     public boolean hasReceiverGeometryChanged(@Nullable ClientLevel level, BlockPos pos, @Nullable BlockState oldState, @Nullable BlockState newState) {
-        ReceiverShapeTemplate newTemplate;
         if (level == null || pos == null || oldState == null || newState == null) {
             return true;
         }
@@ -114,7 +113,8 @@ public final class ExposedFaceService {
             return true;
         }
         ReceiverShapeTemplate oldTemplate = this.resolveReceiverShapeTemplate(oldState, (BlockGetter)level, pos);
-        return !oldTemplate.sameGeometry(newTemplate = this.resolveReceiverShapeTemplate(newState, (BlockGetter)level, pos));
+        ReceiverShapeTemplate newTemplate = this.resolveReceiverShapeTemplate(newState, (BlockGetter)level, pos);
+        return !oldTemplate.sameGeometry(newTemplate);
     }
 
     public void clear() {
@@ -429,9 +429,7 @@ public final class ExposedFaceService {
             return Collections.emptyMap();
         }
         Map<Long, long[]> snapshot = new HashMap<Long, long[]>(blocksByChunk.size());
-        LongIterator longIterator = blocksByChunk.keySet().iterator();
-        while (longIterator.hasNext()) {
-            long chunkKey = (Long)longIterator.next();
+        for (long chunkKey : blocksByChunk.keySet()) {
             LongOpenHashSet bucket = (LongOpenHashSet)blocksByChunk.get(chunkKey);
             if (bucket != null && !bucket.isEmpty()) {
                 snapshot.put(chunkKey, bucket.toLongArray());

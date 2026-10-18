@@ -814,11 +814,10 @@ public final class GpuShadowCache {
     private void evictLeastRecentlyVisible(LongOpenHashSet protectedKeys) {
         long victimKey = 0L;
         Entry victim = null;
-        LongIterator longIterator = this.entries.keySet().iterator();
-        while (longIterator.hasNext()) {
-            Entry candidate;
-            long key = (Long)longIterator.next();
-            if (!protectedKeys.contains(key) && (candidate = (Entry)this.entries.get(key)) != null && (victim == null || candidate.lastVisibleFrame < victim.lastVisibleFrame)) {
+        for (long key : this.entries.keySet()) {
+            if (protectedKeys.contains(key)) continue;
+            Entry candidate = (Entry)this.entries.get(key);
+            if (candidate != null && (victim == null || candidate.lastVisibleFrame < victim.lastVisibleFrame)) {
                 victimKey = key;
                 victim = candidate;
             }
@@ -849,8 +848,8 @@ public final class GpuShadowCache {
         entry.emission = emission;
         entry.radius = (float)LightRtMath.getBlockShadowRadius(emission);
         for (int f = 0; f < 6; ++f) {
-            int tileIndex;
-            entry.tileIndices[f] = tileIndex = this.freeTiles[--this.freeTileCount];
+            int tileIndex = this.freeTiles[--this.freeTileCount];
+            entry.tileIndices[f] = tileIndex;
             int tileX = tileIndex % this.tileGrid;
             int tileY = tileIndex / this.tileGrid;
             entry.u0[f] = ((float)(tileX * this.tileSize) + 0.5f) / 4096.0f;
@@ -980,10 +979,10 @@ public final class GpuShadowCache {
     }
 
     private static int faceMaskForDirection(double dx, double dy, double dz) {
-        double absZ;
-        double absY;
         double absX = Math.abs(dx);
-        double maxAxis = Math.max(absX, Math.max(absY = Math.abs(dy), absZ = Math.abs(dz)));
+        double absY = Math.abs(dy);
+        double absZ = Math.abs(dz);
+        double maxAxis = Math.max(absX, Math.max(absY, absZ));
         if (maxAxis <= 1.0E-6) {
             return 63;
         }
@@ -1110,9 +1109,7 @@ public final class GpuShadowCache {
             return;
         }
         boolean changed = false;
-        LongIterator longIterator = this.pendingRenderedSections.iterator();
-        while (longIterator.hasNext()) {
-            long sectionKey = (Long)longIterator.next();
+        for (long sectionKey : this.pendingRenderedSections) {
             int originX = BlockPos.m_121983_((long)sectionKey);
             int originY = BlockPos.m_122008_((long)sectionKey);
             int originZ = BlockPos.m_122015_((long)sectionKey);
@@ -1183,12 +1180,15 @@ public final class GpuShadowCache {
     }
 
     private static int neoGpuVanillaCapturePixels(int pixelsPerBlock, int requestedSources) {
-        int grid;
-        int capacity;
         int p = Math.max(1, pixelsPerBlock);
         int capturePixels = p >= 32 ? 512 : 16 * p;
+        capturePixels = GpuShadowCache.nearestPowerOfTwo(Math.max(16, Math.min(512, capturePixels)));
         int wanted = Math.max(1, Math.min(40, requestedSources));
-        for (capturePixels = GpuShadowCache.nearestPowerOfTwo(Math.max(16, Math.min(512, capturePixels))); capturePixels > 16 && (capacity = (grid = Math.max(1, 4096 / capturePixels)) * grid / 6) < wanted; capturePixels >>= 1) {
+        while (capturePixels > 16) {
+            int grid = Math.max(1, 4096 / capturePixels);
+            int capacity = grid * grid / 6;
+            if (capacity >= wanted) break;
+            capturePixels >>= 1;
         }
         return capturePixels;
     }

@@ -156,9 +156,9 @@ public final class ExplosionWorld {
      */
     private void publishSnapshot() {
         synchronized (this.writeSnapshot) {
-            ExplosionRenderSnapshot previousRead;
             this.particles.writeSnapshot(this.writeSnapshot);
-            this.writeSnapshot = previousRead = this.publishedSnapshot.getAndSet(this.writeSnapshot);
+            ExplosionRenderSnapshot previousRead = this.publishedSnapshot.getAndSet(this.writeSnapshot);
+            this.writeSnapshot = previousRead;
         }
     }
 

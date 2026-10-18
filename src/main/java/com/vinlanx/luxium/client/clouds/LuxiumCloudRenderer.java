@@ -829,9 +829,9 @@ public final class LuxiumCloudRenderer {
             this.sourcePixels = new int[65536];
             for (int y = 0; y < 256; ++y) {
                 for (int x = 0; x < 256; ++x) {
-                    int pixel;
                     int index = y * 256 + x;
-                    this.sourcePixels[index] = pixel = image.m_84985_(x, y);
+                    int pixel = image.m_84985_(x, y);
+                    this.sourcePixels[index] = pixel;
                     this.sourceOpaque[index] = FastColor.ABGR32.m_266503_((int)pixel) >= 128;
                 }
             }

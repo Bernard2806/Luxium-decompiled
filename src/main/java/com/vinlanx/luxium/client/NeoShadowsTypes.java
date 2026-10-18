@@ -1136,7 +1136,8 @@ final class NeoShadowsTypes {
                 }
                 List<ShadowPolygon> facePolygons = buckets[faceIndex = polygon.face.ordinal()];
                 if (facePolygons == null) {
-                    buckets[faceIndex] = facePolygons = new ArrayList<ShadowPolygon>();
+                    facePolygons = new ArrayList<ShadowPolygon>();
+                    buckets[faceIndex] = facePolygons;
                 }
                 facePolygons.add(polygon);
                 mergedByBlock.put(blockKey, (Object)buckets);

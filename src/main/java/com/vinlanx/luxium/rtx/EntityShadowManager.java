@@ -67,7 +67,6 @@ public final class EntityShadowManager {
             try {
                 LongOpenHashSet newShadows = new LongOpenHashSet();
                 for (Entity entity : level.m_104735_()) {
-                    Vec3 entityCenter;
                     if (entity.m_20238_(playerPos) > radiusSq) continue;
                     AABB box = entity.m_20191_();
                     if (box == null) continue;
@@ -84,7 +83,8 @@ public final class EntityShadowManager {
                     }
                     double maxLightDist = LightRtMath.getMaxDistance(emission);
                     Vec3 sourcePos = Vec3.m_82512_((Vec3i)BlockPos.m_122022_((long)dominantSourceKey));
-                    double distToEntity = sourcePos.m_82554_(entityCenter = entity.m_20182_().m_82520_(0.0, (double)entity.m_20206_() / 2.0, 0.0));
+                    Vec3 entityCenter = entity.m_20182_().m_82520_(0.0, (double)entity.m_20206_() / 2.0, 0.0);
+                    double distToEntity = sourcePos.m_82554_(entityCenter);
                     if (distToEntity >= maxLightDist) continue;
                     double remainingDist = maxLightDist - distToEntity;
                     this.castShadowVolume(sourcePos, box, remainingDist, newShadows);
