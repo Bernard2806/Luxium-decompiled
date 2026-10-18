@@ -59,7 +59,9 @@ final class NeoCpuFloodLightVolume {
                 double dx = (double)nx + 0.5 - sourceX;
                 double dy = (double)ny + 0.5 - sourceY;
                 double dz = (double)nz + 0.5 - sourceZ;
-                if (dx * dx + dy * dy + dz * dz > radiusSq || !accessor.isInsideBuildHeight(ny) || !accessor.isLoaded(nx, nz)) continue;
+                if (dx * dx + dy * dy + dz * dz > radiusSq) continue;
+                if (!accessor.isInsideBuildHeight(ny)) continue;
+                if (!accessor.isLoaded(nx, nz)) continue;
                 NeoCpuShadowShape shape = accessor.shapeAt(neighborKey);
                 boolean passable = neighborKey == sourceKey || shape.isEmpty() || !shape.blocksFlood();
                 if (!shape.isEmpty()) {

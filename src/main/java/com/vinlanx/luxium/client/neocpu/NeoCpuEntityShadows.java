@@ -223,7 +223,8 @@ public final class NeoCpuEntityShadows {
         ArrayList<Caster> casters = new ArrayList<Caster>(Math.min(snapshot.casters.size(), 160));
         long hash = 1469598103934665603L;
         for (DynamicShadowMeshCapture.CapturedCaster captured : snapshot.casters) {
-            if (captured == null || captured.bounds == null || NeoCpuEntityShadows.isOversizedCaster(captured.bounds)) continue;
+            if (captured == null || captured.bounds == null) continue;
+            if (NeoCpuEntityShadows.isOversizedCaster(captured.bounds)) continue;
             List<Vec3[]> quads = captured.quads == null || captured.quads.isEmpty() ? Collections.emptyList() : List.copyOf(captured.quads);
             NeoCpuShadowTypes.Box box = new NeoCpuShadowTypes.Box(captured.bounds.f_82288_, captured.bounds.f_82289_, captured.bounds.f_82290_, captured.bounds.f_82291_, captured.bounds.f_82292_, captured.bounds.f_82293_, captured.id, 1.0f);
             casters.add(new Caster(captured.id, captured.bounds, box, quads));

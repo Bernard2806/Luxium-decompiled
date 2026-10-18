@@ -111,7 +111,8 @@ final class NeoShadowsOcclusionPipeline {
             double ddy = sy - source.f_82480_;
             double ddz = sz - source.f_82481_;
             double distance = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
-            if (distance > maxDist || LightRtMath.getFalloff(sourceEmission, distance) <= 0) continue;
+            if (distance > maxDist) continue;
+            if (LightRtMath.getFalloff(sourceEmission, distance) <= 0) continue;
             CachedFirstScalarHit cachedHit = firstHitCache.get(probeIndex);
             if (cachedHit == null) {
                 cachedHit = firstHitCache.findReusableHit(source.f_82479_, source.f_82480_, source.f_82481_, sx, sy, sz);

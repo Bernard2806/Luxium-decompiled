@@ -77,7 +77,8 @@ final class NeoCpuShadowShapeBaker {
                 fragments.add(initialRect);
                 for (int otherIndex = 0; otherIndex < surfaceBoxes.size() && !fragments.isEmpty(); ++otherIndex) {
                     AABB other;
-                    if (otherIndex == boxIndex || !(NeoCpuShadowShapeBaker.coversFacePlane(face, plane, other = surfaceBoxes.get(otherIndex)))) continue;
+                    if (otherIndex == boxIndex) continue;
+                    if (!(NeoCpuShadowShapeBaker.coversFacePlane(face, plane, other = surfaceBoxes.get(otherIndex)))) continue;
                     fragments = NeoCpuShadowShapeBaker.subtractSurfaceRectList(fragments, NeoCpuShadowShapeBaker.canonicalFaceRect(face, other));
                 }
                 for (SurfaceRect fragment : fragments) {

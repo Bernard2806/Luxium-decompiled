@@ -392,7 +392,8 @@ public final class NeoCpuShadowsEngine {
         VertexConsumer consumer = bufferSource.m_6299_(SHADOW_MASK_RENDER_TYPE);
         Matrix4f pose = poseStack.m_85850_().m_252922_();
         for (NeoCpuShadowTypes.ShadowPolygon polygon : polygons) {
-            if (!polygon.facesCamera(cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_) || (frustum != null && !frustum.m_113029_(polygon.bounds))) continue;
+            if (!polygon.facesCamera(cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_)) continue;
+            if ((frustum != null && !frustum.m_113029_(polygon.bounds))) continue;
             NeoCpuShadowsEngine.emitPolygon(pose, consumer, cameraPos, polygon);
         }
         bufferSource.m_109912_(SHADOW_MASK_RENDER_TYPE);

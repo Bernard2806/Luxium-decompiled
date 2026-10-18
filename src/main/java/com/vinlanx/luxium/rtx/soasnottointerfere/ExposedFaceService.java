@@ -602,7 +602,8 @@ public final class ExposedFaceService {
                 fragments.add(initialRect);
                 for (int otherIndex = 0; otherIndex < boxes.size() && !fragments.isEmpty(); ++otherIndex) {
                     AABB otherBox;
-                    if (otherIndex == boxIndex || !(ExposedFaceService.coversFacePlane(face, planeCoordinate, otherBox = (AABB)boxes.get(otherIndex)))) continue;
+                    if (otherIndex == boxIndex) continue;
+                    if (!(ExposedFaceService.coversFacePlane(face, planeCoordinate, otherBox = (AABB)boxes.get(otherIndex)))) continue;
                     fragments = ExposedFaceService.subtractSurfaceRectList(fragments, ExposedFaceService.canonicalFaceRect(face, otherBox));
                 }
                 boolean boundaryFace = ExposedFaceService.isBoundaryFace(face, planeCoordinate);

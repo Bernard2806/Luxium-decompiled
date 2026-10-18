@@ -172,7 +172,9 @@ final class NeoShadowsDynamicPipeline {
             if (scratch.shadowPolygons.size() >= 12288) {
                 return;
             }
-            if (!caster.canAffect(group.source, state.center, maxDist) || !group.mayOverlapProjectedBounds(group.source, caster) || !this.blocksAnyReceiverSample(group, caster)) continue;
+            if (!caster.canAffect(group.source, state.center, maxDist)) continue;
+            if (!group.mayOverlapProjectedBounds(group.source, caster)) continue;
+            if (!this.blocksAnyReceiverSample(group, caster)) continue;
             if (!caster.quads.isEmpty()) {
                 boolean added = false;
                 for (Vec3[] quad : caster.quads) {

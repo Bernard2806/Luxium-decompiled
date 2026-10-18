@@ -262,7 +262,8 @@ public final class Grass {
             for (int dz = -radius; dz <= radius; ++dz) {
                 for (int by = minY; by <= maxY; ++by) {
                     BlockPos p = new BlockPos(origin.m_123341_() + dx, by, origin.m_123343_() + dz);
-                    if (!(level.m_8055_(p).m_60713_(Blocks.f_50440_)) || !(level.m_8055_(p.m_7494_()).m_60795_())) continue;
+                    if (!(level.m_8055_(p).m_60713_(Blocks.f_50440_))) continue;
+                    if (!(level.m_8055_(p.m_7494_()).m_60795_())) continue;
                     ++blockCount;
                 }
             }
@@ -286,7 +287,8 @@ public final class Grass {
                 int bz = origin.m_123343_() + dz;
                 for (int by = minY; by <= maxY; ++by) {
                     BlockPos pos = new BlockPos(bx, by, bz);
-                    if (!level.m_8055_(pos).m_60713_(Blocks.f_50440_) || !level.m_8055_(pos.m_7494_()).m_60795_()) continue;
+                    if (!level.m_8055_(pos).m_60713_(Blocks.f_50440_)) continue;
+                    if (!level.m_8055_(pos.m_7494_()).m_60795_()) continue;
                     BlockPos above = pos.m_7494_();
                     blockAbovePos[blkIdx] = above.m_121878_();
                     blockPackedLight[blkIdx] = LightTexture.m_109885_((int)level.m_45517_(LightLayer.BLOCK, above), (int)level.m_45517_(LightLayer.SKY, above));

@@ -826,7 +826,8 @@ final class NeoShadowsTypes {
                     double dz = sz - sz0;
                     double distanceSq = dx * dx + dy * dy + dz * dz;
                     double distance;
-                    if (distanceSq > maxDistanceSq || LightRtMath.getFalloff(emission, distance = Math.sqrt(distanceSq)) <= 0) continue;
+                    if (distanceSq > maxDistanceSq) continue;
+                    if (LightRtMath.getFalloff(emission, distance = Math.sqrt(distanceSq)) <= 0) continue;
                     scratch[writeIndex++] = sx;
                     scratch[writeIndex++] = sy;
                     scratch[writeIndex++] = sz;
