@@ -14,6 +14,9 @@ Two measurements are reported:
 The original JAR is not part of the repository, so its methods are stored as
 hashes in .github/release/original-method-index.txt. Regenerate that file with
 --write-index <original.jar>.
+
+With --map <file.svg>, both measurements are also drawn as a treemap with one
+cell per method and per class, grouped by package.
 """
 
 import argparse
@@ -26,6 +29,8 @@ import zipfile
 from collections import Counter
 from pathlib import Path
 
+from decompilation_map import render
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CLASS_INDEX = ROOT / ".github" / "release" / "original-class-index.txt"
@@ -33,6 +38,7 @@ METHOD_INDEX = ROOT / ".github" / "release" / "original-method-index.txt"
 SOURCE_ROOT = ROOT / "src" / "main" / "java"
 FAILURE_MARKER = "This method has failed to decompile"
 LAMBDA_SUFFIX = re.compile(r"^(lambda\$.*)\$\d+$")
+PACKAGE_PREFIX = "com/vinlanx/luxium/"
 
 # Operand sizes for fixed-length opcodes; opcodes not listed take no operands.
 CP_U1 = {18}
@@ -216,10 +222,30 @@ def bytecode_match(built_jar):
             original[tuple(line.split("\t"))] += 1
     if not original:
         raise SystemExit(f"No original methods listed in {METHOD_INDEX}")
-    built = jar_methods(built_jar)
-    identical = sum((original & built).values())
-    total = sum(original.values())
-    return identical, total
+    identical = original & jar_methods(built_jar)
+    return package_groups(identical, original - identical)
+
+
+def package_label(class_entry):
+    package = class_entry.rpartition("/")[0] + "/"
+    return package.removeprefix(PACKAGE_PREFIX).rstrip("/").replace("/", ".") or "luxium"
+
+
+def package_groups(done, todo):
+    """Count Counter entries (keyed by class entry first) per package."""
+    groups = {}
+    for state, items in (("done", done), ("todo", todo)):
+        for key, count in items.items():
+            entry = key[0] if isinstance(key, tuple) else key
+            name = package_label(entry)
+            group = groups.setdefault(name, {"name": name, "label": name.rpartition(".")[2], "done": 0, "todo": 0})
+            group[state] += count
+    return sorted(groups.values(), key=lambda g: g["name"])
+
+
+def totals(groups):
+    done = sum(g["done"] for g in groups)
+    return done, done + sum(g["todo"] for g in groups)
 
 
 def find_built_jar(pattern):
@@ -233,11 +259,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--built-jar", help="glob, relative to the repository root, of the JAR built from this repository")
     parser.add_argument("--write-index", metavar="ORIGINAL_JAR", help="regenerate the original method index and exit")
+    parser.add_argument("--map", type=Path, metavar="SVG", help="write a treemap of both measurements (requires --built-jar)")
     args = parser.parse_args()
 
     if args.write_index:
         write_index(args.write_index)
         return
+    if args.map and not args.built_jar:
+        parser.error("--map requires --built-jar")
 
     original_classes = {
         line.strip()
@@ -253,8 +282,9 @@ def main() -> None:
         source_files[class_path] = path.read_text(encoding="utf-8").count(FAILURE_MARKER)
     present = original_classes & source_files.keys()
     failed_methods = sum(source_files[name] for name in present)
-    matched = sum(1 for name in present if source_files[name] == 0)
-    total = len(original_classes)
+    decompiled = Counter(name for name in present if source_files[name] == 0)
+    class_groups = package_groups(decompiled, Counter(original_classes - decompiled.keys()))
+    matched, total = totals(class_groups)
     percentage = f"{matched / total * 100:.2f}"
 
     print(f"Decompiled source coverage: {matched}/{total} ({percentage}%)")
@@ -267,7 +297,8 @@ def main() -> None:
     }
 
     if args.built_jar:
-        identical, method_total = bytecode_match(find_built_jar(args.built_jar))
+        method_groups = bytecode_match(find_built_jar(args.built_jar))
+        identical, method_total = totals(method_groups)
         bytecode_percentage = f"{identical / method_total * 100:.2f}"
         print(f"Bytecode match: {identical}/{method_total} methods identical ({bytecode_percentage}%)")
         outputs.update(
@@ -275,6 +306,12 @@ def main() -> None:
             bytecode_identical=identical,
             bytecode_total=method_total,
         )
+        if args.map:
+            args.map.write_text(
+                render("Bytecode-identical methods", method_groups, "Decompiled classes", class_groups),
+                encoding="utf-8",
+            )
+            print(f"Wrote {args.map}")
 
     output_path = os.environ.get("GITHUB_OUTPUT")
     if output_path:
