@@ -60,10 +60,9 @@ final class NeoCpuShadowShapeBaker {
     }
 
     NeoCpuShadowShape bake(BlockState state, ClientLevel level, BlockPos pos) {
-        NeoCpuShadowTypes.Box[] occluderBoxes;
         List<AABB> surfaceBoxes = NeoCpuShadowShapeBaker.collectRenderSurfaceBoxes(state, level, pos);
         NeoCpuShadowShape.LocalQuadTemplate[] modelOccluders = this.collectModelOccluders(state, level, pos);
-        NeoCpuShadowTypes.Box[] boxArray = occluderBoxes = modelOccluders.length > 0 ? EMPTY_BOXES : NeoCpuShadowShapeBaker.collectOccluderBoxes(state, level, pos);
+        NeoCpuShadowTypes.Box[] occluderBoxes = modelOccluders.length > 0 ? EMPTY_BOXES : NeoCpuShadowShapeBaker.collectOccluderBoxes(state, level, pos);
         if (surfaceBoxes.isEmpty() && occluderBoxes.length == 0 && modelOccluders.length == 0) {
             return NeoCpuShadowShape.EMPTY;
         }
@@ -78,7 +77,7 @@ final class NeoCpuShadowShapeBaker {
                 fragments.add(initialRect);
                 for (int otherIndex = 0; otherIndex < surfaceBoxes.size() && !fragments.isEmpty(); ++otherIndex) {
                     AABB other;
-                    if (otherIndex == boxIndex || !NeoCpuShadowShapeBaker.coversFacePlane(face, plane, other = surfaceBoxes.get(otherIndex))) continue;
+                    if (otherIndex == boxIndex || !(NeoCpuShadowShapeBaker.coversFacePlane(face, plane, other = surfaceBoxes.get(otherIndex)))) continue;
                     fragments = NeoCpuShadowShapeBaker.subtractSurfaceRectList(fragments, NeoCpuShadowShapeBaker.canonicalFaceRect(face, other));
                 }
                 for (SurfaceRect fragment : fragments) {
@@ -108,9 +107,10 @@ final class NeoCpuShadowShapeBaker {
             TextureAtlasSprite sprite = quad.m_173410_();
             if (sprite == null) continue;
             SpriteAlphaMask mask = this.spriteMaskCache.computeIfAbsent(sprite, this::buildSpriteMask);
-            if (mask.fullyOpaque && !(mask.averageOpacity < 0.999f)) continue;
-            needsModelOccluders = true;
-            break;
+            if (!mask.fullyOpaque || (mask.averageOpacity < 0.999f)) {
+                needsModelOccluders = true;
+                break;
+            }
         }
         if (!needsModelOccluders) {
             return EMPTY_QUADS;
@@ -134,8 +134,9 @@ final class NeoCpuShadowShapeBaker {
                 double maxPixelX = Math.min((double)rect.maxX, usedPixels.maxX);
                 double minPixelY = Math.max((double)rect.minY, usedPixels.minY);
                 double maxPixelY = Math.min((double)rect.maxY, usedPixels.maxY);
-                if (maxPixelX - minPixelX <= 1.0E-6 || maxPixelY - minPixelY <= 1.0E-6 || (vertices = NeoCpuShadowShapeBaker.buildOpaqueRectVertices(texturedQuad, sprite, minPixelX, maxPixelX, minPixelY, maxPixelY)) == null) continue;
-                result.add(new NeoCpuShadowShape.LocalQuadTemplate(vertices, mask.averageOpacity));
+                if (maxPixelX - minPixelX > 1.0E-6 && maxPixelY - minPixelY > 1.0E-6 && (vertices = NeoCpuShadowShapeBaker.buildOpaqueRectVertices(texturedQuad, sprite, minPixelX, maxPixelX, minPixelY, maxPixelY)) != null) {
+                    result.add(new NeoCpuShadowShape.LocalQuadTemplate(vertices, mask.averageOpacity));
+                }
             }
         }
         return result.isEmpty() ? EMPTY_QUADS : result.toArray(EMPTY_QUADS);
@@ -177,7 +178,7 @@ final class NeoCpuShadowShapeBaker {
     }
 
     private static List<BakedQuad> collectModelQuads(BakedModel model, BlockState state) {
-        ArrayList<BakedQuad> quads = new ArrayList<BakedQuad>();
+        List<BakedQuad> quads = new ArrayList<BakedQuad>();
         RandomSource random = RANDOM_SOURCE_TL.get();
         for (Direction face : ALL_FACES) {
             random.m_188584_(42L);
@@ -189,7 +190,6 @@ final class NeoCpuShadowShapeBaker {
     }
 
     private SpriteAlphaMask buildSpriteMask(TextureAtlasSprite sprite) {
-        float averageOpacity;
         int width = Math.max(1, sprite.m_245424_().m_246492_());
         int height = Math.max(1, sprite.m_245424_().m_245330_());
         boolean[] opaque = new boolean[width * height];
@@ -205,15 +205,16 @@ final class NeoCpuShadowShapeBaker {
                 opaque[rowOffset + pixelX] = solid = alpha >= 16;
                 anyOpaque |= solid;
                 anyTransparent |= !solid;
-                if (!solid) continue;
-                opaqueAlphaSum += (long)alpha;
-                ++opaquePixelCount;
+                if (solid) {
+                    opaqueAlphaSum += (long)alpha;
+                    ++opaquePixelCount;
+                }
             }
         }
         if (!anyOpaque) {
             return SpriteAlphaMask.transparentMask();
         }
-        float f = averageOpacity = opaquePixelCount <= 0 ? 0.0f : Mth.m_14036_((float)((float)opaqueAlphaSum / (float)((double)opaquePixelCount * 255.0)), (float)0.0f, (float)1.0f);
+        float averageOpacity = opaquePixelCount <= 0 ? 0.0f : Mth.m_14036_((float)((float)opaqueAlphaSum / (float)((double)opaquePixelCount * 255.0)), (float)0.0f, (float)1.0f);
         if (!anyTransparent) {
             return averageOpacity >= 0.999f ? SpriteAlphaMask.opaqueMask() : new SpriteAlphaMask(new SpriteRect[0], true, false, averageOpacity);
         }
@@ -234,12 +235,14 @@ final class NeoCpuShadowShapeBaker {
                     int nextRowOffset = (pixelY + rectHeight) * width;
                     for (int scanX = 0; scanX < rectWidth; ++scanX) {
                         int nextIndex2 = nextRowOffset + pixelX + scanX;
-                        if (opaque[nextIndex2] && !consumed[nextIndex2]) continue;
-                        canGrow = false;
-                        break;
+                        if (!(opaque[nextIndex2]) || !(!consumed[nextIndex2])) {
+                            canGrow = false;
+                            break;
+                        }
                     }
-                    if (!canGrow) continue;
-                    ++rectHeight;
+                    if (canGrow) {
+                        ++rectHeight;
+                    }
                 }
                 for (int fillY = 0; fillY < rectHeight; ++fillY) {
                     int fillRowOffset = (pixelY + fillY) * width;

@@ -74,8 +74,6 @@ public final class NeoCpuEntityShadows {
     }
 
     public static CaptureState updateState(@Nullable ClientLevel level, BlockPos center, float partialTick) {
-        boolean sceneChanged;
-        boolean captureElapsed;
         if (!NeoCpuEntityShadows.isActive() || level == null) {
             currentState = CaptureState.empty();
             trackedLevel = level;
@@ -90,12 +88,12 @@ public final class NeoCpuEntityShadows {
         boolean levelChanged = trackedLevel != level;
         boolean centerChanged = NeoCpuEntityShadows.shouldForceRefresh(center);
         boolean scanElapsed = nowMs - lastStateScanMs >= intervalMs;
-        boolean bl = captureElapsed = nowMs - lastCaptureMs >= intervalMs;
+        boolean captureElapsed = nowMs - lastCaptureMs >= intervalMs;
         if (!(levelChanged || centerChanged || scanElapsed || captureElapsed)) {
             return currentState;
         }
         long sceneFingerprint = lastSceneFingerprint;
-        boolean bl2 = sceneChanged = levelChanged || centerChanged;
+        boolean sceneChanged = levelChanged || centerChanged;
         if (sceneChanged || scanElapsed) {
             long nextSceneFingerprint = NeoCpuEntityShadows.scanDynamicSceneFingerprint(level, center);
             lastStateScanMs = nowMs;
@@ -201,11 +199,13 @@ public final class NeoCpuEntityShadows {
                     if (quad == null || quad.length < 4 || !NeoCpuEntityShadows.quadFacesSource(quad, source)) continue;
                     NeoCpuEntityShadows.appendProjectedOccluderShadow(builder, source, group, new NeoCpuShadowTypes.QuadOccluder(quad, caster.id(), 1.0f), polygons);
                     addedQuadShadow = true;
-                    if (polygons.size() < 8192) continue;
-                    return;
+                    if (polygons.size() >= 8192) {
+                        return;
+                    }
                 }
-                if (addedQuadShadow) continue;
-                builder.appendProjectedOccluderShadowFromStaticGroup(source, group.receivers(), caster.box(), polygons);
+                if (!addedQuadShadow) {
+                    builder.appendProjectedOccluderShadowFromStaticGroup(source, group.receivers(), caster.box(), polygons);
+                }
             }
         }
     }
@@ -239,14 +239,16 @@ public final class NeoCpuEntityShadows {
                 hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(first.f_82479_));
                 hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(first.f_82480_));
                 hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(first.f_82481_));
-                if (quad.length <= 2) continue;
-                Vec3 opposite = quad[2];
-                hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82479_));
-                hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82480_));
-                hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82481_));
+                if (quad.length > 2) {
+                    Vec3 opposite = quad[2];
+                    hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82479_));
+                    hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82480_));
+                    hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82481_));
+                }
             }
-            if (casters.size() < 160) continue;
-            break;
+            if (casters.size() >= 160) {
+                break;
+            }
         }
         return casters.isEmpty() ? CaptureState.empty() : new CaptureState(hash, List.copyOf(casters));
     }

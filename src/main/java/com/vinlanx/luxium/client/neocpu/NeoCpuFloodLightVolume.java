@@ -52,7 +52,6 @@ final class NeoCpuFloodLightVolume {
             int y = BlockPos.m_122008_((long)cellKey);
             int z = BlockPos.m_122015_((long)cellKey);
             for (Direction direction : ALL_FACES) {
-                boolean passable;
                 int nx = x + direction.m_122429_();
                 int ny = y + direction.m_122430_();
                 int nz = z + direction.m_122431_();
@@ -62,7 +61,7 @@ final class NeoCpuFloodLightVolume {
                 double dz = (double)nz + 0.5 - sourceZ;
                 if (dx * dx + dy * dy + dz * dz > radiusSq || !accessor.isInsideBuildHeight(ny) || !accessor.isLoaded(nx, nz)) continue;
                 NeoCpuShadowShape shape = accessor.shapeAt(neighborKey);
-                boolean bl = passable = neighborKey == sourceKey || shape.isEmpty() || !shape.blocksFlood();
+                boolean passable = neighborKey == sourceKey || shape.isEmpty() || !shape.blocksFlood();
                 if (!shape.isEmpty()) {
                     int blockX = BlockPos.m_121983_((long)neighborKey);
                     int blockY = BlockPos.m_122008_((long)neighborKey);
@@ -73,8 +72,9 @@ final class NeoCpuFloodLightVolume {
                         receiverFaces.add(receiver, receiver.distanceToSourceSq(sourceX, sourceY, sourceZ));
                     }
                 }
-                if (!passable || !visited.add(neighborKey)) continue;
-                queue.addLast(neighborKey);
+                if (passable && visited.add(neighborKey)) {
+                    queue.addLast(neighborKey);
+                }
             }
         }
         return new NeoCpuFloodLightVolume(visited, receiverFaces.faces());

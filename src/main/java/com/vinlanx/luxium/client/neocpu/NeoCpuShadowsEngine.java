@@ -327,7 +327,6 @@ public final class NeoCpuShadowsEngine {
     }
 
     private static void applyCompletedResult() {
-        DynamicBuildResult dynamicResult;
         BuildResult staticResult = completedResult;
         if (staticResult != null && staticResult.id > activeResultId) {
             if (staticResult.epoch != WORLD_EPOCH.get()) {
@@ -342,7 +341,8 @@ public final class NeoCpuShadowsEngine {
                 NeoCpuShadowsEngine.mergeAndApplyPolygons(activeBlockPolygons, activeEntityPolygons);
             }
         }
-        if ((dynamicResult = completedDynamicResult) != null && dynamicResult.id > activeDynamicResultId) {
+        DynamicBuildResult dynamicResult = completedDynamicResult;
+        if (dynamicResult != null && dynamicResult.id > activeDynamicResultId) {
             if (dynamicResult.epoch != WORLD_EPOCH.get()) {
                 completedDynamicResult = null;
             } else {
@@ -392,7 +392,7 @@ public final class NeoCpuShadowsEngine {
         VertexConsumer consumer = bufferSource.m_6299_(SHADOW_MASK_RENDER_TYPE);
         Matrix4f pose = poseStack.m_85850_().m_252922_();
         for (NeoCpuShadowTypes.ShadowPolygon polygon : polygons) {
-            if (!polygon.facesCamera(cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_) || frustum != null && !frustum.m_113029_(polygon.bounds)) continue;
+            if (!polygon.facesCamera(cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_) || (frustum != null && !frustum.m_113029_(polygon.bounds))) continue;
             NeoCpuShadowsEngine.emitPolygon(pose, consumer, cameraPos, polygon);
         }
         bufferSource.m_109912_(SHADOW_MASK_RENDER_TYPE);

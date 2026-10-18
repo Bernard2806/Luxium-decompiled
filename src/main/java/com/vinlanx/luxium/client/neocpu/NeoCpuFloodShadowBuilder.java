@@ -142,8 +142,9 @@ public final class NeoCpuFloodShadowBuilder {
         ArrayList<NeoCpuShadowTypes.ShadowPolygon> polygons = new ArrayList<NeoCpuShadowTypes.ShadowPolygon>(256);
         for (NeoCpuShadowTypes.PerSourceStatic perSource : staticOutput.sources()) {
             if (polygons.size() >= 8192) break;
-            if (perSource.groups().isEmpty()) continue;
-            NeoCpuEntityShadows.appendEntityShadows(this, perSource.source(), perSource.emission(), entityState, perSource.groups(), polygons);
+            if (!(perSource.groups().isEmpty())) {
+                NeoCpuEntityShadows.appendEntityShadows(this, perSource.source(), perSource.emission(), entityState, perSource.groups(), polygons);
+            }
         }
         return polygons.isEmpty() ? List.of() : List.copyOf(polygons);
     }
@@ -363,7 +364,7 @@ public final class NeoCpuFloodShadowBuilder {
             return (Long)this.dominantSourceCache.get(sampleKey);
         }
         long dominant = torchState.getDominantSource(sampleKey);
-        this.dominantSourceCache.put(Long.valueOf(sampleKey), Long.valueOf(dominant));
+        this.dominantSourceCache.put(sampleKey, Long.valueOf(dominant));
         return dominant;
     }
 
@@ -391,13 +392,15 @@ public final class NeoCpuFloodShadowBuilder {
             NeoCpuShadowTypes.Occluder[] occluders = this.occludersAt(accessor, hit.occluder().blockKey());
             if (occluders == null || occluders.length == 0) {
                 this.appendProjectedOccluderShadow(source, group, hit.occluder(), polygons);
-                if (polygons.size() < 8192) continue;
-                return;
+                if (polygons.size() >= 8192) {
+                    return;
+                }
             }
             for (NeoCpuShadowTypes.Occluder occluder : occluders) {
                 this.appendProjectedOccluderShadow(source, group, occluder, polygons);
-                if (polygons.size() < 8192) continue;
-                return;
+                if (polygons.size() >= 8192) {
+                    return;
+                }
             }
         }
     }
@@ -419,9 +422,10 @@ public final class NeoCpuFloodShadowBuilder {
         for (index = 0; index < CROSS_PROBE_LOCAL_U.length && localHits.size() < 9; ++index) {
             ProbeSample cross = this.sampleReceiverPoint(accessor, sourceKey, source, receiver, minU + (maxU - minU) * CROSS_PROBE_LOCAL_U[index], minV + (maxV - minV) * CROSS_PROBE_LOCAL_V[index], radius, localHits);
             probeStats.recordCross(cross);
-            if (NeoCpuFloodShadowBuilder.shouldContinueReceiverSampling(probeStats, false)) continue;
-            NeoCpuFloodShadowBuilder.mergeReceiverHits(hitsByBlock, localHits);
-            return;
+            if (!NeoCpuFloodShadowBuilder.shouldContinueReceiverSampling(probeStats, false)) {
+                NeoCpuFloodShadowBuilder.mergeReceiverHits(hitsByBlock, localHits);
+                return;
+            }
         }
         if (!NeoCpuFloodShadowBuilder.shouldContinueReceiverSampling(probeStats, true)) {
             NeoCpuFloodShadowBuilder.mergeReceiverHits(hitsByBlock, localHits);
@@ -441,19 +445,20 @@ public final class NeoCpuFloodShadowBuilder {
                 return;
             }
             long key = hit.occluder().blockKey();
-            if (hitsByBlock.containsKey(key)) continue;
-            hitsByBlock.put(key, (Object)hit);
+            if (!hitsByBlock.containsKey(key)) {
+                hitsByBlock.put(key, (Object)hit);
+            }
         }
     }
 
     private ProbeSample sampleReceiverPoint(NeoCpuLocalBlockAccessor accessor, long sourceKey, Vec3 source, NeoCpuShadowTypes.ReceiverSurface receiver, double u, double v, double radius, ArrayList<Hit> hits) {
-        double targetZ;
-        double dz;
-        double targetY;
-        double dy;
         double targetX = receiver.sampleX(u, v) + receiver.normalX() * 0.0015;
+        double targetY = receiver.sampleY(u, v) + receiver.normalY() * 0.0015;
+        double targetZ = receiver.sampleZ(u, v) + receiver.normalZ() * 0.0015;
         double dx = targetX - source.f_82479_;
-        double distanceSq = dx * dx + (dy = (targetY = receiver.sampleY(u, v) + receiver.normalY() * 0.0015) - source.f_82480_) * dy + (dz = (targetZ = receiver.sampleZ(u, v) + receiver.normalZ() * 0.0015) - source.f_82481_) * dz;
+        double dy = targetY - source.f_82480_;
+        double dz = targetZ - source.f_82481_;
+        double distanceSq = dx * dx + dy * dy + dz * dz;
         if (distanceSq <= 1.0E-4 || distanceSq > radius * radius) {
             return ProbeSample.NONE;
         }
@@ -467,8 +472,9 @@ public final class NeoCpuFloodShadowBuilder {
 
     private static void addUniqueHit(ArrayList<Hit> hits, Hit hit) {
         for (Hit existing : hits) {
-            if (existing.occluder() != hit.occluder()) continue;
-            return;
+            if (existing.occluder() == hit.occluder()) {
+                return;
+            }
         }
         if (hits.size() < 9) {
             hits.add(hit);
@@ -504,22 +510,22 @@ public final class NeoCpuFloodShadowBuilder {
         double traveled = 0.0;
         double bestT = distance;
         while (traveled < bestT - 1.0E-4) {
-            boolean advanceZ;
-            double next;
             NeoCpuShadowTypes.Occluder[] occluders;
             long blockKey = BlockPos.m_121882_((int)blockX, (int)blockY, (int)blockZ);
             if ((blockKey != sourceKey || receiver.blockKey() == sourceKey) && (occluders = this.occludersAt(accessor, blockKey)) != null) {
                 for (NeoCpuShadowTypes.Occluder occluder : occluders) {
                     double hitT = NeoCpuFloodShadowBuilder.intersectOccluder(occluder, sourceX, sourceY, sourceZ, dirX, dirY, dirZ, invDirX, invDirY, invDirZ, bestT);
-                    if (blockKey == receiver.blockKey() && NeoCpuFloodShadowBuilder.isReceiverSurfaceSelfHit(receiver, sourceX, sourceY, sourceZ, dirX, dirY, dirZ, hitT) || !(occluder.opacity() > 0.0f) || !(hitT > 0.035) || !(hitT < bestT - 1.0E-4)) continue;
-                    return new Hit(occluder, hitT);
+                    if ((blockKey != receiver.blockKey() || !NeoCpuFloodShadowBuilder.isReceiverSurfaceSelfHit(receiver, sourceX, sourceY, sourceZ, dirX, dirY, dirZ, hitT)) && (occluder.opacity() > 0.0f) && (hitT > 0.035) && (hitT < bestT - 1.0E-4)) {
+                        return new Hit(occluder, hitT);
+                    }
                 }
             }
-            if ((next = Math.min(bestT, Math.min(tMaxX, Math.min(tMaxY, tMaxZ)))) <= traveled + 1.0E-7) break;
+            double next = Math.min(bestT, Math.min(tMaxX, Math.min(tMaxY, tMaxZ)));
+            if (next <= traveled + 1.0E-7) break;
             traveled = next;
             boolean advanceX = tMaxX <= next + 1.0E-9;
             boolean advanceY = tMaxY <= next + 1.0E-9;
-            boolean bl = advanceZ = tMaxZ <= next + 1.0E-9;
+            boolean advanceZ = tMaxZ <= next + 1.0E-9;
             if (advanceX) {
                 blockX += stepX;
                 tMaxX += tDeltaX;
@@ -528,9 +534,10 @@ public final class NeoCpuFloodShadowBuilder {
                 blockY += stepY;
                 tMaxY += tDeltaY;
             }
-            if (!advanceZ) continue;
-            blockZ += stepZ;
-            tMaxZ += tDeltaZ;
+            if (advanceZ) {
+                blockZ += stepZ;
+                tMaxZ += tDeltaZ;
+            }
         }
         return null;
     }
@@ -698,8 +705,9 @@ public final class NeoCpuFloodShadowBuilder {
             double[] corner = this.boxCornerScratch[i];
             this.boxCornerProjScratch[i] = NeoCpuFloodShadowBuilder.projectWorldPoint(source, receiver, corner[0], corner[1], corner[2]);
             NeoCpuShadowTypes.Uv uv = this.boxCornerProjScratch[i].uv();
-            if (uv == null) continue;
-            this.projected.add(uv);
+            if (uv != null) {
+                this.projected.add(uv);
+            }
         }
         for (int[] edge : BOX_EDGE_VERTEX_INDICES) {
             this.appendExtendedEdgeUv(source, receiver, this.boxCornerScratch[edge[0]], this.boxCornerScratch[edge[1]], this.boxCornerProjScratch[edge[0]], this.boxCornerProjScratch[edge[1]]);
@@ -715,8 +723,9 @@ public final class NeoCpuFloodShadowBuilder {
             Vec3 vertex = vertices[i];
             this.quadCornerProjScratch[i] = NeoCpuFloodShadowBuilder.projectWorldPoint(source, receiver, vertex.f_82479_, vertex.f_82480_, vertex.f_82481_);
             NeoCpuShadowTypes.Uv uv = this.quadCornerProjScratch[i].uv();
-            if (uv == null) continue;
-            this.projected.add(uv);
+            if (uv != null) {
+                this.projected.add(uv);
+            }
         }
         for (i = 0; i < 4; ++i) {
             int next = i + 1 & 3;
@@ -727,9 +736,8 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private void appendExtendedEdgeUv(Vec3 source, NeoCpuShadowTypes.ReceiverSurface receiver, double[] start, double[] end, CpuProjection startProjection, CpuProjection endProjection) {
-        boolean endValid;
         boolean startValid = startProjection.uv() != null;
-        boolean bl = endValid = endProjection.uv() != null;
+        boolean endValid = endProjection.uv() != null;
         if (startValid == endValid) {
             return;
         }
@@ -807,8 +815,9 @@ public final class NeoCpuFloodShadowBuilder {
         this.sortBuf.sort(Comparator.comparingDouble(NeoCpuShadowTypes.Uv::u).thenComparingDouble(NeoCpuShadowTypes.Uv::v));
         this.uniqueBuf.clear();
         for (NeoCpuShadowTypes.Uv point : this.sortBuf) {
-            if (!this.uniqueBuf.isEmpty() && point.closeTo(this.uniqueBuf.get(this.uniqueBuf.size() - 1))) continue;
-            this.uniqueBuf.add(point);
+            if (this.uniqueBuf.isEmpty() || !(point.closeTo(this.uniqueBuf.get(this.uniqueBuf.size() - 1)))) {
+                this.uniqueBuf.add(point);
+            }
         }
         if (this.uniqueBuf.size() < 3) {
             output.addAll(this.uniqueBuf);
@@ -823,8 +832,7 @@ public final class NeoCpuFloodShadowBuilder {
         }
         this.upperBuf.clear();
         for (i = this.uniqueBuf.size() - 1; i >= 0; --i) {
-            NeoCpuShadowTypes.Uv point;
-            point = this.uniqueBuf.get(i);
+            NeoCpuShadowTypes.Uv point = this.uniqueBuf.get(i);
             while (this.upperBuf.size() >= 2 && NeoCpuFloodShadowBuilder.cross(this.upperBuf.get(this.upperBuf.size() - 2), this.upperBuf.get(this.upperBuf.size() - 1), point) <= 1.0E-6) {
                 this.upperBuf.remove(this.upperBuf.size() - 1);
             }
@@ -852,9 +860,9 @@ public final class NeoCpuFloodShadowBuilder {
         centerV /= (double)polygon.size();
         out.clear();
         for (NeoCpuShadowTypes.Uv point : polygon) {
-            double dv;
             double du = point.u() - centerU;
-            double length = Math.sqrt(du * du + (dv = point.v() - centerV) * dv);
+            double dv = point.v() - centerV;
+            double length = Math.sqrt(du * du + dv * dv);
             if (length <= 1.0E-6) {
                 out.add(point);
                 continue;
@@ -919,7 +927,7 @@ public final class NeoCpuFloodShadowBuilder {
         double delta;
         boolean curIn;
         this.clipA.clear();
-        ArrayList<NeoCpuShadowTypes.Uv> input = this.polygonBuf;
+        List<NeoCpuShadowTypes.Uv> input = this.polygonBuf;
         if (input.isEmpty()) {
             return this.clipA;
         }
@@ -1046,8 +1054,7 @@ public final class NeoCpuFloodShadowBuilder {
 
     private static boolean convexPolygonContainsPoint(List<NeoCpuShadowTypes.Uv> polygon, double u, double v) {
         double sign = 0.0;
-        int size = polygon.size();
-        for (int index = 0; index < size; ++index) {
+        for (int index = 0, size = polygon.size(); index < size; ++index) {
             NeoCpuShadowTypes.Uv current = polygon.get(index);
             NeoCpuShadowTypes.Uv next = polygon.get((index + 1) % size);
             double cross = (next.u() - current.u()) * (v - current.v()) - (next.v() - current.v()) * (u - current.u());
@@ -1056,8 +1063,9 @@ public final class NeoCpuFloodShadowBuilder {
                 sign = Math.copySign(1.0, cross);
                 continue;
             }
-            if (!(cross * sign < -1.0E-6)) continue;
-            return false;
+            if (cross * sign < -1.0E-6) {
+                return false;
+            }
         }
         return true;
     }
@@ -1117,13 +1125,13 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private static long sampleRtxPosKey(NeoCpuShadowTypes.ReceiverSurface receiver, double sampleX, double sampleY, double sampleZ) {
-        int sampleBlockZ;
-        int sampleBlockY;
         double outwardX = receiver.normalX() * 0.05;
         double outwardY = receiver.normalY() * 0.05;
         double outwardZ = receiver.normalZ() * 0.05;
         int sampleBlockX = Mth.m_14107_((double)(sampleX + outwardX));
-        long sampleKey = BlockPos.m_121882_((int)sampleBlockX, (int)(sampleBlockY = Mth.m_14107_((double)(sampleY + outwardY))), (int)(sampleBlockZ = Mth.m_14107_((double)(sampleZ + outwardZ))));
+        int sampleBlockY = Mth.m_14107_((double)(sampleY + outwardY));
+        int sampleBlockZ = Mth.m_14107_((double)(sampleZ + outwardZ));
+        long sampleKey = BlockPos.m_121882_((int)sampleBlockX, (int)sampleBlockY, (int)sampleBlockZ);
         if (sampleKey == receiver.blockKey()) {
             return BlockPos.m_121882_((int)(BlockPos.m_121983_((long)receiver.blockKey()) + (int)receiver.normalX()), (int)(BlockPos.m_122008_((long)receiver.blockKey()) + (int)receiver.normalY()), (int)(BlockPos.m_122015_((long)receiver.blockKey()) + (int)receiver.normalZ()));
         }
@@ -1169,12 +1177,11 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private static boolean isSuspiciousProbe(NeoCpuShadowTypes.ReceiverSurface receiver, double dx, double dy, double dz, double distance, Hit hit) {
-        boolean largeReceiver;
         if (distance <= 1.0E-6) {
             return false;
         }
         double alignment = Math.abs((dx * receiver.normalX() + dy * receiver.normalY() + dz * receiver.normalZ()) / distance);
-        boolean bl = largeReceiver = Math.max(receiver.width(), receiver.height()) >= 0.72;
+        boolean largeReceiver = Math.max(receiver.width(), receiver.height()) >= 0.72;
         if (hit == null) {
             return largeReceiver && alignment <= 0.26;
         }
@@ -1186,14 +1193,12 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private static boolean shouldContinueReceiverSampling(ProbeStats probeStats, boolean cornersStarted) {
-        int stableThreshold;
         ProbeSample center = probeStats.center();
         if (center == null) {
             return false;
         }
         if (center.hit() == null) {
-            int cleanThreshold;
-            int n = cleanThreshold = center.suspicious() ? 4 : 3;
+            int cleanThreshold = center.suspicious() ? 4 : 3;
             if (probeStats.hitCount() == 0 && probeStats.totalProbes() >= cleanThreshold) {
                 return false;
             }
@@ -1208,7 +1213,7 @@ public final class NeoCpuFloodShadowBuilder {
         if (!center.suspicious() && center.hit().occluder() instanceof NeoCpuShadowTypes.Box && probeStats.missCount() == 0 && probeStats.differentHitCount() == 0 && probeStats.totalProbes() >= 2) {
             return false;
         }
-        int n = stableThreshold = center.suspicious() ? 4 : 3;
+        int stableThreshold = center.suspicious() ? 4 : 3;
         if (probeStats.sameAsCenterHitCount() >= stableThreshold && probeStats.missCount() == 0 && probeStats.differentHitCount() == 0) {
             return false;
         }
@@ -1260,22 +1265,22 @@ public final class NeoCpuFloodShadowBuilder {
 
     private static double intersectTriangle(Vec3 a, Vec3 b, Vec3 c, double sourceX, double sourceY, double sourceZ, double dirX, double dirY, double dirZ, double maxDistance) {
         double edge1X = b.f_82479_ - a.f_82479_;
-        double edge2Z = c.f_82481_ - a.f_82481_;
-        double edge2Y = c.f_82480_ - a.f_82480_;
-        double pvecX = dirY * edge2Z - dirZ * edge2Y;
         double edge1Y = b.f_82480_ - a.f_82480_;
-        double edge2X = c.f_82479_ - a.f_82479_;
-        double pvecY = dirZ * edge2X - dirX * edge2Z;
         double edge1Z = b.f_82481_ - a.f_82481_;
+        double edge2X = c.f_82479_ - a.f_82479_;
+        double edge2Y = c.f_82480_ - a.f_82480_;
+        double edge2Z = c.f_82481_ - a.f_82481_;
+        double pvecX = dirY * edge2Z - dirZ * edge2Y;
+        double pvecY = dirZ * edge2X - dirX * edge2Z;
         double pvecZ = dirX * edge2Y - dirY * edge2X;
         double det = edge1X * pvecX + edge1Y * pvecY + edge1Z * pvecZ;
         if (Math.abs(det) <= 1.0E-6) {
             return Double.POSITIVE_INFINITY;
         }
+        double invDet = 1.0 / det;
         double tvecX = sourceX - a.f_82479_;
         double tvecY = sourceY - a.f_82480_;
         double tvecZ = sourceZ - a.f_82481_;
-        double invDet = 1.0 / det;
         double u = (tvecX * pvecX + tvecY * pvecY + tvecZ * pvecZ) * invDet;
         if (u < -1.0E-6 || u > 1.000001) {
             return Double.POSITIVE_INFINITY;

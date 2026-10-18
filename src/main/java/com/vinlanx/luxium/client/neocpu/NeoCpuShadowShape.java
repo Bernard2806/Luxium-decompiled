@@ -49,8 +49,9 @@ final class NeoCpuShadowShape {
 
     void appendReceiversForFace(long blockKey, int blockX, int blockY, int blockZ, Direction face, ArrayList<NeoCpuShadowTypes.ReceiverSurface> out) {
         for (ReceiverTemplate receiver : this.receivers) {
-            if (receiver.face != face) continue;
-            out.add(receiver.instantiate(blockKey, blockX, blockY, blockZ));
+            if (receiver.face == face) {
+                out.add(receiver.instantiate(blockKey, blockX, blockY, blockZ));
+            }
         }
     }
 
@@ -103,8 +104,9 @@ final class NeoCpuShadowShape {
                 if (wz < minZ) {
                     minZ = wz;
                 }
-                if (!(wz > maxZ)) continue;
-                maxZ = wz;
+                if (wz > maxZ) {
+                    maxZ = wz;
+                }
             }
             AABB bounds = new AABB(minX, minY, minZ, maxX, maxY, maxZ).m_82400_(0.002);
             return new NeoCpuShadowTypes.QuadOccluder(worldVertices, bounds, blockKey, this.opacity);
