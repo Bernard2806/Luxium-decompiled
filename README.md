@@ -18,7 +18,7 @@ This is an unofficial decompilation. If you are the original author or a rights 
 - `src/main/java/`: Java reconstructed from the JAR's `.class` files.
 - `src/main/resources/`: non-class resources extracted from the JAR, including mod metadata, mixin configuration, shaders, and assets.
 
-This is a decompilation, not the original source tree. CFR reports one class/method it could not fully decompile: `com.vinlanx.luxium.rtx.TorchRtxState.drainFrontierChecks(int)`; see `src/main/java/summary.txt`.
+This is a decompilation, not the original source tree. CFR reports one class/method it could not fully decompile: `com.vinlanx.luxium.rtx.TorchRtxState.drainFrontierChecks(int)`; see `src/main/java/summary.txt`. That method was reconstructed with Vineflower 1.10.1 and compiles to the same bytecode as the original.
 
 ## Dependencies and requirements
 
