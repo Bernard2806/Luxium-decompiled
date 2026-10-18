@@ -2008,30 +2008,88 @@ public final class TorchRtxState {
         FRONTIER_EXECUTOR.execute(() -> this.drainFrontierChecks(epoch));
     }
 
-    /*
-     * Exception decompiling
-     */
     private void drainFrontierChecks(int epoch) {
-        /*
-         * This method has failed to decompile.  When submitting a bug report, please provide this stack trace, and (if you hold appropriate legal rights) the relevant class file.
-         * 
-         * org.benf.cfr.reader.util.ConfusedCFRException: Tried to end blocks [3[TRYBLOCK]], but top level block is 25[FORLOOP]
-         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement.processEndingBlocks(Op04StructuredStatement.java:435)
-         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.Op04StructuredStatement.buildNestedBlocks(Op04StructuredStatement.java:484)
-         *     at org.benf.cfr.reader.bytecode.analysis.opgraph.Op03SimpleStatement.createInitialStructuredBlock(Op03SimpleStatement.java:736)
-         *     at org.benf.cfr.reader.bytecode.CodeAnalyser.getAnalysisInner(CodeAnalyser.java:850)
-         *     at org.benf.cfr.reader.bytecode.CodeAnalyser.getAnalysisOrWrapFail(CodeAnalyser.java:278)
-         *     at org.benf.cfr.reader.bytecode.CodeAnalyser.getAnalysis(CodeAnalyser.java:201)
-         *     at org.benf.cfr.reader.entities.attributes.AttributeCode.analyse(AttributeCode.java:94)
-         *     at org.benf.cfr.reader.entities.Method.analyse(Method.java:531)
-         *     at org.benf.cfr.reader.entities.ClassFile.analyseMid(ClassFile.java:1055)
-         *     at org.benf.cfr.reader.entities.ClassFile.analyseTop(ClassFile.java:942)
-         *     at org.benf.cfr.reader.Driver.doJarVersionTypes(Driver.java:257)
-         *     at org.benf.cfr.reader.Driver.doJar(Driver.java:139)
-         *     at org.benf.cfr.reader.CfrDriverImpl.analyse(CfrDriverImpl.java:76)
-         *     at org.benf.cfr.reader.Main.main(Main.java:54)
-         */
-        throw new IllegalStateException("Decompilation failed");
+        try {
+            while (this.enabled && this.frontierEpoch.get() == epoch) {
+                LongArrayList batch = new LongArrayList(4096);
+                synchronized (this.frontierQueueLock) {
+                    LongIterator iterator = this.pendingFrontierChecks.iterator();
+                    while (iterator.hasNext() && batch.size() < 4096) {
+                        long key = iterator.nextLong();
+                        iterator.remove();
+                        batch.add(key);
+                    }
+                }
+                if (batch.isEmpty()) {
+                    return;
+                }
+                LongOpenHashSet nextBlocks = new LongOpenHashSet((LongCollection)this.frontierBlockSnapshot);
+                LongOpenHashSet dirtyChunks = new LongOpenHashSet();
+                LongOpenHashSet changedMembership = new LongOpenHashSet();
+                for (int i = 0; i < batch.size(); ++i) {
+                    if (this.frontierEpoch.get() != epoch || !this.enabled) {
+                        return;
+                    }
+                    long key = batch.getLong(i);
+                    boolean shouldBeFrontier = this.engine.isReady() && this.engine.isFrontier(key, 72);
+                    boolean wasFrontier = nextBlocks.contains(key);
+                    if (shouldBeFrontier == wasFrontier) continue;
+                    if (shouldBeFrontier) {
+                        nextBlocks.add(key);
+                    } else {
+                        nextBlocks.remove(key);
+                    }
+                    dirtyChunks.add(ChunkPos.m_45589_((int)(BlockPos.m_121983_((long)key) >> 4), (int)(BlockPos.m_122015_((long)key) >> 4)));
+                    changedMembership.add(key);
+                }
+                if (dirtyChunks.isEmpty()) continue;
+                Map<Long, long[]> nextByChunk = new HashMap<Long, long[]>(this.frontierSnapshot.size() + dirtyChunks.size());
+                nextByChunk.putAll(this.frontierSnapshot);
+                LongIterator chunkIterator = dirtyChunks.iterator();
+                while (chunkIterator.hasNext()) {
+                    long chunkKey = chunkIterator.nextLong();
+                    int chunkX = ChunkPos.m_45592_((long)chunkKey);
+                    int chunkZ = ChunkPos.m_45602_((long)chunkKey);
+                    LongArrayList values = new LongArrayList();
+                    LongIterator blockIterator = nextBlocks.iterator();
+                    while (blockIterator.hasNext()) {
+                        long key = blockIterator.nextLong();
+                        if (BlockPos.m_121983_((long)key) >> 4 == chunkX && BlockPos.m_122015_((long)key) >> 4 == chunkZ) {
+                            values.add(key);
+                        }
+                    }
+                    if (values.isEmpty()) {
+                        nextByChunk.remove(chunkKey);
+                        continue;
+                    }
+                    nextByChunk.put(chunkKey, values.toLongArray());
+                }
+                if (this.frontierEpoch.get() != epoch || !this.enabled) {
+                    return;
+                }
+                this.frontierBlockSnapshot = nextBlocks;
+                this.frontierSnapshot = nextByChunk.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(nextByChunk);
+                if (!changedMembership.isEmpty()) {
+                    LongOpenHashSet notification = new LongOpenHashSet((LongCollection)changedMembership);
+                    Minecraft.m_91087_().execute(() -> {
+                        if (this.enabled && this.frontierEpoch.get() == epoch) {
+                            NeoShadowsEngine.get().onLightingChanged(notification, true);
+                            NeoCpuShadowsEngine.onLightDataChanged();
+                        }
+                    });
+                }
+            }
+        }
+        finally {
+            boolean hasPending;
+            this.frontierWorkerRunning.set(false);
+            synchronized (this.frontierQueueLock) {
+                hasPending = !this.pendingFrontierChecks.isEmpty();
+            }
+            if (this.enabled && hasPending) {
+                this.scheduleFrontierWorker();
+            }
+        }
     }
 
     /*
@@ -2045,13 +2103,6 @@ public final class TorchRtxState {
         }
         this.frontierBlockSnapshot = new LongOpenHashSet();
         this.frontierSnapshot = Collections.emptyMap();
-    }
-
-    private /* synthetic */ void lambda$drainFrontierChecks$17(int epoch, LongOpenHashSet notification) {
-        if (this.enabled && this.frontierEpoch.get() == epoch) {
-            NeoShadowsEngine.get().onLightingChanged(notification, true);
-            NeoCpuShadowsEngine.onLightDataChanged();
-        }
     }
 
     private static final class PendingChunkScan {
