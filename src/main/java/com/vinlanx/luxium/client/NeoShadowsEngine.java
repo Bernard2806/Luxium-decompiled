@@ -523,7 +523,6 @@ public final class NeoShadowsEngine {
         if (pool != null) {
             return pool;
         }
-        Class<NeoShadowsEngine> clazz = NeoShadowsEngine.class;
         synchronized (NeoShadowsEngine.class) {
             if (shadowWorkerPool == null) {
                 shadowWorkerPool = Executors.newFixedThreadPool(SHADOW_WORKER_COUNT, runnable -> {
@@ -533,7 +532,6 @@ public final class NeoShadowsEngine {
                     return thread;
                 });
             }
-            // ** MonitorExit[var1_1] (shouldn't be in output)
             return shadowWorkerPool;
         }
     }

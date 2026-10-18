@@ -195,9 +195,7 @@ public final class LightAtlas {
         } else if (cachedRtxSnapshotVersion != Long.MIN_VALUE) {
             Arrays.fill(rtxLightCache, (byte)0);
             cachedRtxSnapshotVersion = Long.MIN_VALUE;
-            cachedRtxAnchorZ = Integer.MIN_VALUE;
-            cachedRtxAnchorY = Integer.MIN_VALUE;
-            cachedRtxAnchorX = Integer.MIN_VALUE;
+            cachedRtxAnchorX = cachedRtxAnchorY = cachedRtxAnchorZ = Integer.MIN_VALUE;
         }
         int lit = 0;
         for (int y = 0; y < 32; ++y) {

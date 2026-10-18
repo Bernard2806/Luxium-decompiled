@@ -286,8 +286,7 @@ public final class GpuNeoShadows {
         mainPassActive = false;
         TorchRtxState.get().clearGpuDirectSources();
         frameState = GpuShadowFrameState.disabled(++frameVersion);
-        bakedHardRenderMinZ = 0.0f;
-        bakedHardRenderMinY = 0.0f;
+        bakedHardRenderMinY = bakedHardRenderMinZ = 0.0f;
         bakedHardRenderMinX = 0.0f;
         GpuNeoShadows.releaseGpuResources();
     }

@@ -179,11 +179,9 @@ public final class NeoCpuShadowsEngine {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     public static void clear() {
-        Class<NeoCpuShadowsEngine> clazz = NeoCpuShadowsEngine.class;
         synchronized (NeoCpuShadowsEngine.class) {
             trackedLevel = null;
             NeoCpuShadowsEngine.resetWorldState();
-            // ** MonitorExit[var0] (shouldn't be in output)
             return;
         }
     }
@@ -528,13 +526,11 @@ public final class NeoCpuShadowsEngine {
         if (current == level) {
             return WORLD_EPOCH.get();
         }
-        Class<NeoCpuShadowsEngine> clazz = NeoCpuShadowsEngine.class;
         synchronized (NeoCpuShadowsEngine.class) {
             if (trackedLevel != level) {
                 trackedLevel = level;
                 NeoCpuShadowsEngine.resetWorldState();
             }
-            // ** MonitorExit[var2_2] (shouldn't be in output)
             return WORLD_EPOCH.get();
         }
     }

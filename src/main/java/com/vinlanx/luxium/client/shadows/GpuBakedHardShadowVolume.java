@@ -294,8 +294,7 @@ final class GpuBakedHardShadowVolume {
         this.building = false;
         this.buildingSignature = Long.MIN_VALUE;
         this.activeSignature = Long.MIN_VALUE;
-        this.activeAnchorZ = Integer.MIN_VALUE;
-        this.activeAnchorY = Integer.MIN_VALUE;
+        this.activeAnchorY = this.activeAnchorZ = Integer.MIN_VALUE;
         this.activeAnchorX = Integer.MIN_VALUE;
     }
 
