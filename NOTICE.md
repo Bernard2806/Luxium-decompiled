@@ -19,3 +19,7 @@ The maintainer of this repository respects the original author's rights. If you 
 **berramuspegonzalez@gmail.com**
 
 Requests from the original author or rights holder will be honored promptly, including removal of release artifacts and/or the repository contents.
+
+## Third-party code
+
+`scripts/decompilation_map.py`, which draws the decompilation map attached to releases, is derived from `tools/progress.py` of [AnyPS5](https://github.com/boykopovar/AnyPS5) and is licensed under the GNU General Public License version 2 only. That license applies to that file alone; it is a build tool and is not included in the mod JAR.
