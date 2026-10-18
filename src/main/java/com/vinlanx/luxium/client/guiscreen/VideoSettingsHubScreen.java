@@ -85,9 +85,7 @@ extends Screen {
         rowHelper.m_264276_((LayoutElement)Button.m_253074_((Component)CommonComponents.f_130655_, button -> this.m_7379_()).m_252780_(200).m_253136_(), 2, rowHelper.m_264551_().m_264311_(6));
         layout.m_264036_();
         FrameLayout.m_264460_((LayoutElement)layout, (int)0, (int)(this.f_96544_ / 6), (int)this.f_96543_, (int)this.f_96544_, (float)0.5f, (float)0.0f);
-        layout.m_264134_(x$0 -> {
-            AbstractWidget cfr_ignored_0 = (AbstractWidget)this.m_142416_((GuiEventListener)x$0);
-        });
+        layout.m_264134_(this::m_142416_);
         this.youTubeButton = (YouTubeButton)this.m_142416_((GuiEventListener)new YouTubeButton(8, 8, this::openYouTube));
     }
 

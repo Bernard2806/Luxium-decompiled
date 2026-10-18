@@ -139,24 +139,25 @@ public final class NeoCpuShadowTypes {
         public double distanceToSourceSq(double sourceX, double sourceY, double sourceZ) {
             double closestX;
             double closestY;
-            double closestZ = switch (this.face) {
-                case Direction.UP, Direction.DOWN -> {
+            double closestZ;
+            switch (this.face) {
+                case UP, DOWN -> {
                     closestX = NeoCpuShadowTypes.clamp(sourceX, this.minU, this.maxU);
                     closestY = this.plane;
-                    yield NeoCpuShadowTypes.clamp(sourceZ, this.minV, this.maxV);
+                    closestZ = NeoCpuShadowTypes.clamp(sourceZ, this.minV, this.maxV);
                 }
-                case Direction.NORTH, Direction.SOUTH -> {
+                case NORTH, SOUTH -> {
                     closestX = NeoCpuShadowTypes.clamp(sourceX, this.minU, this.maxU);
                     closestY = NeoCpuShadowTypes.clamp(sourceY, this.minV, this.maxV);
-                    yield this.plane;
+                    closestZ = this.plane;
                 }
-                case Direction.WEST, Direction.EAST -> {
+                case WEST, EAST -> {
                     closestX = this.plane;
                     closestY = NeoCpuShadowTypes.clamp(sourceY, this.minV, this.maxV);
-                    yield NeoCpuShadowTypes.clamp(sourceZ, this.minU, this.maxU);
+                    closestZ = NeoCpuShadowTypes.clamp(sourceZ, this.minU, this.maxU);
                 }
                 default -> throw new IllegalStateException("Unexpected face: " + this.face);
-            };
+            }
             double dx = closestX - sourceX;
             double dy = closestY - sourceY;
             double dz = closestZ - sourceZ;
