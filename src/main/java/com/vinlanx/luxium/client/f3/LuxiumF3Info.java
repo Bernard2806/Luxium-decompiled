@@ -34,14 +34,15 @@ public final class LuxiumF3Info {
             return;
         }
         List right = event.getRight();
+        int targetIndex = 0;
         int blankLines = 0;
-        int targetIndex;
-        for (targetIndex = 0; targetIndex < right.size(); ++targetIndex) {
+        while (targetIndex < right.size()) {
             String line = (String)right.get(targetIndex);
             if (line == null || line.isEmpty()) {
                 ++blankLines;
             }
             if (blankLines == 3) break;
+            ++targetIndex;
         }
         right.addAll(targetIndex, LUXIUM_INFO);
     }

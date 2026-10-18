@@ -132,7 +132,8 @@ final class GpuNeoFloodVisibilityAtlas {
         int bestSlot = -1;
         int oldestFrame = Integer.MAX_VALUE;
         for (int slot = 0; slot < capacity; ++slot) {
-            if (!this.slotUsedThisFrame[slot] && this.slotLastUsed[slot] < oldestFrame) {
+            if (this.slotUsedThisFrame[slot]) continue;
+            if (this.slotLastUsed[slot] < oldestFrame) {
                 oldestFrame = this.slotLastUsed[slot];
                 bestSlot = slot;
             }

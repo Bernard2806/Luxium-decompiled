@@ -338,6 +338,7 @@ public final class DynamicShadowMeshCapture {
             }
             int[] vertices = bakedQuad.m_111303_();
             if (vertices.length < 32) {
+                VertexConsumer.super.putBulkData(pose, bakedQuad, brightness, red, green, blue, alpha, lightmap, overlay, readExistingColor);
                 return;
             }
             Matrix4f matrix = pose.m_252922_();
