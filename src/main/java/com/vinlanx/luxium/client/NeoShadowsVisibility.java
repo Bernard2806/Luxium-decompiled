@@ -85,7 +85,8 @@ final class NeoShadowsVisibility {
         Long2ObjectOpenHashMap<TouchedSectionData> touchedSections = this.collectTouchedReceiverSections(level, exposedFaceService, frontierPositions, centerX, centerY, centerZ, renderRadiusSq);
         if (touchedSections.isEmpty()) {
             NeoShadowsTypes.VisibleCandidateBlockSnapshot empty;
-            this.engine.visibleCandidateSnapshot = empty = NeoShadowsTypes.VisibleCandidateBlockSnapshot.empty(center, frontierSignature, frontierPositions);
+            empty = NeoShadowsTypes.VisibleCandidateBlockSnapshot.empty(center, frontierSignature, frontierPositions);
+            this.engine.visibleCandidateSnapshot = empty;
             return empty;
         }
         NearestFaceCandidateCollector candidates = new NearestFaceCandidateCollector(limit);
@@ -94,12 +95,12 @@ final class NeoShadowsVisibility {
         }
         NeoShadowsTypes.FaceCandidate[] sortedCandidates = candidates.toSortedArray();
         if (sortedCandidates.length == 0) {
-            NeoShadowsTypes.VisibleCandidateBlockSnapshot empty;
-            this.engine.visibleCandidateSnapshot = empty = NeoShadowsTypes.VisibleCandidateBlockSnapshot.empty(center, frontierSignature, frontierPositions);
+            NeoShadowsTypes.VisibleCandidateBlockSnapshot empty = NeoShadowsTypes.VisibleCandidateBlockSnapshot.empty(center, frontierSignature, frontierPositions);
+            this.engine.visibleCandidateSnapshot = empty;
             return empty;
         }
-        NeoShadowsTypes.VisibleCandidateBlockSnapshot snapshot;
-        this.engine.visibleCandidateSnapshot = snapshot = new NeoShadowsTypes.VisibleCandidateBlockSnapshot(center.m_7949_(), frontierSignature, Arrays.copyOf(frontierPositions, frontierPositions.length), sortedCandidates);
+        NeoShadowsTypes.VisibleCandidateBlockSnapshot snapshot = new NeoShadowsTypes.VisibleCandidateBlockSnapshot(center.m_7949_(), frontierSignature, Arrays.copyOf(frontierPositions, frontierPositions.length), sortedCandidates);
+        this.engine.visibleCandidateSnapshot = snapshot;
         return snapshot;
     }
 
@@ -162,8 +163,10 @@ final class NeoShadowsVisibility {
             DenseTouchedBits denseBits = touchedSection.denseBits();
             for (int dirtyIndex = 0; dirtyIndex < denseBits.dirtyWordCount; ++dirtyIndex) {
                 int wordIndex = denseBits.dirtyWordIndices[dirtyIndex];
-                for (long remainingBits = denseBits.words[wordIndex]; remainingBits != 0L; remainingBits &= remainingBits - 1L) {
+                long remainingBits = denseBits.words[wordIndex];
+                while (remainingBits != 0L) {
                     int bitIndex = Long.numberOfTrailingZeros(remainingBits);
+                    remainingBits &= remainingBits - 1L;
                     int localIndex = (wordIndex << 6) + bitIndex;
                     int localY = localIndex >>> 8;
                     int localZ = localIndex >>> 4 & 0xF;
@@ -334,10 +337,6 @@ final class NeoShadowsVisibility {
     }
 
     NeoShadowsTypes.FaceLightingInfo resolveFaceLighting(TorchRtxState torchState, NeoShadowsTypes.FaceCandidate candidate, @Nullable NeoShadowsTypes.GeometryBuildState state) {
-        long sourceKey;
-        int index;
-        double sampleZ;
-        double sampleY;
         BlockPos pos = candidate.pos;
         Direction face = candidate.face;
         NeoShadowsTypes.PlaneRect receiverBounds = candidate.localBounds;
@@ -354,11 +353,11 @@ final class NeoShadowsVisibility {
             NeoShadowsTypes.PlaneRect probeRect = probeRects[probeIndex];
             if (!NeoShadowsProjection.isProbeInsideRect(probe, receiverBounds)) continue;
             double sampleX = NeoShadowsProjection.facePointX(pos, face, candidate.planeCoordinate, (float)probe.u);
-            double sampleY2 = NeoShadowsProjection.facePointY(pos, face, candidate.planeCoordinate, (float)probe.v);
-            double sampleZ2 = NeoShadowsProjection.facePointZ(pos, face, candidate.planeCoordinate, (float)probe.u, (float)probe.v);
-            long lightSamplePosKey = this.resolveLightSamplePosKey(torchState, pos, face, sampleX, sampleY2, sampleZ2, state);
+            double sampleY = NeoShadowsProjection.facePointY(pos, face, candidate.planeCoordinate, (float)probe.v);
+            double sampleZ = NeoShadowsProjection.facePointZ(pos, face, candidate.planeCoordinate, (float)probe.u, (float)probe.v);
+            long lightSamplePosKey = this.resolveLightSamplePosKey(torchState, pos, face, sampleX, sampleY, sampleZ, state);
             if (lightSamplePosKey == Long.MIN_VALUE) continue;
-            visitor.setProbe(sampleX, sampleY2, sampleZ2, lightSamplePosKey, probeRect);
+            visitor.setProbe(sampleX, sampleY, sampleZ, lightSamplePosKey, probeRect);
             this.forEachContributorCached(torchState, lightSamplePosKey, state, visitor);
         }
         NeoShadowsTypes.SourceScore bestScore = null;
@@ -397,8 +396,10 @@ final class NeoShadowsVisibility {
         float centerU = (float)((receiverBounds.minU + receiverBounds.maxU) * 0.5);
         float centerV = (float)((receiverBounds.minV + receiverBounds.maxV) * 0.5);
         double sampleX = NeoShadowsProjection.facePointX(pos, face, candidate.planeCoordinate, centerU);
+        double sampleY = NeoShadowsProjection.facePointY(pos, face, candidate.planeCoordinate, centerV);
+        double sampleZ = NeoShadowsProjection.facePointZ(pos, face, candidate.planeCoordinate, centerU, centerV);
         double maxLightReach = Math.min(LightRtMath.getMaxDistance(15), 30.0);
-        long[] closestSources = torchState.getClosestSources(new Vec3(sampleX, sampleY = NeoShadowsProjection.facePointY(pos, face, candidate.planeCoordinate, centerV), sampleZ = NeoShadowsProjection.facePointZ(pos, face, candidate.planeCoordinate, centerU, centerV)), maxLightReach * maxLightReach, 4);
+        long[] closestSources = torchState.getClosestSources(new Vec3(sampleX, sampleY, sampleZ), maxLightReach * maxLightReach, 4);
         if (closestSources.length == 0) {
             return NeoShadowsTypes.FaceLightingInfo.empty();
         }
@@ -409,8 +410,8 @@ final class NeoShadowsVisibility {
         long bestFallbackSourceKey = Long.MIN_VALUE;
         int bestFallbackEmission = 0;
         double bestFallbackScore = Double.NEGATIVE_INFINITY;
-        for (index = 0; index < closestSources.length; ++index) {
-            sourceKey = closestSources[index];
+        for (int index = 0; index < closestSources.length; ++index) {
+            long sourceKey = closestSources[index];
             int sourceEmission = torchState.getSourceEmission(sourceKey);
             if (sourceEmission <= 0) continue;
             double dx = (double)BlockPos.m_121983_((long)sourceKey) + 0.5 - sampleX;
@@ -428,8 +429,8 @@ final class NeoShadowsVisibility {
         if (totalFallbackScore <= 0.0 || bestFallbackSourceKey == Long.MIN_VALUE) {
             return NeoShadowsTypes.FaceLightingInfo.empty();
         }
-        for (index = 0; index < closestSources.length; ++index) {
-            sourceKey = closestSources[index];
+        for (int index = 0; index < closestSources.length; ++index) {
+            long sourceKey = closestSources[index];
             double score = fallbackScores[index];
             if (score <= 0.0) continue;
             int sourceEmission = torchState.getSourceEmission(sourceKey);

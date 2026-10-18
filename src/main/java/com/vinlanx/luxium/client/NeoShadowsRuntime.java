@@ -174,7 +174,8 @@ final class NeoShadowsRuntime {
             if (request.epoch != this.engine.buildEpoch) {
                 return;
             }
-            this.engine.inFlightStaticEpoch = epoch = request.epoch;
+            epoch = request.epoch;
+            this.engine.inFlightStaticEpoch = epoch;
             this.engine.inFlightStaticPolygons = Collections.emptyList();
             Consumer<List<NeoShadowsTypes.ShadowPolygon>> publisher = polygons -> {
                 if (this.engine.buildEpoch != epoch) {
