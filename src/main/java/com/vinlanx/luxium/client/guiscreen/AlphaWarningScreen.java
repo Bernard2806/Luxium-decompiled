@@ -95,23 +95,23 @@ extends Screen {
         gfx.m_280168_().m_85836_();
         gfx.m_280168_().m_85841_(contentScale, contentScale, 1.0f);
         gfx.m_280398_(LOGO, cx - 42, textY, 0, 0.0f, 0.0f, 84, 84, 84, 84);
+        textY += 92;
         Component titleComp = Component.m_237115_((String)"screen.luxium.alpha_warning.mod_title");
         int titleW = this.f_96547_.m_92852_((FormattedText)titleComp);
         gfx.m_280168_().m_85836_();
         gfx.m_280168_().m_85841_(2.0f, 2.0f, 1.0f);
-        gfx.m_280614_(this.f_96547_, (Component)titleComp, cx / 2 - titleW / 2, (textY += 92) / 2, -462632, true);
+        gfx.m_280614_(this.f_96547_, (Component)titleComp, cx / 2 - titleW / 2, textY / 2, -462632, true);
         gfx.m_280168_().m_85849_();
-        Objects.requireNonNull(this.f_96547_);
+        textY += this.f_96547_.f_92710_ * 2 + 14;
         int dividerHalfWidth = Math.min(160, textWidth / 2);
-        gfx.m_280509_(cx - dividerHalfWidth, textY += 9 * 2 + 14, cx + dividerHalfWidth, textY + 1, 1442829419);
+        gfx.m_280509_(cx - dividerHalfWidth, textY, cx + dividerHalfWidth, textY + 1, 1442829419);
         textY += 9;
         for (Component line : AlphaWarningScreen.bodyText()) {
             List<FormattedCharSequence> wrapped = this.f_96547_.m_92923_((FormattedText)line, textWidth);
             for (FormattedCharSequence seq : wrapped) {
                 int lineW = this.f_96547_.m_92724_(seq);
                 gfx.m_280649_(this.f_96547_, seq, cx - lineW / 2, textY, -1317421, false);
-                Objects.requireNonNull(this.f_96547_);
-                textY += 9 + 2;
+                textY += this.f_96547_.f_92710_ + 2;
             }
             textY += 2;
         }
@@ -119,8 +119,7 @@ extends Screen {
         for (FormattedCharSequence seq : this.f_96547_.m_92923_((FormattedText)ytHint, textWidth)) {
             int lineW = this.f_96547_.m_92724_(seq);
             gfx.m_280649_(this.f_96547_, seq, cx - lineW / 2, textY, -6303489, false);
-            Objects.requireNonNull(this.f_96547_);
-            textY += 9 + 1;
+            textY += this.f_96547_.f_92710_ + 1;
         }
         gfx.m_280168_().m_85849_();
         super.m_88315_(gfx, mouseX, mouseY, partialTick);
@@ -156,9 +155,8 @@ extends Screen {
     private float calculateContentScale() {
         float availableHeight = Math.max(1.0f, (float)this.controlsTop - 16.0f);
         float scale = Mth.m_14036_((float)Math.min((float)this.f_96543_ / 560.0f, availableHeight / 300.0f), (float)0.4f, (float)1.0f);
-        int textWidth;
         for (int i = 0; i < 2; ++i) {
-            textWidth = Math.min(480, Math.max(120, Mth.m_14143_((float)((float)(this.f_96543_ - 16) / scale))));
+            int textWidth = Math.min(480, Math.max(120, Mth.m_14143_((float)((float)(this.f_96543_ - 16) / scale))));
             float requiredHeight = this.contentHeight(textWidth, scale);
             if (requiredHeight * scale <= availableHeight) break;
             scale = Math.max(0.4f, scale * availableHeight / (requiredHeight * scale));
@@ -167,18 +165,13 @@ extends Screen {
     }
 
     private float contentHeight(int textWidth, float scale) {
-        float f = 8.0f / scale + 84.0f + 8.0f;
-        Objects.requireNonNull(this.f_96547_);
-        float height = f + (float)(9 * 2) + 23.0f;
+        float height = 8.0f / scale + 84.0f + 8.0f + (float)(this.f_96547_.f_92710_ * 2) + 23.0f;
         for (Component line : AlphaWarningScreen.bodyText()) {
-            int n = this.f_96547_.m_92923_((FormattedText)line, textWidth).size();
-            Objects.requireNonNull(this.f_96547_);
-            height += (float)(n * (9 + 2) + 2);
+            height += (float)(this.f_96547_.m_92923_((FormattedText)line, textWidth).size() * (this.f_96547_.f_92710_ + 2) + 2);
         }
         Component hint = Component.m_237115_((String)"screen.luxium.alpha_warning.youtube_hint");
-        int n = this.f_96547_.m_92923_((FormattedText)hint, textWidth).size();
-        Objects.requireNonNull(this.f_96547_);
-        return height += (float)(n * (9 + 1));
+        height += (float)(this.f_96547_.m_92923_((FormattedText)hint, textWidth).size() * (this.f_96547_.f_92710_ + 1));
+        return height;
     }
 
     private static List<Component> bodyText() {
