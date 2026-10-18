@@ -564,11 +564,9 @@ public final class NeoCpuFloodShadowBuilder {
         }
         this.projected.clear();
         NeoCpuShadowTypes.ReceiverSurface reference = receivers.get(0).receiver();
-        if (occluder instanceof NeoCpuShadowTypes.Box) {
-            NeoCpuShadowTypes.Box box = (NeoCpuShadowTypes.Box)occluder;
+        if (occluder instanceof NeoCpuShadowTypes.Box box) {
             this.appendProjectedBoxShadow(source, reference, box);
-        } else if (occluder instanceof NeoCpuShadowTypes.QuadOccluder) {
-            NeoCpuShadowTypes.QuadOccluder quad = (NeoCpuShadowTypes.QuadOccluder)occluder;
+        } else if (occluder instanceof NeoCpuShadowTypes.QuadOccluder quad) {
             this.appendProjectedQuadShadow(source, reference, quad.vertices());
         } else {
             return;
@@ -605,11 +603,9 @@ public final class NeoCpuFloodShadowBuilder {
         }
         this.projected.clear();
         NeoCpuShadowTypes.ReceiverSurface reference = receivers.get(0).receiver();
-        if (occluder instanceof NeoCpuShadowTypes.Box) {
-            NeoCpuShadowTypes.Box box = (NeoCpuShadowTypes.Box)occluder;
+        if (occluder instanceof NeoCpuShadowTypes.Box box) {
             this.appendProjectedBoxShadow(source, reference, box);
-        } else if (occluder instanceof NeoCpuShadowTypes.QuadOccluder) {
-            NeoCpuShadowTypes.QuadOccluder quad = (NeoCpuShadowTypes.QuadOccluder)occluder;
+        } else if (occluder instanceof NeoCpuShadowTypes.QuadOccluder quad) {
             this.appendProjectedQuadShadow(source, reference, quad.vertices());
         } else {
             return;
@@ -796,11 +792,11 @@ public final class NeoCpuFloodShadowBuilder {
         if (Math.abs(denominator) <= 1.0E-9) {
             return new CpuProjection(denominator, Double.NaN, null);
         }
-        double t = (planeCoordinate - switch (receiver.face()) {
-            case UP, DOWN -> source.f_82480_;
-            case NORTH, SOUTH -> source.f_82481_;
-            case WEST, EAST -> source.f_82479_;
-        }) / denominator;
+        double t = switch (receiver.face()) {
+            case UP, DOWN -> (planeCoordinate - source.f_82480_) / denominator;
+            case NORTH, SOUTH -> (planeCoordinate - source.f_82481_) / denominator;
+            case WEST, EAST -> (planeCoordinate - source.f_82479_) / denominator;
+        };
         if (t <= 0.0) {
             return new CpuProjection(denominator, t, null);
         }
