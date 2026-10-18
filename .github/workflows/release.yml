@@ -29,7 +29,13 @@ jobs:
 
       - name: Calcular cobertura de clases decompiladas
         id: decompilation-match
-        run: python3 scripts/calculate_decompilation_match.py --built-jar 'build/libs/luxium-*.jar'
+        run: python3 scripts/calculate_decompilation_match.py --built-jar 'build/libs/luxium-*.jar' --map build/decompilation-map.svg
+
+      - name: Generar imagen del mapa de decompilación
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q librsvg2-bin
+          rsvg-convert --zoom 2 --output build/decompilation-map.png build/decompilation-map.svg
 
       - name: Crear GitHub Release y adjuntar JAR
         uses: softprops/action-gh-release@v2
@@ -38,6 +44,10 @@ jobs:
           generate_release_notes: false
           body: |
             ## Decompiled source coverage
+
+            ![Decompilation map](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/decompilation-map.png)
+
+            *Each cell is one method (left) or one class (right), grouped by package. Green cells match the original JAR; grey cells do not.*
 
             **${{ steps.decompilation-match.outputs.percentage }}%** — ${{ steps.decompilation-match.outputs.matched }} of ${{ steps.decompilation-match.outputs.total }} top-level classes from the original mod JAR have corresponding Java source files in this decompilation with no methods left undecompiled (${{ steps.decompilation-match.outputs.failed_methods }} methods failed to decompile).
 
@@ -61,4 +71,7 @@ jobs:
 
             This is an unofficial decompilation and is not affiliated with the original author. If you are the rights holder and want this release removed, contact **berramuspegonzalez@gmail.com** and it will be honored promptly.
           prerelease: ${{ contains(github.ref_name, '-') }}
-          files: build/libs/luxium-*.jar
+          files: |
+            build/libs/luxium-*.jar
+            build/decompilation-map.png
+            build/decompilation-map.svg
