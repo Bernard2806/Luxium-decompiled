@@ -263,16 +263,20 @@ final class NeoShadowsVisibility {
             return;
         }
         for (int wordIndex = 0; wordIndex < snapshot.wordCount(); ++wordIndex) {
-            for (long remainingBits = snapshot.word(wordIndex); remainingBits != 0L; remainingBits &= remainingBits - 1L) {
-                int worldX;
-                int localZ;
-                int worldZ;
+            long remainingBits = snapshot.word(wordIndex);
+            while (remainingBits != 0L) {
                 int bitIndex = Long.numberOfTrailingZeros(remainingBits);
+                remainingBits &= remainingBits - 1L;
                 int localIndex = (wordIndex << 6) + bitIndex;
                 int localY = localIndex >>> 8;
                 int worldY = sectionBaseY + localY;
-                int localX;
-                if (worldY < sectionMinY || worldY > sectionMaxY || ((worldZ = sectionBaseZ + (localZ = localIndex >>> 4 & 0xF)) < sectionMinZ) || worldZ > sectionMaxZ || (worldX = sectionBaseX + (localX = localIndex & 0xF)) < sectionMinX || worldX > sectionMaxX) continue;
+                if (worldY < sectionMinY || worldY > sectionMaxY) continue;
+                int localZ = localIndex >>> 4 & 0xF;
+                int worldZ = sectionBaseZ + localZ;
+                if (worldZ < sectionMinZ || worldZ > sectionMaxZ) continue;
+                int localX = localIndex & 0xF;
+                int worldX = sectionBaseX + localX;
+                if (worldX < sectionMinX || worldX > sectionMaxX) continue;
                 this.appendReceiverSurfaceCandidates(candidates, exposedFaceService, level, BlockPos.m_121882_((int)worldX, (int)worldY, (int)worldZ), center);
             }
         }
@@ -631,8 +635,11 @@ final class NeoShadowsVisibility {
         }
 
         private void siftDown(int index) {
-            int leftIndex;
-            while ((leftIndex = (index << 1) + 1) < this.size) {
+            while (true) {
+                int leftIndex = (index << 1) + 1;
+                if (leftIndex >= this.size) {
+                    return;
+                }
                 int rightIndex = leftIndex + 1;
                 int largestIndex = leftIndex;
                 if (rightIndex < this.size && this.heap[rightIndex].distanceSq > this.heap[leftIndex].distanceSq) {
@@ -646,7 +653,6 @@ final class NeoShadowsVisibility {
                 this.heap[largestIndex] = temp;
                 index = largestIndex;
             }
-            return;
         }
     }
 
