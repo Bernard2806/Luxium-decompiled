@@ -30,7 +30,7 @@ This is a decompilation, not the original source tree. CFR reports one class/met
 
 ## Build
 
-- Java 17 JDK
+- Java 17 JDK. Use 17.0.13 or older to reproduce the original bytecode: javac 17.0.14 changed how string concatenation is compiled (JDK-8273914).
 - Gradle wrapper is included; it downloads Gradle 8.1.1 on first use.
 
 Run `./gradlew build` to compile and package the mod. The build remaps the decompiled SRG member names to Minecraft's official mappings and targets Minecraft 1.20.1, Forge 47.4.10, and Embeddium 0.3.31.
