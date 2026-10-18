@@ -229,16 +229,14 @@ extends Screen {
         this.hoveredCategory = null;
         graphics.m_280588_(this.panelX, top, this.panelX + this.sidebarWidth, bottom);
         for (SidebarEntry entry : this.sidebarEntries()) {
-            float hover;
-            boolean hovered;
             if (entry.isFolder()) {
                 ConfigScreenModel.Folder folder = entry.folder();
                 boolean expanded = this.expandedFolders.contains(folder.id());
-                boolean bl = hovered = mouseY >= top && mouseY < bottom && LuxiumConfigScreen.inside(mouseX, mouseY, this.panelX, y, this.sidebarWidth, tabHeight);
+                boolean hovered = mouseY >= top && mouseY < bottom && LuxiumConfigScreen.inside(mouseX, mouseY, this.panelX, y, this.sidebarWidth, tabHeight);
                 if (hovered) {
                     this.hoveredFolder = folder;
                 }
-                hover = this.tabHover.getOrDefault(folder.id(), Float.valueOf(0.0f)).floatValue();
+                float hover = this.tabHover.getOrDefault(folder.id(), Float.valueOf(0.0f)).floatValue();
                 hover += ((hovered ? 1.0f : 0.0f) - hover) * 0.22f;
                 this.tabHover.put(folder.id(), Float.valueOf(hover));
                 if (hover > 0.01f) {
@@ -251,11 +249,11 @@ extends Screen {
             }
             ConfigScreenModel.Category item = entry.category();
             boolean active = item == this.category;
-            boolean bl = hovered = mouseY >= top && mouseY < bottom && LuxiumConfigScreen.inside(mouseX, mouseY, this.panelX, y, this.sidebarWidth, tabHeight);
+            boolean hovered = mouseY >= top && mouseY < bottom && LuxiumConfigScreen.inside(mouseX, mouseY, this.panelX, y, this.sidebarWidth, tabHeight);
             if (hovered && !item.description().getString().isEmpty()) {
                 this.hoveredCategory = item;
             }
-            hover = this.tabHover.getOrDefault(item.id(), Float.valueOf(0.0f)).floatValue();
+            float hover = this.tabHover.getOrDefault(item.id(), Float.valueOf(0.0f)).floatValue();
             hover += ((hovered ? 1.0f : 0.0f) - hover) * 0.22f;
             this.tabHover.put(item.id(), Float.valueOf(hover));
             if (active || hover > 0.01f) {
@@ -322,8 +320,8 @@ extends Screen {
                     continue;
                 }
             }
-            boolean visible;
-            control.widget.f_93624_ = visible = y + 32 > top && y < bottom;
+            boolean visible = y + 32 > top && y < bottom;
+            control.widget.f_93624_ = visible;
             if (!visible) continue;
             ConfigOption<?> option = control.row.option();
             control.widget.f_93623_ = option.isEnabled();
@@ -339,17 +337,15 @@ extends Screen {
             int labelWidth = Math.max(20, control.widget.m_252754_() - labelX - 6);
             graphics.m_280614_(this.f_96547_, this.fittedUpper(option.label(), labelWidth), labelX, y + 12, option.isEnabled() ? -461080 : -6249040, true);
             control.widget.m_88315_(graphics, mouseX, mouseY, partialTick);
-            if (option.type() != ConfigOption.Type.COLOR) continue;
-            AbstractWidget abstractWidget = control.widget;
-            if (!(abstractWidget instanceof EditBox)) continue;
-            EditBox box = (EditBox)abstractWidget;
-            try {
-                String hex = box.m_94155_().replace("#", "");
-                int color = hex.length() == 6 ? Integer.parseInt(hex, 16) : 0;
-                graphics.m_280509_(box.m_252754_() - 28, y + 7, box.m_252754_() - 6, y + 25, 0xFF000000 | color);
-                LuxiumConfigScreen.drawBorder(graphics, box.m_252754_() - 28, y + 7, 22, 18, 0x33FFFFFF);
+            if (option.type() == ConfigOption.Type.COLOR && control.widget instanceof EditBox box) {
+                try {
+                    String hex = box.m_94155_().replace("#", "");
+                    int color = hex.length() == 6 ? Integer.parseInt(hex, 16) : 0;
+                    graphics.m_280509_(box.m_252754_() - 28, y + 7, box.m_252754_() - 6, y + 25, 0xFF000000 | color);
+                    LuxiumConfigScreen.drawBorder(graphics, box.m_252754_() - 28, y + 7, 22, 18, 0x33FFFFFF);
+                }
+                catch (NumberFormatException numberFormatException) {}
             }
-            catch (NumberFormatException numberFormatException) {}
         }
         graphics.m_280618_();
         if (this.hoveredOption != null && this.hoveredOption != this.previewOption) {
