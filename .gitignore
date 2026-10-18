@@ -9,3 +9,7 @@ bin/
 .project
 .settings/
 Luxium Let there be light-2.8.0-pre-alpha.jar
+
+# Python bytecode from the scripts/ tools
+__pycache__/
+*.pyc
