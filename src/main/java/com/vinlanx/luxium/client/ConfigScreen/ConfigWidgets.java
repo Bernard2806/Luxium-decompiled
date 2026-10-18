@@ -182,7 +182,12 @@ final class ConfigWidgets {
         protected void m_5695_() {
             double normalized = this.configNormalized(this.f_93577_);
             double raw = this.option.min() + normalized * (this.option.max() - this.option.min());
-            double snapped = "neo_gpu_vanilla_capture_resolution".equals(this.option.id()) ? (double)(1 << Mth.m_14045_((int)((int)Math.round(normalized * 9.0)), (int)0, (int)9)) : this.option.min() + (double)Math.round((raw - this.option.min()) / this.option.step()) * this.option.step();
+            double snapped;
+            if ("neo_gpu_vanilla_capture_resolution".equals(this.option.id())) {
+                snapped = 1 << Mth.m_14045_((int)((int)Math.round(normalized * 9.0)), (int)0, (int)9);
+            } else {
+                snapped = this.option.min() + (double)Math.round((raw - this.option.min()) / this.option.step()) * this.option.step();
+            }
             if (this.integral) {
                 int integerValue = (int)Math.round(snapped);
                 if ("sky_entity_shadow_update_fps".equals(this.option.id()) && integerValue == 61) {

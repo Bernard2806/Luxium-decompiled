@@ -229,8 +229,7 @@ public final class KawaseBloomRenderer {
         atlasTilesPerRow = 0;
         uploadedRadius = -1;
         uploadedVersion = Long.MIN_VALUE;
-        anchorY = anchorZ = Integer.MIN_VALUE;
-        anchorX = Integer.MIN_VALUE;
+        anchorX = anchorY = anchorZ = Integer.MIN_VALUE;
     }
 
     private static void ensureTargets(int width, int height, int levels) {

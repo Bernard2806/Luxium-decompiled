@@ -147,7 +147,11 @@ public final class skyvolumetrigodrays {
         if (lastSkylightSampleGameTime == Long.MIN_VALUE || gameTime < lastSkylightSampleGameTime || gameTime - lastSkylightSampleGameTime >= 2L) {
             int skyLight = skyvolumetrigodrays.sampleCameraSkylight();
             int fullAdaptationSkylight = Mth.m_14045_((int)((Integer)Config.CLIENT.skyVolumetricGodRaysFullAdaptationSkylight.get()), (int)0, (int)15);
-            adaptationTarget = fullAdaptationSkylight >= 15 ? 1.0f : Mth.m_14036_((float)((15.0f - (float)skyLight) / (15.0f - (float)fullAdaptationSkylight)), (float)0.0f, (float)1.0f);
+            if (fullAdaptationSkylight >= 15) {
+                adaptationTarget = 1.0f;
+            } else {
+                adaptationTarget = Mth.m_14036_((float)((15.0f - (float)skyLight) / (15.0f - (float)fullAdaptationSkylight)), (float)0.0f, (float)1.0f);
+            }
             lastSkylightSampleGameTime = gameTime;
         }
         if (lastAdaptationUpdateNs == 0L) {

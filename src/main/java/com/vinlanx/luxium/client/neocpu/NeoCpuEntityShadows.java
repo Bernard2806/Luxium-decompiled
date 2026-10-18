@@ -281,7 +281,8 @@ public final class NeoCpuEntityShadows {
 
     private static long mixFingerprint(long hash, long value) {
         hash ^= value;
-        return hash *= 1099511628211L;
+        hash *= 1099511628211L;
+        return hash;
     }
 
     private static boolean quadFacesSource(Vec3[] quad, Vec3 source) {

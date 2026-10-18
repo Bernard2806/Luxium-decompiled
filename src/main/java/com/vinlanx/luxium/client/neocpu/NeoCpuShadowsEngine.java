@@ -182,7 +182,6 @@ public final class NeoCpuShadowsEngine {
         synchronized (NeoCpuShadowsEngine.class) {
             trackedLevel = null;
             NeoCpuShadowsEngine.resetWorldState();
-            return;
         }
     }
 
