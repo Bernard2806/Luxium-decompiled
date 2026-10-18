@@ -442,14 +442,6 @@ final class NeoShadowsVisibility {
         return new NeoShadowsTypes.FaceLightingInfo(fakeSampleKey, bestFallbackSourceKey, bestFallbackEmission, fallbackContribs);
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     * Enabled aggressive block sorting
-     * Enabled unnecessary exception pruning
-     * Enabled aggressive exception aggregation
-     * Converted monitor instructions to comments
-     * Lifted jumps to return sites
-     */
     long resolveLightSamplePosKey(TorchRtxState torchState, BlockPos pos, Direction face, double sampleX, double sampleY, double sampleZ, @Nullable NeoShadowsTypes.GeometryBuildState state) {
         long basePosKey = NeoShadowsProjection.sampleRtxPosKey(pos, face, sampleX, sampleY, sampleZ);
         Long2LongOpenHashMap cache = null;
@@ -457,20 +449,19 @@ final class NeoShadowsVisibility {
             int ord = face.ordinal();
             cache = state.litSampleCache[ord];
             if (cache == null) {
-                Long2LongOpenHashMap[] long2LongOpenHashMapArray = state.litSampleCache;
-                // MONITORENTER : state.litSampleCache
-                cache = state.litSampleCache[ord];
-                if (cache == null) {
-                    cache = new Long2LongOpenHashMap();
-                    cache.defaultReturnValue(Long.MAX_VALUE);
-                    state.litSampleCache[ord] = cache;
+                synchronized (state.litSampleCache) {
+                    cache = state.litSampleCache[ord];
+                    if (cache == null) {
+                        cache = new Long2LongOpenHashMap();
+                        cache.defaultReturnValue(Long.MAX_VALUE);
+                        state.litSampleCache[ord] = cache;
+                    }
                 }
-                // MONITOREXIT : long2LongOpenHashMapArray
             }
-            Long2LongOpenHashMap long2LongOpenHashMap = cache;
-            // MONITORENTER : long2LongOpenHashMap
-            long cached = cache.get(basePosKey);
-            // MONITOREXIT : long2LongOpenHashMap
+            long cached;
+            synchronized (cache) {
+                cached = cache.get(basePosKey);
+            }
             if (cached != Long.MAX_VALUE) {
                 return cached;
             }
@@ -485,13 +476,13 @@ final class NeoShadowsVisibility {
         int vz = axisV.m_122431_();
         int searchRadius = NeoShadowsProjection.isHorizontalReceiverFace(face) ? 2 : 1;
         long result = torchState.findNearestLitSample(basePosKey, ux, uy, uz, vx, vy, vz, searchRadius, sampleX, sampleY, sampleZ);
-        if (cache == null) return result;
-        Long2LongOpenHashMap long2LongOpenHashMap = cache;
-        // MONITORENTER : long2LongOpenHashMap
-        if (cache.get(basePosKey) == Long.MAX_VALUE) {
-            cache.put(basePosKey, result);
+        if (cache != null) {
+            synchronized (cache) {
+                if (cache.get(basePosKey) == Long.MAX_VALUE) {
+                    cache.put(basePosKey, result);
+                }
+            }
         }
-        // MONITOREXIT : long2LongOpenHashMap
         return result;
     }
 
