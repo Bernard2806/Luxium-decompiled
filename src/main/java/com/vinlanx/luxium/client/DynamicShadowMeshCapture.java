@@ -119,8 +119,9 @@ public final class DynamicShadowMeshCapture {
                     if (box == null) {
                         box = new AABB(blockEntity.m_58899_());
                     }
-                    CapturedCaster captured;
-                    if (DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) <= radiusSq && (captured = DynamicShadowMeshCapture.captureBlockEntity(renderer, blockEntity, nextId++, partialTick, box.m_82400_(0.02))) != null) {
+                    if (DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) > radiusSq) continue;
+                    CapturedCaster captured = DynamicShadowMeshCapture.captureBlockEntity(renderer, blockEntity, nextId++, partialTick, box.m_82400_(0.02));
+                    if (captured != null) {
                         casters.add(captured);
                     }
                 }

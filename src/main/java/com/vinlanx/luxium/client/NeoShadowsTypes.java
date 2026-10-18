@@ -244,22 +244,28 @@ final class NeoShadowsTypes {
             double dirZ = endZ - startZ;
             double tMin = 0.0;
             double tMax = 1.0;
-            if (Double.isNaN(tMin = Box.clipAxis(startX, dirX, oMinX, oMaxX, tMin, true))) {
+            tMin = Box.clipAxis(startX, dirX, oMinX, oMaxX, tMin, true);
+            if (Double.isNaN(tMin)) {
                 return false;
             }
-            if (Double.isNaN(tMax = Box.clipAxis(startX, dirX, oMinX, oMaxX, tMax, false)) || tMax < tMin) {
+            tMax = Box.clipAxis(startX, dirX, oMinX, oMaxX, tMax, false);
+            if (Double.isNaN(tMax) || tMax < tMin) {
                 return false;
             }
-            if (Double.isNaN(tMin = Box.clipAxis(startY, dirY, oMinY, oMaxY, tMin, true))) {
+            tMin = Box.clipAxis(startY, dirY, oMinY, oMaxY, tMin, true);
+            if (Double.isNaN(tMin)) {
                 return false;
             }
-            if (Double.isNaN(tMax = Box.clipAxis(startY, dirY, oMinY, oMaxY, tMax, false)) || tMax < tMin) {
+            tMax = Box.clipAxis(startY, dirY, oMinY, oMaxY, tMax, false);
+            if (Double.isNaN(tMax) || tMax < tMin) {
                 return false;
             }
-            if (Double.isNaN(tMin = Box.clipAxis(startZ, dirZ, oMinZ, oMaxZ, tMin, true))) {
+            tMin = Box.clipAxis(startZ, dirZ, oMinZ, oMaxZ, tMin, true);
+            if (Double.isNaN(tMin)) {
                 return false;
             }
-            return !Double.isNaN(tMax = Box.clipAxis(startZ, dirZ, oMinZ, oMaxZ, tMax, false)) && tMax >= tMin;
+            tMax = Box.clipAxis(startZ, dirZ, oMinZ, oMaxZ, tMax, false);
+            return !Double.isNaN(tMax) && tMax >= tMin;
         }
 
         private static double clipAxis(double start, double dir, double min, double max, double current, boolean minBound) {

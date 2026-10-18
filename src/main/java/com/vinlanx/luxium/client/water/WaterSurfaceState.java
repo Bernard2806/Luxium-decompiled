@@ -171,7 +171,12 @@ public final class WaterSurfaceState {
         Vector3f moonColor = new Vector3f(0.48f, 0.58f, 0.82f);
         Vector3f sunColor = new Vector3f(1.0f, 0.94f - 0.26f * sunLow, 0.86f - 0.43f * sunLow);
         Vector3f color = WaterSurfaceState.mix(moonColor, sunColor, sunColorBlend);
-        float strength = path.usingMoon() ? 0.24f * weather * horizonVisibility : weather * (0.48f + 0.52f * elevation) * horizonVisibility;
+        float strength;
+        if (path.usingMoon()) {
+            strength = 0.24f * weather * horizonVisibility;
+        } else {
+            strength = weather * (0.48f + 0.52f * elevation) * horizonVisibility;
+        }
         return new Light(new Vector3f((float)direction.f_82479_, (float)direction.f_82480_, (float)direction.f_82481_).normalize(), color, strength);
     }
 

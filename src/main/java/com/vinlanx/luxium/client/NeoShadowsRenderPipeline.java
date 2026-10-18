@@ -188,7 +188,8 @@ final class NeoShadowsRenderPipeline {
         boolean hasHotPatch = !hotPatch.isEmpty();
         if (this.engine.activeStaticOutput != null) {
             for (NeoShadowsTypes.ShadowPolygon polygon : this.engine.activeStaticOutput.shadowPolygons) {
-                if ((!hasHotPatch || !hotPatch.replaces(polygon)) && !this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
+                if (hasHotPatch && hotPatch.replaces(polygon)) continue;
+                if (!this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
                     this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
                 }
             }
