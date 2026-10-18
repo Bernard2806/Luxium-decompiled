@@ -116,7 +116,9 @@ final class NeoShadowsProjection {
         double directionLengthSq = directionU * directionU + directionV * directionV;
         if (directionLengthSq <= 1.0E-6) {
             Vec3 edgeDirection = end.m_82546_(start);
-            directionLengthSq = (directionU = edgeDirection.m_82526_(plane.axisU)) * directionU + (directionV = edgeDirection.m_82526_(plane.axisV)) * directionV;
+            directionU = edgeDirection.m_82526_(plane.axisU);
+            directionV = edgeDirection.m_82526_(plane.axisV);
+            directionLengthSq = directionU * directionU + directionV * directionV;
             if (directionLengthSq <= 1.0E-6) {
                 return;
             }
@@ -240,7 +242,7 @@ final class NeoShadowsProjection {
                 }
             }
         }
-        return offsets.toArray(new int[offsets.size()][]);
+        return offsets.toArray(new int[0][]);
     }
 
     static List<NeoShadowsTypes.UvPoint> buildConvexHull(List<NeoShadowsTypes.UvPoint> points) {
@@ -268,17 +270,17 @@ final class NeoShadowsProjection {
             }
             lower.add(point);
         }
-        ArrayList<NeoShadowsTypes.UvPoint> arrayList = new ArrayList<NeoShadowsTypes.UvPoint>();
+        List<NeoShadowsTypes.UvPoint> upper = new ArrayList<NeoShadowsTypes.UvPoint>();
         for (int index = unique.size() - 1; index >= 0; --index) {
             NeoShadowsTypes.UvPoint point = (NeoShadowsTypes.UvPoint)unique.get(index);
-            while (arrayList.size() >= 2 && NeoShadowsProjection.cross((NeoShadowsTypes.UvPoint)arrayList.get(arrayList.size() - 2), (NeoShadowsTypes.UvPoint)arrayList.get(arrayList.size() - 1), point) <= 1.0E-6) {
-                arrayList.remove(arrayList.size() - 1);
+            while (upper.size() >= 2 && NeoShadowsProjection.cross((NeoShadowsTypes.UvPoint)upper.get(upper.size() - 2), (NeoShadowsTypes.UvPoint)upper.get(upper.size() - 1), point) <= 1.0E-6) {
+                upper.remove(upper.size() - 1);
             }
-            arrayList.add(point);
+            upper.add(point);
         }
         lower.remove(lower.size() - 1);
-        arrayList.remove(arrayList.size() - 1);
-        lower.addAll(arrayList);
+        upper.remove(upper.size() - 1);
+        lower.addAll(upper);
         return lower;
     }
 
