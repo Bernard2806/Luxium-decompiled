@@ -462,7 +462,8 @@ public final class ReflectionSystem {
                     feedConsumer = consumer2;
                     break;
                 }
-                for (int consumer2 = 0; consumer2 < planeCount && feedViewer == null; ++consumer2) {
+                for (int consumer2 = 0; consumer2 < planeCount; ++consumer2) {
+                    if (feedViewer != null) break;
                     if ((!this.feedDemand[consumer2][i]) || exactCamOf[consumer2] == null) continue;
                     feedViewer = exactCamOf[consumer2];
                     feedConsumer = consumer2;

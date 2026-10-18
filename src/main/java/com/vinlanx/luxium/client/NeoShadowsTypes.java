@@ -763,7 +763,8 @@ final class NeoShadowsTypes {
                 int width = 1;
                 long nextCellKey;
                 long nextPosKey;
-                while ((nextPosKey = fullFacePosByCell.get(nextCellKey = NeoShadowsProjection.receiverCellKey(startCellU + width, startCellV))) != Long.MIN_VALUE && !visitedCells.contains(nextCellKey) && NeoShadowsProjection.sameReceiverStrength(strength, this.faceWeights.get(nextPosKey))) {
+                while ((nextPosKey = fullFacePosByCell.get(nextCellKey = NeoShadowsProjection.receiverCellKey(startCellU + width, startCellV))) != Long.MIN_VALUE) {
+                    if (visitedCells.contains(nextCellKey) || !(NeoShadowsProjection.sameReceiverStrength(strength, this.faceWeights.get(nextPosKey)))) break;
                     ++width;
                 }
                 int height = 1;

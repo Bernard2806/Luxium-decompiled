@@ -95,7 +95,8 @@ final class NeoShadowsStaticPipeline {
             if (pool == null) {
                 NeoShadowsTypes.BuildScratch scratch = scratches[0];
                 scratch.reset();
-                for (int i = 0; i < groupCount && state.shadowPolygons.size() < 12288; ++i) {
+                for (int i = 0; i < groupCount; ++i) {
+                    if (state.shadowPolygons.size() >= 12288) break;
                     this.processReceiverPlaneGroup(level, planeGroups.get(i), state, scratch);
                 }
                 NeoShadowsEngine.mergeScratch(state, scratch);
@@ -104,7 +105,8 @@ final class NeoShadowsStaticPipeline {
                 }
             } else {
                 int stripeSize = Math.max(workerCount, Math.max(1, groupCount / 4));
-                for (int stripeStart = 0; stripeStart < groupCount && state.shadowPolygons.size() < 12288; stripeStart += stripeSize) {
+                for (int stripeStart = 0; stripeStart < groupCount; stripeStart += stripeSize) {
+                    if (state.shadowPolygons.size() >= 12288) break;
                     int stripeEnd = Math.min(stripeStart + stripeSize, groupCount);
                     int activeWorkers = Math.min(workerCount, stripeEnd - stripeStart);
                     AtomicInteger nextIdx = new AtomicInteger(stripeStart);
@@ -216,9 +218,8 @@ final class NeoShadowsStaticPipeline {
         if (workerCount > 1 && n >= 64) {
             ExecutorService pool = NeoShadowsEngine.shadowWorkerPool();
             CountDownLatch latch = new CountDownLatch(workerCount);
-            int w = 0;
-            while (w < workerCount) {
-                int shard = w++;
+            for (int w = 0; w < workerCount; ++w) {
+                int shard = w;
                 pool.execute(() -> {
                     try {
                         for (int i = shard; i < n; i += workerCount) {
@@ -357,9 +358,6 @@ final class NeoShadowsStaticPipeline {
         ArrayList<BlockPos> cluster = new ArrayList<BlockPos>();
         LongOpenHashSet clusterKeys = new LongOpenHashSet();
         for (NeoShadowsOcclusionPipeline.OccluderHit seedHit : hitsByBlock.values()) {
-            int minZ;
-            int minY;
-            int minX;
             if (scratch.shadowPolygons.size() >= 12288) {
                 return;
             }
@@ -370,9 +368,12 @@ final class NeoShadowsStaticPipeline {
             clusterKeys.clear();
             queue.add(seedHit.blockPos);
             clusterKeys.add(seedKey);
-            int maxX = minX = seedHit.blockPos.m_123341_();
-            int maxY = minY = seedHit.blockPos.m_123342_();
-            int maxZ = minZ = seedHit.blockPos.m_123343_();
+            int minX = seedHit.blockPos.m_123341_();
+            int maxX = minX;
+            int minY = seedHit.blockPos.m_123342_();
+            int maxY = minY;
+            int minZ = seedHit.blockPos.m_123343_();
+            int maxZ = minZ;
             while (!queue.isEmpty()) {
                 BlockPos current = (BlockPos)queue.removeFirst();
                 cluster.add(current);

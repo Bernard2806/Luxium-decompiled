@@ -139,7 +139,8 @@ public final class TestFlashLight {
                 rayLength = start.m_82554_(hit.m_82450_());
             }
             int brightness;
-            for (double traveled = 0.0; traveled <= rayLength && (brightness = LightRtMath.getFalloff(power, traveled)) > 0; traveled += 0.5) {
+            for (double traveled = 0.0; traveled <= rayLength; traveled += 0.5) {
+                if ((brightness = LightRtMath.getFalloff(power, traveled)) <= 0) break;
                 Vec3 point = start.m_82549_(dir.m_82490_(traveled));
                 BlockPos blockPos = BlockPos.m_274446_((Position)point);
                 long key = blockPos.m_121878_();

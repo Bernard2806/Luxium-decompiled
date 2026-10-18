@@ -156,7 +156,8 @@ public final class NeoGpuVanillaGpuDebug {
         }
         int checks = PENDING.size();
         PendingQuery query;
-        for (int i = 0; i < checks && (query = PENDING.peekFirst()) != null && GL32C.glGetQueryObjecti((int)query.endId(), (int)34919) != 0; ++i) {
+        for (int i = 0; i < checks; ++i) {
+            if ((query = PENDING.peekFirst()) == null || GL32C.glGetQueryObjecti((int)query.endId(), (int)34919) == 0) break;
             PENDING.removeFirst();
             long startNs = ARBTimerQuery.glGetQueryObjecti64((int)query.startId(), (int)34918);
             long endNs = ARBTimerQuery.glGetQueryObjecti64((int)query.endId(), (int)34918);

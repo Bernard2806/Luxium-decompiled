@@ -755,7 +755,8 @@ public final class ExposedFaceService {
     private void drainCompletedSectionBuilds() {
         boolean changed = false;
         BuiltSectionCommit built;
-        for (int i = 0; i < 64 && (built = this.completedSectionBuilds.poll()) != null; ++i) {
+        for (int i = 0; i < 64; ++i) {
+            if ((built = this.completedSectionBuilds.poll()) == null) break;
             Long latest = this.latestSectionBuildRevision.get(built.sectionKey);
             if (latest == null || latest != built.revision) continue;
             this.latestSectionBuildRevision.remove(built.sectionKey, built.revision);
