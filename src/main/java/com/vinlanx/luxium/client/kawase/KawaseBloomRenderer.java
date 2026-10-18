@@ -148,7 +148,6 @@ public final class KawaseBloomRenderer {
         modelViewStack.m_252880_(0.0f, 0.0f, -2000.0f);
         RenderSystem.applyModelViewMatrix();
         try {
-            int level;
             Matrix4f viewRotation = VIEW_ROTATION.set((Matrix4fc)event.getPoseStack().m_85850_().m_252922_());
             Matrix4f inverseViewProjection = NeoSkyFrameCache.copyInverseViewProjection(event.getProjectionMatrix(), viewRotation, INVERSE_VIEW_PROJECTION);
             Matrix4f inverseProjection = NeoSkyFrameCache.copyInverseProjection(event.getProjectionMatrix(), INVERSE_PROJECTION);
@@ -166,7 +165,7 @@ public final class KawaseBloomRenderer {
             KawaseBloomRenderer.draw(sourceShader, KawaseBloomRenderer.sourceTarget.f_83917_, KawaseBloomRenderer.sourceTarget.f_83918_, false, () -> KawaseBloomRenderer.bindSourceVolume(sourceShader));
             RenderTarget input = sourceTarget;
             float radius = ((Double)Config.CLIENT.kawaseBloomRadius.get()).floatValue();
-            for (level = 0; level < levels; ++level) {
+            for (int level = 0; level < levels; ++level) {
                 TextureTarget output = DOWN_TARGETS[level];
                 downShader.m_173350_("InputSampler", (Object)input.m_83975_());
                 KawaseBloomRenderer.set2f(downShader, "InputTexelSize", 1.0f / (float)input.f_83917_, 1.0f / (float)input.f_83918_);
@@ -175,7 +174,7 @@ public final class KawaseBloomRenderer {
                 KawaseBloomRenderer.draw(downShader, output.f_83917_, output.f_83918_, false, null);
                 input = output;
             }
-            for (level = levels - 2; level >= 0; --level) {
+            for (int level = levels - 2; level >= 0; --level) {
                 TextureTarget output = UP_TARGETS[level];
                 RenderTarget high = DOWN_TARGETS[level];
                 upShader.m_173350_("LowSampler", (Object)input.m_83975_());
@@ -236,11 +235,10 @@ public final class KawaseBloomRenderer {
     }
 
     private static void ensureTargets(int width, int height, int levels) {
-        int i;
         sourceTarget = KawaseBloomRenderer.ensureTarget(sourceTarget, width, height);
         int levelWidth = width;
         int levelHeight = height;
-        for (i = 0; i < levels; ++i) {
+        for (int i = 0; i < levels; ++i) {
             levelWidth = Math.max(1, levelWidth / 2);
             levelHeight = Math.max(1, levelHeight / 2);
             KawaseBloomRenderer.DOWN_TARGETS[i] = KawaseBloomRenderer.ensureTarget(DOWN_TARGETS[i], levelWidth, levelHeight);
@@ -248,11 +246,11 @@ public final class KawaseBloomRenderer {
                 KawaseBloomRenderer.UP_TARGETS[i] = KawaseBloomRenderer.ensureTarget(UP_TARGETS[i], levelWidth, levelHeight);
             }
         }
-        for (i = levels; i < 7; ++i) {
+        for (int i = levels; i < 7; ++i) {
             KawaseBloomRenderer.destroyTarget(DOWN_TARGETS[i]);
             KawaseBloomRenderer.DOWN_TARGETS[i] = null;
         }
-        for (i = Math.max(0, levels - 1); i < 7; ++i) {
+        for (int i = Math.max(0, levels - 1); i < 7; ++i) {
             KawaseBloomRenderer.destroyTarget(UP_TARGETS[i]);
             KawaseBloomRenderer.UP_TARGETS[i] = null;
         }

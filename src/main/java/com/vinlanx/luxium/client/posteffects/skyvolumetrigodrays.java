@@ -52,12 +52,12 @@ public final class skyvolumetrigodrays {
     }
 
     static boolean shouldRender() {
-        NeoSkyCelestiaFrameState state;
         if (!skyvolumetrigodrays.isEnabled()) {
             return false;
         }
         NeoSkyCelestia system = NeoSkyCelestia.get();
-        if (!skyvolumetrigodrays.hasShadowData(system, state = system.frameState())) {
+        NeoSkyCelestiaFrameState state = system.frameState();
+        if (!skyvolumetrigodrays.hasShadowData(system, state)) {
             return false;
         }
         return state.directStrength() > 1.0E-4f && ((Double)Config.CLIENT.skyVolumetricGodRaysIntensity.get()).floatValue() > 1.0E-4f && ((Double)Config.CLIENT.skyVolumetricGodRaysDensity.get()).floatValue() > 1.0E-4f;

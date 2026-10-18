@@ -308,7 +308,6 @@ public final class GpuShadowCache {
     }
 
     public void stageVisibleEntries(ClientLevel level, long[] sourceKeys, int[] emissions, int limit) {
-        int i;
         if (sourceKeys == null || emissions == null || limit <= 0) {
             return;
         }
@@ -325,12 +324,12 @@ public final class GpuShadowCache {
             }
         }
         LongOpenHashSet visibleKeys = new LongOpenHashSet(max);
-        for (i = 0; i < max; ++i) {
+        for (int i = 0; i < max; ++i) {
             if (emissions[i] > 0) {
                 visibleKeys.add(sourceKeys[i]);
             }
         }
-        for (i = 0; i < max; ++i) {
+        for (int i = 0; i < max; ++i) {
             long sourceKey = sourceKeys[i];
             int emission = emissions[i];
             if (emission <= 0) continue;

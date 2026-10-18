@@ -501,11 +501,11 @@ extends Screen {
             return super.m_6375_(mouseX, mouseY, button);
         }
         if (this.previewWidth > 0 && this.previewOption != null && ConfigPreviewImages.hasPreview(this.previewOption)) {
-            int buttonY;
             PreviewImageBounds bounds = this.previewImageBounds();
             int buttonWidth = Math.min(112, bounds.width());
             int buttonX = bounds.x() + (bounds.width() - buttonWidth) / 2;
-            if (LuxiumConfigScreen.inside(mouseX, mouseY, buttonX, buttonY = bounds.y() + bounds.height() + 5, buttonWidth, 18)) {
+            int buttonY = bounds.y() + bounds.height() + 5;
+            if (LuxiumConfigScreen.inside(mouseX, mouseY, buttonX, buttonY, buttonWidth, 18)) {
                 this.previewAfter = !this.previewAfter;
                 return true;
             }

@@ -76,13 +76,12 @@ implements AutoCloseable {
             float nz = NeoSkyCelestiaLightLut.normalZ(normalCode);
             float rawNdotL = nx * lighting.direction().x + ny * lighting.direction().y + nz * lighting.direction().z;
             for (int skyLevel = 0; skyLevel < 16; ++skyLevel) {
-                int blockLevel;
                 int row = skyLevel << 4;
-                for (blockLevel = 0; blockLevel < 16; ++blockLevel) {
+                for (int blockLevel = 0; blockLevel < 16; ++blockLevel) {
                     int index = row | blockLevel;
                     this.putEndpoint(this.mainLightPixels[index], this.blockOnlyLightPixels[index], this.blockOnlyLightPixels[row], this.mainLightPixels[row], ny, rawNdotL, lighting, shadowsEnabled, sunShadowBlockVisibility, 0.0f);
                 }
-                for (blockLevel = 0; blockLevel < 16; ++blockLevel) {
+                for (int blockLevel = 0; blockLevel < 16; ++blockLevel) {
                     int index = row | blockLevel;
                     this.putEndpoint(this.mainLightPixels[index], this.blockOnlyLightPixels[index], this.blockOnlyLightPixels[row], this.mainLightPixels[row], ny, rawNdotL, lighting, shadowsEnabled, sunShadowBlockVisibility, 1.0f);
                 }

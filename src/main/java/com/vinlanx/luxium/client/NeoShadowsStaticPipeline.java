@@ -105,15 +105,14 @@ final class NeoShadowsStaticPipeline {
             } else {
                 int stripeSize = Math.max(workerCount, Math.max(1, groupCount / 4));
                 for (int stripeStart = 0; stripeStart < groupCount && state.shadowPolygons.size() < 12288; stripeStart += stripeSize) {
-                    int w;
                     int stripeEnd = Math.min(stripeStart + stripeSize, groupCount);
                     int activeWorkers = Math.min(workerCount, stripeEnd - stripeStart);
                     AtomicInteger nextIdx = new AtomicInteger(stripeStart);
                     CountDownLatch stripeLatch = new CountDownLatch(activeWorkers);
-                    for (w = 0; w < activeWorkers; ++w) {
+                    for (int w = 0; w < activeWorkers; ++w) {
                         scratches[w].reset();
                     }
-                    for (w = 0; w < activeWorkers; ++w) {
+                    for (int w = 0; w < activeWorkers; ++w) {
                         NeoShadowsTypes.BuildScratch scratch = scratches[w];
                         pool.execute(() -> {
                             try {
@@ -139,7 +138,7 @@ final class NeoShadowsStaticPipeline {
                         Thread.currentThread().interrupt();
                         break;
                     }
-                    for (w = 0; w < activeWorkers; ++w) {
+                    for (int w = 0; w < activeWorkers; ++w) {
                         NeoShadowsEngine.mergeScratch(state, scratches[w]);
                     }
                     if (progressPublisher != null) {

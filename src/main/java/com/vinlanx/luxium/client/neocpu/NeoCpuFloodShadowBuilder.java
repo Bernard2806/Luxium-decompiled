@@ -275,8 +275,6 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private ContributionData resolveReceiverContribution(TorchRtxState torchState, NeoCpuShadowTypes.ReceiverSurface receiver, long sourceKey) {
-        double sampleZ;
-        double sampleY;
         if (receiver.blockKey() == sourceKey) {
             return ContributionData.REJECTED;
         }
@@ -285,7 +283,9 @@ public final class NeoCpuFloodShadowBuilder {
             return cached;
         }
         double sampleX = receiver.centerX();
-        long basePosKey = NeoCpuFloodShadowBuilder.sampleRtxPosKey(receiver, sampleX, sampleY = receiver.centerY(), sampleZ = receiver.centerZ());
+        double sampleY = receiver.centerY();
+        double sampleZ = receiver.centerZ();
+        long basePosKey = NeoCpuFloodShadowBuilder.sampleRtxPosKey(receiver, sampleX, sampleY, sampleZ);
         if (basePosKey == Long.MIN_VALUE) {
             ++this.debugStats.noSampleRejects;
             return this.cacheContribution(receiver, ContributionData.REJECTED);
@@ -406,7 +406,6 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private void sampleReceiver(NeoCpuLocalBlockAccessor accessor, long sourceKey, Vec3 source, NeoCpuShadowTypes.ReceiverSurface receiver, double radius, Long2ObjectOpenHashMap<Hit> hitsByBlock) {
-        int index;
         double minU = receiver.minU();
         double maxU = receiver.maxU();
         double minV = receiver.minV();
@@ -419,7 +418,7 @@ public final class NeoCpuFloodShadowBuilder {
             NeoCpuFloodShadowBuilder.mergeReceiverHits(hitsByBlock, localHits);
             return;
         }
-        for (index = 0; index < CROSS_PROBE_LOCAL_U.length && localHits.size() < 9; ++index) {
+        for (int index = 0; index < CROSS_PROBE_LOCAL_U.length && localHits.size() < 9; ++index) {
             ProbeSample cross = this.sampleReceiverPoint(accessor, sourceKey, source, receiver, minU + (maxU - minU) * CROSS_PROBE_LOCAL_U[index], minV + (maxV - minV) * CROSS_PROBE_LOCAL_V[index], radius, localHits);
             probeStats.recordCross(cross);
             if (!NeoCpuFloodShadowBuilder.shouldContinueReceiverSampling(probeStats, false)) {
@@ -431,7 +430,7 @@ public final class NeoCpuFloodShadowBuilder {
             NeoCpuFloodShadowBuilder.mergeReceiverHits(hitsByBlock, localHits);
             return;
         }
-        for (index = 0; index < CORNER_PROBE_LOCAL_U.length && localHits.size() < 9; ++index) {
+        for (int index = 0; index < CORNER_PROBE_LOCAL_U.length && localHits.size() < 9; ++index) {
             ProbeSample corner = this.sampleReceiverPoint(accessor, sourceKey, source, receiver, minU + (maxU - minU) * CORNER_PROBE_LOCAL_U[index], minV + (maxV - minV) * CORNER_PROBE_LOCAL_V[index], radius, localHits);
             probeStats.recordCorner(corner);
             if (!NeoCpuFloodShadowBuilder.shouldContinueReceiverSampling(probeStats, true)) break;
@@ -510,13 +509,16 @@ public final class NeoCpuFloodShadowBuilder {
         double traveled = 0.0;
         double bestT = distance;
         while (traveled < bestT - 1.0E-4) {
-            NeoCpuShadowTypes.Occluder[] occluders;
             long blockKey = BlockPos.m_121882_((int)blockX, (int)blockY, (int)blockZ);
-            if ((blockKey != sourceKey || receiver.blockKey() == sourceKey) && (occluders = this.occludersAt(accessor, blockKey)) != null) {
-                for (NeoCpuShadowTypes.Occluder occluder : occluders) {
-                    double hitT = NeoCpuFloodShadowBuilder.intersectOccluder(occluder, sourceX, sourceY, sourceZ, dirX, dirY, dirZ, invDirX, invDirY, invDirZ, bestT);
-                    if ((blockKey != receiver.blockKey() || !NeoCpuFloodShadowBuilder.isReceiverSurfaceSelfHit(receiver, sourceX, sourceY, sourceZ, dirX, dirY, dirZ, hitT)) && (occluder.opacity() > 0.0f) && (hitT > 0.035) && (hitT < bestT - 1.0E-4)) {
-                        return new Hit(occluder, hitT);
+            if (blockKey != sourceKey || receiver.blockKey() == sourceKey) {
+                NeoCpuShadowTypes.Occluder[] occluders = this.occludersAt(accessor, blockKey);
+                if (occluders != null) {
+                    for (NeoCpuShadowTypes.Occluder occluder : occluders) {
+                        double hitT = NeoCpuFloodShadowBuilder.intersectOccluder(occluder, sourceX, sourceY, sourceZ, dirX, dirY, dirZ, invDirX, invDirY, invDirZ, bestT);
+                        if (blockKey == receiver.blockKey() && NeoCpuFloodShadowBuilder.isReceiverSurfaceSelfHit(receiver, sourceX, sourceY, sourceZ, dirX, dirY, dirZ, hitT)) continue;
+                        if (occluder.opacity() > 0.0f && hitT > 0.035 && hitT < bestT - 1.0E-4) {
+                            return new Hit(occluder, hitT);
+                        }
                     }
                 }
             }
@@ -784,12 +786,12 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private static CpuProjection projectWorldPoint(Vec3 source, NeoCpuShadowTypes.ReceiverSurface receiver, double x, double y, double z) {
+        double planeCoordinate = receiver.plane();
         double denominator = switch (receiver.face()) {
             case UP, DOWN -> y - source.f_82480_;
             case NORTH, SOUTH -> z - source.f_82481_;
             case WEST, EAST -> x - source.f_82479_;
         };
-        double planeCoordinate = receiver.plane();
         if (Math.abs(denominator) <= 1.0E-9) {
             return new CpuProjection(denominator, Double.NaN, null);
         }
@@ -808,7 +810,6 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private void buildHull(List<NeoCpuShadowTypes.Uv> input, ArrayList<NeoCpuShadowTypes.Uv> output) {
-        int i;
         output.clear();
         this.sortBuf.clear();
         this.sortBuf.addAll(input);
@@ -831,17 +832,17 @@ public final class NeoCpuFloodShadowBuilder {
             this.lowerBuf.add(point);
         }
         this.upperBuf.clear();
-        for (i = this.uniqueBuf.size() - 1; i >= 0; --i) {
+        for (int i = this.uniqueBuf.size() - 1; i >= 0; --i) {
             NeoCpuShadowTypes.Uv point = this.uniqueBuf.get(i);
             while (this.upperBuf.size() >= 2 && NeoCpuFloodShadowBuilder.cross(this.upperBuf.get(this.upperBuf.size() - 2), this.upperBuf.get(this.upperBuf.size() - 1), point) <= 1.0E-6) {
                 this.upperBuf.remove(this.upperBuf.size() - 1);
             }
             this.upperBuf.add(point);
         }
-        for (i = 0; i < this.lowerBuf.size() - 1; ++i) {
+        for (int i = 0; i < this.lowerBuf.size() - 1; ++i) {
             output.add(this.lowerBuf.get(i));
         }
-        for (i = 0; i < this.upperBuf.size() - 1; ++i) {
+        for (int i = 0; i < this.upperBuf.size() - 1; ++i) {
             output.add(this.upperBuf.get(i));
         }
     }
@@ -923,104 +924,109 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private List<NeoCpuShadowTypes.Uv> clipPolygonToRect(double minU, double maxU, double minV, double maxV) {
-        double t;
-        double delta;
-        boolean curIn;
         this.clipA.clear();
-        List<NeoCpuShadowTypes.Uv> input = this.polygonBuf;
-        if (input.isEmpty()) {
-            return this.clipA;
-        }
-        NeoCpuShadowTypes.Uv prev = (NeoCpuShadowTypes.Uv)input.get(input.size() - 1);
-        boolean prevIn = prev.u() >= minU;
-        for (NeoCpuShadowTypes.Uv cur : input) {
-            boolean bl = curIn = cur.u() >= minU;
-            if (curIn) {
-                if (!prevIn) {
-                    delta = cur.u() - prev.u();
-                    t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (minU - prev.u()) / delta;
+        {
+            List<NeoCpuShadowTypes.Uv> input = this.polygonBuf;
+            if (input.isEmpty()) {
+                return this.clipA;
+            }
+            NeoCpuShadowTypes.Uv prev = (NeoCpuShadowTypes.Uv)input.get(input.size() - 1);
+            boolean prevIn = prev.u() >= minU;
+            for (NeoCpuShadowTypes.Uv cur : input) {
+                boolean curIn = cur.u() >= minU;
+                if (curIn) {
+                    if (!prevIn) {
+                        double delta = cur.u() - prev.u();
+                        double t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (minU - prev.u()) / delta;
+                        this.clipA.add(new NeoCpuShadowTypes.Uv(minU, prev.v() + (cur.v() - prev.v()) * t));
+                    }
+                    this.clipA.add(cur);
+                } else if (prevIn) {
+                    double delta = cur.u() - prev.u();
+                    double t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (minU - prev.u()) / delta;
                     this.clipA.add(new NeoCpuShadowTypes.Uv(minU, prev.v() + (cur.v() - prev.v()) * t));
                 }
-                this.clipA.add(cur);
-            } else if (prevIn) {
-                delta = cur.u() - prev.u();
-                t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (minU - prev.u()) / delta;
-                this.clipA.add(new NeoCpuShadowTypes.Uv(minU, prev.v() + (cur.v() - prev.v()) * t));
+                prev = cur;
+                prevIn = curIn;
             }
-            prev = cur;
-            prevIn = curIn;
         }
         if (this.clipA.isEmpty()) {
             return this.clipA;
         }
         this.clipB.clear();
-        input = this.clipA;
-        prev = (NeoCpuShadowTypes.Uv)input.get(input.size() - 1);
-        prevIn = prev.u() <= maxU;
-        for (NeoCpuShadowTypes.Uv cur : input) {
-            boolean bl = curIn = cur.u() <= maxU;
-            if (curIn) {
-                if (!prevIn) {
-                    delta = cur.u() - prev.u();
-                    t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (maxU - prev.u()) / delta;
+        {
+            List<NeoCpuShadowTypes.Uv> input = this.clipA;
+            NeoCpuShadowTypes.Uv prev = (NeoCpuShadowTypes.Uv)input.get(input.size() - 1);
+            boolean prevIn = prev.u() <= maxU;
+            for (NeoCpuShadowTypes.Uv cur : input) {
+                boolean curIn = cur.u() <= maxU;
+                if (curIn) {
+                    if (!prevIn) {
+                        double delta = cur.u() - prev.u();
+                        double t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (maxU - prev.u()) / delta;
+                        this.clipB.add(new NeoCpuShadowTypes.Uv(maxU, prev.v() + (cur.v() - prev.v()) * t));
+                    }
+                    this.clipB.add(cur);
+                } else if (prevIn) {
+                    double delta = cur.u() - prev.u();
+                    double t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (maxU - prev.u()) / delta;
                     this.clipB.add(new NeoCpuShadowTypes.Uv(maxU, prev.v() + (cur.v() - prev.v()) * t));
                 }
-                this.clipB.add(cur);
-            } else if (prevIn) {
-                delta = cur.u() - prev.u();
-                t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (maxU - prev.u()) / delta;
-                this.clipB.add(new NeoCpuShadowTypes.Uv(maxU, prev.v() + (cur.v() - prev.v()) * t));
+                prev = cur;
+                prevIn = curIn;
             }
-            prev = cur;
-            prevIn = curIn;
         }
         if (this.clipB.isEmpty()) {
             return this.clipB;
         }
         this.clipA.clear();
-        input = this.clipB;
-        prev = (NeoCpuShadowTypes.Uv)input.get(input.size() - 1);
-        prevIn = prev.v() >= minV;
-        for (NeoCpuShadowTypes.Uv cur : input) {
-            boolean bl = curIn = cur.v() >= minV;
-            if (curIn) {
-                if (!prevIn) {
-                    delta = cur.v() - prev.v();
-                    t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (minV - prev.v()) / delta;
+        {
+            List<NeoCpuShadowTypes.Uv> input = this.clipB;
+            NeoCpuShadowTypes.Uv prev = (NeoCpuShadowTypes.Uv)input.get(input.size() - 1);
+            boolean prevIn = prev.v() >= minV;
+            for (NeoCpuShadowTypes.Uv cur : input) {
+                boolean curIn = cur.v() >= minV;
+                if (curIn) {
+                    if (!prevIn) {
+                        double delta = cur.v() - prev.v();
+                        double t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (minV - prev.v()) / delta;
+                        this.clipA.add(new NeoCpuShadowTypes.Uv(prev.u() + (cur.u() - prev.u()) * t, minV));
+                    }
+                    this.clipA.add(cur);
+                } else if (prevIn) {
+                    double delta = cur.v() - prev.v();
+                    double t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (minV - prev.v()) / delta;
                     this.clipA.add(new NeoCpuShadowTypes.Uv(prev.u() + (cur.u() - prev.u()) * t, minV));
                 }
-                this.clipA.add(cur);
-            } else if (prevIn) {
-                delta = cur.v() - prev.v();
-                t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (minV - prev.v()) / delta;
-                this.clipA.add(new NeoCpuShadowTypes.Uv(prev.u() + (cur.u() - prev.u()) * t, minV));
+                prev = cur;
+                prevIn = curIn;
             }
-            prev = cur;
-            prevIn = curIn;
         }
         if (this.clipA.isEmpty()) {
             return this.clipA;
         }
         this.clipB.clear();
-        input = this.clipA;
-        prev = (NeoCpuShadowTypes.Uv)input.get(input.size() - 1);
-        prevIn = prev.v() <= maxV;
-        for (NeoCpuShadowTypes.Uv cur : input) {
-            boolean bl = curIn = cur.v() <= maxV;
-            if (curIn) {
-                if (!prevIn) {
-                    delta = cur.v() - prev.v();
-                    t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (maxV - prev.v()) / delta;
+        {
+            List<NeoCpuShadowTypes.Uv> input = this.clipA;
+            NeoCpuShadowTypes.Uv prev = (NeoCpuShadowTypes.Uv)input.get(input.size() - 1);
+            boolean prevIn = prev.v() <= maxV;
+            for (NeoCpuShadowTypes.Uv cur : input) {
+                boolean curIn = cur.v() <= maxV;
+                if (curIn) {
+                    if (!prevIn) {
+                        double delta = cur.v() - prev.v();
+                        double t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (maxV - prev.v()) / delta;
+                        this.clipB.add(new NeoCpuShadowTypes.Uv(prev.u() + (cur.u() - prev.u()) * t, maxV));
+                    }
+                    this.clipB.add(cur);
+                } else if (prevIn) {
+                    double delta = cur.v() - prev.v();
+                    double t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (maxV - prev.v()) / delta;
                     this.clipB.add(new NeoCpuShadowTypes.Uv(prev.u() + (cur.u() - prev.u()) * t, maxV));
                 }
-                this.clipB.add(cur);
-            } else if (prevIn) {
-                delta = cur.v() - prev.v();
-                t = Math.abs(delta) <= 1.0E-9 ? 0.0 : (maxV - prev.v()) / delta;
-                this.clipB.add(new NeoCpuShadowTypes.Uv(prev.u() + (cur.u() - prev.u()) * t, maxV));
+                prev = cur;
+                prevIn = curIn;
             }
-            prev = cur;
-            prevIn = curIn;
         }
         return this.clipB;
     }

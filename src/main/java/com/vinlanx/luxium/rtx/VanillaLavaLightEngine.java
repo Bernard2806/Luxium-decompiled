@@ -122,7 +122,6 @@ public final class VanillaLavaLightEngine {
     }
 
     public void onChunkUnloaded(ClientLevel level, int chunkX, int chunkZ) {
-        int sectionY;
         if (level != this.currentLevel) {
             return;
         }
@@ -130,7 +129,7 @@ public final class VanillaLavaLightEngine {
         this.loadedChunks.remove(chunkKey);
         BlockLightEngine current = this.engine;
         boolean canQueueChecks = this.active && current != null;
-        for (sectionY = level.m_151560_(); sectionY < level.m_151561_(); ++sectionY) {
+        for (int sectionY = level.m_151560_(); sectionY < level.m_151561_(); ++sectionY) {
             long sectionKey = SectionPos.m_123209_((int)chunkX, (int)sectionY, (int)chunkZ);
             this.pendingSectionScans.remove(sectionKey);
             LongOpenHashSet knownSources = (LongOpenHashSet)this.lavaSourcesBySection.remove(sectionKey);
@@ -144,7 +143,7 @@ public final class VanillaLavaLightEngine {
             return;
         }
         current.m_9335_(new ChunkPos(chunkX, chunkZ), false);
-        for (sectionY = level.m_151560_(); sectionY < level.m_151561_(); ++sectionY) {
+        for (int sectionY = level.m_151560_(); sectionY < level.m_151561_(); ++sectionY) {
             current.m_6191_(SectionPos.m_123173_((int)chunkX, (int)sectionY, (int)chunkZ), true);
         }
     }

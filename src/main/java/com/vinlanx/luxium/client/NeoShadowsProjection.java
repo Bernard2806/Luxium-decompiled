@@ -280,7 +280,6 @@ final class NeoShadowsProjection {
     }
 
     static List<NeoShadowsTypes.UvPoint> buildConvexHullBuffered(List<NeoShadowsTypes.UvPoint> points, NeoShadowsTypes.BuildScratch scratch) {
-        int index;
         List<NeoShadowsTypes.UvPoint> sorted = scratch.hullSortBuf;
         sorted.clear();
         sorted.addAll(points);
@@ -319,10 +318,10 @@ final class NeoShadowsProjection {
         }
         List<NeoShadowsTypes.UvPoint> output = scratch.hullOutputBuf;
         output.clear();
-        for (index = 0; index < lower.size() - 1; ++index) {
+        for (int index = 0; index < lower.size() - 1; ++index) {
             output.add(lower.get(index));
         }
-        for (index = 0; index < list.size() - 1; ++index) {
+        for (int index = 0; index < list.size() - 1; ++index) {
             output.add(list.get(index));
         }
         return output;

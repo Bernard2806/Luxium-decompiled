@@ -397,8 +397,6 @@ public final class ReflectionSystem {
     }
 
     private void updatePlaneRenderCaches(Minecraft mc, Vec3 mainCameraPos) {
-        int consumer;
-        int i;
         if (this.activePlanes.isEmpty()) {
             return;
         }
@@ -420,7 +418,7 @@ public final class ReflectionSystem {
         RenderTarget originalTarget = mc.m_91385_();
         Vec3[] exactCamOf = new Vec3[planeCount];
         boolean[] playerSeesArr = new boolean[planeCount];
-        for (i = 0; i < planeCount; ++i) {
+        for (int i = 0; i < planeCount; ++i) {
             MirrorPlane plane = this.activePlanes.get(i);
             double signedDist = mainCameraPos.m_82546_(plane.planePoint).m_82526_(plane.normal);
             if (signedDist > 0.05) {
@@ -428,12 +426,12 @@ public final class ReflectionSystem {
                 playerSeesArr[i] = playerFrustum.m_113029_(plane.getCullingBounds());
             }
         }
-        for (i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
                 this.feedDemand[i][j] = false;
             }
         }
-        for (consumer = 0; consumer < planeCount; ++consumer) {
+        for (int consumer = 0; consumer < planeCount; ++consumer) {
             if (!playerSeesArr[consumer] || exactCamOf[consumer] == null) continue;
             Matrix4f consumerView = new Matrix4f((Matrix4fc)this.frameViewMatrix).mul((Matrix4fc)ReflectionSystem.axisReflectionMatrix(this.activePlanes.get((int)consumer).face.m_122434_()));
             Frustum consumerFrustum = new Frustum(consumerView, this.frameProjectionMatrix);
@@ -445,7 +443,7 @@ public final class ReflectionSystem {
                 this.feedDemand[consumer][producer] = producerPlane.isFacingCamera(consumerCamera) && consumerFrustum.m_113029_(producerPlane.getCullingBounds());
             }
         }
-        for (consumer = 0; consumer < planeCount; ++consumer) {
+        for (int consumer = 0; consumer < planeCount; ++consumer) {
             for (int producer = 0; producer < planeCount; ++producer) {
                 if (!(!this.feedDemand[consumer][producer])) {
                     this.feedDemand[producer][consumer] = true;
@@ -453,19 +451,18 @@ public final class ReflectionSystem {
             }
         }
         if (planeCount > 1) {
-            for (i = 0; i < planeCount; ++i) {
-                int consumer2;
+            for (int i = 0; i < planeCount; ++i) {
                 MirrorPlane plane = this.activePlanes.get(i);
                 PlaneRenderCache cache = this.planeRenderCaches.get(i);
                 Vec3 feedViewer = null;
                 int feedConsumer = -1;
-                for (consumer2 = 0; consumer2 < planeCount; ++consumer2) {
+                for (int consumer2 = 0; consumer2 < planeCount; ++consumer2) {
                     if (ReflectionSystem.computePlaneIdentity(this.activePlanes.get(consumer2)) != cache.feedConsumerIdentity || (!this.feedDemand[consumer2][i]) || exactCamOf[consumer2] == null) continue;
                     feedViewer = exactCamOf[consumer2];
                     feedConsumer = consumer2;
                     break;
                 }
-                for (consumer2 = 0; consumer2 < planeCount && feedViewer == null; ++consumer2) {
+                for (int consumer2 = 0; consumer2 < planeCount && feedViewer == null; ++consumer2) {
                     if ((!this.feedDemand[consumer2][i]) || exactCamOf[consumer2] == null) continue;
                     feedViewer = exactCamOf[consumer2];
                     feedConsumer = consumer2;
@@ -486,11 +483,11 @@ public final class ReflectionSystem {
                 cache.feedConsumerIdentity = ReflectionSystem.computePlaneIdentity(this.activePlanes.get(feedConsumer));
             }
         } else {
-            for (i = 0; i < planeCount; ++i) {
+            for (int i = 0; i < planeCount; ++i) {
                 this.planeRenderCaches.get((int)i).feedValid = false;
             }
         }
-        for (i = 0; i < planeCount; ++i) {
+        for (int i = 0; i < planeCount; ++i) {
             MirrorPlane plane = this.activePlanes.get(i);
             PlaneRenderCache cache = this.planeRenderCaches.get(i);
             if (!playerSeesArr[i]) {

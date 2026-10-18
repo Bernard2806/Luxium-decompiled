@@ -257,13 +257,12 @@ final class ExplosionFluidGrid {
 
     private void projectPressure() {
         int i;
-        int x;
         int z;
         int y;
         Arrays.fill(this.scratch, 0.0f);
         for (y = 1; y < 18; ++y) {
             for (z = 1; z < 21; ++z) {
-                for (x = 1; x < 21; ++x) {
+                for (int x = 1; x < 21; ++x) {
                     i = ExplosionFluidGrid.index(x, y, z);
                     this.scratch[i] = (this.vx[ExplosionFluidGrid.index(x + 1, y, z)] - this.vx[ExplosionFluidGrid.index(x - 1, y, z)] + this.vy[ExplosionFluidGrid.index(x, y + 1, z)] - this.vy[ExplosionFluidGrid.index(x, y - 1, z)] + this.vz[ExplosionFluidGrid.index(x, y, z + 1)] - this.vz[ExplosionFluidGrid.index(x, y, z - 1)]) * 0.5f - this.expansion[i];
                 }
@@ -286,7 +285,7 @@ final class ExplosionFluidGrid {
         }
         for (y = 1; y < 18; ++y) {
             for (z = 1; z < 21; ++z) {
-                for (x = 1; x < 21; ++x) {
+                for (int x = 1; x < 21; ++x) {
                     this.vx[i = ExplosionFluidGrid.index(x, y, z)] -= (this.pressure[ExplosionFluidGrid.index(x + 1, y, z)] - this.pressure[ExplosionFluidGrid.index(x - 1, y, z)]) * 0.5f;
                     this.vy[i] -= (this.pressure[ExplosionFluidGrid.index(x, y + 1, z)] - this.pressure[ExplosionFluidGrid.index(x, y - 1, z)]) * 0.5f;
                     this.vz[i] -= (this.pressure[ExplosionFluidGrid.index(x, y, z + 1)] - this.pressure[ExplosionFluidGrid.index(x, y, z - 1)]) * 0.5f;
