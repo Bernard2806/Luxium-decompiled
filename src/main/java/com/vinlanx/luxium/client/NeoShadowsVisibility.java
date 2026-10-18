@@ -352,13 +352,14 @@ final class NeoShadowsVisibility {
         NeoShadowsTypes.ContributorScoringVisitor visitor = lightingScratch.visitor;
         visitor.bind(scoresBySource, ownPosKey);
         for (int probeIndex = 0; probeIndex < probes.length; ++probeIndex) {
-            double sampleZ2;
-            double sampleY2;
-            double sampleX;
-            long lightSamplePosKey;
             NeoShadowsTypes.UvPoint probe = probes[probeIndex];
             NeoShadowsTypes.PlaneRect probeRect = probeRects[probeIndex];
-            if (!NeoShadowsProjection.isProbeInsideRect(probe, receiverBounds) || (lightSamplePosKey = this.resolveLightSamplePosKey(torchState, pos, face, sampleX = NeoShadowsProjection.facePointX(pos, face, candidate.planeCoordinate, (float)probe.u), sampleY2 = NeoShadowsProjection.facePointY(pos, face, candidate.planeCoordinate, (float)probe.v), sampleZ2 = NeoShadowsProjection.facePointZ(pos, face, candidate.planeCoordinate, (float)probe.u, (float)probe.v), state)) == Long.MIN_VALUE) continue;
+            if (!NeoShadowsProjection.isProbeInsideRect(probe, receiverBounds)) continue;
+            double sampleX = NeoShadowsProjection.facePointX(pos, face, candidate.planeCoordinate, (float)probe.u);
+            double sampleY2 = NeoShadowsProjection.facePointY(pos, face, candidate.planeCoordinate, (float)probe.v);
+            double sampleZ2 = NeoShadowsProjection.facePointZ(pos, face, candidate.planeCoordinate, (float)probe.u, (float)probe.v);
+            long lightSamplePosKey = this.resolveLightSamplePosKey(torchState, pos, face, sampleX, sampleY2, sampleZ2, state);
+            if (lightSamplePosKey == Long.MIN_VALUE) continue;
             visitor.setProbe(sampleX, sampleY2, sampleZ2, lightSamplePosKey, probeRect);
             this.forEachContributorCached(torchState, lightSamplePosKey, state, visitor);
         }
@@ -430,11 +431,13 @@ final class NeoShadowsVisibility {
             return NeoShadowsTypes.FaceLightingInfo.empty();
         }
         for (index = 0; index < closestSources.length; ++index) {
-            float weight;
-            int sourceEmission;
             sourceKey = closestSources[index];
             double score = fallbackScores[index];
-            if (score <= 0.0 || (sourceEmission = torchState.getSourceEmission(sourceKey)) <= 0 || (weight = (float)(score / totalFallbackScore)) < 0.03f) continue;
+            if (score <= 0.0) continue;
+            int sourceEmission = torchState.getSourceEmission(sourceKey);
+            if (sourceEmission <= 0) continue;
+            float weight = (float)(score / totalFallbackScore);
+            if (weight < 0.03f) continue;
             fallbackContribs.add(new NeoShadowsTypes.SourceContribution(sourceKey, fakeSampleKey, sourceEmission, weight, receiverBounds));
         }
         if (fallbackContribs.isEmpty()) {

@@ -609,8 +609,9 @@ public final class ExposedFaceService {
                 }
                 boolean boundaryFace = ExposedFaceService.isBoundaryFace(face, planeCoordinate);
                 for (SurfaceRect fragment : fragments) {
-                    ReceiverSurfaceBounds bounds;
-                    if (fragment == null || fragment.width() <= 1.0E-6 || fragment.height() <= 1.0E-6 || (bounds = ExposedFaceService.toLocalFaceBounds(face, fragment)).width() <= 1.0E-6 || bounds.height() <= 1.0E-6) continue;
+                    if (fragment == null || fragment.width() <= 1.0E-6 || fragment.height() <= 1.0E-6) continue;
+                    ReceiverSurfaceBounds bounds = ExposedFaceService.toLocalFaceBounds(face, fragment);
+                    if (bounds.width() <= 1.0E-6 || bounds.height() <= 1.0E-6) continue;
                     surfaces.add(new ReceiverSurfaceTemplate(face, planeCoordinate, bounds, boundaryFace));
                 }
             }

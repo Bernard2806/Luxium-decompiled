@@ -187,15 +187,21 @@ public final class PostEffectPipeline {
                                 PostEffectPipeline.draw(shader2, effectsWidth, effectsHeight, useEffectsTarget ? BlendMode.OVERWRITE : BlendMode.PREMULTIPLIED);
                             }
                         }
-                        if (renderRays && (shader2 = skygodrays.getShader()) != null) {
-                            skygodrays.configure(shader2, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
-                            destination.m_83947_(true);
-                            PostEffectPipeline.draw(shader2, effectsWidth, effectsHeight, BlendMode.ADDITIVE);
+                        if (renderRays) {
+                            shader2 = skygodrays.getShader();
+                            if (shader2 != null) {
+                                skygodrays.configure(shader2, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
+                                destination.m_83947_(true);
+                                PostEffectPipeline.draw(shader2, effectsWidth, effectsHeight, BlendMode.ADDITIVE);
+                            }
                         }
-                        if (renderFlare && (shader2 = lensflare.getShader()) != null) {
-                            lensflare.configure(shader2, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
-                            destination.m_83947_(true);
-                            PostEffectPipeline.draw(shader2, effectsWidth, effectsHeight, BlendMode.ADDITIVE);
+                        if (renderFlare) {
+                            shader2 = lensflare.getShader();
+                            if (shader2 != null) {
+                                lensflare.configure(shader2, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
+                                destination.m_83947_(true);
+                                PostEffectPipeline.draw(shader2, effectsWidth, effectsHeight, BlendMode.ADDITIVE);
+                            }
                         }
                     }
                 }

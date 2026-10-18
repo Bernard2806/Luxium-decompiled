@@ -122,11 +122,12 @@ public final class NeoCpuEntityShadows {
         long hash = 1469598103934665603L;
         int casterCount = 0;
         for (Entity entity : level.m_104735_()) {
-            AABB box;
             if (casterCount >= 160) {
                 return NeoCpuEntityShadows.mixFingerprint(hash, casterCount);
             }
-            if (entity == null || entity.m_213877_() || entity.m_20145_() || (box = entity.m_20191_()) == null || NeoCpuEntityShadows.distanceToAabbSq(centerPos, box) > radiusSq) continue;
+            if (entity == null || entity.m_213877_() || entity.m_20145_()) continue;
+            AABB box = entity.m_20191_();
+            if (box == null || NeoCpuEntityShadows.distanceToAabbSq(centerPos, box) > radiusSq) continue;
             hash = NeoCpuEntityShadows.mixFingerprint(hash, entity.m_19879_());
             hash = NeoCpuEntityShadows.mixFingerprint(hash, entity.f_19797_);
             hash = NeoCpuEntityShadows.mixFingerprint(hash, Float.floatToIntBits(entity.m_146908_()));
@@ -153,11 +154,12 @@ public final class NeoCpuEntityShadows {
                 LevelChunk chunk = level.m_7726_().m_7131_(centerChunkX + dx, centerChunkZ + dz);
                 if (chunk == null) continue;
                 for (BlockEntity blockEntity : chunk.m_62954_().values()) {
-                    BlockEntityRenderer renderer;
                     if (casterCount >= 160) {
                         return NeoCpuEntityShadows.mixFingerprint(hash, casterCount);
                     }
-                    if (blockEntity == null || blockEntity.m_58901_() || (renderer = dispatcher.m_112265_(blockEntity)) == null || !renderer.m_142756_(blockEntity, cameraPos)) continue;
+                    if (blockEntity == null || blockEntity.m_58901_()) continue;
+                    BlockEntityRenderer renderer = dispatcher.m_112265_(blockEntity);
+                    if (renderer == null || !renderer.m_142756_(blockEntity, cameraPos)) continue;
                     AABB box = blockEntity.getRenderBoundingBox();
                     if (box == null) {
                         box = new AABB(blockEntity.m_58899_());

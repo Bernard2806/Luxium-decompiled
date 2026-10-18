@@ -356,16 +356,15 @@ public final class GpuShadowCache {
             entry.lastVisibleFrame = frame;
             entry.stagedPriority = i;
             ++entry.framesAlive;
-            if (NeoGpuVanilla.isConfiguredEnabled() || GpuNeoShadows.isHardShadowBakeEnabled()) continue;
-            if (entry.refreshCount < 8) {
-                if (entry.framesAlive == 10 || entry.framesAlive == 30 || entry.framesAlive == 60 || entry.framesAlive == 120 || entry.framesAlive == 240 || entry.framesAlive == 480 || entry.framesAlive == 900) {
+            if (!NeoGpuVanilla.isConfiguredEnabled() && !GpuNeoShadows.isHardShadowBakeEnabled()) {
+                if (entry.refreshCount < 8) {
+                    if (entry.framesAlive == 10 || entry.framesAlive == 30 || entry.framesAlive == 60 || entry.framesAlive == 120 || entry.framesAlive == 240 || entry.framesAlive == 480 || entry.framesAlive == 900) {
+                        GpuShadowCache.markAllFacesDirty(entry, true);
+                        ++entry.refreshCount;
+                    }
+                } else if (entry.framesAlive % 600 == 0) {
                     GpuShadowCache.markAllFacesDirty(entry, true);
-                    ++entry.refreshCount;
-                    continue;
                 }
-            }
-            if (entry.framesAlive % 600 == 0) {
-                GpuShadowCache.markAllFacesDirty(entry, true);
             }
         }
     }
@@ -381,8 +380,9 @@ public final class GpuShadowCache {
         int count = 0;
         int max = Math.min(limit, Math.min(sourceKeys.length, emissions.length));
         for (int i = 0; i < max; ++i) {
-            Entry entry;
-            if (emissions[i] <= 0 || (entry = (Entry)this.entries.get(sourceKeys[i])) == null || !entry.ready || GpuShadowCache.hasDirtyFaces(entry)) continue;
+            if (emissions[i] <= 0) continue;
+            Entry entry = (Entry)this.entries.get(sourceKeys[i]);
+            if (entry == null || !entry.ready || GpuShadowCache.hasDirtyFaces(entry)) continue;
             int posBase = count * 4;
             lightPosRadiusOut[posBase] = (float)(entry.worldX - cameraX);
             lightPosRadiusOut[posBase + 1] = (float)(entry.worldY - cameraY);
@@ -419,9 +419,10 @@ public final class GpuShadowCache {
         int count = 0;
         int max = Math.min(limit, Math.min(sourceKeys.length, emissions.length));
         for (int i = 0; i < max; ++i) {
-            Entry entry;
             int emission = emissions[i];
-            if (emission <= 0 || (entry = (Entry)this.entries.get(sourceKeys[i])) == null) continue;
+            if (emission <= 0) continue;
+            Entry entry = (Entry)this.entries.get(sourceKeys[i]);
+            if (entry == null) continue;
             boolean capturePending = !entry.ready || GpuShadowCache.hasDirtyFaces(entry);
             int posBase = count * 4;
             lightPosRadiusOut[posBase] = (float)(entry.worldX - referenceX);
@@ -1022,8 +1023,9 @@ public final class GpuShadowCache {
     private void scanDynamicCasters(ClientLevel level, BlockPos center, Vec3 cameraPos, double radiusSq, Long2ObjectOpenHashMap<AABB> out) {
         Vec3 centerPos = Vec3.m_82512_((Vec3i)center);
         for (Entity entity : level.m_104735_()) {
-            AABB box;
-            if (entity == null || entity.m_213877_() || entity.m_20145_() || (box = entity.m_20191_()) == null || GpuShadowCache.distanceToAabbSq(centerPos, box) > radiusSq) continue;
+            if (entity == null || entity.m_213877_() || entity.m_20145_()) continue;
+            AABB box = entity.m_20191_();
+            if (box == null || GpuShadowCache.distanceToAabbSq(centerPos, box) > radiusSq) continue;
             out.put((long)entity.m_19879_(), (Object)box);
         }
         BlockEntityRenderDispatcher dispatcher = Minecraft.m_91087_().m_167982_();
@@ -1035,8 +1037,9 @@ public final class GpuShadowCache {
                 LevelChunk chunk = level.m_7726_().m_7131_(centerChunkX + dx, centerChunkZ + dz);
                 if (chunk == null) continue;
                 for (BlockEntity blockEntity : chunk.m_62954_().values()) {
-                    BlockEntityRenderer renderer;
-                    if (blockEntity == null || blockEntity.m_58901_() || (renderer = dispatcher.m_112265_(blockEntity)) == null || !renderer.m_142756_(blockEntity, cameraPos)) continue;
+                    if (blockEntity == null || blockEntity.m_58901_()) continue;
+                    BlockEntityRenderer renderer = dispatcher.m_112265_(blockEntity);
+                    if (renderer == null || !renderer.m_142756_(blockEntity, cameraPos)) continue;
                     AABB box = blockEntity.getRenderBoundingBox();
                     if (box == null) {
                         box = new AABB(blockEntity.m_58899_());

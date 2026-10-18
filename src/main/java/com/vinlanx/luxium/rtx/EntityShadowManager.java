@@ -68,8 +68,9 @@ public final class EntityShadowManager {
                 LongOpenHashSet newShadows = new LongOpenHashSet();
                 for (Entity entity : level.m_104735_()) {
                     Vec3 entityCenter;
-                    AABB box;
-                    if (entity.m_20238_(playerPos) > radiusSq || (box = entity.m_20191_()) == null) continue;
+                    if (entity.m_20238_(playerPos) > radiusSq) continue;
+                    AABB box = entity.m_20191_();
+                    if (box == null) continue;
                     long dominantSourceKey = engine.getDominantSource(entity.m_20183_());
                     if (dominantSourceKey == Long.MIN_VALUE) {
                         long[] closest = TorchRtxState.get().getClosestSources(entity.m_20182_(), 256.0, 1);
