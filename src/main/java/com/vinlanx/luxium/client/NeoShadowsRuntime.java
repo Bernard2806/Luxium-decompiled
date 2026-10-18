@@ -139,9 +139,9 @@ final class NeoShadowsRuntime {
         TorchRtxState torchState = TorchRtxState.get();
         int maxEmission = 0;
         LongIterator patchIter = patchBlocks.iterator();
-        int e;
         while (patchIter.hasNext()) {
-            if ((e = torchState.getSourceEmission(patchIter.nextLong())) > maxEmission && (maxEmission = e) >= 15) break;
+            int e = torchState.getSourceEmission(patchIter.nextLong());
+            if (e > maxEmission && (maxEmission = e) >= 15) break;
         }
         int localRadius = maxEmission > 0 ? Math.min((int)Math.ceil(30.0), (int)Math.ceil(LightRtMath.getMaxDistance(maxEmission)) + 1) : (int)Math.ceil(30.0);
         this.engine.latestStaticHotPatchRequest = new NeoShadowsTypes.StaticHotPatchRequest(this.engine.nextStaticHotPatchRequestId++, this.engine.buildEpoch, this.engine.activeStaticResultId, level, patchBlocks, localRadius);

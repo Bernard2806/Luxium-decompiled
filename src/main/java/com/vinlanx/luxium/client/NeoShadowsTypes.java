@@ -735,12 +735,11 @@ final class NeoShadowsTypes {
             LongOpenHashSet visitedCells = new LongOpenHashSet(this.receiverFacesByKey.size());
             ArrayList<ReceiverContributionRect> rects = new ArrayList<ReceiverContributionRect>(this.receiverFacesByKey.size());
             fullFacePosByCell.defaultReturnValue(Long.MIN_VALUE);
-            float strength;
             for (Long2ObjectMap.Entry entry : this.receiverFacesByKey.long2ObjectEntrySet()) {
                 long receiverKey = entry.getLongKey();
                 FaceCandidate candidate = (FaceCandidate)entry.getValue();
                 PlaneRect localBounds = this.localContributionBoundsForReceiverPosKey(receiverKey);
-                strength = this.faceWeights.get(receiverKey);
+                float strength = this.faceWeights.get(receiverKey);
                 if (strength <= 0.0f) continue;
                 BlockPos pos = candidate.pos;
                 int cellU = NeoShadowsProjection.blockPosToPlaneCellU(this.key.face, pos);
@@ -757,7 +756,7 @@ final class NeoShadowsTypes {
                 long startCellKey = entry.getLongKey();
                 if (!visitedCells.add(startCellKey)) continue;
                 long startPosKey = entry.getLongValue();
-                strength = this.faceWeights.get(startPosKey);
+                float strength = this.faceWeights.get(startPosKey);
                 int startCellU = NeoShadowsProjection.unpackReceiverCellU(startCellKey);
                 int startCellV = NeoShadowsProjection.unpackReceiverCellV(startCellKey);
                 int width = 1;

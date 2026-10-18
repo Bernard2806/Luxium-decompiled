@@ -157,9 +157,10 @@ extends Screen {
         float availableHeight = Math.max(1.0f, (float)this.controlsTop - 16.0f);
         float scale = Mth.m_14036_((float)Math.min((float)this.f_96543_ / 560.0f, availableHeight / 300.0f), (float)0.4f, (float)1.0f);
         int textWidth;
-        float requiredHeight;
         for (int i = 0; i < 2; ++i) {
-            if ((requiredHeight = this.contentHeight(textWidth = Math.min(480, Math.max(120, Mth.m_14143_((float)((float)(this.f_96543_ - 16) / scale)))), scale)) * scale <= availableHeight) break;
+            textWidth = Math.min(480, Math.max(120, Mth.m_14143_((float)((float)(this.f_96543_ - 16) / scale))));
+            float requiredHeight = this.contentHeight(textWidth, scale);
+            if (requiredHeight * scale <= availableHeight) break;
             scale = Math.max(0.4f, scale * availableHeight / (requiredHeight * scale));
         }
         return scale;

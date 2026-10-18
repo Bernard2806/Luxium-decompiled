@@ -308,8 +308,7 @@ final class NeoShadowsVisibility {
         if (state == null) {
             return this.resolveFaceLighting(torchState, candidate, null);
         }
-        EnumMap<Direction, Long2ObjectOpenHashMap<NeoShadowsTypes.FaceLightingInfo>> enumMap = state.faceLightingCache;
-        synchronized (enumMap) {
+        synchronized (state.faceLightingCache) {
             faceCache = state.faceLightingCache.get(candidate.face);
             if (faceCache == null) {
                 faceCache = new Long2ObjectOpenHashMap();
@@ -324,8 +323,7 @@ final class NeoShadowsVisibility {
             }
         }
         NeoShadowsTypes.FaceLightingInfo resolved = this.resolveFaceLighting(torchState, candidate, state);
-        Long2ObjectOpenHashMap long2ObjectOpenHashMap2 = faceCache;
-        synchronized (long2ObjectOpenHashMap2) {
+        synchronized (faceCache) {
             NeoShadowsTypes.FaceLightingInfo existing = (NeoShadowsTypes.FaceLightingInfo)faceCache.get(receiverKey);
             if (existing != null) {
                 return existing;
@@ -499,8 +497,7 @@ final class NeoShadowsVisibility {
             torchState.forEachContributor(posKey, visitor);
             return;
         }
-        Long2ObjectOpenHashMap<NeoShadowsTypes.ContributorList> long2ObjectOpenHashMap = state.contributorCache;
-        synchronized (long2ObjectOpenHashMap) {
+        synchronized (state.contributorCache) {
             list = (NeoShadowsTypes.ContributorList)state.contributorCache.get(posKey);
         }
         if (list == null) {
@@ -508,8 +505,7 @@ final class NeoShadowsVisibility {
             collector.reset();
             torchState.forEachContributor(posKey, collector);
             list = collector.toList();
-            Long2ObjectOpenHashMap<NeoShadowsTypes.ContributorList> long2ObjectOpenHashMap2 = state.contributorCache;
-            synchronized (long2ObjectOpenHashMap2) {
+            synchronized (state.contributorCache) {
                 NeoShadowsTypes.ContributorList existing = (NeoShadowsTypes.ContributorList)state.contributorCache.get(posKey);
                 if (existing != null) {
                     list = existing;

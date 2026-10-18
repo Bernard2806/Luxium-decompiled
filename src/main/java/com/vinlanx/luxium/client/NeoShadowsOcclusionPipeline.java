@@ -71,9 +71,9 @@ final class NeoShadowsOcclusionPipeline {
         if (cached != null) {
             int n = cached.hitKeys.length;
             for (int i = 0; i < n; ++i) {
-                int n2;
                 long hitKey = cached.hitKeys[i];
                 OccluderHit mergedHit = (OccluderHit)hitsByBlock.get(hitKey);
+                int n2;
                 NeoShadowsTypes.UvPoint[] probes2;
                 if (mergedHit == null) {
                     OccluderHit persisted = new OccluderHit(BlockPos.m_122022_((long)hitKey), cached.hitBoxes[i]);

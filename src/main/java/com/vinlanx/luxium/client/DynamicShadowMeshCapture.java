@@ -90,14 +90,12 @@ public final class DynamicShadowMeshCapture {
                 return new Snapshot(level, List.copyOf(casters));
             }
             CapturedCaster captured;
-            if (entity != null && !entity.m_213877_() && !entity.m_20145_()) {
-                box = entity.m_20191_();
-                if (box != null && DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) <= radiusSq) {
-                    captured = DynamicShadowMeshCapture.captureEntity(entityDispatcher, entity, nextId++, partialTick, box.m_82400_(0.03));
-                    if (captured != null) {
-                        casters.add(captured);
-                    }
-                }
+            if (entity == null || entity.m_213877_() || entity.m_20145_()) continue;
+            box = entity.m_20191_();
+            if (box == null || DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) > radiusSq) continue;
+            captured = DynamicShadowMeshCapture.captureEntity(entityDispatcher, entity, nextId++, partialTick, box.m_82400_(0.03));
+            if (captured != null) {
+                casters.add(captured);
             }
         }
         int chunkRadius = Math.max(1, (int)Math.ceil(radius / 16.0));
@@ -111,7 +109,6 @@ public final class DynamicShadowMeshCapture {
                 LevelChunk chunk = level.m_7726_().m_7131_(centerChunkX + dx, centerChunkZ + dz);
                 if (chunk == null) continue;
                 for (BlockEntity blockEntity : chunk.m_62954_().values()) {
-                    CapturedCaster captured;
                     if (casters.size() >= maxCasters) {
                         return new Snapshot(level, List.copyOf(casters));
                     }
@@ -122,6 +119,7 @@ public final class DynamicShadowMeshCapture {
                     if (box == null) {
                         box = new AABB(blockEntity.m_58899_());
                     }
+                    CapturedCaster captured;
                     if (DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) <= radiusSq && (captured = DynamicShadowMeshCapture.captureBlockEntity(renderer, blockEntity, nextId++, partialTick, box.m_82400_(0.02))) != null) {
                         casters.add(captured);
                     }
