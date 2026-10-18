@@ -223,14 +223,15 @@ final class GpuBakedHardShadowVolume {
                     ++this.buildLayerCursor;
                 }
                 budget -= layersThisFrame;
-                if (this.buildLayerCursor < depth) continue;
-                if (this.textures[direction] != -1) {
-                    TextureUtil.releaseTextureId((int)this.textures[direction]);
+                if (this.buildLayerCursor >= depth) {
+                    if (this.textures[direction] != -1) {
+                        TextureUtil.releaseTextureId((int)this.textures[direction]);
+                    }
+                    this.textures[direction] = this.buildTexture;
+                    this.buildTexture = -1;
+                    ++this.buildDirection;
+                    this.buildLayerCursor = 0;
                 }
-                this.textures[direction] = this.buildTexture;
-                this.buildTexture = -1;
-                ++this.buildDirection;
-                this.buildLayerCursor = 0;
             }
             if (this.buildDirection >= 6) {
                 this.ready = true;
@@ -294,8 +295,7 @@ final class GpuBakedHardShadowVolume {
         this.building = false;
         this.buildingSignature = Long.MIN_VALUE;
         this.activeSignature = Long.MIN_VALUE;
-        this.activeAnchorY = this.activeAnchorZ = Integer.MIN_VALUE;
-        this.activeAnchorX = Integer.MIN_VALUE;
+        this.activeAnchorX = this.activeAnchorY = this.activeAnchorZ = Integer.MIN_VALUE;
     }
 
     private void ensureResources() {
