@@ -358,13 +358,14 @@ public final class ReflectionSystem {
         RenderTarget originalTarget = mc.m_91385_();
         int planeCount = Math.min(this.activePlanes.size(), this.planeRenderCaches.size());
         for (int planeIndex = 0; planeIndex < planeCount; ++planeIndex) {
-            Vec3 slotVirtualCamPos;
-            Matrix4f slotVirtualProj;
-            Matrix4f slotMirrorLinear;
             MirrorPlane plane = this.activePlanes.get(planeIndex);
-            if (!plane.isFacingCamera(cameraPos) || !currentFrustum.m_113029_(plane.getCullingBounds())) continue;
+            if (!plane.isFacingCamera(cameraPos)) continue;
+            if (!currentFrustum.m_113029_(plane.getCullingBounds())) continue;
             PlaneRenderCache cache = this.planeRenderCaches.get(planeIndex);
             boolean nested = this.recursionDepth > 0;
+            Matrix4f slotMirrorLinear;
+            Matrix4f slotVirtualProj;
+            Vec3 slotVirtualCamPos;
             int slotIndex;
             if (nested) {
                 if (!cache.feedValid || cache.feedVirtualCamPos == null) continue;
@@ -636,9 +637,11 @@ public final class ReflectionSystem {
         }
         float near = (float)signedDist;
         float margin = 0.03f * Math.max(maxX - minX, maxY - minY) + 0.05f;
+        minX -= margin;
+        maxX += margin;
         minY -= margin;
         maxY += margin;
-        if ((maxX += margin) - (minX -= margin) < 1.0E-4f || maxY - minY < 1.0E-4f) {
+        if (maxX - minX < 1.0E-4f || maxY - minY < 1.0E-4f) {
             return false;
         }
         outProj.setFrustum(minX, maxX, minY, maxY, near, 1536.0f);
