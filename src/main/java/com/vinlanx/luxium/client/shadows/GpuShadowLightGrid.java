@@ -102,12 +102,12 @@ final class GpuShadowLightGrid {
                     minNdcY = Math.min(minNdcY, this.clipPosition.y * invW);
                     maxNdcY = Math.max(maxNdcY, this.clipPosition.y * invW);
                 }
-                if (Float.isFinite(minNdcX) && maxNdcX >= -1.0f && minNdcX <= 1.0f && maxNdcY >= -1.0f && minNdcY <= 1.0f) {
-                    minTileX = GpuShadowLightGrid.clampTile((int)Math.floor((minNdcX * 0.5f + 0.5f) * (float)screenWidth / 16.0f) - 1, tilesX);
-                    maxTileX = GpuShadowLightGrid.clampTile((int)Math.floor((maxNdcX * 0.5f + 0.5f) * (float)screenWidth / 16.0f) + 1, tilesX);
-                    minTileY = GpuShadowLightGrid.clampTile((int)Math.floor((minNdcY * 0.5f + 0.5f) * (float)screenHeight / 16.0f) - 1, tilesY);
-                    maxTileY = GpuShadowLightGrid.clampTile((int)Math.floor((maxNdcY * 0.5f + 0.5f) * (float)screenHeight / 16.0f) + 1, tilesY);
-                }
+                if (!Float.isFinite(minNdcX)) continue;
+                if (maxNdcX < -1.0f || minNdcX > 1.0f || maxNdcY < -1.0f || minNdcY > 1.0f) continue;
+                minTileX = GpuShadowLightGrid.clampTile((int)Math.floor((minNdcX * 0.5f + 0.5f) * (float)screenWidth / 16.0f) - 1, tilesX);
+                maxTileX = GpuShadowLightGrid.clampTile((int)Math.floor((maxNdcX * 0.5f + 0.5f) * (float)screenWidth / 16.0f) + 1, tilesX);
+                minTileY = GpuShadowLightGrid.clampTile((int)Math.floor((minNdcY * 0.5f + 0.5f) * (float)screenHeight / 16.0f) - 1, tilesY);
+                maxTileY = GpuShadowLightGrid.clampTile((int)Math.floor((maxNdcY * 0.5f + 0.5f) * (float)screenHeight / 16.0f) + 1, tilesY);
             }
             for (int tileY = minTileY; tileY <= maxTileY; ++tileY) {
                 for (int tileX = minTileX; tileX <= maxTileX; ++tileX) {
