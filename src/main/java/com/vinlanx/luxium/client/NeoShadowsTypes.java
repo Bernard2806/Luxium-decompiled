@@ -766,10 +766,10 @@ final class NeoShadowsTypes {
                 int startCellU = NeoShadowsProjection.unpackReceiverCellU(startCellKey);
                 int startCellV = NeoShadowsProjection.unpackReceiverCellV(startCellKey);
                 int width = 1;
-                long nextCellKey;
-                long nextPosKey;
-                while ((nextPosKey = fullFacePosByCell.get(nextCellKey = NeoShadowsProjection.receiverCellKey(startCellU + width, startCellV))) != Long.MIN_VALUE) {
-                    if (visitedCells.contains(nextCellKey) || !(NeoShadowsProjection.sameReceiverStrength(strength, this.faceWeights.get(nextPosKey)))) break;
+                while (true) {
+                    long nextCellKey = NeoShadowsProjection.receiverCellKey(startCellU + width, startCellV);
+                    long nextPosKey = fullFacePosByCell.get(nextCellKey);
+                    if (nextPosKey == Long.MIN_VALUE || visitedCells.contains(nextCellKey) || !NeoShadowsProjection.sameReceiverStrength(strength, this.faceWeights.get(nextPosKey))) break;
                     ++width;
                 }
                 int height = 1;
@@ -831,9 +831,9 @@ final class NeoShadowsTypes {
                     double dy = sy - sy0;
                     double dz = sz - sz0;
                     double distanceSq = dx * dx + dy * dy + dz * dz;
-                    double distance;
                     if (distanceSq > maxDistanceSq) continue;
-                    if (LightRtMath.getFalloff(emission, distance = Math.sqrt(distanceSq)) <= 0) continue;
+                    double distance = Math.sqrt(distanceSq);
+                    if (LightRtMath.getFalloff(emission, distance) <= 0) continue;
                     scratch[writeIndex++] = sx;
                     scratch[writeIndex++] = sy;
                     scratch[writeIndex++] = sz;
@@ -1139,8 +1139,8 @@ final class NeoShadowsTypes {
                 if (buckets == null) {
                     buckets = StaticHotPatchOverlay.newFaceBuckets();
                 }
-                int faceIndex;
-                List<ShadowPolygon> facePolygons = buckets[faceIndex = polygon.face.ordinal()];
+                int faceIndex = polygon.face.ordinal();
+                List<ShadowPolygon> facePolygons = buckets[faceIndex];
                 if (facePolygons == null) {
                     facePolygons = new ArrayList<ShadowPolygon>();
                     buckets[faceIndex] = facePolygons;
@@ -1184,9 +1184,7 @@ final class NeoShadowsTypes {
 
         private static List<ShadowPolygon> flattenPolygons(Long2ObjectOpenHashMap<List<ShadowPolygon>[]> polygonsByBlock) {
             List flattened = new ArrayList();
-            ObjectIterator objectIterator = polygonsByBlock.values().iterator();
-            while (objectIterator.hasNext()) {
-                List[] buckets = (List[])objectIterator.next();
+            for (List[] buckets : polygonsByBlock.values()) {
                 for (List bucket : buckets) {
                     if (bucket != null && !bucket.isEmpty()) {
                         flattened.addAll(bucket);
