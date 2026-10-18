@@ -38,7 +38,6 @@ public final class WaterSurfaceRenderer {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     public static boolean renderWater(RenderSectionManager manager, ChunkRenderMatrices matrices, double cameraX, double cameraY, double cameraZ) {
-        int previousSceneFilter;
         if (manager == null || !WaterSurfaceState.canRenderMainPass()) {
             WaterSurfaceRenderer.disarmLateFrame();
             return false;
@@ -62,7 +61,8 @@ public final class WaterSurfaceRenderer {
         if (ssr.enabled()) {
             hitTraceAttached = ScreenSpaceReflectionSystem.beginHitTrace(SsrConsumer.WATER, SharedPostResources.getWaterRenderFramebufferId(), SharedPostResources.getWaterRenderWidth(), SharedPostResources.getWaterRenderHeight());
         }
-        if ((previousSceneFilter = main.f_83922_) != 9729) {
+        int previousSceneFilter = main.f_83922_;
+        if (previousSceneFilter != 9729) {
             main.m_83936_(9729);
         }
         boolean materialRendered = false;

@@ -128,12 +128,11 @@ public final class RainPuddleManager {
     }
 
     public synchronized void removeIfUnsupported(@Nullable ClientLevel level, BlockPos pos, BlockState state) {
-        boolean supportsTopFace;
         if (level == null) {
             return;
         }
         ReflectionMaterial material = ReflectionMaterialRegistry.find(state);
-        boolean bl = supportsTopFace = material != null && material.shouldReflectFace(Minecraft.m_91087_(), pos, state, Direction.UP);
+        boolean supportsTopFace = material != null && material.shouldReflectFace(Minecraft.m_91087_(), pos, state, Direction.UP);
         if (supportsTopFace) {
             return;
         }
@@ -187,7 +186,7 @@ public final class RainPuddleManager {
 
     private void loadFromResourceManager(ResourceManager resourceManager, Map<ResourceLocation, RainHeightmap> loaded) {
         Map<ResourceLocation, Resource> resources = resourceManager.m_214159_(RAIN_RESOURCE_ROOT, location -> location.m_135827_().equals("luxium") && location.m_135815_().toLowerCase(Locale.ROOT).endsWith(PNG_SUFFIX));
-        ArrayList<ResourceLocation> ids = new ArrayList<>(resources.keySet());
+        List<ResourceLocation> ids = new ArrayList<>(resources.keySet());
         ids.sort(Comparator.comparing(ResourceLocation::m_135815_));
         for (ResourceLocation id : ids) {
             Resource resource = (Resource)resources.get(id);
@@ -196,12 +195,14 @@ public final class RainPuddleManager {
                 InputStream input = resource.m_215507_();
                 try {
                     RainHeightmap heightmap = this.loadHeightmap(id, input);
-                    if (heightmap == null) continue;
-                    loaded.put(id, heightmap);
+                    if (heightmap != null) {
+                        loaded.put(id, heightmap);
+                    }
                 }
                 finally {
-                    if (input == null) continue;
-                    input.close();
+                    if (input != null) {
+                        input.close();
+                    }
                 }
             }
             catch (IOException e) {
@@ -223,12 +224,14 @@ public final class RainPuddleManager {
                     InputStream input = Files.newInputStream(file, new OpenOption[0]);
                     try {
                         RainHeightmap heightmap = this.loadHeightmap(id, input);
-                        if (heightmap == null) continue;
-                        loaded.put(id, heightmap);
+                        if (heightmap != null) {
+                            loaded.put(id, heightmap);
+                        }
                     }
                     finally {
-                        if (input == null) continue;
-                        input.close();
+                        if (input != null) {
+                            input.close();
+                        }
                     }
                 }
                 catch (IOException e) {

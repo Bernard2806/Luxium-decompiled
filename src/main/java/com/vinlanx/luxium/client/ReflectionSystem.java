@@ -362,11 +362,10 @@ public final class ReflectionSystem {
             Vec3 slotVirtualCamPos;
             Matrix4f slotVirtualProj;
             Matrix4f slotMirrorLinear;
-            boolean nested;
             MirrorPlane plane = this.activePlanes.get(planeIndex);
             if (!plane.isFacingCamera(cameraPos) || !currentFrustum.m_113029_(plane.getCullingBounds())) continue;
             PlaneRenderCache cache = this.planeRenderCaches.get(planeIndex);
-            boolean bl = nested = this.recursionDepth > 0;
+            boolean nested = this.recursionDepth > 0;
             if (nested) {
                 if (!cache.feedValid || cache.feedVirtualCamPos == null) continue;
                 slotMirrorLinear = cache.feedMirrorLinear;
@@ -424,9 +423,10 @@ public final class ReflectionSystem {
         for (i = 0; i < planeCount; ++i) {
             MirrorPlane plane = this.activePlanes.get(i);
             double signedDist = mainCameraPos.m_82546_(plane.planePoint).m_82526_(plane.normal);
-            if (!(signedDist > 0.05)) continue;
-            exactCamOf[i] = ReflectionSystem.reflectPoint(mainCameraPos, plane.planePoint, plane.normal);
-            playerSeesArr[i] = playerFrustum.m_113029_(plane.getCullingBounds());
+            if (signedDist > 0.05) {
+                exactCamOf[i] = ReflectionSystem.reflectPoint(mainCameraPos, plane.planePoint, plane.normal);
+                playerSeesArr[i] = playerFrustum.m_113029_(plane.getCullingBounds());
+            }
         }
         for (i = 0; i < 4; ++i) {
             for (int j = 0; j < 4; ++j) {
@@ -447,8 +447,9 @@ public final class ReflectionSystem {
         }
         for (consumer = 0; consumer < planeCount; ++consumer) {
             for (int producer = 0; producer < planeCount; ++producer) {
-                if (!this.feedDemand[consumer][producer]) continue;
-                this.feedDemand[producer][consumer] = true;
+                if (!(!this.feedDemand[consumer][producer])) {
+                    this.feedDemand[producer][consumer] = true;
+                }
             }
         }
         if (planeCount > 1) {
@@ -459,13 +460,13 @@ public final class ReflectionSystem {
                 Vec3 feedViewer = null;
                 int feedConsumer = -1;
                 for (consumer2 = 0; consumer2 < planeCount; ++consumer2) {
-                    if (ReflectionSystem.computePlaneIdentity(this.activePlanes.get(consumer2)) != cache.feedConsumerIdentity || !this.feedDemand[consumer2][i] || exactCamOf[consumer2] == null) continue;
+                    if (ReflectionSystem.computePlaneIdentity(this.activePlanes.get(consumer2)) != cache.feedConsumerIdentity || (!this.feedDemand[consumer2][i]) || exactCamOf[consumer2] == null) continue;
                     feedViewer = exactCamOf[consumer2];
                     feedConsumer = consumer2;
                     break;
                 }
                 for (consumer2 = 0; consumer2 < planeCount && feedViewer == null; ++consumer2) {
-                    if (!this.feedDemand[consumer2][i] || exactCamOf[consumer2] == null) continue;
+                    if ((!this.feedDemand[consumer2][i]) || exactCamOf[consumer2] == null) continue;
                     feedViewer = exactCamOf[consumer2];
                     feedConsumer = consumer2;
                 }
@@ -685,17 +686,17 @@ public final class ReflectionSystem {
         boolean bilinearFiltering = (Boolean)Config.CLIENT.reflectionBilinearFiltering.get();
         if (this.initialized) {
             for (PlaneRenderCache cache : this.planeRenderCaches) {
-                boolean sizeChanged;
-                boolean bl = sizeChanged = cache.targets[0].f_83915_ != targetWidth || cache.targets[0].f_83916_ != targetHeight;
+                boolean sizeChanged = cache.targets[0].f_83915_ != targetWidth || cache.targets[0].f_83916_ != targetHeight;
                 if (sizeChanged) {
                     cache.targets[0].m_83941_(targetWidth, targetHeight, Minecraft.f_91002_);
                     cache.targets[1].m_83941_(targetWidth, targetHeight, Minecraft.f_91002_);
                     cache.invalidate();
                     cache.textureRef.setGlId(cache.targets[0].m_83975_());
                 }
-                if (!sizeChanged && this.bilinearFilteringEnabled == bilinearFiltering) continue;
-                ReflectionSystem.configureReflectionTexture(cache.targets[0], bilinearFiltering);
-                ReflectionSystem.configureReflectionTexture(cache.targets[1], bilinearFiltering);
+                if (sizeChanged || this.bilinearFilteringEnabled != bilinearFiltering) {
+                    ReflectionSystem.configureReflectionTexture(cache.targets[0], bilinearFiltering);
+                    ReflectionSystem.configureReflectionTexture(cache.targets[1], bilinearFiltering);
+                }
             }
             this.bilinearFilteringEnabled = bilinearFiltering;
             return;
@@ -738,12 +739,11 @@ public final class ReflectionSystem {
     }
 
     private void updateMirrorPlanes(Minecraft mc, Vec3 cameraPos) {
-        boolean activeAreaMoved;
         long now = System.currentTimeMillis();
         long scanIntervalMs = ReflectionSystem.getPlaneScanUpdateMs();
         BlockPos base = BlockPos.m_274446_((Position)cameraPos);
         int configuredDistance = (Integer)Config.CLIENT.reflectionDistance.get();
-        boolean bl = activeAreaMoved = base.m_123341_() != this.lastPlaneScanBlockX || base.m_123342_() != this.lastPlaneScanBlockY || base.m_123343_() != this.lastPlaneScanBlockZ || configuredDistance != this.lastPlaneScanDistance;
+        boolean activeAreaMoved = base.m_123341_() != this.lastPlaneScanBlockX || base.m_123342_() != this.lastPlaneScanBlockY || base.m_123343_() != this.lastPlaneScanBlockZ || configuredDistance != this.lastPlaneScanDistance;
         if (!activeAreaMoved && now - this.lastPlaneScanMs < scanIntervalMs) {
             return;
         }
@@ -752,7 +752,7 @@ public final class ReflectionSystem {
         this.lastPlaneScanBlockY = base.m_123342_();
         this.lastPlaneScanBlockZ = base.m_123343_();
         this.lastPlaneScanDistance = configuredDistance;
-        HashMap<PlaneKey, MirrorPlane> planes = new HashMap<PlaneKey, MirrorPlane>();
+        Map<PlaneKey, MirrorPlane> planes = new HashMap<PlaneKey, MirrorPlane>();
         Map<Long, long[]> snapshot = TorchRtxState.get().getReflectiveSnapshotView();
         ExposedFaceService exposedFaceService = ExposedFaceService.get();
         RainPuddleManager rainPuddleManager = RainPuddleManager.get();
@@ -777,7 +777,7 @@ public final class ReflectionSystem {
                     ReflectionMaterial material = ReflectionMaterialRegistry.find(state);
                     if (material == null || (exposedMask = exposedFaceService.getExposedFaceMask(mc.f_91073_, blockKey)) == 0) continue;
                     for (Direction face : Direction.values()) {
-                        if ((exposedMask & 1 << face.ordinal()) == 0 || ReflectionSystem.faceCenter(pos, face).m_82557_(cameraPos) > faceInclusionRadiusSq || !material.shouldReflectFace(mc, pos, state, face)) continue;
+                        if (((exposedMask & 1 << face.ordinal()) == 0) || ReflectionSystem.faceCenter(pos, face).m_82557_(cameraPos) > faceInclusionRadiusSq || !material.shouldReflectFace(mc, pos, state, face)) continue;
                         PlaneKey key = PlaneKey.of(pos, face);
                         MirrorPlane plane = planes.computeIfAbsent(key, k -> new MirrorPlane(face, ReflectionSystem.planePointForFace(pos, face)));
                         boolean usePolishedShader = state.m_60713_(Blocks.f_50387_);
@@ -792,7 +792,7 @@ public final class ReflectionSystem {
         if (planes.isEmpty()) {
             return;
         }
-        ArrayList<MirrorPlane> sorted = new ArrayList<>(planes.values());
+        List<MirrorPlane> sorted = new ArrayList<>(planes.values());
         sorted.sort((a, b) -> {
             int byFaceCount = Integer.compare(b.faces.size(), a.faces.size());
             if (byFaceCount != 0) {
@@ -933,7 +933,7 @@ public final class ReflectionSystem {
         mc.m_91290_().m_114408_((Level)mc.f_91073_, this.reflectionCamera, mc.f_91076_);
         MultiBufferSource.BufferSource buffers = mc.m_91269_().m_110104_();
         for (Entity entity : mc.f_91073_.m_104735_()) {
-            if (!mc.m_91290_().m_114397_(entity, frustum, cameraX, cameraY, cameraZ) || entity == this.reflectionCamera.m_90592_() && !this.reflectionCamera.m_90594_()) continue;
+            if (!(mc.m_91290_().m_114397_(entity, frustum, cameraX, cameraY, cameraZ)) || (entity == this.reflectionCamera.m_90592_() && !this.reflectionCamera.m_90594_())) continue;
             double x = Mth.m_14139_((double)this.framePartialTick, (double)entity.f_19790_, (double)entity.m_20185_()) - cameraX;
             double y = Mth.m_14139_((double)this.framePartialTick, (double)entity.f_19791_, (double)entity.m_20186_()) - cameraY;
             double z = Mth.m_14139_((double)this.framePartialTick, (double)entity.f_19792_, (double)entity.m_20189_()) - cameraZ;
@@ -1057,11 +1057,12 @@ public final class ReflectionSystem {
                 h = h * 31L + (long)Float.floatToIntBits(face.warpedU[i]);
                 h = h * 31L + (long)Float.floatToIntBits(face.warpedV[i]);
             }
-            if (face.rainPuddleSurface == null) continue;
-            h = h * 31L + (long)Float.floatToIntBits(face.rainPuddleSurface.sample(face.blockPos, 0.0f, 0.0f));
-            h = h * 31L + (long)Float.floatToIntBits(face.rainPuddleSurface.sample(face.blockPos, 1.0f, 0.0f));
-            h = h * 31L + (long)Float.floatToIntBits(face.rainPuddleSurface.sample(face.blockPos, 1.0f, 1.0f));
-            h = h * 31L + (long)Float.floatToIntBits(face.rainPuddleSurface.sample(face.blockPos, 0.0f, 1.0f));
+            if (face.rainPuddleSurface != null) {
+                h = h * 31L + (long)Float.floatToIntBits(face.rainPuddleSurface.sample(face.blockPos, 0.0f, 0.0f));
+                h = h * 31L + (long)Float.floatToIntBits(face.rainPuddleSurface.sample(face.blockPos, 1.0f, 0.0f));
+                h = h * 31L + (long)Float.floatToIntBits(face.rainPuddleSurface.sample(face.blockPos, 1.0f, 1.0f));
+                h = h * 31L + (long)Float.floatToIntBits(face.rainPuddleSurface.sample(face.blockPos, 0.0f, 1.0f));
+            }
         }
         plane.cachedSignature = h;
         return plane.cachedSignature;
@@ -1140,11 +1141,11 @@ public final class ReflectionSystem {
     }
 
     private static Matrix4f applyObliqueNearClip(Matrix4f proj, Vector4f c) {
-        float qw;
-        float qz;
-        float qy;
         float qx = (Math.signum(c.x) + proj.m20()) / proj.m00();
-        float dot = c.x * qx + c.y * (qy = (Math.signum(c.y) + proj.m21()) / proj.m11()) + c.z * (qz = -1.0f) + c.w * (qw = (1.0f + proj.m22()) / proj.m32());
+        float qy = (Math.signum(c.y) + proj.m21()) / proj.m11();
+        float qz = -1.0f;
+        float qw = (1.0f + proj.m22()) / proj.m32();
+        float dot = c.x * qx + c.y * qy + c.z * qz + c.w * qw;
         if (Math.abs(dot) < 1.0E-4f) {
             return proj;
         }
@@ -1254,8 +1255,6 @@ public final class ReflectionSystem {
     }
 
     private static void boxBlur(NativeImage img, int radius) {
-        int px;
-        long n;
         long aa;
         long ba;
         long ga;
@@ -1277,16 +1276,17 @@ public final class ReflectionSystem {
                 ga = 0L;
                 ba = 0L;
                 aa = 0L;
-                n = 0L;
+                long n = 0L;
                 for (int dx = -radius; dx <= radius; ++dx) {
                     int xx = x + dx;
-                    if (xx < 0 || xx >= w) continue;
-                    px = src[y * w + xx];
-                    aa += (long)(px >>> 24 & 0xFF);
-                    ra += (long)(px >>> 16 & 0xFF);
-                    ga += (long)(px >>> 8 & 0xFF);
-                    ba += (long)(px & 0xFF);
-                    ++n;
+                    if (xx >= 0 && xx < w) {
+                        int px = src[y * w + xx];
+                        aa += (long)(px >>> 24 & 0xFF);
+                        ra += (long)(px >>> 16 & 0xFF);
+                        ga += (long)(px >>> 8 & 0xFF);
+                        ba += (long)(px & 0xFF);
+                        ++n;
+                    }
                 }
                 horizontal[y * w + x] = (int)(aa / n) << 24 | (int)(ra / n) << 16 | (int)(ga / n) << 8 | (int)(ba / n);
             }
@@ -1297,11 +1297,11 @@ public final class ReflectionSystem {
                 ga = 0L;
                 ba = 0L;
                 aa = 0L;
-                n = 0L;
+                long n = 0L;
                 for (int dy = -radius; dy <= radius; ++dy) {
                     int yy = y + dy;
                     if (yy < 0 || yy >= h) continue;
-                    px = horizontal[yy * w + x];
+                    int px = horizontal[yy * w + x];
                     aa += (long)(px >>> 24 & 0xFF);
                     ra += (long)(px >>> 16 & 0xFF);
                     ga += (long)(px >>> 8 & 0xFF);
@@ -1568,8 +1568,9 @@ public final class ReflectionSystem {
         private static VertexBuffer buildBuffer(MirrorPlane plane, int category) {
             int count = 0;
             for (MirrorFace mirrorFace : plane.faces) {
-                if (CachedPlaneMesh.categoryOf(mirrorFace) != category) continue;
-                ++count;
+                if (CachedPlaneMesh.categoryOf(mirrorFace) == category) {
+                    ++count;
+                }
             }
             if (count == 0) {
                 return null;
@@ -1577,8 +1578,9 @@ public final class ReflectionSystem {
             BufferBuilder builder = new BufferBuilder(Math.max(256, count * 128));
             builder.m_166779_(VertexFormat.Mode.QUADS, DefaultVertexFormat.f_85820_);
             for (MirrorFace face : plane.faces) {
-                if (CachedPlaneMesh.categoryOf(face) != category) continue;
-                CachedPlaneMesh.emitFace(builder, plane, face);
+                if (CachedPlaneMesh.categoryOf(face) == category) {
+                    CachedPlaneMesh.emitFace(builder, plane, face);
+                }
             }
             VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
             vertexBuffer.m_85921_();

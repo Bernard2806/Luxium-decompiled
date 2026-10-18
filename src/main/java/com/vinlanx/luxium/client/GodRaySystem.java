@@ -82,14 +82,13 @@ public final class GodRaySystem {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private static void renderPostPass(Minecraft mc, RenderLevelStageEvent event, ShaderInstance shader) {
-        int renderHeight;
         RenderTarget outputTarget = mc.m_91385_();
         int outputWidth = outputTarget.f_83917_;
         int outputHeight = outputTarget.f_83918_;
         float renderScale = 0.8f;
         boolean useLowResTarget = renderScale < 0.999f;
         int renderWidth = useLowResTarget ? Math.max(1, Math.round((float)outputWidth * renderScale)) : outputWidth;
-        int n = renderHeight = useLowResTarget ? Math.max(1, Math.round((float)outputHeight * renderScale)) : outputHeight;
+        int renderHeight = useLowResTarget ? Math.max(1, Math.round((float)outputHeight * renderScale)) : outputHeight;
         if (useLowResTarget) {
             GodRaySystem.ensureLowResTarget(renderWidth, renderHeight);
         }

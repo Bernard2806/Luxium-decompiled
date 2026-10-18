@@ -95,7 +95,7 @@ extends Screen {
         gfx.m_280168_().m_85836_();
         gfx.m_280168_().m_85841_(contentScale, contentScale, 1.0f);
         gfx.m_280398_(LOGO, cx - 42, textY, 0, 0.0f, 0.0f, 84, 84, 84, 84);
-        MutableComponent titleComp = Component.m_237115_((String)"screen.luxium.alpha_warning.mod_title");
+        Component titleComp = Component.m_237115_((String)"screen.luxium.alpha_warning.mod_title");
         int titleW = this.f_96547_.m_92852_((FormattedText)titleComp);
         gfx.m_280168_().m_85836_();
         gfx.m_280168_().m_85841_(2.0f, 2.0f, 1.0f);
@@ -115,7 +115,7 @@ extends Screen {
             }
             textY += 2;
         }
-        MutableComponent ytHint = Component.m_237115_((String)"screen.luxium.alpha_warning.youtube_hint");
+        Component ytHint = Component.m_237115_((String)"screen.luxium.alpha_warning.youtube_hint");
         for (FormattedCharSequence seq : this.f_96547_.m_92923_((FormattedText)ytHint, textWidth)) {
             int lineW = this.f_96547_.m_92724_(seq);
             gfx.m_280649_(this.f_96547_, seq, cx - lineW / 2, textY, -6303489, false);
@@ -173,7 +173,7 @@ extends Screen {
             Objects.requireNonNull(this.f_96547_);
             height += (float)(n * (9 + 2) + 2);
         }
-        MutableComponent hint = Component.m_237115_((String)"screen.luxium.alpha_warning.youtube_hint");
+        Component hint = Component.m_237115_((String)"screen.luxium.alpha_warning.youtube_hint");
         int n = this.f_96547_.m_92923_((FormattedText)hint, textWidth).size();
         Objects.requireNonNull(this.f_96547_);
         return height += (float)(n * (9 + 1));

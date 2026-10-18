@@ -148,7 +148,6 @@ public final class KawaseBloomRenderer {
         modelViewStack.m_252880_(0.0f, 0.0f, -2000.0f);
         RenderSystem.applyModelViewMatrix();
         try {
-            TextureTarget output;
             int level;
             Matrix4f viewRotation = VIEW_ROTATION.set((Matrix4fc)event.getPoseStack().m_85850_().m_252922_());
             Matrix4f inverseViewProjection = NeoSkyFrameCache.copyInverseViewProjection(event.getProjectionMatrix(), viewRotation, INVERSE_VIEW_PROJECTION);
@@ -165,10 +164,10 @@ public final class KawaseBloomRenderer {
             KawaseBloomRenderer.set1f(sourceShader, "Threshold", ((Double)Config.CLIENT.kawaseBloomThreshold.get()).floatValue());
             sourceTarget.m_83947_(true);
             KawaseBloomRenderer.draw(sourceShader, KawaseBloomRenderer.sourceTarget.f_83917_, KawaseBloomRenderer.sourceTarget.f_83918_, false, () -> KawaseBloomRenderer.bindSourceVolume(sourceShader));
-            TextureTarget input = sourceTarget;
+            RenderTarget input = sourceTarget;
             float radius = ((Double)Config.CLIENT.kawaseBloomRadius.get()).floatValue();
             for (level = 0; level < levels; ++level) {
-                output = DOWN_TARGETS[level];
+                TextureTarget output = DOWN_TARGETS[level];
                 downShader.m_173350_("InputSampler", (Object)input.m_83975_());
                 KawaseBloomRenderer.set2f(downShader, "InputTexelSize", 1.0f / (float)input.f_83917_, 1.0f / (float)input.f_83918_);
                 KawaseBloomRenderer.set1f(downShader, "Radius", radius);
@@ -177,8 +176,8 @@ public final class KawaseBloomRenderer {
                 input = output;
             }
             for (level = levels - 2; level >= 0; --level) {
-                output = UP_TARGETS[level];
-                TextureTarget high = DOWN_TARGETS[level];
+                TextureTarget output = UP_TARGETS[level];
+                RenderTarget high = DOWN_TARGETS[level];
                 upShader.m_173350_("LowSampler", (Object)input.m_83975_());
                 upShader.m_173350_("HighSampler", (Object)high.m_83975_());
                 KawaseBloomRenderer.set2f(upShader, "LowTexelSize", 1.0f / (float)input.f_83917_, 1.0f / (float)input.f_83918_);
@@ -245,8 +244,9 @@ public final class KawaseBloomRenderer {
             levelWidth = Math.max(1, levelWidth / 2);
             levelHeight = Math.max(1, levelHeight / 2);
             KawaseBloomRenderer.DOWN_TARGETS[i] = KawaseBloomRenderer.ensureTarget(DOWN_TARGETS[i], levelWidth, levelHeight);
-            if (i >= levels - 1) continue;
-            KawaseBloomRenderer.UP_TARGETS[i] = KawaseBloomRenderer.ensureTarget(UP_TARGETS[i], levelWidth, levelHeight);
+            if (i < levels - 1) {
+                KawaseBloomRenderer.UP_TARGETS[i] = KawaseBloomRenderer.ensureTarget(UP_TARGETS[i], levelWidth, levelHeight);
+            }
         }
         for (i = levels; i < 7; ++i) {
             KawaseBloomRenderer.destroyTarget(DOWN_TARGETS[i]);
@@ -288,13 +288,12 @@ public final class KawaseBloomRenderer {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private static void updateSourceVolume(Vec3 camera) {
-        boolean moved;
         KawaseSourceRegistry.Snapshot snapshot = KawaseSourceRegistry.get().snapshot();
         int radius = Mth.m_14045_((int)((Integer)Config.CLIENT.kawaseBloomSourceDistance.get()), (int)8, (int)32);
         int cameraX = Mth.m_14107_((double)camera.f_82479_);
         int cameraY = Mth.m_14107_((double)camera.f_82480_);
         int cameraZ = Mth.m_14107_((double)camera.f_82481_);
-        boolean bl = moved = anchorX == Integer.MIN_VALUE || Math.abs(cameraX - anchorX) >= 8 || Math.abs(cameraY - anchorY) >= 8 || Math.abs(cameraZ - anchorZ) >= 8;
+        boolean moved = anchorX == Integer.MIN_VALUE || Math.abs(cameraX - anchorX) >= 8 || Math.abs(cameraY - anchorY) >= 8 || Math.abs(cameraZ - anchorZ) >= 8;
         if (!moved && uploadedRadius == radius && uploadedVersion == snapshot.version()) {
             return;
         }

@@ -42,7 +42,6 @@ public final class SharedPostResources {
 
     @SubscribeEvent(priority=EventPriority.HIGHEST)
     public static void captureSharedBuffers(RenderLevelStageEvent event) {
-        boolean needsDepth;
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
             return;
         }
@@ -51,7 +50,7 @@ public final class SharedPostResources {
         }
         Minecraft mc = Minecraft.m_91087_();
         RenderTarget main = mc.m_91385_();
-        boolean bl = needsDepth = PostEffectPipeline.needsSharedDepthSnapshot() || Config.isFeatureEnabled(Config.CLIENT.kawaseBloomEnabled) || Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) || Config.isFeatureEnabled(Config.CLIENT.realisticShadowsEnabled);
+        boolean needsDepth = PostEffectPipeline.needsSharedDepthSnapshot() || Config.isFeatureEnabled(Config.CLIENT.kawaseBloomEnabled) || Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) || Config.isFeatureEnabled(Config.CLIENT.realisticShadowsEnabled);
         if (needsDepth) {
             SharedPostResources.captureDepth(main);
         }

@@ -84,7 +84,6 @@ public final class PostEffectPipeline {
     @SubscribeEvent(priority=EventPriority.LOWEST)
     public static void onRenderLevel(RenderLevelStageEvent event) {
         block35: {
-            int effectsHeight;
             if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
                 return;
             }
@@ -114,7 +113,7 @@ public final class PostEffectPipeline {
             float renderScale = Mth.m_14036_((float)((Double)Config.CLIENT.postEffectsRenderScale.get()).floatValue(), (float)0.1f, (float)1.0f);
             boolean useEffectsTarget = renderEffects && (renderTonemap || renderScale < 0.999f);
             int effectsWidth = useEffectsTarget ? Math.max(1, Math.round((float)width * renderScale)) : width;
-            int n = effectsHeight = useEffectsTarget ? Math.max(1, Math.round((float)height * renderScale)) : height;
+            int effectsHeight = useEffectsTarget ? Math.max(1, Math.round((float)height * renderScale)) : height;
             if (useEffectsTarget) {
                 PostEffectPipeline.ensureEffectsTarget(effectsWidth, effectsHeight);
             }
@@ -136,19 +135,17 @@ public final class PostEffectPipeline {
             try {
                 ShaderInstance shader;
                 if (renderEffects) {
-                    boolean useCombinedEffects;
                     RenderTarget destination = main;
                     int activeEffectCount = (renderFog ? 1 : 0) + (renderRays ? 1 : 0) + (renderVolumetricRays ? 1 : 0) + (renderFlare ? 1 : 0);
                     ShaderInstance combinedEffects = renderVolumetricRays || activeEffectCount >= 2 ? ShaderManager.getPostEffectsCombinedShader() : null;
-                    boolean bl = useCombinedEffects = combinedEffects != null;
+                    boolean useCombinedEffects = combinedEffects != null;
                     if (useEffectsTarget) {
-                        boolean firstPassOverwrites;
                         TextureTarget target = effectsTarget;
                         if (target == null) {
                             return;
                         }
                         target.m_83947_(true);
-                        boolean bl2 = firstPassOverwrites = useCombinedEffects || renderFog && fog.getShader() != null;
+                        boolean firstPassOverwrites = useCombinedEffects || renderFog && fog.getShader() != null;
                         if (!firstPassOverwrites) {
                             target.m_83931_(0.0f, 0.0f, 0.0f, 0.0f);
                             target.m_83954_(Minecraft.f_91002_);
@@ -204,11 +201,10 @@ public final class PostEffectPipeline {
                     }
                 }
                 if (renderTonemap) {
-                    int effectsTexture;
                     shader = tonemap.getShader();
                     if (shader == null) break block35;
                     int sceneTexture = main.m_83975_();
-                    int n2 = effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.m_83975_() : 0;
+                    int effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.m_83975_() : 0;
                     if (LsrSystem.shouldDeferTonemap()) {
                         deferredTonemap = true;
                         deferredTonemapCompositeEffects = useEffectsTarget;
@@ -322,13 +318,12 @@ public final class PostEffectPipeline {
     }
 
     public static boolean needsSharedDepthSnapshot() {
-        boolean renderEffects;
         boolean renderFog = fog.isEnabled();
         boolean celestialVisible = skygodrays.hasVisibleCelestial();
         boolean renderRays = skygodrays.isEnabled() && celestialVisible;
         boolean renderVolumetricRays = skyvolumetrigodrays.shouldRender();
         boolean renderFlare = lensflare.isEnabled() && celestialVisible;
-        boolean bl = renderEffects = renderFog || renderRays || renderVolumetricRays || renderFlare;
+        boolean renderEffects = renderFog || renderRays || renderVolumetricRays || renderFlare;
         if (!renderEffects) {
             return false;
         }

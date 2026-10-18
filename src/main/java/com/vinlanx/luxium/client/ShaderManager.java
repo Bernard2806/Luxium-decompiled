@@ -106,9 +106,8 @@ public final class ShaderManager {
 
     @SubscribeEvent
     public static void onRegisterShaders(RegisterShadersEvent event) {
-        ShaderInstance instance;
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"polished_andesite_reflection"), DefaultVertexFormat.f_85820_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"polished_andesite_reflection"), DefaultVertexFormat.f_85820_);
             event.registerShader(instance, shader -> {
                 polishedAndesiteShader = shader;
             });
@@ -117,7 +116,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load polished-andesite reflection shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"metal_reflection"), DefaultVertexFormat.f_85820_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"metal_reflection"), DefaultVertexFormat.f_85820_);
             event.registerShader(instance, shader -> {
                 metalReflectionShader = shader;
             });
@@ -126,7 +125,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load metal reflection shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"godrays_post"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"godrays_post"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 godRaysPostShader = shader;
             });
@@ -135,7 +134,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load god rays post shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"skygodrays"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"skygodrays"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 skyGodRaysShader = shader;
             });
@@ -144,7 +143,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load sky god rays shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"lensflare"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"lensflare"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 lensFlareShader = shader;
             });
@@ -153,7 +152,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load lens flare shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"posteffects_combined"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"posteffects_combined"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 postEffectsCombinedShader = shader;
             });
@@ -162,7 +161,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load fused post-effects shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"sky"), DefaultVertexFormat.f_85814_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"sky"), DefaultVertexFormat.f_85814_);
             event.registerShader(instance, shader -> {
                 skyShader = shader;
             });
@@ -171,7 +170,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load sky shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"sky_bake"), DefaultVertexFormat.f_85814_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"sky_bake"), DefaultVertexFormat.f_85814_);
             event.registerShader(instance, shader -> {
                 skyBakeShader = shader;
             });
@@ -180,7 +179,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load sky bake shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"fog"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"fog"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 fogShader = shader;
             });
@@ -189,7 +188,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load fog shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"tonemap"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"tonemap"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 tonemapShader = shader;
             });
@@ -198,7 +197,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load tonemap shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"posteffect_composite"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"posteffect_composite"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 postEffectCompositeShader = shader;
             });
@@ -207,7 +206,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load post-effect composite shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"grass"), DefaultVertexFormat.f_85812_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"grass"), DefaultVertexFormat.f_85812_);
             event.registerShader(instance, shader -> {
                 grassShader = shader;
             });
@@ -216,7 +215,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load grass shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"flood_shadow_composite"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"flood_shadow_composite"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 floodShadowCompositeShader = shader;
             });
@@ -225,7 +224,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load flood shadow composite shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"air_distortion"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"air_distortion"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 airDistortionShader = shader;
             });
@@ -234,7 +233,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load air distortion shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"blackhole"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"blackhole"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 blackHoleShader = shader;
             });
@@ -243,7 +242,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load black hole shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"cloud_shadow_caster"), DefaultVertexFormat.f_85822_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"cloud_shadow_caster"), DefaultVertexFormat.f_85822_);
             event.registerShader(instance, shader -> {
                 cloudShadowCasterShader = shader;
             });
@@ -252,7 +251,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load cloud shadow caster shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"depth_to_distance"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"depth_to_distance"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 depthToDistanceShader = shader;
             });
@@ -261,7 +260,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load depth_to_distance shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"neogpuvanilla_bake"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"neogpuvanilla_bake"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 neoGpuVanillaBakeShader = shader;
             });
@@ -270,7 +269,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load NeoGpuVanilla bake shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"neogpuvanilla_resolve"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"neogpuvanilla_resolve"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 neoGpuVanillaResolveShader = shader;
             });
@@ -279,7 +278,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load NeoGpuVanilla resolve shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"neogpuvanilla_fast_resolve"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"neogpuvanilla_fast_resolve"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 neoGpuVanillaFastResolveShader = shader;
             });
@@ -288,7 +287,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load NeoGpuVanilla Fast GPU Shadows resolve shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"gpu_hard_shadow_bake"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"gpu_hard_shadow_bake"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 gpuHardShadowBakeShader = shader;
             });
@@ -297,7 +296,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load baked Cubemap Hard receiver shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"config_glass"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"config_glass"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 configGlassShader = shader;
             });
@@ -306,7 +305,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load config glass shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"water_surface"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"water_surface"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 waterSurfaceShader = shader;
             });
@@ -315,7 +314,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load water surface shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"rain_puddle"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"rain_puddle"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 rainPuddleShader = shader;
             });
@@ -324,7 +323,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load new rain puddle shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"wet_surface"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"wet_surface"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 wetSurfaceShader = shader;
             });
@@ -333,7 +332,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load wet surface shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"lsr_upscale"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"lsr_upscale"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 lsrUpscaleShader = shader;
             });
@@ -342,7 +341,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load LSR upscale shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"temporal_reprojection"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"temporal_reprojection"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 temporalReprojectionShader = shader;
             });
@@ -351,7 +350,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load temporal reprojection shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"temporal_motion"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"temporal_motion"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 temporalMotionShader = shader;
             });
@@ -360,7 +359,7 @@ public final class ShaderManager {
             LOGGER.error("Failed to load temporal motion shader", (Throwable)e);
         }
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"temporal_prepare"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"temporal_prepare"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 temporalPrepareShader = shader;
             });
@@ -381,7 +380,7 @@ public final class ShaderManager {
             kawaseCompositeShader = shader;
         });
         try {
-            instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"youshader"), DefaultVertexFormat.f_85817_);
+            ShaderInstance instance = new ShaderInstance(event.getResourceProvider(), ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"youshader"), DefaultVertexFormat.f_85817_);
             event.registerShader(instance, shader -> {
                 youShader = shader;
             });

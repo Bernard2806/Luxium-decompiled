@@ -75,7 +75,7 @@ public final class BlockLightTest {
         BlockLightTest.removeChunk(x, z);
         long chunkKey = ChunkPos.m_45589_((int)x, (int)z);
         SCANNED_CHUNKS.add(chunkKey);
-        HashSet members = new HashSet();
+        Set members = new HashSet();
         chunk.m_284254_((pos, state) -> {
             int strength = state.getLightEmission((BlockGetter)current, pos);
             if (strength <= 0) {
@@ -146,10 +146,11 @@ public final class BlockLightTest {
                     LevelChunk chunk;
                     int x = centerX + dx;
                     int z = centerZ + dz;
-                    if (SCANNED_CHUNKS.contains(ChunkPos.m_45589_((int)x, (int)z)) || (chunk = current.m_7726_().m_7587_(x, z, ChunkStatus.f_62326_, false)) == null) continue;
-                    BlockLightTest.onChunk(current, chunk);
-                    scanned = true;
-                    continue block1;
+                    if (!(SCANNED_CHUNKS.contains(ChunkPos.m_45589_((int)x, (int)z))) && (chunk = current.m_7726_().m_7587_(x, z, ChunkStatus.f_62326_, false)) != null) {
+                        BlockLightTest.onChunk(current, chunk);
+                        scanned = true;
+                        continue block1;
+                    }
                 }
             }
             if (scanned) break;

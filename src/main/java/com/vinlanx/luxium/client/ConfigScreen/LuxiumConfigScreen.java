@@ -299,8 +299,6 @@ extends Screen {
     }
 
     private void renderContent(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        int viewport;
-        int contentHeight;
         int left = this.panelX + this.sidebarWidth + 1;
         int right = this.panelX + this.panelWidth - this.previewWidth;
         int top = this.contentTop();
@@ -309,8 +307,9 @@ extends Screen {
         int labelX = left + 24;
         int controlRight = right - 24;
         for (ControlRow control : this.controls) {
-            if (control.widget == null) continue;
-            control.widget.f_93624_ = false;
+            if (control.widget != null) {
+                control.widget.f_93624_ = false;
+            }
         }
         graphics.m_280588_(left, top, right, bottom);
         for (ControlRow control : this.controls) {
@@ -319,10 +318,11 @@ extends Screen {
             int animatedOffset = Math.round((1.0f - this.tabAnimation) * 10.0f);
             int y = control.baseY - (int)this.scroll + animatedOffset;
             if (control.row.isHeader()) {
-                if (y + 38 <= top || y >= bottom) continue;
-                graphics.m_280614_(this.f_96547_, LuxiumConfigScreen.upper(control.row.header()), labelX, y + 12, -11157, true);
-                graphics.m_280509_(labelX, y + 27, controlRight, y + 29, -11157);
-                continue;
+                if (y + 38 > top && y < bottom) {
+                    graphics.m_280614_(this.f_96547_, LuxiumConfigScreen.upper(control.row.header()), labelX, y + 12, -11157, true);
+                    graphics.m_280509_(labelX, y + 27, controlRight, y + 29, -11157);
+                    continue;
+                }
             }
             control.widget.f_93624_ = visible = y + 32 > top && y < bottom;
             if (!visible) continue;
@@ -356,7 +356,9 @@ extends Screen {
             this.syncPreviewWithConfig();
             this.previewAnimation = 0.0f;
         }
-        if ((contentHeight = this.controls.isEmpty() ? 0 : this.controls.get((int)(this.controls.size() - 1)).baseY + 32 - top) > (viewport = bottom - top)) {
+        int contentHeight = this.controls.isEmpty() ? 0 : this.controls.get((int)(this.controls.size() - 1)).baseY + 32 - top;
+        int viewport = bottom - top;
+        if (contentHeight > viewport) {
             int trackY = top;
             int trackHeight = viewport;
             int thumbHeight = Math.max(24, viewport * viewport / contentHeight);
@@ -493,7 +495,6 @@ extends Screen {
     }
 
     public boolean m_6375_(double mouseX, double mouseY, int button) {
-        int footerY;
         int toggleWidth;
         int toggleX;
         if (button != 0) {
@@ -509,7 +510,8 @@ extends Screen {
                 return true;
             }
         }
-        if (LuxiumConfigScreen.inside(mouseX, mouseY, toggleX = this.panelX + this.sidebarWidth - (toggleWidth = this.compactLayout ? 58 : 64) - 8, (footerY = this.panelY + this.panelHeight - 72) + 7, toggleWidth, 20)) {
+        int footerY = this.panelY + this.panelHeight - 72;
+        if (LuxiumConfigScreen.inside(mouseX, mouseY, toggleX = this.panelX + this.sidebarWidth - (toggleWidth = this.compactLayout ? 58 : 64) - 8, footerY + 7, toggleWidth, 20)) {
             this.blurEnabled = mouseX >= (double)toggleX + (double)toggleWidth / 2.0;
             return true;
         }
@@ -567,9 +569,10 @@ extends Screen {
         }
         for (ControlRow row : this.controls) {
             AbstractWidget abstractWidget = row.widget;
-            if (!(abstractWidget instanceof EditBox)) continue;
-            EditBox box = (EditBox)abstractWidget;
-            box.m_94120_();
+            if (abstractWidget instanceof EditBox) {
+                EditBox box = (EditBox)abstractWidget;
+                box.m_94120_();
+            }
         }
     }
 
@@ -584,7 +587,6 @@ extends Screen {
     }
 
     private void rebuildRendererIfChanged() {
-        boolean terrainPermutationChanged;
         LuxiumGpuShaderFeatures.refreshNow();
         boolean geometryChanged = this.loadedOpaqueIceEnabled != (Boolean)Config.CLIENT.opaqueIceEnabled.get();
         boolean receiverShadersEnabled = LuxiumGpuShaderFeatures.receiverShadersEnabled();
@@ -597,7 +599,7 @@ extends Screen {
         boolean neoSkyCelestiaStateChanged = this.loadedNeoSkyCelestiaEnabled != LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled();
         boolean skyEntityShadowPermutationChanged = this.loadedSkyEntityShadowsEnabled != (Boolean)Config.CLIENT.skyEntityShadowsEnabled.get();
         boolean shaderSetChanged = blockLightTestChanged || receiverStateChanged || localReceiverStateChanged || neoGpuVanillaReceiverStateChanged || neoSkyCelestiaStateChanged || waterStateChanged;
-        boolean bl = terrainPermutationChanged = shaderSetChanged || LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled() && neoGpuVanillaCutoutChanged || (receiverShadersEnabled || LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled()) && skyEntityShadowPermutationChanged;
+        boolean terrainPermutationChanged = shaderSetChanged || LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled() && neoGpuVanillaCutoutChanged || (receiverShadersEnabled || LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled()) && skyEntityShadowPermutationChanged;
         if (geometryChanged || terrainPermutationChanged) {
             if (shaderSetChanged) {
                 BlockLightTest.clearProgramCache();
@@ -719,7 +721,7 @@ extends Screen {
     }
 
     private List<SidebarEntry> sidebarEntries() {
-        ArrayList<SidebarEntry> entries = new ArrayList<SidebarEntry>();
+        List<SidebarEntry> entries = new ArrayList<SidebarEntry>();
         for (ConfigScreenModel.Folder folder : this.folders) {
             if ("main".equals(folder.id())) {
                 for (ConfigScreenModel.Category item : folder.categories()) {

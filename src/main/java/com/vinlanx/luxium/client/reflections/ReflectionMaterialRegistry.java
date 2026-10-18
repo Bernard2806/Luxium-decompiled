@@ -26,8 +26,9 @@ public final class ReflectionMaterialRegistry {
     @Nullable
     public static ReflectionMaterial find(BlockState state) {
         for (ReflectionMaterial material : MATERIALS) {
-            if (!material.supports(state)) continue;
-            return material;
+            if (material.supports(state)) {
+                return material;
+            }
         }
         return null;
     }

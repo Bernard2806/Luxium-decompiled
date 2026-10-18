@@ -150,7 +150,6 @@ public final class TemporalFrameSystem {
     }
 
     public static void finishRealFrame(Minecraft mc, Camera camera, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
-        boolean presented;
         TextureTarget source = sceneTarget;
         RenderTarget destination = nativeMainTarget;
         if (!worldPassActive || source == null || destination == null) {
@@ -174,7 +173,7 @@ public final class TemporalFrameSystem {
         historyValid = true;
         syntheticFramesSinceReal = 0;
         ShaderInstance finalShader = ShaderManager.getTemporalReprojectionShader();
-        boolean bl = presented = finalShader != null && TemporalFrameSystem.renderFinalComposite(finalShader, destination, false);
+        boolean presented = finalShader != null && TemporalFrameSystem.renderFinalComposite(finalShader, destination, false);
         if (!presented) {
             TemporalFrameSystem.blitSceneFallback((RenderTarget)source, destination);
         }
@@ -196,7 +195,6 @@ public final class TemporalFrameSystem {
     }
 
     public static boolean tryRenderSynthetic(Minecraft mc, Camera camera, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
-        int expectedHeight;
         syntheticThisFrame = false;
         currentViewMatrix.set((Matrix4fc)viewMatrix);
         if (!Config.isFeatureEnabled(Config.CLIENT.tfrEnabled) || mc.f_91073_ == null) {
@@ -221,7 +219,7 @@ public final class TemporalFrameSystem {
             return false;
         }
         int expectedWidth = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? LsrSystem.expectedWidth(main.f_83915_) : main.f_83915_;
-        int n = expectedHeight = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? LsrSystem.expectedHeight(main.f_83916_) : main.f_83916_;
+        int expectedHeight = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? LsrSystem.expectedHeight(main.f_83916_) : main.f_83916_;
         if (scene.f_83915_ != expectedWidth || scene.f_83916_ != expectedHeight) {
             TemporalFrameSystem.invalidateHistory();
             return false;
@@ -382,7 +380,6 @@ public final class TemporalFrameSystem {
     }
 
     private static boolean isCameraCut(Camera camera) {
-        float pitchDelta;
         Vec3 pos = camera.m_90583_();
         double dx = pos.f_82479_ - previousCameraX;
         double dy = pos.f_82480_ - previousCameraY;
@@ -392,7 +389,8 @@ public final class TemporalFrameSystem {
             return true;
         }
         float yawDelta = TemporalFrameSystem.wrappedDegrees(camera.m_90590_() - previousYaw);
-        double angularDelta = Math.sqrt(yawDelta * yawDelta + (pitchDelta = TemporalFrameSystem.wrappedDegrees(camera.m_90589_() - previousPitch)) * pitchDelta);
+        float pitchDelta = TemporalFrameSystem.wrappedDegrees(camera.m_90589_() - previousPitch);
+        double angularDelta = Math.sqrt(yawDelta * yawDelta + pitchDelta * pitchDelta);
         return angularDelta > (Double)Config.CLIENT.tfrCameraCutAngle.get();
     }
 
@@ -465,7 +463,7 @@ public final class TemporalFrameSystem {
             return false;
         }
         boolean usePrepared = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) && preparedHistoryValid && preparedHistoryTarget != null;
-        TextureTarget colorSource = usePrepared ? preparedHistoryTarget : scene;
+        RenderTarget colorSource = usePrepared ? preparedHistoryTarget : scene;
         TextureTarget motion = motionTarget;
         shader.m_173350_("HistoryColor", (Object)colorSource.m_83975_());
         shader.m_173350_("MotionSampler", (Object)(syntheticFrame && motion != null ? motion.m_83975_() : colorSource.m_83975_()));

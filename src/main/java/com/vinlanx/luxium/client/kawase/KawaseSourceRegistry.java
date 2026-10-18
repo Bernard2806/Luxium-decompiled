@@ -61,7 +61,7 @@ public final class KawaseSourceRegistry {
         int chunkZ = chunk.m_7697_().f_45579_;
         this.removeChunkInternal(chunkX, chunkZ);
         long chunkKey = ChunkPos.m_45589_((int)chunkX, (int)chunkZ);
-        HashSet chunkSources = new HashSet();
+        Set chunkSources = new HashSet();
         chunk.m_284254_((pos, state) -> {
             int emission = state.getLightEmission((BlockGetter)level, pos);
             if (emission <= 0) {

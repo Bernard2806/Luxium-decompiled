@@ -33,9 +33,9 @@ public final class ConfigScreenModel {
 
     public static List<Category> create() {
         Config.Client c = Config.CLIENT;
-        ArrayList<Category> categories = new ArrayList<Category>();
+        List<Category> categories = new ArrayList<Category>();
         BooleanSupplier floodActive = () -> (Boolean)c.rtxEnabled.get() != false && (Boolean)c.neoGpuVanillaEnabled.get() == false;
-        ArrayList<Row> generalRows = new ArrayList<Row>();
+        List<Row> generalRows = new ArrayList<Row>();
         generalRows.add(Row.option(ConfigScreenModel.b("rtx_enabled", "option.luxium.rtx_enabled", "tooltip.luxium.rtx_enabled", c.rtxEnabled).enabledWhen(() -> (Boolean)c.neoGpuVanillaEnabled.get() == false)));
         generalRows.add(Row.option(ConfigScreenModel.b("rtx_lava_tracing_enabled", "option.luxium.rtx_lava_tracing_enabled", "tooltip.luxium.rtx_lava_tracing_enabled", c.rtxLavaTracingEnabled).enabledWhen(() -> (Boolean)c.neoGpuVanillaEnabled.get() == false)));
         generalRows.add(Row.option(ConfigScreenModel.i("rtx_world_tracing_workers", "option.luxium.rtx_world_tracing_workers", "tooltip.luxium.rtx_world_tracing_workers", c.rtxWorldTracingWorkers, 1, Config.MAX_RTX_WORLD_TRACING_WORKERS, "").enabledWhen(() -> (Boolean)c.neoGpuVanillaEnabled.get() == false)));
@@ -75,7 +75,7 @@ public final class ConfigScreenModel {
             }
             GpuNeoShadows.onConfigChanged();
         }), ConfigScreenModel.i("gpu_hard_shadow_capture_budget", "option.luxium.gpu_hard_shadow_capture_budget", "tooltip.luxium.gpu_hard_shadow_capture_budget", c.gpuHardShadowCaptureBudget, 1, 300, " faces/frame").enabledWhen(() -> (Boolean)c.neoGpuVanillaEnabled.get() == false && (Boolean)c.gpuShadowsEnabled.get() != false && (Boolean)c.neoCpuShadowsEnabled.get() == false && c.gpuLocalLightingMode.get() != Config.GpuLocalLightingMode.NEOFLOOD_ONLY && (Boolean)c.gpuHardShadowBakeEnabled.get() != false), ConfigScreenModel.i("gpu_fast_spread_max_lights", "option.luxium.gpu_fast_spread_max_lights", "tooltip.luxium.gpu_fast_spread_max_lights", c.gpuFastSpreadMaxLights, 4, 32, "").enabledWhen(() -> (Boolean)c.neoGpuVanillaEnabled.get() == false && (Boolean)c.gpuShadowsEnabled.get() != false && (Boolean)c.neoCpuShadowsEnabled.get() == false && c.gpuLocalLightingMode.get() != Config.GpuLocalLightingMode.NEOFLOOD_ONLY), ConfigScreenModel.i("gpu_local_light_distance", "option.luxium.gpu_local_light_distance", "tooltip.luxium.gpu_local_light_distance", c.gpuLocalLightDistance, 4, 64, " blocks").enabledWhen(() -> (Boolean)c.neoGpuVanillaEnabled.get() == false && (Boolean)c.gpuShadowsEnabled.get() != false && (Boolean)c.neoCpuShadowsEnabled.get() == false && c.gpuLocalLightingMode.get() != Config.GpuLocalLightingMode.NEOFLOOD_ONLY), ConfigScreenModel.b("entity_shadows_enabled", "option.luxium.entity_shadows_enabled", "tooltip.luxium.entity_shadows_enabled", c.entityShadowsEnabled).enabledWhen(() -> (Boolean)c.neoGpuVanillaEnabled.get() == false && (Boolean)c.gpuHardShadowBakeEnabled.get() == false), ConfigScreenModel.i("entity_shadow_update_fps", "option.luxium.entity_shadow_update_fps", "tooltip.luxium.entity_shadow_update_fps", c.entityShadowUpdateFpsLimit, 10, 120, " FPS").enabledWhen(() -> (Boolean)c.neoGpuVanillaEnabled.get() == false && (Boolean)c.gpuHardShadowBakeEnabled.get() == false && (Boolean)c.entityShadowsEnabled.get() != false && ((Boolean)c.realisticShadowsEnabled.get() != false || (Boolean)c.neoCpuShadowsEnabled.get() != false || (Boolean)c.gpuShadowsEnabled.get() != false)), ConfigScreenModel.d("realistic_shadows_render_scale", "option.luxium.realistic_shadows_render_scale", "tooltip.luxium.realistic_shadows_render_scale", c.realisticShadowsRenderScale, 0.01, 1.0, 0.01, "x").enabledWhen(() -> (Boolean)c.neoGpuVanillaEnabled.get() == false && ((Boolean)c.neoCpuShadowsEnabled.get() != false || (Boolean)c.realisticShadowsEnabled.get() != false && (Boolean)c.gpuShadowsEnabled.get() == false))));
-        ArrayList<Row> celestialRows = new ArrayList<Row>();
+        List<Row> celestialRows = new ArrayList<Row>();
         celestialRows.add(Row.header("header.luxium.celestial_light"));
         celestialRows.add(Row.option(ConfigScreenModel.b("sky_light_enabled", "option.luxium.sky_light_enabled", "tooltip.luxium.sky_light_enabled", c.skyLightEnabled)));
         celestialRows.add(Row.option(ConfigScreenModel.b("sky_light_colors_enabled", "option.luxium.sky_light_colors_enabled", "tooltip.luxium.sky_light_colors_enabled", c.skyLightColorsEnabled).enabledWhen(() -> ((ForgeConfigSpec.BooleanValue)c.skyLightEnabled).get())));
@@ -119,7 +119,7 @@ public final class ConfigScreenModel {
         configOptionArray[5] = ConfigScreenModel.d("sky_sun_size", "option.luxium.sky_sun_size", "tooltip.luxium.sky_sun_size", c.skySunSize, 0.1, 3.0, 0.01, "x");
         configOptionArray[6] = ConfigScreenModel.d("sky_moon_size", "option.luxium.sky_moon_size", "tooltip.luxium.sky_moon_size", c.skyMoonSize, 0.1, 3.0, 0.01, "x");
         categories.add(ConfigScreenModel.category("sky", "category.luxium.sky", configOptionArray));
-        ArrayList<Row> cloudRows = new ArrayList<Row>();
+        List<Row> cloudRows = new ArrayList<Row>();
         BooleanSupplier customClouds = () -> ((ForgeConfigSpec.BooleanValue)c.cloudsEnabled).get();
         BooleanSupplier cloudLayer1 = () -> (Boolean)c.cloudsEnabled.get() != false && (Boolean)c.cloudLayer1Enabled.get() != false;
         BooleanSupplier cloudLayer2 = () -> (Boolean)c.cloudsEnabled.get() != false && (Boolean)c.cloudLayer2Enabled.get() != false;
@@ -245,7 +245,7 @@ public final class ConfigScreenModel {
         configOptionArray5[15] = ConfigScreenModel.fogConfig(ConfigScreenModel.d("fog_height", "option.luxium.fog_height", "tooltip.luxium.fog_height", c.fogHeight, 50.0, 384.0, 1.0, " blocks").enabledWhen(() -> ((ForgeConfigSpec.BooleanValue)c.fogEnabled).get()));
         categories.add(ConfigScreenModel.category("fog", "category.luxium.fog", configOptionArray5));
         categories.add(ConfigScreenModel.category("camera", "category.luxium.camera", ConfigScreenModel.b("lens_flare_enabled", "option.luxium.lens_flare_enabled", "tooltip.luxium.lens_flare_enabled", c.lensFlareEnabled), ConfigScreenModel.d("lens_flare_intensity", "option.luxium.lens_flare_intensity", "tooltip.luxium.lens_flare_intensity", c.lensFlareIntensity, 0.0, 3.0, 0.01, "x"), ConfigScreenModel.d("lens_flare_streak_intensity", "option.luxium.lens_flare_streak_intensity", "tooltip.luxium.lens_flare_streak_intensity", c.lensFlareStreakIntensity, 0.0, 3.0, 0.01, "x"), ConfigScreenModel.d("lens_flare_streak_length", "option.luxium.lens_flare_streak_length", "tooltip.luxium.lens_flare_streak_length", c.lensFlareStreakLength, 0.25, 3.0, 0.01, "x"), ConfigScreenModel.d("lens_flare_streak_width", "option.luxium.lens_flare_streak_width", "tooltip.luxium.lens_flare_streak_width", c.lensFlareStreakWidth, 0.25, 3.0, 0.01, "x"), ConfigScreenModel.d("lens_flare_chromatic_spread", "option.luxium.lens_flare_chromatic_spread", "tooltip.luxium.lens_flare_chromatic_spread", c.lensFlareChromaticSpread, 0.0, 3.0, 0.01, "x"), ConfigScreenModel.d("lens_flare_ghost_intensity", "option.luxium.lens_flare_ghost_intensity", "tooltip.luxium.lens_flare_ghost_intensity", c.lensFlareGhostIntensity, 0.0, 3.0, 0.01, "x"), ConfigScreenModel.d("lens_flare_ghost_size", "option.luxium.lens_flare_ghost_size", "tooltip.luxium.lens_flare_ghost_size", c.lensFlareGhostSize, 0.35, 3.0, 0.01, "x"), ConfigScreenModel.d("lens_flare_spread", "option.luxium.lens_flare_spread", "tooltip.luxium.lens_flare_spread", c.lensFlareSpread, 0.35, 3.0, 0.01, "x")));
-        ArrayList<Row> waterRows = new ArrayList<Row>();
+        List<Row> waterRows = new ArrayList<Row>();
         waterRows.add(Row.header("header.luxium.water_surface"));
         waterRows.add(Row.option(ConfigScreenModel.b("water_enabled", "option.luxium.water_enabled", "tooltip.luxium.water_enabled", c.waterEnabled)));
         waterRows.add(Row.option(ConfigScreenModel.b("water_depth_aware_refraction", "option.luxium.water_depth_aware_refraction", "tooltip.luxium.water_depth_aware_refraction", c.waterDepthAwareRefraction).enabledWhen(() -> ((ForgeConfigSpec.BooleanValue)c.waterEnabled).get())));
@@ -271,7 +271,7 @@ public final class ConfigScreenModel {
         waterRows.add(Row.option(ConfigScreenModel.d("water_ssr_edge_fade", "option.luxium.water_ssr_edge_fade", "tooltip.luxium.water_ssr_edge_fade", c.waterSsrEdgeFade, 0.01, 0.4, 0.01, "").enabledWhen(() -> (Boolean)c.waterEnabled.get() != false && (Boolean)c.waterSsrEnabled.get() != false)));
         categories.add(new Category("water", (Component)Component.m_237115_((String)"category.luxium.water"), (Component)Component.m_237115_((String)"category.luxium.water.description"), List.copyOf(waterRows)));
         categories.add(ConfigScreenModel.category("ssr", "category.luxium.ssr", ConfigScreenModel.d("ssr_quality", "option.luxium.ssr_quality", "tooltip.luxium.ssr_quality", c.ssrQuality, 0.25, 1.0, 0.05, "x")));
-        ArrayList<Row> puddleRows = new ArrayList<Row>();
+        List<Row> puddleRows = new ArrayList<Row>();
         puddleRows.add(Row.header("header.luxium.rain_puddles_surface"));
         puddleRows.add(Row.option(ConfigScreenModel.d("puddle_max_depth", "option.luxium.puddle_max_depth", "tooltip.luxium.puddle_max_depth", c.puddleMaxDepth, 0.005, 0.2, 0.005, " blocks")));
         puddleRows.add(Row.option(ConfigScreenModel.d("puddle_depth_curve", "option.luxium.puddle_depth_curve", "tooltip.luxium.puddle_depth_curve", c.puddleDepthCurve, 0.35, 3.0, 0.05, "")));
@@ -291,7 +291,7 @@ public final class ConfigScreenModel {
         puddleRows.add(Row.option(ConfigScreenModel.d("puddle_ssr_thickness", "option.luxium.puddle_ssr_thickness", "tooltip.luxium.puddle_ssr_thickness", c.puddleSsrThickness, 0.02, 2.0, 0.01, " blocks").enabledWhen(() -> ((ForgeConfigSpec.BooleanValue)c.puddleSsrEnabled).get())));
         puddleRows.add(Row.option(ConfigScreenModel.d("puddle_ssr_edge_fade", "option.luxium.puddle_ssr_edge_fade", "tooltip.luxium.puddle_ssr_edge_fade", c.puddleSsrEdgeFade, 0.01, 0.4, 0.01, "").enabledWhen(() -> ((ForgeConfigSpec.BooleanValue)c.puddleSsrEnabled).get())));
         categories.add(new Category("rain_puddles", (Component)Component.m_237115_((String)"category.luxium.rain_puddles"), (Component)Component.m_237115_((String)"description.luxium.rain_puddles"), List.copyOf(puddleRows)));
-        ArrayList<Row> wetRows = new ArrayList<Row>();
+        List<Row> wetRows = new ArrayList<Row>();
         wetRows.add(Row.header("header.luxium.wet_surface"));
         wetRows.add(Row.option(ConfigScreenModel.b("wet_enabled", "option.luxium.wet_enabled", "tooltip.luxium.wet_enabled", c.wetEnabled)));
         wetRows.add(Row.option(ConfigScreenModel.d("wet_max_depth", "option.luxium.wet_max_depth", "tooltip.luxium.wet_max_depth", c.wetMaxDepth, 0.005, 0.2, 0.005, " blocks").enabledWhen(() -> ((ForgeConfigSpec.BooleanValue)c.wetEnabled).get())));
@@ -335,8 +335,8 @@ public final class ConfigScreenModel {
     }
 
     public static List<Folder> createFolders() {
-        ArrayList ready = new ArrayList();
-        ArrayList<Category> development = new ArrayList<Category>();
+        List ready = new ArrayList();
+        List<Category> development = new ArrayList<Category>();
         Set<String> developmentIds = Set.of("general", "reflection", "vanilla_gpu", "realistic_shadows", "sky", "clouds", "ssr", "rain_puddles", "wet", "grass", "kawase_bloom", "testing", "block_light_test");
         for (Category category : ConfigScreenModel.create()) {
             (developmentIds.contains(category.id()) ? development : ready).add(category);
@@ -346,8 +346,9 @@ public final class ConfigScreenModel {
 
     public static void reset(Category category) {
         for (Row row : category.rows()) {
-            if (row.isHeader()) continue;
-            row.option().reset();
+            if (!row.isHeader()) {
+                row.option().reset();
+            }
         }
     }
 

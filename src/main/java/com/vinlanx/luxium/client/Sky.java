@@ -145,7 +145,6 @@ public final class Sky {
     }
 
     private static void updateCache(ShaderInstance bakeShader, Vec3 sunDirection, ClientLevel level) {
-        boolean displayCacheValidForLevel;
         long now = System.nanoTime();
         if (bakeInProgress && bakeLevel != level) {
             bakeInProgress = false;
@@ -153,7 +152,7 @@ public final class Sky {
             bakeLevel = null;
             nextCacheUpdateNanos = 0L;
         }
-        boolean bl = displayCacheValidForLevel = cacheTextureId != 0 && cachedLevel == level;
+        boolean displayCacheValidForLevel = cacheTextureId != 0 && cachedLevel == level;
         if (!bakeInProgress) {
             if (displayCacheValidForLevel && now < nextCacheUpdateNanos) {
                 return;

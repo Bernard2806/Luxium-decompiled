@@ -54,8 +54,9 @@ public final class RainHeightmap {
         this.recommendedSubdivision = RainHeightmap.computeRecommendedSubdivision(width, height);
         float max = 0.0f;
         for (float opacity : this.opacityByPixel) {
-            if (!(opacity > max)) continue;
-            max = opacity;
+            if (opacity > max) {
+                max = opacity;
+            }
         }
         this.maxOpacity = max;
     }

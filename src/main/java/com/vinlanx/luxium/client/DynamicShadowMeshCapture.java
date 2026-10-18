@@ -82,7 +82,7 @@ public final class DynamicShadowMeshCapture {
         Vec3 centerPos = Vec3.m_82512_((Vec3i)center);
         double radiusSq = radius * radius;
         Vec3 cameraPos = mc.f_91063_.m_109153_().m_90583_();
-        ArrayList<CapturedCaster> casters = new ArrayList<CapturedCaster>(Math.min(maxCasters, 64));
+        List<CapturedCaster> casters = new ArrayList<CapturedCaster>(Math.min(maxCasters, 64));
         long nextId = 1L;
         for (Entity entity : level.m_104735_()) {
             CapturedCaster captured;
@@ -90,8 +90,9 @@ public final class DynamicShadowMeshCapture {
             if (casters.size() >= maxCasters) {
                 return new Snapshot(level, List.copyOf(casters));
             }
-            if (entity == null || entity.m_213877_() || entity.m_20145_() || (box = entity.m_20191_()) == null || DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) > radiusSq || (captured = DynamicShadowMeshCapture.captureEntity(entityDispatcher, entity, nextId++, partialTick, box.m_82400_(0.03))) == null) continue;
-            casters.add(captured);
+            if (entity != null && !entity.m_213877_() && !entity.m_20145_() && (box = entity.m_20191_()) != null && DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) <= radiusSq && (captured = DynamicShadowMeshCapture.captureEntity(entityDispatcher, entity, nextId++, partialTick, box.m_82400_(0.03))) != null) {
+                casters.add(captured);
+            }
         }
         int chunkRadius = Math.max(1, (int)Math.ceil(radius / 16.0));
         int centerChunkX = center.m_123341_() >> 4;
@@ -114,8 +115,9 @@ public final class DynamicShadowMeshCapture {
                     if (box == null) {
                         box = new AABB(blockEntity.m_58899_());
                     }
-                    if (DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) > radiusSq || (captured = DynamicShadowMeshCapture.captureBlockEntity(renderer, blockEntity, nextId++, partialTick, box.m_82400_(0.02))) == null) continue;
-                    casters.add(captured);
+                    if (DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) <= radiusSq && (captured = DynamicShadowMeshCapture.captureBlockEntity(renderer, blockEntity, nextId++, partialTick, box.m_82400_(0.02))) != null) {
+                        casters.add(captured);
+                    }
                 }
             }
         }
@@ -215,11 +217,12 @@ public final class DynamicShadowMeshCapture {
 
         @Nullable
         CapturedCaster buildCaster(long id, AABB fallbackBounds) {
-            ArrayList<Vec3[]> quads = new ArrayList<Vec3[]>();
+            List<Vec3[]> quads = new ArrayList<Vec3[]>();
             for (CapturingVertexConsumer consumer : this.consumers.values()) {
                 consumer.appendInto(quads);
-                if (quads.size() < 192) continue;
-                break;
+                if (quads.size() >= 192) {
+                    break;
+                }
             }
             if (quads.isEmpty()) {
                 return new CapturedCaster(id, fallbackBounds, Collections.emptyList());
@@ -342,8 +345,9 @@ public final class DynamicShadowMeshCapture {
                 Vector4f transformed = matrix.transform(new Vector4f(x, y, z, 1.0f));
                 quad[index] = new Vec3((double)transformed.x(), (double)transformed.y(), (double)transformed.z());
                 int bakedAlpha = vertices[vertexBase + 3] >>> 24;
-                if (bakedAlpha <= alphaByte) continue;
-                alphaByte = bakedAlpha;
+                if (bakedAlpha > alphaByte) {
+                    alphaByte = bakedAlpha;
+                }
             }
             if (alphaByte >= 16) {
                 this.quads.add(quad);

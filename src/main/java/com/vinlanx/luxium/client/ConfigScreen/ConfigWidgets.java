@@ -41,8 +41,7 @@ final class ConfigWidgets {
         box.m_94144_(String.format(Locale.ROOT, "#%06X", option.get() & 0xFFFFFF));
         box.m_94153_(text -> text.matches("#?[0-9a-fA-F]{0,6}"));
         box.m_94151_(text -> {
-            String hex;
-            String string = hex = text.startsWith("#") ? text.substring(1) : text;
+            String hex = text.startsWith("#") ? text.substring(1) : text;
             if (hex.length() == 6) {
                 option.set(Integer.parseInt(hex, 16));
             }

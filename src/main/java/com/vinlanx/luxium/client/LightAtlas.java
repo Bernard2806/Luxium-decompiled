@@ -208,14 +208,14 @@ public final class LightAtlas {
                 int slice = row + z * 48;
                 for (int x = 0; x < 48; ++x) {
                     int l;
-                    int level;
                     cursor.m_122178_(anchorX + x, wy, wz);
                     int packedIndex = slice + x;
-                    int n = level = rtxOn ? rtxLightCache[packedIndex] & 0xFF : 0;
+                    int level = rtxOn ? rtxLightCache[packedIndex] & 0xFF : 0;
                     if (flashlight && (l = TestFlashLight.sampleLight((BlockPos)cursor)) > level) {
                         level = l;
                     }
-                    if ((level = Mth.m_14045_((int)level, (int)0, (int)15)) > 0) {
+                    level = Mth.m_14045_((int)level, (int)0, (int)15);
+                    if (level > 0) {
                         LightAtlas.litVoxelIndices[lit] = (y * 48 + z) * 48 + x;
                         ++lit;
                     }

@@ -225,8 +225,9 @@ public final class LuxiumCloudRenderer {
         double maxFront = Double.NEGATIVE_INFINITY;
         for (LayerConfig layer : config) {
             ShadowPlane plane;
-            if (!layer.enabled || layer.opacity <= 0.0 || (plane = LuxiumCloudRenderer.buildShadowPlane(center, toLight, lightViewRotation, projectionRadius, LuxiumCloudRenderer.shadowCasterHeight(layer, cloudStatus))) == null || !Double.isFinite(plane.maxFront)) continue;
-            maxFront = Math.max(maxFront, plane.maxFront);
+            if (layer.enabled && layer.opacity > 0.0 && (plane = LuxiumCloudRenderer.buildShadowPlane(center, toLight, lightViewRotation, projectionRadius, LuxiumCloudRenderer.shadowCasterHeight(layer, cloudStatus))) != null && Double.isFinite(plane.maxFront)) {
+                maxFront = Math.max(maxFront, plane.maxFront);
+            }
         }
         return Double.isFinite(maxFront) && maxFront > 0.0 ? (float)maxFront : Float.NaN;
     }
@@ -847,9 +848,10 @@ public final class LuxiumCloudRenderer {
         int head = 0;
         int tail = 0;
         for (int i = 0; i < count; ++i) {
-            if (!opaque[i]) continue;
-            nearest[i] = i;
-            queue[tail++] = i;
+            if (!(!opaque[i])) {
+                nearest[i] = i;
+                queue[tail++] = i;
+            }
         }
         while (head < tail) {
             int index = queue[head++];
@@ -861,9 +863,10 @@ public final class LuxiumCloudRenderer {
                     int nx;
                     int ny;
                     int next;
-                    if (dx == 0 && dy == 0 || nearest[next = (ny = y + dy & 0xFF) << 8 | (nx = x + dx & 0xFF)] != -1) continue;
-                    nearest[next] = source;
-                    queue[tail++] = next;
+                    if ((dx != 0 || dy != 0) && !(nearest[next = (ny = y + dy & 0xFF) << 8 | (nx = x + dx & 0xFF)] != -1)) {
+                        nearest[next] = source;
+                        queue[tail++] = next;
+                    }
                 }
             }
         }
@@ -878,9 +881,10 @@ public final class LuxiumCloudRenderer {
         int head = 0;
         int tail = 0;
         for (int i = 0; i < count; ++i) {
-            if (opaque[i] != seedOpaque) continue;
-            distance[i] = 0;
-            queue[tail++] = i;
+            if (opaque[i] == seedOpaque) {
+                distance[i] = 0;
+                queue[tail++] = i;
+            }
         }
         while (head < tail) {
             int index = queue[head++];
@@ -892,9 +896,10 @@ public final class LuxiumCloudRenderer {
                     int nx;
                     int ny;
                     int next;
-                    if (dx == 0 && dy == 0 || distance[next = (ny = y + dy & 0xFF) << 8 | (nx = x + dx & 0xFF)] != Integer.MAX_VALUE) continue;
-                    distance[next] = nextDistance;
-                    queue[tail++] = next;
+                    if ((dx != 0 || dy != 0) && !(distance[next = (ny = y + dy & 0xFF) << 8 | (nx = x + dx & 0xFF)] != Integer.MAX_VALUE)) {
+                        distance[next] = nextDistance;
+                        queue[tail++] = next;
+                    }
                 }
             }
         }
