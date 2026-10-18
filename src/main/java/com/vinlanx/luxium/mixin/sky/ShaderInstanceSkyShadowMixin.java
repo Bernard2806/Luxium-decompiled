@@ -172,8 +172,6 @@ public abstract class ShaderInstanceSkyShadowMixin {
 
     @Inject(method={"apply"}, at={@At(value="HEAD")})
     private void luxium$bindSkyShadowState(CallbackInfo ci) {
-        float vanillaBlockLightInSunShadows;
-        boolean casterPass;
         if (!this.luxium$isReceiverShader() || !LuxiumGpuShaderFeatures.receiverBindingEnabled()) {
             return;
         }
@@ -204,11 +202,11 @@ public abstract class ShaderInstanceSkyShadowMixin {
         NeoSkyCelestiaFrameState state = system.frameState();
         boolean active = system.isMainPassActive();
         boolean skyEntityCasterPass = system.isRenderingEntityShadowPass();
-        boolean bl = casterPass = skyEntityCasterPass || NeoShadowsEngine.isGpuShadowAtlasCapturePass();
+        boolean casterPass = skyEntityCasterPass || NeoShadowsEngine.isGpuShadowAtlasCapturePass();
         if (skyEntityCasterPass) {
             system.bindEntityShadowTarget();
         }
-        float f = vanillaBlockLightInSunShadows = state.moonLight() ? 0.0f : ((Double)Config.CLIENT.vanillaBlockLightInSunShadows.get()).floatValue() * 0.01f;
+        float vanillaBlockLightInSunShadows = state.moonLight() ? 0.0f : ((Double)Config.CLIENT.vanillaBlockLightInSunShadows.get()).floatValue() * 0.01f;
         if (this.luxium$lastUploadedState == state && this.luxium$lastUploadedActive == active && this.luxium$lastUploadedCasterPass == casterPass && Float.compare(this.luxium$lastUploadedVanillaBlockLightInSunShadows, vanillaBlockLightInSunShadows) == 0) {
             return;
         }
@@ -280,7 +278,6 @@ public abstract class ShaderInstanceSkyShadowMixin {
 
     @Inject(method={"apply"}, at={@At(value="TAIL")})
     private void luxium$bindLocalShadowState(CallbackInfo ci) {
-        boolean bakedHardActive;
         if (!LUXIUM$RECEIVER_SHADERS.contains(this.f_173300_)) {
             return;
         }
@@ -320,10 +317,9 @@ public abstract class ShaderInstanceSkyShadowMixin {
                     GL20.glUniform1i((int)this.luxium$neoGpuFineScaleLoc, (int)1);
                 }
             } else {
-                boolean neoGpuFastActive;
                 NeoGpuVanillaFrameState neoGpu = NeoGpuVanilla.frameState();
                 boolean neoGpuActive = NeoGpuVanilla.isMainPassActive() && neoGpu.enabled() && !NeoShadowsEngine.isAnyShadowCapturePass();
-                boolean bl = neoGpuFastActive = neoGpuActive && neoGpu.fastShadowsEnabled();
+                boolean neoGpuFastActive = neoGpuActive && neoGpu.fastShadowsEnabled();
                 if (this.luxium$neoGpuEnabledLoc >= 0) {
                     GL20.glUniform1i((int)this.luxium$neoGpuEnabledLoc, (int)(neoGpuActive ? 1 : 0));
                 }
@@ -348,8 +344,9 @@ public abstract class ShaderInstanceSkyShadowMixin {
                         int[] textures = new int[]{neoGpu.fastLightPX(), neoGpu.fastLightNX(), neoGpu.fastLightPY(), neoGpu.fastLightNY(), neoGpu.fastLightPZ(), neoGpu.fastLightNZ()};
                         for (int i = 0; i < 6; ++i) {
                             ShaderInstanceSkyShadowMixin.luxium$bindTexture3D(10 + i, textures[i]);
-                            if (this.luxium$neoGpuFastSamplerLocs[i] < 0) continue;
-                            GL20.glUniform1i((int)this.luxium$neoGpuFastSamplerLocs[i], (int)(10 + i));
+                            if (this.luxium$neoGpuFastSamplerLocs[i] >= 0) {
+                                GL20.glUniform1i((int)this.luxium$neoGpuFastSamplerLocs[i], (int)(10 + i));
+                            }
                         }
                     }
                 }
@@ -412,7 +409,7 @@ public abstract class ShaderInstanceSkyShadowMixin {
         }
         GpuShadowFrameState state = GpuNeoShadows.frameState();
         boolean active = GpuNeoShadows.isMainPassActive() && state.enabled() && !NeoShadowsEngine.isAnyShadowCapturePass();
-        boolean bl = bakedHardActive = active && GpuNeoShadows.isBakedHardReceiverReady();
+        boolean bakedHardActive = active && GpuNeoShadows.isBakedHardReceiverReady();
         if (this.luxium$localEnabledLoc >= 0) {
             GL20.glUniform1i((int)this.luxium$localEnabledLoc, (int)(active ? 1 : 0));
         }
@@ -451,8 +448,9 @@ public abstract class ShaderInstanceSkyShadowMixin {
             for (int i = 0; i < 6; ++i) {
                 int textureUnit = 9 + i;
                 ShaderInstanceSkyShadowMixin.luxium$bindTexture3D(textureUnit, GpuNeoShadows.bakedHardTexture(i));
-                if (this.luxium$localBakedHardSamplerLocs[i] < 0) continue;
-                GL20.glUniform1i((int)this.luxium$localBakedHardSamplerLocs[i], (int)textureUnit);
+                if (this.luxium$localBakedHardSamplerLocs[i] >= 0) {
+                    GL20.glUniform1i((int)this.luxium$localBakedHardSamplerLocs[i], (int)textureUnit);
+                }
             }
             if (this.luxium$localBakedHardMinLoc >= 0) {
                 GL20.glUniform3f((int)this.luxium$localBakedHardMinLoc, (float)GpuNeoShadows.bakedHardMinX(), (float)GpuNeoShadows.bakedHardMinY(), (float)GpuNeoShadows.bakedHardMinZ());

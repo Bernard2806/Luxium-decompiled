@@ -142,8 +142,6 @@ public abstract class GameRendererMixin {
      */
     @Redirect(method={"renderLevel"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(Lcom/mojang/blaze3d/vertex/PoseStack;FJZLnet/minecraft/client/Camera;Lnet/minecraft/client/renderer/GameRenderer;Lnet/minecraft/client/renderer/LightTexture;Lorg/joml/Matrix4f;)V"))
     private void luxium$redirectRenderLevel(LevelRenderer levelRenderer, PoseStack poseStack, float partialTick, long finishNano, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix) {
-        boolean tfrRealActive;
-        boolean needsCubemapCapture;
         Minecraft minecraft = Minecraft.m_91087_();
         Matrix4f viewMatrix = new Matrix4f((Matrix4fc)poseStack.m_85850_().m_252922_());
         LuxiumGpuShaderFeatures.beginFrame();
@@ -156,11 +154,12 @@ public abstract class GameRendererMixin {
         NeoShadowsEngine.captureSkyLightScene(levelRenderer, poseStack, partialTick, finishNano, renderBlockOutline, camera, gameRenderer, lightTexture, projectionMatrix);
         NeoGpuVanilla.prepareShadowAtlas(minecraft, camera);
         GpuNeoShadows.prepareShadowAtlas(minecraft, camera);
-        boolean bl = needsCubemapCapture = NeoGpuVanilla.hasStagedLights() || GpuNeoShadows.hasStagedLights() && GpuNeoShadows.usesCubemapShadows();
+        boolean needsCubemapCapture = NeoGpuVanilla.hasStagedLights() || GpuNeoShadows.hasStagedLights() && GpuNeoShadows.usesCubemapShadows();
         if (needsCubemapCapture) {
             GpuShadowCache.get().buildPendingShadows(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture);
         }
-        boolean lsrActive = !(tfrRealActive = TemporalFrameSystem.beginRealFrame(minecraft)) && LsrSystem.beginWorldRender(minecraft);
+        boolean tfrRealActive = TemporalFrameSystem.beginRealFrame(minecraft);
+        boolean lsrActive = !tfrRealActive && LsrSystem.beginWorldRender(minecraft);
         try {
             NeoGpuVanilla.prepareMainWorldRender(minecraft, camera);
             GpuNeoShadows.prepareMainWorldRender(minecraft, camera, projectionMatrix, viewMatrix);

@@ -45,7 +45,6 @@ public abstract class EntityRendererMixin<T extends Entity> {
 
     @Inject(method={"getPackedLightCoords"}, at={@At(value="RETURN")}, cancellable=true)
     private void luxium$rtxEntityLight(T entity, float partialTick, CallbackInfoReturnable<Integer> cir) {
-        int best;
         if (NeoShadowsEngine.isAnyShadowCapturePass()) {
             return;
         }
@@ -64,7 +63,7 @@ public abstract class EntityRendererMixin<T extends Entity> {
         int vanillaBlock = vanilla >> 4 & 0xF;
         int vanillaSky = vanilla >> 20 & 0xF;
         boolean hybridLocalLighting = Config.isFeatureEnabled(Config.CLIENT.gpuShadowsEnabled) && !Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) && Config.CLIENT.gpuLocalLightingMode.get() == Config.GpuLocalLightingMode.HYBRID;
-        int n = best = hybridLocalLighting ? rtxLight : Math.max(vanillaBlock, rtxLight);
+        int best = hybridLocalLighting ? rtxLight : Math.max(vanillaBlock, rtxLight);
         if (hybridLocalLighting && lava.isActive()) {
             best = Math.max(best, lava.sampleLight(pos));
         }

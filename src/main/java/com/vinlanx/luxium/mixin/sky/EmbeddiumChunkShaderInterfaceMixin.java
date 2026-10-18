@@ -294,9 +294,8 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
 
     @Inject(method={"<init>"}, at={@At(value="TAIL")})
     private void luxium$bindShadowUniforms(ShaderBindingContext context, ChunkShaderOptions options, CallbackInfo ci) {
-        boolean waterPass;
         boolean waterEnabled = Config.isFeatureEnabled(Config.CLIENT.waterEnabled);
-        boolean bl = waterPass = waterEnabled && WaterTerrainPass.is(options.pass());
+        boolean waterPass = waterEnabled && WaterTerrainPass.is(options.pass());
         if (!waterPass) {
             this.luxium$plantWaveEnabled = (GlUniformInt)context.bindUniform("u_LuxiumPlantWaveEnabled", GlUniformInt::new);
             this.luxium$plantWaveTime = (GlUniformFloat)context.bindUniform("u_LuxiumPlantWaveTime", GlUniformFloat::new);
@@ -440,7 +439,6 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
 
     @Inject(method={"setupState"}, at={@At(value="TAIL")})
     private void luxium$setupShadowState(CallbackInfo ci) {
-        boolean neoGpuFastActive;
         if (this.luxium$plantWaveEnabled != null) {
             this.luxium$setupPlantWaveState();
         }
@@ -567,7 +565,7 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
         }
         NeoGpuVanillaFrameState neoGpu = NeoGpuVanilla.frameState();
         boolean neoGpuActive = NeoGpuVanilla.isMainPassActive() && neoGpu.enabled();
-        boolean bl = neoGpuFastActive = neoGpuActive && neoGpu.fastShadowsEnabled();
+        boolean neoGpuFastActive = neoGpuActive && neoGpu.fastShadowsEnabled();
         if (this.luxium$neoGpuEnabled != null) {
             this.luxium$neoGpuEnabled.setInt(neoGpuActive ? 1 : 0);
         }
@@ -592,8 +590,9 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
                 int[] textures = new int[]{neoGpu.fastLightPX(), neoGpu.fastLightNX(), neoGpu.fastLightPY(), neoGpu.fastLightNY(), neoGpu.fastLightPZ(), neoGpu.fastLightNZ()};
                 for (int i = 0; i < 6; ++i) {
                     EmbeddiumChunkShaderInterfaceMixin.bindTexture3D(10 + i, textures[i]);
-                    if (this.luxium$neoGpuFastSamplers[i] == null) continue;
-                    this.luxium$neoGpuFastSamplers[i].setInt(10 + i);
+                    if (this.luxium$neoGpuFastSamplers[i] != null) {
+                        this.luxium$neoGpuFastSamplers[i].setInt(10 + i);
+                    }
                 }
             }
         }
@@ -620,8 +619,9 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
         if (bakedHardActive) {
             for (int i = 0; i < 6; ++i) {
                 EmbeddiumChunkShaderInterfaceMixin.bindTexture3D(8 + i, GpuNeoShadows.bakedHardTexture(i));
-                if (this.luxium$localBakedHardSamplers[i] == null) continue;
-                this.luxium$localBakedHardSamplers[i].setInt(8 + i);
+                if (this.luxium$localBakedHardSamplers[i] != null) {
+                    this.luxium$localBakedHardSamplers[i].setInt(8 + i);
+                }
             }
             if (this.luxium$localBakedHardMin != null) {
                 this.luxium$localBakedHardMin.set(GpuNeoShadows.bakedHardMinX(), GpuNeoShadows.bakedHardMinY(), GpuNeoShadows.bakedHardMinZ());
@@ -728,8 +728,6 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
 
     @Unique
     private void luxium$setupWaterState() {
-        boolean microReady;
-        int height;
         Minecraft mc = Minecraft.m_91087_();
         int requestedMode = WaterSurfaceState.renderMode();
         int colorUnit = 2;
@@ -755,7 +753,7 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
         this.luxium$waterRenderMode.setInt(renderMode);
         boolean scaledPass = renderMode == 1 || renderMode == 3;
         int width = scaledPass ? Math.max(SharedPostResources.getWaterRenderWidth(), 1) : Math.max(mc.m_91385_().f_83915_, 1);
-        int n = height = scaledPass ? Math.max(SharedPostResources.getWaterRenderHeight(), 1) : Math.max(mc.m_91385_().f_83916_, 1);
+        int height = scaledPass ? Math.max(SharedPostResources.getWaterRenderHeight(), 1) : Math.max(mc.m_91385_().f_83916_, 1);
         if (renderMode == 2 || renderMode == 4) {
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(colorUnit, SharedPostResources.getWaterRenderColorTextureId());
             this.luxium$waterResolvedColor.setInt(colorUnit);
@@ -771,10 +769,10 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             this.luxium$ssrHitTexture.setInt(depthOrHitUnit);
         }
         int microTexture = 0;
-        boolean bl = microReady = renderMode == 1 && maxTextureUnits > microUnit;
+        boolean microReady = renderMode == 1 && maxTextureUnits > microUnit;
         if (microReady) {
             microTexture = WaterTextureResources.microNormalTextureId();
-            boolean bl2 = microReady = microTexture > 0;
+            microReady = microTexture > 0;
         }
         if (microReady) {
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(microUnit, microTexture);

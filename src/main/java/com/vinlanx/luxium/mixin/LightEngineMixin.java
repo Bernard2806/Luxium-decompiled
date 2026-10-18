@@ -57,12 +57,11 @@ implements LuxiumLightEngineExtension {
 
     @Override
     public int luxium$runLightUpdatesBudgeted(int maxOperations) {
-        long posKey;
         int processed;
         int budget = Math.max(1, maxOperations);
         LongIterator nodes = this.f_283863_.iterator();
         for (processed = 0; processed < budget && nodes.hasNext(); ++processed) {
-            posKey = nodes.nextLong();
+            long posKey = nodes.nextLong();
             nodes.remove();
             this.m_75858_(posKey);
         }
@@ -70,7 +69,7 @@ implements LuxiumLightEngineExtension {
             this.f_283863_.trim(512);
         }
         while (processed < budget && !this.f_283823_.isEmpty()) {
-            posKey = this.f_283823_.dequeueLong();
+            long posKey = this.f_283823_.dequeueLong();
             long entry = this.f_283823_.dequeueLong();
             this.m_284321_(posKey, entry);
             ++processed;

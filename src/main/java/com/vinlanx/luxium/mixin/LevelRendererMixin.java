@@ -109,7 +109,6 @@ public abstract class LevelRendererMixin {
 
     @Inject(method={"getLightColor(Lnet/minecraft/world/level/BlockAndTintGetter;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)I"}, at={@At(value="HEAD")}, cancellable=true)
     private static void luxium$overrideLight(BlockAndTintGetter getter, BlockState state, BlockPos pos, CallbackInfoReturnable<Integer> cir) {
-        int flashlightLight;
         TorchRtxState rtx = TorchRtxState.get();
         if (!rtx.isEnabled()) {
             return;
@@ -124,7 +123,8 @@ public abstract class LevelRendererMixin {
         if (VanillaLavaLightEngine.get().isActive()) {
             blockLight = Math.max(blockLight, VanillaLavaLightEngine.get().sampleLight(pos));
         }
-        if ((flashlightLight = TestFlashLight.sampleLight(pos)) > blockLight) {
+        int flashlightLight = TestFlashLight.sampleLight(pos);
+        if (flashlightLight > blockLight) {
             blockLight = flashlightLight;
         }
         if (blockLight > 0 && rtx.usesEntityOcclusionShadows() && EntityShadowManager.get().isBlockInShadow(pos.m_121878_())) {

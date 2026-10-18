@@ -38,8 +38,9 @@ public abstract class EmbeddiumTerrainPassesMixin {
         WaterTerrainPass.bootstrap();
         TerrainRenderPass water = WaterTerrainPass.get();
         for (TerrainRenderPass pass : ALL) {
-            if (pass != water) continue;
-            return;
+            if (pass == water) {
+                return;
+            }
         }
         TerrainRenderPass[] extended = Arrays.copyOf(ALL, ALL.length + 1);
         extended[EmbeddiumTerrainPassesMixin.ALL.length] = water;

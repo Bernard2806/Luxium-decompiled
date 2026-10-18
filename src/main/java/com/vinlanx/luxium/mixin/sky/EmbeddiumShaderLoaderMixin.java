@@ -37,12 +37,10 @@ public abstract class EmbeddiumShaderLoaderMixin {
     @Inject(method={"getShaderSource"}, at={@At(value="HEAD")}, cancellable=true)
     private static void luxium$replaceTerrainShaders(ResourceLocation name, CallbackInfoReturnable<String> cir) {
         ResourceLocation replacement;
-        boolean neoSkyInline;
-        boolean waterPassNow;
         if (!"sodium".equals(name.m_135827_())) {
             return;
         }
-        boolean bl = waterPassNow = Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && EmbeddiumWaterShaderCompileContext.isWaterPass();
+        boolean waterPassNow = Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && EmbeddiumWaterShaderCompileContext.isWaterPass();
         if (BlockLightTest.enabled() && !LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled() && !waterPassNow && ("blocks/block_layer_opaque.vsh".equals(name.m_135815_()) || "blocks/block_layer_opaque.fsh".equals(name.m_135815_()))) {
             ResourceLocation source = ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)("shaders/embeddium/block_layer_blocklighttest." + (name.m_135815_().endsWith(".vsh") ? "vsh" : "fsh")));
             try (InputStream stream = Minecraft.m_91087_().m_91098_().m_215593_(source).m_215507_();){
@@ -59,7 +57,7 @@ public abstract class EmbeddiumShaderLoaderMixin {
         boolean localReceiver = receiverShaders && LuxiumGpuShaderFeatures.localReceiverEnabled();
         boolean neoSky = LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled() && !neoGpuVanilla && !localReceiver && !waterPass;
         boolean neoSkyForward = neoSky && EmbeddiumWaterShaderCompileContext.isTranslucentPass();
-        boolean bl2 = neoSkyInline = neoSky && !neoSkyForward;
+        boolean neoSkyInline = neoSky && !neoSkyForward;
         if (!(receiverShaders || waterPass || neoSky || "blocks/block_layer_opaque.vsh".equals(name.m_135815_()))) {
             return;
         }
