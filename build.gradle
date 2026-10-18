@@ -106,8 +106,6 @@ tasks.register('remapSrgSources') {
             def javaSource = remapped.toString()
                     .replace('(Object)', '')
                     .replace('(GuiEventListener)', '')
-                    .replace('ResourceLocation.fromNamespaceAndPath(', 'new ResourceLocation(')
-                    .replace('ResourceLocation.withDefaultNamespace(', 'new ResourceLocation(')
             if (source.name == 'VanillaLavaLightEngine.java') {
                 javaSource = javaSource
                         .replace('(LuxiumLightEngineExtension)current', '(LuxiumLightEngineExtension)(Object)current')
@@ -135,7 +133,7 @@ tasks.named('compileJava') {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.10'
     implementation fg.deobf('maven.modrinth:sk9rgfiA:UTbfe5d1')
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     officialMappings 'net.minecraft:mappings_official:1.20.1@zip'

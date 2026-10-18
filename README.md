@@ -33,7 +33,7 @@ This is a decompilation, not the original source tree. CFR reports one class/met
 - Java 17 JDK
 - Gradle wrapper is included; it downloads Gradle 8.1.1 on first use.
 
-Run `./gradlew build` to compile and package the mod. The build remaps the decompiled SRG member names to Minecraft's official mappings and targets Minecraft 1.20.1, Forge 47.2.0, and Embeddium 0.3.31.
+Run `./gradlew build` to compile and package the mod. The build remaps the decompiled SRG member names to Minecraft's official mappings and targets Minecraft 1.20.1, Forge 47.4.10, and Embeddium 0.3.31.
 
 ## Releases
 
