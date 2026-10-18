@@ -141,7 +141,10 @@ final class NeoShadowsRuntime {
         LongIterator patchIter = patchBlocks.iterator();
         while (patchIter.hasNext()) {
             int e = torchState.getSourceEmission(patchIter.nextLong());
-            if (e > maxEmission && (maxEmission = e) >= 15) break;
+            if (e > maxEmission) {
+                maxEmission = e;
+                if (maxEmission >= 15) break;
+            }
         }
         int localRadius = maxEmission > 0 ? Math.min((int)Math.ceil(30.0), (int)Math.ceil(LightRtMath.getMaxDistance(maxEmission)) + 1) : (int)Math.ceil(30.0);
         this.engine.latestStaticHotPatchRequest = new NeoShadowsTypes.StaticHotPatchRequest(this.engine.nextStaticHotPatchRequestId++, this.engine.buildEpoch, this.engine.activeStaticResultId, level, patchBlocks, localRadius);
@@ -170,11 +173,10 @@ final class NeoShadowsRuntime {
             if (request == null || !this.engine.enabled) {
                 return;
             }
-            long epoch;
             if (request.epoch != this.engine.buildEpoch) {
                 return;
             }
-            epoch = request.epoch;
+            long epoch = request.epoch;
             this.engine.inFlightStaticEpoch = epoch;
             this.engine.inFlightStaticPolygons = Collections.emptyList();
             Consumer<List<NeoShadowsTypes.ShadowPolygon>> publisher = polygons -> {
