@@ -90,8 +90,14 @@ public final class DynamicShadowMeshCapture {
                 return new Snapshot(level, List.copyOf(casters));
             }
             CapturedCaster captured;
-            if (entity != null && !entity.m_213877_() && !entity.m_20145_() && (box = entity.m_20191_()) != null && DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) <= radiusSq && (captured = DynamicShadowMeshCapture.captureEntity(entityDispatcher, entity, nextId++, partialTick, box.m_82400_(0.03))) != null) {
-                casters.add(captured);
+            if (entity != null && !entity.m_213877_() && !entity.m_20145_()) {
+                box = entity.m_20191_();
+                if (box != null && DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) <= radiusSq) {
+                    captured = DynamicShadowMeshCapture.captureEntity(entityDispatcher, entity, nextId++, partialTick, box.m_82400_(0.03));
+                    if (captured != null) {
+                        casters.add(captured);
+                    }
+                }
             }
         }
         int chunkRadius = Math.max(1, (int)Math.ceil(radius / 16.0));

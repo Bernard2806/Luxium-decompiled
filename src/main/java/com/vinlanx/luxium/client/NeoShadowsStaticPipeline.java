@@ -357,9 +357,6 @@ final class NeoShadowsStaticPipeline {
         ArrayList<BlockPos> cluster = new ArrayList<BlockPos>();
         LongOpenHashSet clusterKeys = new LongOpenHashSet();
         for (NeoShadowsOcclusionPipeline.OccluderHit seedHit : hitsByBlock.values()) {
-            NeoShadowsTypes.Box mergedWorldBox;
-            List<NeoShadowsTypes.UvPoint> projected;
-            List<NeoShadowsTypes.UvPoint> polygon;
             int minZ;
             int minY;
             int minX;
@@ -396,7 +393,11 @@ final class NeoShadowsStaticPipeline {
                 }
             }
             int volume = (maxX - minX + 1) * (maxY - minY + 1) * (maxZ - minZ + 1);
-            if (cluster.size() <= 1 || volume != cluster.size() || (polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected = NeoShadowsProjection.collectProjectedBoxPoints(group.plane, group.source, mergedWorldBox = new NeoShadowsTypes.Box(minX, minY, minZ, (double)maxX + 1.0, (double)maxY + 1.0, (double)maxZ + 1.0)), scratch)) == null) continue;
+            if (cluster.size() <= 1 || volume != cluster.size()) continue;
+            NeoShadowsTypes.Box mergedWorldBox = new NeoShadowsTypes.Box(minX, minY, minZ, (double)maxX + 1.0, (double)maxY + 1.0, (double)maxZ + 1.0);
+            List<NeoShadowsTypes.UvPoint> projected = NeoShadowsProjection.collectProjectedBoxPoints(group.plane, group.source, mergedWorldBox);
+            List<NeoShadowsTypes.UvPoint> polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected, scratch);
+            if (polygon == null) continue;
             this.addPlaneShadowPolygons(group, polygon, scratch);
             consumedHits.addAll((LongCollection)clusterKeys);
         }
@@ -701,8 +702,12 @@ final class NeoShadowsStaticPipeline {
         double directionV = innerUv.v - outerUv.v;
         double directionLengthSq = directionU * directionU + directionV * directionV;
         Vec3 edgeDirection;
-        if (directionLengthSq <= 1.0E-6 && (directionLengthSq = (directionU = (edgeDirection = end.m_82546_(start)).m_82526_(plane.axisU)) * directionU + (directionV = edgeDirection.m_82526_(plane.axisV)) * directionV) <= 1.0E-6) {
-            return;
+        if (directionLengthSq <= 1.0E-6) {
+            edgeDirection = end.m_82546_(start);
+            directionLengthSq = (directionU = edgeDirection.m_82526_(plane.axisU)) * directionU + (directionV = edgeDirection.m_82526_(plane.axisV)) * directionV;
+            if (directionLengthSq <= 1.0E-6) {
+                return;
+            }
         }
         double directionLength = Math.sqrt(directionLengthSq);
         points.add(new NeoShadowsTypes.UvPoint(innerUv.u + directionU / directionLength * 8.0, innerUv.v + directionV / directionLength * 8.0));

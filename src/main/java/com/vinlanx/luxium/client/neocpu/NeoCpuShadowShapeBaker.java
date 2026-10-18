@@ -134,10 +134,10 @@ final class NeoCpuShadowShapeBaker {
                 double maxPixelX = Math.min((double)rect.maxX, usedPixels.maxX);
                 double minPixelY = Math.max((double)rect.minY, usedPixels.minY);
                 double maxPixelY = Math.min((double)rect.maxY, usedPixels.maxY);
-                Vec3[] vertices;
-                if (maxPixelX - minPixelX > 1.0E-6 && maxPixelY - minPixelY > 1.0E-6 && (vertices = NeoCpuShadowShapeBaker.buildOpaqueRectVertices(texturedQuad, sprite, minPixelX, maxPixelX, minPixelY, maxPixelY)) != null) {
-                    result.add(new NeoCpuShadowShape.LocalQuadTemplate(vertices, mask.averageOpacity));
-                }
+                if (maxPixelX - minPixelX <= 1.0E-6 || maxPixelY - minPixelY <= 1.0E-6) continue;
+                Vec3[] vertices = NeoCpuShadowShapeBaker.buildOpaqueRectVertices(texturedQuad, sprite, minPixelX, maxPixelX, minPixelY, maxPixelY);
+                if (vertices == null) continue;
+                result.add(new NeoCpuShadowShape.LocalQuadTemplate(vertices, mask.averageOpacity));
             }
         }
         return result.isEmpty() ? EMPTY_QUADS : result.toArray(EMPTY_QUADS);

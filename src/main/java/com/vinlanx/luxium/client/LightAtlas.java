@@ -211,8 +211,11 @@ public final class LightAtlas {
                     int packedIndex = slice + x;
                     int level = rtxOn ? rtxLightCache[packedIndex] & 0xFF : 0;
                     int l;
-                    if (flashlight && (l = TestFlashLight.sampleLight((BlockPos)cursor)) > level) {
-                        level = l;
+                    if (flashlight) {
+                        l = TestFlashLight.sampleLight((BlockPos)cursor);
+                        if (l > level) {
+                            level = l;
+                        }
                     }
                     level = Mth.m_14045_((int)level, (int)0, (int)15);
                     if (level > 0) {

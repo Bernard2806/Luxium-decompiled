@@ -147,11 +147,14 @@ public final class LsrSystem {
         try {
             boolean rendered = false;
             ShaderInstance shader;
-            if (PostEffectPipeline.hasDeferredTonemap() && (shader = tonemap.getShader()) != null) {
-                int effectsTexture = PostEffectPipeline.getDeferredEffectsTextureId();
-                tonemap.configure(shader, source.m_83975_(), effectsTexture, PostEffectPipeline.deferredTonemapCompositesEffects(), true, source.f_83915_, source.f_83916_);
-                LsrSystem.drawToNative(shader, destination);
-                rendered = true;
+            if (PostEffectPipeline.hasDeferredTonemap()) {
+                shader = tonemap.getShader();
+                if (shader != null) {
+                    int effectsTexture = PostEffectPipeline.getDeferredEffectsTextureId();
+                    tonemap.configure(shader, source.m_83975_(), effectsTexture, PostEffectPipeline.deferredTonemapCompositesEffects(), true, source.f_83915_, source.f_83916_);
+                    LsrSystem.drawToNative(shader, destination);
+                    rendered = true;
+                }
             }
             if (!rendered) {
                 rendered = LsrSystem.renderSpatialUpscale((RenderTarget)source, destination);

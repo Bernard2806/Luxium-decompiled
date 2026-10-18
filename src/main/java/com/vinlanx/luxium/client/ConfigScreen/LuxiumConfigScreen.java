@@ -496,7 +496,6 @@ extends Screen {
     }
 
     public boolean m_6375_(double mouseX, double mouseY, int button) {
-        int toggleWidth;
         if (button != 0) {
             return super.m_6375_(mouseX, mouseY, button);
         }
@@ -511,8 +510,9 @@ extends Screen {
             }
         }
         int footerY = this.panelY + this.panelHeight - 72;
-        int toggleX;
-        if (LuxiumConfigScreen.inside(mouseX, mouseY, toggleX = this.panelX + this.sidebarWidth - (toggleWidth = this.compactLayout ? 58 : 64) - 8, footerY + 7, toggleWidth, 20)) {
+        int toggleWidth = this.compactLayout ? 58 : 64;
+        int toggleX = this.panelX + this.sidebarWidth - toggleWidth - 8;
+        if (LuxiumConfigScreen.inside(mouseX, mouseY, toggleX, footerY + 7, toggleWidth, 20)) {
             this.blurEnabled = mouseX >= (double)toggleX + (double)toggleWidth / 2.0;
             return true;
         }
@@ -569,9 +569,7 @@ extends Screen {
             this.menuBackgroundRenderer.tick();
         }
         for (ControlRow row : this.controls) {
-            AbstractWidget abstractWidget = row.widget;
-            if (abstractWidget instanceof EditBox) {
-                EditBox box = (EditBox)abstractWidget;
+            if (row.widget instanceof EditBox box) {
                 box.m_94120_();
             }
         }
@@ -683,10 +681,8 @@ extends Screen {
     }
 
     private void syncPreviewWithConfig() {
-        Boolean value;
         this.observedPreviewRevision = this.previewOption.revision();
-        Object obj = this.previewOption.get();
-        this.previewAfter = obj instanceof Boolean && (value = (Boolean)obj) != false;
+        this.previewAfter = this.previewOption.get() instanceof Boolean value && value;
     }
 
     private void syncPreviewIfConfigChanged() {
@@ -694,10 +690,8 @@ extends Screen {
             return;
         }
         if (this.previewOption.revision() != this.observedPreviewRevision) {
-            Boolean value;
             this.observedPreviewRevision = this.previewOption.revision();
-            Object obj = this.previewOption.get();
-            this.previewAfter = obj instanceof Boolean && (value = (Boolean)obj) != false;
+            this.previewAfter = this.previewOption.get() instanceof Boolean value && value;
         }
     }
 
@@ -731,9 +725,10 @@ extends Screen {
                 continue;
             }
             entries.add(SidebarEntry.folder(folder));
-            if (!this.expandedFolders.contains(folder.id())) continue;
-            for (ConfigScreenModel.Category item : folder.categories()) {
-                entries.add(SidebarEntry.category(item, true));
+            if (this.expandedFolders.contains(folder.id())) {
+                for (ConfigScreenModel.Category item : folder.categories()) {
+                    entries.add(SidebarEntry.category(item, true));
+                }
             }
         }
         return entries;

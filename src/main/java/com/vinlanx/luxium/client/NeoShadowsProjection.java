@@ -115,8 +115,12 @@ final class NeoShadowsProjection {
         double directionV = innerUv.v - outerUv.v;
         double directionLengthSq = directionU * directionU + directionV * directionV;
         Vec3 edgeDirection;
-        if (directionLengthSq <= 1.0E-6 && (directionLengthSq = (directionU = (edgeDirection = end.m_82546_(start)).m_82526_(plane.axisU)) * directionU + (directionV = edgeDirection.m_82526_(plane.axisV)) * directionV) <= 1.0E-6) {
-            return;
+        if (directionLengthSq <= 1.0E-6) {
+            edgeDirection = end.m_82546_(start);
+            directionLengthSq = (directionU = edgeDirection.m_82526_(plane.axisU)) * directionU + (directionV = edgeDirection.m_82526_(plane.axisV)) * directionV;
+            if (directionLengthSq <= 1.0E-6) {
+                return;
+            }
         }
         double directionLength = Math.sqrt(directionLengthSq);
         points.add(new NeoShadowsTypes.UvPoint(innerUv.u + directionU / directionLength * 8.0, innerUv.v + directionV / directionLength * 8.0));

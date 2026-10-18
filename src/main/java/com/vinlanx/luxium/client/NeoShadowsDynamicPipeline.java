@@ -227,9 +227,10 @@ final class NeoShadowsDynamicPipeline {
         List<NeoShadowsTypes.DynamicCaster> fallbackCasters = new ArrayList<NeoShadowsTypes.DynamicCaster>(160);
         long nextId = 1L;
         for (Entity entity : level.m_104735_()) {
-            AABB box;
             if (fallbackCasters.size() >= 160) break;
-            if (entity == null || entity.m_213877_() || entity.m_20145_() || (box = entity.m_20191_()) == null || NeoShadowsDynamicPipeline.distanceToAabbSq(centerPos, box) > radiusSq) continue;
+            if (entity == null || entity.m_213877_() || entity.m_20145_()) continue;
+            AABB box = entity.m_20191_();
+            if (box == null || NeoShadowsDynamicPipeline.distanceToAabbSq(centerPos, box) > radiusSq) continue;
             fallbackCasters.add(new NeoShadowsTypes.DynamicCaster(nextId++, NeoShadowsTypes.Box.fromAabb(box.m_82400_(0.03)), Collections.emptyList()));
         }
         return fallbackCasters;

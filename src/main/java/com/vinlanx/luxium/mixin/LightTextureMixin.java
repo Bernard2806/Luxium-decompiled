@@ -205,8 +205,11 @@ implements NeoSkyLightTextureExtension {
                 }
                 level.m_104583_().adjustLightmapColors(level, partialTick, skyDarken, blockScale, skyBrightness, blockLevel, skyLevel, color);
                 float max;
-                if (nightVision > 0.0f && (max = Math.max(color.x(), Math.max(color.y(), color.z()))) > 1.0E-5f && max < 1.0f) {
-                    color.lerp((Vector3fc)new Vector3f((Vector3fc)color).mul(1.0f / max), nightVision);
+                if (nightVision > 0.0f) {
+                    max = Math.max(color.x(), Math.max(color.y(), color.z()));
+                    if (max > 1.0E-5f && max < 1.0f) {
+                        color.lerp((Vector3fc)new Vector3f((Vector3fc)color).mul(1.0f / max), nightVision);
+                    }
                 }
                 if (!forceBright) {
                     if (darknessScale > 0.0f) {
