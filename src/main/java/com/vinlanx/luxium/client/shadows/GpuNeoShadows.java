@@ -190,7 +190,12 @@ public final class GpuNeoShadows {
         Arrays.fill(VISIBLE_EMISSIONS_BUF, 0);
         Arrays.fill(VISIBLE_GPU_WEIGHTS_BUF, 0.0f);
         Arrays.fill(VISIBLE_VISIBILITY_SLOTS_BUF, -1);
-        int lightCount = GpuNeoShadows.usesCubemapShadows() ? cache.collectVisibleEntries(stagedSources, stagedEmissions, lightLimit, cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_, LIGHT_POS_RADIUS_BUF, LIGHT_ATLAS_RECT_BUF, VISIBLE_SOURCE_KEYS_BUF, VISIBLE_EMISSIONS_BUF, LIGHT_GEOMETRY_BUF) : GpuNeoShadows.collectSpreadEntries(stagedSources, stagedEmissions, lightLimit, cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_, LIGHT_POS_RADIUS_BUF, VISIBLE_SOURCE_KEYS_BUF, VISIBLE_EMISSIONS_BUF);
+        int lightCount;
+        if (GpuNeoShadows.usesCubemapShadows()) {
+            lightCount = cache.collectVisibleEntries(stagedSources, stagedEmissions, lightLimit, cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_, LIGHT_POS_RADIUS_BUF, LIGHT_ATLAS_RECT_BUF, VISIBLE_SOURCE_KEYS_BUF, VISIBLE_EMISSIONS_BUF, LIGHT_GEOMETRY_BUF);
+        } else {
+            lightCount = GpuNeoShadows.collectSpreadEntries(stagedSources, stagedEmissions, lightLimit, cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_, LIGHT_POS_RADIUS_BUF, VISIBLE_SOURCE_KEYS_BUF, VISIBLE_EMISSIONS_BUF);
+        }
         if (lightCount <= 0) {
             TorchRtxState.get().clearGpuDirectSources();
             GpuNeoShadows.clearFrame(false);
@@ -286,8 +291,7 @@ public final class GpuNeoShadows {
         mainPassActive = false;
         TorchRtxState.get().clearGpuDirectSources();
         frameState = GpuShadowFrameState.disabled(++frameVersion);
-        bakedHardRenderMinY = bakedHardRenderMinZ = 0.0f;
-        bakedHardRenderMinX = 0.0f;
+        bakedHardRenderMinX = bakedHardRenderMinY = bakedHardRenderMinZ = 0.0f;
         GpuNeoShadows.releaseGpuResources();
     }
 
@@ -421,7 +425,8 @@ public final class GpuNeoShadows {
     }
 
     private static long mix(long h, long v) {
-        return (h ^= v) * 1099511628211L;
+        h ^= v;
+        return h * 1099511628211L;
     }
 
     private static float smoothstep(float edge0, float edge1, float value) {
