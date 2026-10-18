@@ -160,7 +160,11 @@ public final class TemporalFrameSystem {
         worldPassActive = false;
         destination.m_83947_(true);
         RenderSystem.viewport((int)0, (int)0, (int)destination.f_83917_, (int)destination.f_83918_);
-        preparedHistoryValid = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? TemporalFrameSystem.prepareLsrHistory() : false;
+        if (Config.isFeatureEnabled(Config.CLIENT.lsrEnabled)) {
+            preparedHistoryValid = TemporalFrameSystem.prepareLsrHistory();
+        } else {
+            preparedHistoryValid = false;
+        }
         previousViewProjection.set((Matrix4fc)projectionMatrix).mul((Matrix4fc)viewMatrix);
         previousInverseViewProjection.set((Matrix4fc)previousViewProjection).invert();
         Vec3 cameraPos = camera.m_90583_();
@@ -406,7 +410,8 @@ public final class TemporalFrameSystem {
     }
 
     private static float wrappedDegrees(float value) {
-        if ((value %= 360.0f) >= 180.0f) {
+        value %= 360.0f;
+        if (value >= 180.0f) {
             value -= 360.0f;
         }
         if (value < -180.0f) {

@@ -116,9 +116,6 @@ public final class BlockLightTest {
     }
 
     public static void tick(ClientLevel current) {
-        BlockItem item;
-        BlockState held;
-        int light;
         if (!BlockLightTest.enabled()) {
             if (previouslyEnabled) {
                 BlockLightTest.setLevel(null);
@@ -141,15 +138,16 @@ public final class BlockLightTest {
         int centerZ = minecraft.f_91074_.m_20183_().m_123343_() >> 4;
         for (int radius = 0; radius <= 3; ++radius) {
             boolean scanned = false;
-            block1: for (int dz = -radius; dz <= radius && !scanned; ++dz) {
+            for (int dz = -radius; dz <= radius && !scanned; ++dz) {
                 for (int dx = -radius; dx <= radius; ++dx) {
-                    LevelChunk chunk;
                     int x = centerX + dx;
                     int z = centerZ + dz;
-                    if (!(SCANNED_CHUNKS.contains(ChunkPos.m_45589_((int)x, (int)z))) && (chunk = current.m_7726_().m_7587_(x, z, ChunkStatus.f_62326_, false)) != null) {
+                    if (SCANNED_CHUNKS.contains(ChunkPos.m_45589_((int)x, (int)z))) continue;
+                    LevelChunk chunk = current.m_7726_().m_7587_(x, z, ChunkStatus.f_62326_, false);
+                    if (chunk != null) {
                         BlockLightTest.onChunk(current, chunk);
                         scanned = true;
-                        continue block1;
+                        break;
                     }
                 }
             }
@@ -162,9 +160,12 @@ public final class BlockLightTest {
         for (Emitter source : SOURCES.values()) {
             BlockLightTest.addNearby(source, camera);
         }
-        Item source = minecraft.f_91074_.m_21205_().m_41720_();
-        if (source instanceof BlockItem && (light = (held = (item = (BlockItem)source).m_40614_().m_49966_()).getLightEmission((BlockGetter)current, minecraft.f_91074_.m_20183_())) > 0) {
-            BlockLightTest.addNearby(new Emitter(camera.f_82479_, camera.f_82480_ - 0.15, camera.f_82481_, light, BlockLightTest.tint(item.m_40614_().m_7705_()), true), camera);
+        if (minecraft.f_91074_.m_21205_().m_41720_() instanceof BlockItem item) {
+            BlockState held = item.m_40614_().m_49966_();
+            int light = held.getLightEmission((BlockGetter)current, minecraft.f_91074_.m_20183_());
+            if (light > 0) {
+                BlockLightTest.addNearby(new Emitter(camera.f_82479_, camera.f_82480_ - 0.15, camera.f_82481_, light, BlockLightTest.tint(item.m_40614_().m_7705_()), true), camera);
+            }
         }
     }
 
@@ -219,8 +220,8 @@ public final class BlockLightTest {
         if (insert >= 12) {
             return;
         }
-        int end;
-        for (int index = end = Math.min(size, 11); index > insert; --index) {
+        int end = Math.min(size, 11);
+        for (int index = end; index > insert; --index) {
             BlockLightTest.NEAR[index] = NEAR[index - 1];
             BlockLightTest.DISTANCES[index] = DISTANCES[index - 1];
         }

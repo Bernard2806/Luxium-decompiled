@@ -191,18 +191,10 @@ public final class RainPuddleManager {
         for (ResourceLocation id : ids) {
             Resource resource = (Resource)resources.get(id);
             if (resource == null) continue;
-            try {
-                InputStream input = resource.m_215507_();
-                try {
-                    RainHeightmap heightmap = this.loadHeightmap(id, input);
-                    if (heightmap != null) {
-                        loaded.put(id, heightmap);
-                    }
-                }
-                finally {
-                    if (input != null) {
-                        input.close();
-                    }
+            try (InputStream input = resource.m_215507_()) {
+                RainHeightmap heightmap = this.loadHeightmap(id, input);
+                if (heightmap != null) {
+                    loaded.put(id, heightmap);
                 }
             }
             catch (IOException e) {
@@ -215,23 +207,15 @@ public final class RainPuddleManager {
         if (!Files.isDirectory(DEV_RAIN_DIR, new LinkOption[0])) {
             return;
         }
-        try (Stream<Path> stream = Files.walk(DEV_RAIN_DIR, new FileVisitOption[0]);){
+        try (Stream<Path> stream = Files.walk(DEV_RAIN_DIR, new FileVisitOption[0])) {
             List<Path> files = stream.filter(x$0 -> Files.isRegularFile(x$0, new LinkOption[0])).filter(path -> path.toString().toLowerCase(Locale.ROOT).endsWith(PNG_SUFFIX)).sorted(Comparator.comparing(path -> DEV_RAIN_DIR.relativize((Path)path).toString())).toList();
             for (Path file : files) {
                 String relativePath = DEV_RAIN_DIR.relativize(file).toString().replace('\\', '/');
                 ResourceLocation id = ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)("rain/" + relativePath));
-                try {
-                    InputStream input = Files.newInputStream(file, new OpenOption[0]);
-                    try {
-                        RainHeightmap heightmap = this.loadHeightmap(id, input);
-                        if (heightmap != null) {
-                            loaded.put(id, heightmap);
-                        }
-                    }
-                    finally {
-                        if (input != null) {
-                            input.close();
-                        }
+                try (InputStream input = Files.newInputStream(file, new OpenOption[0])) {
+                    RainHeightmap heightmap = this.loadHeightmap(id, input);
+                    if (heightmap != null) {
+                        loaded.put(id, heightmap);
                     }
                 }
                 catch (IOException e) {
@@ -251,7 +235,7 @@ public final class RainPuddleManager {
      */
     @Nullable
     private RainHeightmap loadHeightmap(ResourceLocation id, InputStream input) {
-        try (NativeImage image = NativeImage.m_85058_((InputStream)input);){
+        try (NativeImage image = NativeImage.m_85058_((InputStream)input)) {
             int width = image.m_84982_();
             int height = image.m_85084_();
             if (width <= 0 || height <= 0) {
