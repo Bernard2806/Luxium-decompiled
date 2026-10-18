@@ -360,7 +360,8 @@ public final class NeoGpuVanilla {
         long v = value * -4417276706812531889L;
         v ^= v >>> 29;
         hash ^= v;
-        return (hash *= 1609587929392839161L) ^ hash >>> 32;
+        hash *= 1609587929392839161L;
+        return hash ^ hash >>> 32;
     }
 
     static {

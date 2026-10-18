@@ -480,15 +480,9 @@ final class NeoGpuVanillaVolume {
         this.bakedSourceCount = 0;
         this.activeIndex = 0;
         this.fastActiveIndex = 0;
-        this.activeAnchorZ = Integer.MIN_VALUE;
-        this.activeAnchorY = Integer.MIN_VALUE;
-        this.activeAnchorX = Integer.MIN_VALUE;
-        this.fastAnchorZ = Integer.MIN_VALUE;
-        this.fastAnchorY = Integer.MIN_VALUE;
-        this.fastAnchorX = Integer.MIN_VALUE;
-        this.buildAnchorZ = Integer.MIN_VALUE;
-        this.buildAnchorY = Integer.MIN_VALUE;
-        this.buildAnchorX = Integer.MIN_VALUE;
+        this.activeAnchorX = this.activeAnchorY = this.activeAnchorZ = Integer.MIN_VALUE;
+        this.fastAnchorX = this.fastAnchorY = this.fastAnchorZ = Integer.MIN_VALUE;
+        this.buildAnchorX = this.buildAnchorY = this.buildAnchorZ = Integer.MIN_VALUE;
         ++this.revision;
     }
 

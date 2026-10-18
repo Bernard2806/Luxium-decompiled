@@ -63,8 +63,8 @@ public final class SectionSkip {
         state.blockX = Mth.m_14107_((double)nextX);
         state.blockY = Mth.m_14107_((double)nextY);
         state.blockZ = Mth.m_14107_((double)nextZ);
-        double d3 = state.stepX > 0 ? ((double)state.blockX + 1.0 - nextX) / state.dirX + nextTraveled : (state.tMaxX = state.stepX < 0 ? (nextX - (double)state.blockX) / -state.dirX + nextTraveled : Double.POSITIVE_INFINITY);
-        double d4 = state.stepY > 0 ? ((double)state.blockY + 1.0 - nextY) / state.dirY + nextTraveled : (state.tMaxY = state.stepY < 0 ? (nextY - (double)state.blockY) / -state.dirY + nextTraveled : Double.POSITIVE_INFINITY);
+        state.tMaxX = state.stepX > 0 ? ((double)state.blockX + 1.0 - nextX) / state.dirX + nextTraveled : (state.stepX < 0 ? (nextX - (double)state.blockX) / -state.dirX + nextTraveled : Double.POSITIVE_INFINITY);
+        state.tMaxY = state.stepY > 0 ? ((double)state.blockY + 1.0 - nextY) / state.dirY + nextTraveled : (state.stepY < 0 ? (nextY - (double)state.blockY) / -state.dirY + nextTraveled : Double.POSITIVE_INFINITY);
         state.tMaxZ = state.stepZ > 0 ? ((double)state.blockZ + 1.0 - nextZ) / state.dirZ + nextTraveled : (state.stepZ < 0 ? (nextZ - (double)state.blockZ) / -state.dirZ + nextTraveled : Double.POSITIVE_INFINITY);
         return nextTraveled;
     }
@@ -100,14 +100,14 @@ public final class SectionSkip {
             this.blockX = blockX;
             this.blockY = blockY;
             this.blockZ = blockZ;
-            int n = dirX > 0.0 ? 1 : (this.stepX = dirX < 0.0 ? -1 : 0);
-            int n2 = dirY > 0.0 ? 1 : (this.stepY = dirY < 0.0 ? -1 : 0);
+            this.stepX = dirX > 0.0 ? 1 : (dirX < 0.0 ? -1 : 0);
+            this.stepY = dirY > 0.0 ? 1 : (dirY < 0.0 ? -1 : 0);
             this.stepZ = dirZ > 0.0 ? 1 : (dirZ < 0.0 ? -1 : 0);
             this.tDeltaX = this.stepX == 0 ? Double.POSITIVE_INFINITY : Math.abs(1.0 / dirX);
             this.tDeltaY = this.stepY == 0 ? Double.POSITIVE_INFINITY : Math.abs(1.0 / dirY);
-            double d = this.tDeltaZ = this.stepZ == 0 ? Double.POSITIVE_INFINITY : Math.abs(1.0 / dirZ);
-            double d2 = this.stepX > 0 ? ((double)blockX + 1.0 - originX) / dirX : (this.tMaxX = this.stepX < 0 ? (originX - (double)blockX) / -dirX : Double.POSITIVE_INFINITY);
-            double d3 = this.stepY > 0 ? ((double)blockY + 1.0 - originY) / dirY : (this.tMaxY = this.stepY < 0 ? (originY - (double)blockY) / -dirY : Double.POSITIVE_INFINITY);
+            this.tDeltaZ = this.stepZ == 0 ? Double.POSITIVE_INFINITY : Math.abs(1.0 / dirZ);
+            this.tMaxX = this.stepX > 0 ? ((double)blockX + 1.0 - originX) / dirX : (this.stepX < 0 ? (originX - (double)blockX) / -dirX : Double.POSITIVE_INFINITY);
+            this.tMaxY = this.stepY > 0 ? ((double)blockY + 1.0 - originY) / dirY : (this.stepY < 0 ? (originY - (double)blockY) / -dirY : Double.POSITIVE_INFINITY);
             this.tMaxZ = this.stepZ > 0 ? ((double)blockZ + 1.0 - originZ) / dirZ : (this.stepZ < 0 ? (originZ - (double)blockZ) / -dirZ : Double.POSITIVE_INFINITY);
             this.traveled = 0.0;
             return this;

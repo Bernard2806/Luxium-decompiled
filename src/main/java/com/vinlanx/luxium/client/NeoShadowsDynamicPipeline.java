@@ -150,7 +150,8 @@ final class NeoShadowsDynamicPipeline {
 
     long mixFingerprint(long hash, long value) {
         hash ^= value;
-        return hash *= 1099511628211L;
+        hash *= 1099511628211L;
+        return hash;
     }
 
     List<NeoShadowsTypes.ShadowPolygon> buildRealtimeDynamicShadowPolygons(ClientLevel level, BlockPos center, @Nullable NeoShadowsTypes.RealtimeStaticShadowOutput output, DynamicShadowMeshCapture.Snapshot snapshot) {
