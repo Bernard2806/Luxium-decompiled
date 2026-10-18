@@ -73,13 +73,11 @@ final class ExplosionParticleSystem {
             return;
         }
         double multiplier = profile.particleMultiplier();
-        double[] dArray = new double[]{4300.0 * multiplier, 5900.0 * multiplier, 720.0 * Math.pow(multiplier, 0.84), nearGround ? 1450.0 * multiplier * (double)profile.dustMultiplier() : 0.0};
-        double[] target = dArray;
+        double[] target = new double[]{4300.0 * multiplier, 5900.0 * multiplier, 720.0 * Math.pow(multiplier, 0.84), nearGround ? 1450.0 * multiplier * (double)profile.dustMultiplier() : 0.0};
         double total = target[0] + target[1] + target[2] + target[3];
         if (total > (double)available) {
-            int i = 0;
-            while (i < target.length) {
-                target[i++] *= ((double)available / total);
+            for (int i = 0; i < target.length; ++i) {
+                target[i] *= (double)available / total;
             }
         }
         this.spawnKind(center, profile, (byte)0, (int)target[0], nearGround);
@@ -106,13 +104,13 @@ final class ExplosionParticleSystem {
     private void spawnKind(Vec3 center, ExplosionProfile profile, byte kind, int count, boolean nearGround) {
         float spatialScale = profile.coreRadius() / 1.35f;
         for (int i = 0; i < count && this.particles.size() < 70000; ++i) {
-            float life;
-            float density;
-            float temperature;
-            float speed;
-            float radius;
             boolean upward = nearGround || kind == 2 || kind == 3;
             Vec3 direction = kind == 3 ? this.dustDirection() : this.randomDirection(upward);
+            float radius;
+            float speed;
+            float temperature;
+            float density;
+            float life;
             float size;
             if (kind == 0) {
                 radius = (float)Math.cbrt(this.random.nextFloat()) * 0.58f * spatialScale;
@@ -162,9 +160,9 @@ final class ExplosionParticleSystem {
             Vec3 gridVelocity = fluid.sampleVelocity(p.x, p.y, p.z);
             float coupling = p.kind == 1 ? 2.7f : (p.kind == 0 ? 1.85f : (p.kind == 3 ? 1.3f : 0.28f));
             float blend = 1.0f - (float)Math.exp(-coupling * dt);
-            p.vx = (float)((double)p.vx + (gridVelocity.f_82479_ - (double)p.vx) * (double)blend);
-            p.vy = (float)((double)p.vy + (gridVelocity.f_82480_ - (double)p.vy) * (double)blend);
-            p.vz = (float)((double)p.vz + (gridVelocity.f_82481_ - (double)p.vz) * (double)blend);
+            p.vx += (gridVelocity.f_82479_ - (double)p.vx) * (double)blend;
+            p.vy += (gridVelocity.f_82480_ - (double)p.vy) * (double)blend;
+            p.vz += (gridVelocity.f_82481_ - (double)p.vz) * (double)blend;
             float qx = p.x * 0.72f + p.seed * 0.017f;
             float qy = p.y * 0.93f + p.seed * 0.011f;
             float qz = p.z * 0.72f + p.seed * 0.019f;
@@ -176,13 +174,13 @@ final class ExplosionParticleSystem {
             p.vy += curlY * dt * turbulenceWeight;
             p.vz += curlZ * dt * turbulenceWeight;
             float hotness = Mth.m_14036_((float)((p.temperature - 293.15f) / 2600.0f), (float)0.0f, (float)2.0f);
-            p.vy = p.vy + (hotness * 4.1f - p.density * (p.kind == 3 ? 0.72f : 0.16f)) * dt;
-            p.vy = p.vy - (p.kind == 2 ? 9.81f : (p.kind == 3 ? 2.2f : 0.08f)) * dt;
+            p.vy += (hotness * 4.1f - p.density * (p.kind == 3 ? 0.72f : 0.16f)) * dt;
+            p.vy -= (p.kind == 2 ? 9.81f : (p.kind == 3 ? 2.2f : 0.08f)) * dt;
             float targetTemperature = 293.15f + fluid.sampleTemperature(p.x, p.y, p.z) * 1350.0f;
             p.temperature += Math.max(targetTemperature - p.temperature, 0.0f) * (1.0f - (float)Math.exp(-dt * 0.8f));
             float cooling = 0.46f * (p.kind == 2 ? 1.65f : (p.kind == 0 ? 0.82f : 1.0f));
             p.temperature += (293.15f - p.temperature) * (1.0f - (float)Math.exp(-cooling * dt));
-            p.density = p.density * (float)Math.exp(-dt * (p.kind == 1 ? 0.055f : (p.kind == 3 ? 0.1f : 0.18f)));
+            p.density *= (float)Math.exp(-dt * (p.kind == 1 ? 0.055f : (p.kind == 3 ? 0.1f : 0.18f)));
             if (p.kind == 0 && (p.temperature < 1150.0f || p.age > p.life * 0.68f)) {
                 p.kind = 1;
                 p.density = Math.max(p.density, 0.42f);
@@ -213,7 +211,7 @@ final class ExplosionParticleSystem {
         if (!collision.isSolid(p.x, nextY, oldZ)) {
             p.y = nextY;
         } else {
-            p.vy = p.vy * (p.kind == 2 ? -0.42f : -0.08f);
+            p.vy *= p.kind == 2 ? -0.42f : -0.08f;
         }
         float nextZ = oldZ + p.vz * dt;
         if (!collision.isSolid(p.x, p.y, nextZ)) {
@@ -240,7 +238,8 @@ final class ExplosionParticleSystem {
         float growth = p.kind == 1 ? 1.0f + p.age * 0.43f : (p.kind == 3 ? 1.0f + p.age * 0.22f : 1.0f + p.age * 0.12f);
         p.size = p.baseSize * growth * Mth.m_14036_((float)(0.75f + p.density * 0.48f), (float)0.55f, (float)2.0f);
         float score = p.density * 3.3f + Mth.m_14036_((float)(p.age / Math.max(p.life, 1.0E-4f)), (float)0.0f, (float)1.0f) * 3.4f;
-        p.frame = Mth.m_14045_((int)Mth.m_14143_((float)(score += p.kind == 1 ? 1.0f : (p.kind == 3 ? 0.6f : 0.0f))), (int)0, (int)7);
+        score += p.kind == 1 ? 1.0f : (p.kind == 3 ? 0.6f : 0.0f);
+        p.frame = Mth.m_14045_((int)Mth.m_14143_((float)score), (int)0, (int)7);
     }
 
     private void compact(boolean forceDrop) {
