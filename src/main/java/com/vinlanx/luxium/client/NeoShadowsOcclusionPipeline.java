@@ -73,26 +73,18 @@ final class NeoShadowsOcclusionPipeline {
             for (int i = 0; i < n; ++i) {
                 long hitKey = cached.hitKeys[i];
                 OccluderHit mergedHit = (OccluderHit)hitsByBlock.get(hitKey);
-                int n2;
-                NeoShadowsTypes.UvPoint[] probes2;
                 if (mergedHit == null) {
                     OccluderHit persisted = new OccluderHit(BlockPos.m_122022_((long)hitKey), cached.hitBoxes[i]);
-                    probes2 = cached.probesPerHit[i];
-                    NeoShadowsTypes.UvPoint[] uvPointArray = probes2;
-                    n2 = uvPointArray.length;
-                    for (int j = 0; j < n2; ++j) {
-                        NeoShadowsTypes.UvPoint probe = uvPointArray[j];
+                    NeoShadowsTypes.UvPoint[] probes = cached.probesPerHit[i];
+                    for (NeoShadowsTypes.UvPoint probe : probes) {
                         persisted.addReceiverSample(probe);
                     }
                     hitsByBlock.put(hitKey, (Object)persisted);
-                    continue;
-                }
-                NeoShadowsTypes.UvPoint[] probes;
-                probes2 = probes = cached.probesPerHit[i];
-                int n3 = probes2.length;
-                for (n2 = 0; n2 < n3; ++n2) {
-                    NeoShadowsTypes.UvPoint probe = probes2[n2];
-                    mergedHit.addReceiverSample(probe);
+                } else {
+                    NeoShadowsTypes.UvPoint[] probes = cached.probesPerHit[i];
+                    for (NeoShadowsTypes.UvPoint probe : probes) {
+                        mergedHit.addReceiverSample(probe);
+                    }
                 }
             }
             return;
