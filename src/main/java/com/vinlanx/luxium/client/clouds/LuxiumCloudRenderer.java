@@ -202,13 +202,14 @@ public final class LuxiumCloudRenderer {
             RenderSystem.setShaderTexture((int)0, (ResourceLocation)texture);
             this.uploadShadowPlane(this.layers[i], plane, i, layer, partialTick, centerX, centerZ, ticks);
             LayerState state = this.layers[i];
-            if (state.shadowVertexBuffer == null) continue;
-            state.shadowVertexBuffer.m_85921_();
-            ShaderInstance shader = RenderSystem.getShader();
-            if (shader != null) {
-                state.shadowVertexBuffer.m_253207_(poseStack.m_85850_().m_252922_(), projectionMatrix, shader);
+            if (state.shadowVertexBuffer != null) {
+                state.shadowVertexBuffer.m_85921_();
+                ShaderInstance shader = RenderSystem.getShader();
+                if (shader != null) {
+                    state.shadowVertexBuffer.m_253207_(poseStack.m_85850_().m_252922_(), projectionMatrix, shader);
+                }
+                VertexBuffer.m_85931_();
             }
-            VertexBuffer.m_85931_();
         }
         RenderSystem.disableBlend();
         RenderSystem.enableDepthTest();
@@ -666,10 +667,6 @@ public final class LuxiumCloudRenderer {
         int end = radiusTexels;
         for (int x0i = start; x0i <= end; x0i += 8) {
             for (int z0i = start; z0i <= end; z0i += 8) {
-                float v;
-                float z;
-                float u;
-                float x;
                 float x0 = x0i;
                 float x1 = x0 + 8.0f;
                 float z0 = z0i;
@@ -687,30 +684,31 @@ public final class LuxiumCloudRenderer {
                 }
                 if (x0i >= 0) {
                     for (int px = 0; px < 8; ++px) {
-                        x = x0 + (float)px;
-                        u = ((float)centerCellX + x + 0.5f) * 0.00390625f;
+                        float x = x0 + (float)px;
+                        float u = ((float)centerCellX + x + 0.5f) * 0.00390625f;
                         LuxiumCloudRenderer.quad(builder, x, yBase, z1, u, v1, x, yBase + thickness, z1, u, v1, x, yBase + thickness, z0, u, v0, x, yBase, z0, u, v0, 0.9f, -1.0f, 0.0f, 0.0f);
                     }
                 }
                 if (x0i <= 8) {
                     for (int px = 0; px < 8; ++px) {
-                        x = x0 + (float)px + 1.0f - 9.765625E-4f;
-                        u = ((float)centerCellX + x0 + (float)px + 0.5f) * 0.00390625f;
+                        float x = x0 + (float)px + 1.0f - 9.765625E-4f;
+                        float u = ((float)centerCellX + x0 + (float)px + 0.5f) * 0.00390625f;
                         LuxiumCloudRenderer.quad(builder, x, yBase, z1, u, v1, x, yBase + thickness, z1, u, v1, x, yBase + thickness, z0, u, v0, x, yBase, z0, u, v0, 0.9f, 1.0f, 0.0f, 0.0f);
                     }
                 }
                 if (z0i >= 0) {
                     for (int pz = 0; pz < 8; ++pz) {
-                        z = z0 + (float)pz;
-                        v = ((float)centerCellZ + z + 0.5f) * 0.00390625f;
+                        float z = z0 + (float)pz;
+                        float v = ((float)centerCellZ + z + 0.5f) * 0.00390625f;
                         LuxiumCloudRenderer.quad(builder, x0, yBase + thickness, z, u0, v, x1, yBase + thickness, z, u1, v, x1, yBase, z, u1, v, x0, yBase, z, u0, v, 0.8f, 0.0f, 0.0f, -1.0f);
                     }
                 }
-                if (z0i > 8) continue;
-                for (int pz = 0; pz < 8; ++pz) {
-                    z = z0 + (float)pz + 1.0f - 9.765625E-4f;
-                    v = ((float)centerCellZ + z0 + (float)pz + 0.5f) * 0.00390625f;
-                    LuxiumCloudRenderer.quad(builder, x0, yBase + thickness, z, u0, v, x1, yBase + thickness, z, u1, v, x1, yBase, z, u1, v, x0, yBase, z, u0, v, 0.8f, 0.0f, 0.0f, 1.0f);
+                if (z0i <= 8) {
+                    for (int pz = 0; pz < 8; ++pz) {
+                        float z = z0 + (float)pz + 1.0f - 9.765625E-4f;
+                        float v = ((float)centerCellZ + z0 + (float)pz + 0.5f) * 0.00390625f;
+                        LuxiumCloudRenderer.quad(builder, x0, yBase + thickness, z, u0, v, x1, yBase + thickness, z, u1, v, x1, yBase, z, u1, v, x0, yBase, z, u0, v, 0.8f, 0.0f, 0.0f, 1.0f);
+                    }
                 }
             }
         }
@@ -866,13 +864,11 @@ public final class LuxiumCloudRenderer {
             int source = nearest[index];
             for (int dy = -1; dy <= 1; ++dy) {
                 for (int dx = -1; dx <= 1; ++dx) {
-                    int nx;
-                    int ny;
-                    int next;
                     if (dx == 0 && dy == 0) continue;
-                    ny = y + dy & 0xFF;
-                    nx = x + dx & 0xFF;
-                    if (!(nearest[next = ny << 8 | nx] != -1)) {
+                    int nx = x + dx & 0xFF;
+                    int ny = y + dy & 0xFF;
+                    int next = ny << 8 | nx;
+                    if (nearest[next] == -1) {
                         nearest[next] = source;
                         queue[tail++] = next;
                     }
