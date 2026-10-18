@@ -116,7 +116,7 @@ tasks.register('remapSrgSources') {
             }
             def normalizedSourcePath = source.absolutePath.replace('\\', '/')
             if (normalizedSourcePath.contains('/mixin/')) {
-                javaSource = javaSource.replaceAll(/\(([A-Z][A-Za-z0-9_$.]*)\)this/, '($1)(Object)this')
+                javaSource = javaSource.replaceAll(/\(([A-Z][A-Za-z0-9_$.]*)\)this\b(?!\.)/, '($1)(Object)this')
                 javaSource = javaSource.replaceAll(/\(([A-Z][A-Za-z0-9_$.]*)\)([A-Za-z_$][A-Za-z0-9_$]*Mixin)/, '($1)(Object)$2')
                 javaSource = javaSource.replaceAll(/\b(this|[A-Za-z_$][A-Za-z0-9_$]*)\s+instanceof\s+([A-Za-z_$][A-Za-z0-9_$.]*)/) { full, value, type ->
                     '(Object)' + value + ' instanceof ' + type

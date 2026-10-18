@@ -367,7 +367,7 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
         if (!receiverShaders && !neoSkyForward) {
             return;
         }
-        boolean bl2 = this.luxium$skyOnlyPermutation = neoSkyForward || LuxiumGpuShaderFeatures.skyReceiverEnabled() && !LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled() && !LuxiumGpuShaderFeatures.localReceiverEnabled();
+        this.luxium$skyOnlyPermutation = neoSkyForward || LuxiumGpuShaderFeatures.skyReceiverEnabled() && !LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled() && !LuxiumGpuShaderFeatures.localReceiverEnabled();
         if (this.luxium$skyOnlyPermutation) {
             this.luxium$celestialLutSampler = (GlUniformInt)context.bindUniform("u_LuxiumCelestialLut", GlUniformInt::new);
         } else {

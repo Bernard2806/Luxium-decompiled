@@ -33,9 +33,7 @@ public abstract class ChunkRenderDispatcherRenderChunkMixin {
 
     @Inject(method={"createCompileTask"}, at={@At(value="RETURN")}, require=0)
     private void luxium$attachSectionOrigin(RenderRegionCache renderRegionCache, CallbackInfoReturnable<Object> cir) {
-        Object object = cir.getReturnValue();
-        if (object instanceof SectionCaptureAccess) {
-            SectionCaptureAccess access = (SectionCaptureAccess)object;
+        if (cir.getReturnValue() instanceof SectionCaptureAccess access) {
             access.luxium$setSectionOrigin(this.f_112793_.m_7949_());
         }
     }

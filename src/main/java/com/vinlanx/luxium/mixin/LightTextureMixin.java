@@ -180,7 +180,14 @@ implements NeoSkyLightTextureExtension {
         float darknessGamma = this.m_234319_(partialTick) * darknessEffectScale;
         float darknessScale = this.m_234312_((LivingEntity)this.f_109876_.f_91074_, darknessGamma, partialTick) * darknessEffectScale;
         float waterVision = this.f_109876_.f_91074_.m_108639_();
-        float nightVision = this.f_109876_.f_91074_.m_21023_(MobEffects.f_19611_) ? GameRenderer.m_109108_((LivingEntity)this.f_109876_.f_91074_, (float)partialTick) : (waterVision > 0.0f && this.f_109876_.f_91074_.m_21023_(MobEffects.f_19592_) ? waterVision : 0.0f);
+        float nightVision;
+        if (this.f_109876_.f_91074_.m_21023_(MobEffects.f_19611_)) {
+            nightVision = GameRenderer.m_109108_((LivingEntity)this.f_109876_.f_91074_, (float)partialTick);
+        } else if (waterVision > 0.0f && this.f_109876_.f_91074_.m_21023_(MobEffects.f_19592_)) {
+            nightVision = waterVision;
+        } else {
+            nightVision = 0.0f;
+        }
         Vector3f skyColor = new Vector3f(skyDarken, skyDarken, 1.0f).lerp((Vector3fc)new Vector3f(1.0f, 1.0f, 1.0f), 0.35f);
         float blockScale = this.f_109874_ + 1.5f;
         Vector3f color = new Vector3f();
