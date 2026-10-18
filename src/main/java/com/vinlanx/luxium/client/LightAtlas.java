@@ -207,10 +207,10 @@ public final class LightAtlas {
                 int wz = anchorZ + z;
                 int slice = row + z * 48;
                 for (int x = 0; x < 48; ++x) {
-                    int l;
                     cursor.m_122178_(anchorX + x, wy, wz);
                     int packedIndex = slice + x;
                     int level = rtxOn ? rtxLightCache[packedIndex] & 0xFF : 0;
+                    int l;
                     if (flashlight && (l = TestFlashLight.sampleLight((BlockPos)cursor)) > level) {
                         level = l;
                     }

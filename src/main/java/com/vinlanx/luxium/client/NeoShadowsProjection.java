@@ -82,7 +82,6 @@ final class NeoShadowsProjection {
     }
 
     private static void appendExtendedEdgePoints(NeoShadowsTypes.GlobalReceiverPlane plane, Vec3 source, Vec3 start, Vec3 end, NeoShadowsTypes.ProjectionPoint startProjection, NeoShadowsTypes.ProjectionPoint endProjection, List<NeoShadowsTypes.UvPoint> points) {
-        Vec3 edgeDirection;
         boolean startValid = startProjection.uv != null;
         boolean endValid = endProjection.uv != null;
         if (startValid == endValid) {
@@ -115,6 +114,7 @@ final class NeoShadowsProjection {
         double directionU = innerUv.u - outerUv.u;
         double directionV = innerUv.v - outerUv.v;
         double directionLengthSq = directionU * directionU + directionV * directionV;
+        Vec3 edgeDirection;
         if (directionLengthSq <= 1.0E-6 && (directionLengthSq = (directionU = (edgeDirection = end.m_82546_(start)).m_82526_(plane.axisU)) * directionU + (directionV = edgeDirection.m_82526_(plane.axisV)) * directionV) <= 1.0E-6) {
             return;
         }

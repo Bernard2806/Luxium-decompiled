@@ -151,11 +151,11 @@ public final class NeoGpuVanillaGpuDebug {
     }
 
     private static void pollResults() {
-        PendingQuery query;
         if (!NeoGpuVanillaGpuDebug.timerSupported()) {
             return;
         }
         int checks = PENDING.size();
+        PendingQuery query;
         for (int i = 0; i < checks && (query = PENDING.peekFirst()) != null && GL32C.glGetQueryObjecti((int)query.endId(), (int)34919) != 0; ++i) {
             PENDING.removeFirst();
             long startNs = ARBTimerQuery.glGetQueryObjecti64((int)query.startId(), (int)34918);

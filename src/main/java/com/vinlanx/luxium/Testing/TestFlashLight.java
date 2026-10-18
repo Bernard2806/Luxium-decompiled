@@ -131,7 +131,6 @@ public final class TestFlashLight {
         Long2ByteOpenHashMap newMap = TestFlashLight.createEmptyMap();
         newMap.put(BlockPos.m_274446_((Position)start).m_121878_(), (byte)power);
         for (int i = 0; i < rays; ++i) {
-            int brightness;
             Vec3 dir = TestFlashLight.computeDirectionInCone(forward, right, up, i, rays, cosHalfAngle);
             Vec3 end = start.m_82549_(dir.m_82490_(maxDistance));
             BlockHitResult hit = level.m_45547_(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, (Entity)mc.f_91074_));
@@ -139,6 +138,7 @@ public final class TestFlashLight {
             if (hit.m_6662_() != HitResult.Type.MISS) {
                 rayLength = start.m_82554_(hit.m_82450_());
             }
+            int brightness;
             for (double traveled = 0.0; traveled <= rayLength && (brightness = LightRtMath.getFalloff(power, traveled)) > 0; traveled += 0.5) {
                 Vec3 point = start.m_82549_(dir.m_82490_(traveled));
                 BlockPos blockPos = BlockPos.m_274446_((Position)point);

@@ -145,8 +145,8 @@ public final class LsrSystem {
             source.m_83936_(9729);
         }
         try {
-            ShaderInstance shader;
             boolean rendered = false;
+            ShaderInstance shader;
             if (PostEffectPipeline.hasDeferredTonemap() && (shader = tonemap.getShader()) != null) {
                 int effectsTexture = PostEffectPipeline.getDeferredEffectsTextureId();
                 tonemap.configure(shader, source.m_83975_(), effectsTexture, PostEffectPipeline.deferredTonemapCompositesEffects(), true, source.f_83915_, source.f_83916_);

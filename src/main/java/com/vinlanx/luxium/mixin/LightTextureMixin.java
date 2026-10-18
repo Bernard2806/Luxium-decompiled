@@ -186,7 +186,6 @@ implements NeoSkyLightTextureExtension {
         Vector3f color = new Vector3f();
         for (int skyLevel = 0; skyLevel < 16; ++skyLevel) {
             for (int blockLevel = 0; blockLevel < 16; ++blockLevel) {
-                float max;
                 float skyBrightness = LightTexture.m_234316_((DimensionType)level.m_6042_(), (int)0) * skyBrightnessScale;
                 float blockBrightness = LightTexture.m_234316_((DimensionType)level.m_6042_(), (int)blockLevel) * blockScale;
                 float green = blockBrightness * ((blockBrightness * 0.6f + 0.4f) * 0.6f + 0.4f);
@@ -205,6 +204,7 @@ implements NeoSkyLightTextureExtension {
                     }
                 }
                 level.m_104583_().adjustLightmapColors(level, partialTick, skyDarken, blockScale, skyBrightness, blockLevel, skyLevel, color);
+                float max;
                 if (nightVision > 0.0f && (max = Math.max(color.x(), Math.max(color.y(), color.z()))) > 1.0E-5f && max < 1.0f) {
                     color.lerp((Vector3fc)new Vector3f((Vector3fc)color).mul(1.0f / max), nightVision);
                 }

@@ -73,7 +73,6 @@ public final class ExplosionRenderer {
      */
     @SubscribeEvent(priority=EventPriority.LOW)
     public static void render(RenderLevelStageEvent event) {
-        ExplosionRenderSnapshot snapshot;
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
             return;
         }
@@ -87,6 +86,7 @@ public final class ExplosionRenderer {
         float dt = ExplosionRenderer.frameDelta();
         ExplosionWorld world = ExplosionWorld.get();
         world.requestStep(dt);
+        ExplosionRenderSnapshot snapshot;
         snapshot = world.snapshot();
         synchronized (snapshot) {
             if (snapshot.totalCount == 0) {

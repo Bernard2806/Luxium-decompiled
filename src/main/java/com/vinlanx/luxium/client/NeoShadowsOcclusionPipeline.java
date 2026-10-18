@@ -71,14 +71,14 @@ final class NeoShadowsOcclusionPipeline {
         if (cached != null) {
             int n = cached.hitKeys.length;
             for (int i = 0; i < n; ++i) {
-                NeoShadowsTypes.UvPoint[] probes;
                 int n2;
-                NeoShadowsTypes.UvPoint[] probes2;
                 long hitKey = cached.hitKeys[i];
                 OccluderHit mergedHit = (OccluderHit)hitsByBlock.get(hitKey);
+                NeoShadowsTypes.UvPoint[] probes2;
                 if (mergedHit == null) {
                     OccluderHit persisted = new OccluderHit(BlockPos.m_122022_((long)hitKey), cached.hitBoxes[i]);
-                    NeoShadowsTypes.UvPoint[] uvPointArray = probes2 = cached.probesPerHit[i];
+                    probes2 = cached.probesPerHit[i];
+                    NeoShadowsTypes.UvPoint[] uvPointArray = probes2;
                     n2 = uvPointArray.length;
                     for (int j = 0; j < n2; ++j) {
                         NeoShadowsTypes.UvPoint probe = uvPointArray[j];
@@ -87,6 +87,7 @@ final class NeoShadowsOcclusionPipeline {
                     hitsByBlock.put(hitKey, (Object)persisted);
                     continue;
                 }
+                NeoShadowsTypes.UvPoint[] probes;
                 probes2 = probes = cached.probesPerHit[i];
                 int n3 = probes2.length;
                 for (n2 = 0; n2 < n3; ++n2) {

@@ -324,7 +324,6 @@ public final class Grass {
         float H = 0.5f;
         int V = 12;
         for (int idx = 0; idx < sd.totalBlades; ++idx) {
-            int phi1Enc;
             float bx = sd.bladePx[idx];
             float bz = sd.bladePz[idx];
             float base = sd.bladeBaseY[idx];
@@ -337,7 +336,8 @@ public final class Grass {
             int r = Math.max(0, Math.min(255, sd.bladeCR[idx] + vr));
             int g = Math.max(0, Math.min(255, sd.bladeCG[idx] + vg));
             int b = Math.max(0, Math.min(255, sd.bladeCB[idx] + vb));
-            int ov_left = phi1Enc = (int)(phi1 / ((float)Math.PI * 2) * 32767.0f) & Short.MAX_VALUE;
+            int phi1Enc = (int)(phi1 / ((float)Math.PI * 2) * 32767.0f) & Short.MAX_VALUE;
+            int ov_left = phi1Enc;
             int ov_right = phi1Enc | 0x10000;
             Grass.emitQuad(bb, bx, bz, base, 1.0f, base + 0.125f, 0.75f, r, g, b, light, ov_left, ov_right);
             Grass.emitQuad(bb, bx, bz, base + 0.125f, 0.75f, base + 0.25f, 0.5f, r, g, b, light, ov_left, ov_right);

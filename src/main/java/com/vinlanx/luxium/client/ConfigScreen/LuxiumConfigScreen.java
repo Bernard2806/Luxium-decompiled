@@ -313,7 +313,6 @@ extends Screen {
         }
         graphics.m_280588_(left, top, right, bottom);
         for (ControlRow control : this.controls) {
-            boolean visible;
             int animatedOffset = Math.round((1.0f - this.tabAnimation) * 10.0f);
             int y = control.baseY - (int)this.scroll + animatedOffset;
             if (control.row.isHeader()) {
@@ -323,6 +322,7 @@ extends Screen {
                     continue;
                 }
             }
+            boolean visible;
             control.widget.f_93624_ = visible = y + 32 > top && y < bottom;
             if (!visible) continue;
             ConfigOption<?> option = control.row.option();
@@ -497,7 +497,6 @@ extends Screen {
 
     public boolean m_6375_(double mouseX, double mouseY, int button) {
         int toggleWidth;
-        int toggleX;
         if (button != 0) {
             return super.m_6375_(mouseX, mouseY, button);
         }
@@ -512,6 +511,7 @@ extends Screen {
             }
         }
         int footerY = this.panelY + this.panelHeight - 72;
+        int toggleX;
         if (LuxiumConfigScreen.inside(mouseX, mouseY, toggleX = this.panelX + this.sidebarWidth - (toggleWidth = this.compactLayout ? 58 : 64) - 8, footerY + 7, toggleWidth, 20)) {
             this.blurEnabled = mouseX >= (double)toggleX + (double)toggleWidth / 2.0;
             return true;

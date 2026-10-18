@@ -531,10 +531,10 @@ final class NeoShadowsStaticPipeline {
         List<NeoShadowsTypes.SpriteRect> rectangles = new ArrayList<NeoShadowsTypes.SpriteRect>();
         for (int pixelY = 0; pixelY < height; ++pixelY) {
             for (int pixelX = 0; pixelX < width; ++pixelX) {
-                int nextIndex;
                 int index = pixelY * width + pixelX;
                 if (!opaquePixels[index] || consumed[index]) continue;
                 int rectWidth = 1;
+                int nextIndex;
                 while (pixelX + rectWidth < width && opaquePixels[nextIndex = pixelY * width + pixelX + rectWidth] && !consumed[nextIndex]) {
                     ++rectWidth;
                 }
@@ -544,7 +544,7 @@ final class NeoShadowsStaticPipeline {
                     int nextRowOffset = (pixelY + rectHeight) * width;
                     for (int scanX = 0; scanX < rectWidth; ++scanX) {
                         int nextIndex2 = nextRowOffset + pixelX + scanX;
-                        if (!(opaquePixels[nextIndex2]) || !(!consumed[nextIndex2])) {
+                        if (!opaquePixels[nextIndex2] || consumed[nextIndex2]) {
                             canGrow = false;
                             break;
                         }
@@ -668,7 +668,6 @@ final class NeoShadowsStaticPipeline {
     }
 
     private static void appendExtendedQuadEdgePoints(NeoShadowsTypes.GlobalReceiverPlane plane, Vec3 source, Vec3 start, Vec3 end, NeoShadowsTypes.ProjectionPoint startProjection, NeoShadowsTypes.ProjectionPoint endProjection, List<NeoShadowsTypes.UvPoint> points) {
-        Vec3 edgeDirection;
         boolean startValid = startProjection.uv != null;
         boolean endValid = endProjection.uv != null;
         if (startValid == endValid) {
@@ -701,6 +700,7 @@ final class NeoShadowsStaticPipeline {
         double directionU = innerUv.u - outerUv.u;
         double directionV = innerUv.v - outerUv.v;
         double directionLengthSq = directionU * directionU + directionV * directionV;
+        Vec3 edgeDirection;
         if (directionLengthSq <= 1.0E-6 && (directionLengthSq = (directionU = (edgeDirection = end.m_82546_(start)).m_82526_(plane.axisU)) * directionU + (directionV = edgeDirection.m_82526_(plane.axisV)) * directionV) <= 1.0E-6) {
             return;
         }

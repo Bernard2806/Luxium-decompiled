@@ -128,7 +128,6 @@ final class NeoShadowsRuntime {
     }
 
     void requestStaticHotPatchIfUseful(@Nullable ClientLevel level, @Nullable LongOpenHashSet changedBlocks) {
-        int e;
         if (level == null || changedBlocks == null || changedBlocks.isEmpty() || this.engine.activeStaticOutput == null || this.engine.activeStaticResultId == 0L) {
             return;
         }
@@ -140,6 +139,7 @@ final class NeoShadowsRuntime {
         TorchRtxState torchState = TorchRtxState.get();
         int maxEmission = 0;
         LongIterator patchIter = patchBlocks.iterator();
+        int e;
         while (patchIter.hasNext() && ((e = torchState.getSourceEmission(patchIter.nextLong())) <= maxEmission || (maxEmission = e) < 15)) {
         }
         int localRadius = maxEmission > 0 ? Math.min((int)Math.ceil(30.0), (int)Math.ceil(LightRtMath.getMaxDistance(maxEmission)) + 1) : (int)Math.ceil(30.0);
@@ -166,10 +166,10 @@ final class NeoShadowsRuntime {
     void runStaticTask() {
         NeoShadowsTypes.StaticRequest request = this.engine.latestStaticRequest;
         try {
-            long epoch;
             if (request == null || !this.engine.enabled) {
                 return;
             }
+            long epoch;
             if (request.epoch != this.engine.buildEpoch) {
                 return;
             }
@@ -268,7 +268,6 @@ final class NeoShadowsRuntime {
     }
 
     void scheduleDynamicBuild(ClientLevel level, BlockPos center, float partialTick) {
-        long previousFingerprint;
         if (this.engine.activeStaticOutput == null) {
             this.engine.activeStaticHotPatch = NeoShadowsTypes.StaticHotPatchOverlay.EMPTY;
             this.engine.activeDynamicPolygons = Collections.emptyList();
@@ -299,7 +298,8 @@ final class NeoShadowsRuntime {
             return;
         }
         DynamicShadowMeshCapture.Snapshot previousSnapshot = this.engine.dynamicCasterSnapshot;
-        long nextFingerprint = previousFingerprint = this.engine.dynamicCasterFingerprint;
+        long previousFingerprint = this.engine.dynamicCasterFingerprint;
+        long nextFingerprint = previousFingerprint;
         boolean sceneChanged = false;
         boolean levelChanged = previousSnapshot.level != level;
         if (this.engine.dynamicDirty || scanElapsed || levelChanged) {

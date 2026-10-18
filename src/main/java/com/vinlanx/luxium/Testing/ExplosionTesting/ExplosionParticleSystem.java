@@ -106,7 +106,6 @@ final class ExplosionParticleSystem {
     private void spawnKind(Vec3 center, ExplosionProfile profile, byte kind, int count, boolean nearGround) {
         float spatialScale = profile.coreRadius() / 1.35f;
         for (int i = 0; i < count && this.particles.size() < 70000; ++i) {
-            float size;
             float life;
             float density;
             float temperature;
@@ -114,6 +113,7 @@ final class ExplosionParticleSystem {
             float radius;
             boolean upward = nearGround || kind == 2 || kind == 3;
             Vec3 direction = kind == 3 ? this.dustDirection() : this.randomDirection(upward);
+            float size;
             if (kind == 0) {
                 radius = (float)Math.cbrt(this.random.nextFloat()) * 0.58f * spatialScale;
                 speed = profile.blastStrength() * this.randomRange(0.62f, 1.28f);

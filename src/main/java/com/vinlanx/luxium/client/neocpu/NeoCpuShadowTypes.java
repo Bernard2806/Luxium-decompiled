@@ -137,8 +137,8 @@ public final class NeoCpuShadowTypes {
         }
 
         public double distanceToSourceSq(double sourceX, double sourceY, double sourceZ) {
-            double closestY;
             double closestX;
+            double closestY;
             double closestZ = switch (this.face) {
                 case Direction.UP, Direction.DOWN -> {
                     closestX = NeoCpuShadowTypes.clamp(sourceX, this.minU, this.maxU);

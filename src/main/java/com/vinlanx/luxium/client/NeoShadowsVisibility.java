@@ -73,7 +73,6 @@ final class NeoShadowsVisibility {
     }
 
     NeoShadowsTypes.VisibleCandidateBlockSnapshot collectVisibleCandidateBlockSnapshot(ClientLevel level, BlockPos center, ExposedFaceService exposedFaceService, long[] frontierPositions, double renderRadiusSq) {
-        NeoShadowsTypes.VisibleCandidateBlockSnapshot snapshot;
         long frontierSignature = NeoShadowsVisibility.hashFrontierPositions(frontierPositions);
         NeoShadowsTypes.VisibleCandidateBlockSnapshot cached = this.engine.visibleCandidateSnapshot;
         if (cached != null && cached.matches(center, frontierSignature, frontierPositions)) {
@@ -99,6 +98,7 @@ final class NeoShadowsVisibility {
             this.engine.visibleCandidateSnapshot = empty = NeoShadowsTypes.VisibleCandidateBlockSnapshot.empty(center, frontierSignature, frontierPositions);
             return empty;
         }
+        NeoShadowsTypes.VisibleCandidateBlockSnapshot snapshot;
         this.engine.visibleCandidateSnapshot = snapshot = new NeoShadowsTypes.VisibleCandidateBlockSnapshot(center.m_7949_(), frontierSignature, Arrays.copyOf(frontierPositions, frontierPositions.length), sortedCandidates);
         return snapshot;
     }
@@ -261,7 +261,6 @@ final class NeoShadowsVisibility {
         }
         for (int wordIndex = 0; wordIndex < snapshot.wordCount(); ++wordIndex) {
             for (long remainingBits = snapshot.word(wordIndex); remainingBits != 0L; remainingBits &= remainingBits - 1L) {
-                int localX;
                 int worldX;
                 int localZ;
                 int worldZ;
@@ -269,6 +268,7 @@ final class NeoShadowsVisibility {
                 int localIndex = (wordIndex << 6) + bitIndex;
                 int localY = localIndex >>> 8;
                 int worldY = sectionBaseY + localY;
+                int localX;
                 if (worldY < sectionMinY || worldY > sectionMaxY || ((worldZ = sectionBaseZ + (localZ = localIndex >>> 4 & 0xF)) < sectionMinZ) || worldZ > sectionMaxZ || (worldX = sectionBaseX + (localX = localIndex & 0xF)) < sectionMinX || worldX > sectionMaxX) continue;
                 this.appendReceiverSurfaceCandidates(candidates, exposedFaceService, level, BlockPos.m_121882_((int)worldX, (int)worldY, (int)worldZ), center);
             }

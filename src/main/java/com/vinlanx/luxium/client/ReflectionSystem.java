@@ -358,7 +358,6 @@ public final class ReflectionSystem {
         RenderTarget originalTarget = mc.m_91385_();
         int planeCount = Math.min(this.activePlanes.size(), this.planeRenderCaches.size());
         for (int planeIndex = 0; planeIndex < planeCount; ++planeIndex) {
-            int slotIndex;
             Vec3 slotVirtualCamPos;
             Matrix4f slotVirtualProj;
             Matrix4f slotMirrorLinear;
@@ -366,6 +365,7 @@ public final class ReflectionSystem {
             if (!plane.isFacingCamera(cameraPos) || !currentFrustum.m_113029_(plane.getCullingBounds())) continue;
             PlaneRenderCache cache = this.planeRenderCaches.get(planeIndex);
             boolean nested = this.recursionDepth > 0;
+            int slotIndex;
             if (nested) {
                 if (!cache.feedValid || cache.feedVirtualCamPos == null) continue;
                 slotMirrorLinear = cache.feedMirrorLinear;
@@ -445,7 +445,7 @@ public final class ReflectionSystem {
         }
         for (int consumer = 0; consumer < planeCount; ++consumer) {
             for (int producer = 0; producer < planeCount; ++producer) {
-                if (!(!this.feedDemand[consumer][producer])) {
+                if (this.feedDemand[consumer][producer]) {
                     this.feedDemand[producer][consumer] = true;
                 }
             }

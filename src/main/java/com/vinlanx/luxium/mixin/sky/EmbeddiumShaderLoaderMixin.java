@@ -36,7 +36,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class EmbeddiumShaderLoaderMixin {
     @Inject(method={"getShaderSource"}, at={@At(value="HEAD")}, cancellable=true)
     private static void luxium$replaceTerrainShaders(ResourceLocation name, CallbackInfoReturnable<String> cir) {
-        ResourceLocation replacement;
         if (!"sodium".equals(name.m_135827_())) {
             return;
         }
@@ -61,6 +60,7 @@ public abstract class EmbeddiumShaderLoaderMixin {
         if (!(receiverShaders || waterPass || neoSky || "blocks/block_layer_opaque.vsh".equals(name.m_135815_()))) {
             return;
         }
+        ResourceLocation replacement;
         if ("blocks/block_layer_opaque.vsh".equals(name.m_135815_())) {
             replacement = ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)(waterPass ? "shaders/embeddium/block_layer_water.vsh" : (neoSkyForward ? "shaders/embeddium/block_layer_neoskycelestia_forward.vsh" : (neoSkyInline ? "shaders/embeddium/block_layer_neoskycelestia.vsh" : (receiverShaders ? "shaders/embeddium/block_layer_opaque.vsh" : "shaders/embeddium/block_layer_plantswave.vsh")))));
         } else if ("blocks/block_layer_opaque.fsh".equals(name.m_135815_())) {

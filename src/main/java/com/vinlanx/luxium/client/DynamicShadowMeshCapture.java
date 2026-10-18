@@ -85,11 +85,11 @@ public final class DynamicShadowMeshCapture {
         List<CapturedCaster> casters = new ArrayList<CapturedCaster>(Math.min(maxCasters, 64));
         long nextId = 1L;
         for (Entity entity : level.m_104735_()) {
-            CapturedCaster captured;
             AABB box;
             if (casters.size() >= maxCasters) {
                 return new Snapshot(level, List.copyOf(casters));
             }
+            CapturedCaster captured;
             if (entity != null && !entity.m_213877_() && !entity.m_20145_() && (box = entity.m_20191_()) != null && DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) <= radiusSq && (captured = DynamicShadowMeshCapture.captureEntity(entityDispatcher, entity, nextId++, partialTick, box.m_82400_(0.03))) != null) {
                 casters.add(captured);
             }

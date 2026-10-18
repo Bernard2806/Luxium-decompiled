@@ -206,8 +206,6 @@ public final class BlockLightTest {
     }
 
     private static void addNearby(Emitter source, Vec3 camera) {
-        int end;
-        int insert;
         float dx = (float)(source.x - camera.f_82479_);
         float dy = (float)(source.y - camera.f_82480_);
         float dz = (float)(source.z - camera.f_82481_);
@@ -215,11 +213,13 @@ public final class BlockLightTest {
         if (distance > 1296.0f) {
             return;
         }
+        int insert;
         for (insert = 0; insert < size && distance >= DISTANCES[insert]; ++insert) {
         }
         if (insert >= 12) {
             return;
         }
+        int end;
         for (int index = end = Math.min(size, 11); index > insert; --index) {
             BlockLightTest.NEAR[index] = NEAR[index - 1];
             BlockLightTest.DISTANCES[index] = DISTANCES[index - 1];

@@ -275,7 +275,7 @@ final class ExplosionFluidGrid {
                 for (int z2 = 1; z2 < 21; ++z2) {
                     for (int x2 = 1; x2 < 21; ++x2) {
                         int i2 = ExplosionFluidGrid.index(x2, y2, z2);
-                        if (!(this.solid[i2])) {
+                        if (!this.solid[i2]) {
                             this.nextPressure[i2] = (this.pressure[ExplosionFluidGrid.index(x2 + 1, y2, z2)] + this.pressure[ExplosionFluidGrid.index(x2 - 1, y2, z2)] + this.pressure[ExplosionFluidGrid.index(x2, y2 + 1, z2)] + this.pressure[ExplosionFluidGrid.index(x2, y2 - 1, z2)] + this.pressure[ExplosionFluidGrid.index(x2, y2, z2 + 1)] + this.pressure[ExplosionFluidGrid.index(x2, y2, z2 - 1)] - this.scratch[i2]) / 6.0f;
                         }
                     }

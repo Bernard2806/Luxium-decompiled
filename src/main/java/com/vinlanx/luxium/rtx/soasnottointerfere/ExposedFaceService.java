@@ -753,8 +753,8 @@ public final class ExposedFaceService {
     }
 
     private void drainCompletedSectionBuilds() {
-        BuiltSectionCommit built;
         boolean changed = false;
+        BuiltSectionCommit built;
         for (int i = 0; i < 64 && (built = this.completedSectionBuilds.poll()) != null; ++i) {
             Long latest = this.latestSectionBuildRevision.get(built.sectionKey);
             if (latest == null || latest != built.revision) continue;

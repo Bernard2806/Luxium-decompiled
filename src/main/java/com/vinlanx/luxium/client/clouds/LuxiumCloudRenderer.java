@@ -469,7 +469,6 @@ public final class LuxiumCloudRenderer {
     }
 
     private MaskLayerFrame prepareMaskLayer(int index, LayerConfig layer, CloudStatus cloudStatus, float partialTick, double cameraX, double cameraY, double cameraZ, int ticks, float weather) {
-        double bottomY;
         float blockScale = (float)(12.0 * layer.scale);
         if (blockScale <= 0.0f) {
             return null;
@@ -487,7 +486,8 @@ public final class LuxiumCloudRenderer {
         float fractionX = (float)(cloudX - Math.floor(cloudX));
         float fractionZ = (float)(cloudZ - Math.floor(cloudZ));
         double thickness = Math.max(0.5, layer.thickness);
-        double maskY = bottomY = layer.height + 0.33;
+        double bottomY = layer.height + 0.33;
+        double maskY = bottomY;
         if (cloudStatus == CloudStatus.FANCY) {
             double topY = bottomY + thickness;
             if (cameraY >= topY) {
@@ -509,7 +509,6 @@ public final class LuxiumCloudRenderer {
     }
 
     private MaskLayerFrame prepareVanillaMaskLayer(CloudStatus cloudStatus, float partialTick, double cameraX, double cameraY, double cameraZ, int ticks, float cloudHeight) {
-        double bottomY;
         float blockScale = 12.0f;
         float thickness = 4.0f;
         int radiusTexels = 32;
@@ -522,7 +521,8 @@ public final class LuxiumCloudRenderer {
         int textureCellZ = Math.floorMod(absoluteCellZ, 256);
         float fractionX = (float)(cloudX - Math.floor(cloudX));
         float fractionZ = (float)(cloudZ - Math.floor(cloudZ));
-        double maskY = bottomY = (double)cloudHeight + 0.33;
+        double bottomY = (double)cloudHeight + 0.33;
+        double maskY = bottomY;
         if (cloudStatus == CloudStatus.FANCY) {
             double topY = bottomY + 4.0 - 9.765625E-4;
             if (cameraY >= topY) {
@@ -778,14 +778,13 @@ public final class LuxiumCloudRenderer {
         int seedZ = PATTERN_OFFSET_Z[layerIndex];
         for (int y = 0; y < 256; ++y) {
             for (int x = 0; x < 256; ++x) {
-                int basePixel;
-                int alpha;
                 int index = y * 256 + x;
                 double signedDistance = this.sourceOpaque[index] ? -((double)this.distanceToClear[index] - 0.5) : (double)this.distanceToOpaque[index] - 0.5;
                 double periodic = 0.5 * Math.sin((double)(x + seedX) * 0.09817477042468103) + 0.3 * Math.cos((double)(y + seedZ) * 0.19634954084936207) + 0.2 * Math.sin((double)(x + y + seedX - seedZ) * 0.39269908169872414);
                 double dither = (LuxiumCloudRenderer.hash01(x, y, layerIndex) - 0.5) * 0.8;
                 double adjustedDistance = signedDistance + periodic * variationAmplitude + dither;
                 double edge = coverageShift - adjustedDistance;
+                int alpha;
                 if (feather <= 1.0E-5) {
                     alpha = edge >= 0.0 ? 255 : 0;
                 } else {
@@ -793,6 +792,7 @@ public final class LuxiumCloudRenderer {
                     t = t * t * (3.0 - 2.0 * t);
                     alpha = Mth.m_14045_((int)((int)Math.round(t * 255.0)), (int)0, (int)255);
                 }
+                int basePixel;
                 if (this.sourcePixels == null) {
                     basePixel = FastColor.ABGR32.m_266248_((int)255, (int)255, (int)255, (int)255);
                 } else if (this.sourceOpaque[index]) {
@@ -854,7 +854,7 @@ public final class LuxiumCloudRenderer {
         int head = 0;
         int tail = 0;
         for (int i = 0; i < count; ++i) {
-            if (!(!opaque[i])) {
+            if (opaque[i]) {
                 nearest[i] = i;
                 queue[tail++] = i;
             }
@@ -902,16 +902,13 @@ public final class LuxiumCloudRenderer {
             int nextDistance = distance[index] + 1;
             for (int dy = -1; dy <= 1; ++dy) {
                 for (int dx = -1; dx <= 1; ++dx) {
-                    int nx;
-                    int ny;
-                    int next;
-                    if ((dx != 0 || dy != 0)) {
-                        ny = y + dy & 0xFF;
-                        nx = x + dx & 0xFF;
-                        if (!(distance[next = ny << 8 | nx] != Integer.MAX_VALUE)) {
-                            distance[next] = nextDistance;
-                            queue[tail++] = next;
-                        }
+                    if (dx == 0 && dy == 0) continue;
+                    int nx = x + dx & 0xFF;
+                    int ny = y + dy & 0xFF;
+                    int next = ny << 8 | nx;
+                    if (distance[next] == Integer.MAX_VALUE) {
+                        distance[next] = nextDistance;
+                        queue[tail++] = next;
                     }
                 }
             }
@@ -939,9 +936,9 @@ public final class LuxiumCloudRenderer {
     }
 
     private static float layerGeometryRadiusBlocks(LayerConfig layer, CloudStatus cloudStatus) {
-        int meshRadiusTexels;
         float blockScale = (float)(12.0 * layer.scale);
         int radiusTexels = LuxiumCloudRenderer.layerRadiusTexels(layer);
+        int meshRadiusTexels;
         if (cloudStatus == CloudStatus.FANCY) {
             meshRadiusTexels = radiusTexels + 8;
         } else {
@@ -952,8 +949,8 @@ public final class LuxiumCloudRenderer {
     }
 
     private static float layerVerticalReach(LayerConfig layer, CloudStatus cloudStatus, double cameraY) {
-        double bottom;
-        double top = bottom = layer.height + 0.33 - cameraY;
+        double bottom = layer.height + 0.33 - cameraY;
+        double top = bottom;
         if (cloudStatus == CloudStatus.FANCY) {
             top += Math.max(0.5, layer.thickness);
         }

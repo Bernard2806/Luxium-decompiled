@@ -219,9 +219,9 @@ final class ConfigWidgets {
         }
 
         private void applyNormalizedValue(double normalizedValue) {
-            double snapped;
             double configValue = this.configNormalized(normalizedValue);
             double raw = this.option.min() + configValue * (this.option.max() - this.option.min());
+            double snapped;
             if ("neo_gpu_vanilla_capture_resolution".equals(this.option.id())) {
                 snapped = 1 << Mth.m_14045_((int)((int)Math.round(configValue * 9.0)), (int)0, (int)9);
                 this.f_93577_ = Slider.normalize(this.option, snapped);

@@ -130,11 +130,11 @@ final class NeoCpuShadowShapeBaker {
             SpritePixelBounds usedPixels = NeoCpuShadowShapeBaker.computeQuadPixelBounds(texturedQuad, sprite);
             if (usedPixels == null) continue;
             for (SpriteRect rect : mask.rectangles) {
-                Vec3[] vertices;
                 double minPixelX = Math.max((double)rect.minX, usedPixels.minX);
                 double maxPixelX = Math.min((double)rect.maxX, usedPixels.maxX);
                 double minPixelY = Math.max((double)rect.minY, usedPixels.minY);
                 double maxPixelY = Math.min((double)rect.maxY, usedPixels.maxY);
+                Vec3[] vertices;
                 if (maxPixelX - minPixelX > 1.0E-6 && maxPixelY - minPixelY > 1.0E-6 && (vertices = NeoCpuShadowShapeBaker.buildOpaqueRectVertices(texturedQuad, sprite, minPixelX, maxPixelX, minPixelY, maxPixelY)) != null) {
                     result.add(new NeoCpuShadowShape.LocalQuadTemplate(vertices, mask.averageOpacity));
                 }
@@ -223,10 +223,10 @@ final class NeoCpuShadowShapeBaker {
         ArrayList<SpriteRect> rectangles = new ArrayList<SpriteRect>();
         for (int pixelY = 0; pixelY < height; ++pixelY) {
             for (int pixelX = 0; pixelX < width; ++pixelX) {
-                int nextIndex;
                 int index = pixelY * width + pixelX;
                 if (!opaque[index] || consumed[index]) continue;
                 int rectWidth = 1;
+                int nextIndex;
                 while (pixelX + rectWidth < width && opaque[nextIndex = pixelY * width + pixelX + rectWidth] && !consumed[nextIndex]) {
                     ++rectWidth;
                 }
@@ -236,7 +236,7 @@ final class NeoCpuShadowShapeBaker {
                     int nextRowOffset = (pixelY + rectHeight) * width;
                     for (int scanX = 0; scanX < rectWidth; ++scanX) {
                         int nextIndex2 = nextRowOffset + pixelX + scanX;
-                        if (!(opaque[nextIndex2]) || !(!consumed[nextIndex2])) {
+                        if (!opaque[nextIndex2] || consumed[nextIndex2]) {
                             canGrow = false;
                             break;
                         }

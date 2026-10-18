@@ -30,12 +30,12 @@ public final class LuxiumF3Info {
 
     @SubscribeEvent(priority=EventPriority.HIGHEST)
     public static void onDebugText(CustomizeGuiOverlayEvent.DebugText event) {
-        int targetIndex;
         if (!Minecraft.m_91087_().f_91066_.f_92063_) {
             return;
         }
         List right = event.getRight();
         int blankLines = 0;
+        int targetIndex;
         for (targetIndex = 0; targetIndex < right.size(); ++targetIndex) {
             String line = (String)right.get(targetIndex);
             if (line == null || line.isEmpty()) {

@@ -728,7 +728,6 @@ final class NeoShadowsTypes {
         }
 
         private List<ReceiverContributionRect> buildReceiverRects() {
-            float strength;
             if (this.receiverFacesByKey.isEmpty()) {
                 return Collections.emptyList();
             }
@@ -736,6 +735,7 @@ final class NeoShadowsTypes {
             LongOpenHashSet visitedCells = new LongOpenHashSet(this.receiverFacesByKey.size());
             ArrayList<ReceiverContributionRect> rects = new ArrayList<ReceiverContributionRect>(this.receiverFacesByKey.size());
             fullFacePosByCell.defaultReturnValue(Long.MIN_VALUE);
+            float strength;
             for (Long2ObjectMap.Entry entry : this.receiverFacesByKey.long2ObjectEntrySet()) {
                 long receiverKey = entry.getLongKey();
                 FaceCandidate candidate = (FaceCandidate)entry.getValue();
@@ -754,8 +754,6 @@ final class NeoShadowsTypes {
                 fullFacePosByCell.put(cellKey, receiverKey);
             }
             for (it.unimi.dsi.fastutil.longs.Long2LongMap.Entry entry : fullFacePosByCell.long2LongEntrySet()) {
-                long nextCellKey;
-                long nextPosKey;
                 long startCellKey = entry.getLongKey();
                 if (!visitedCells.add(startCellKey)) continue;
                 long startPosKey = entry.getLongValue();
@@ -763,6 +761,8 @@ final class NeoShadowsTypes {
                 int startCellU = NeoShadowsProjection.unpackReceiverCellU(startCellKey);
                 int startCellV = NeoShadowsProjection.unpackReceiverCellV(startCellKey);
                 int width = 1;
+                long nextCellKey;
+                long nextPosKey;
                 while ((nextPosKey = fullFacePosByCell.get(nextCellKey = NeoShadowsProjection.receiverCellKey(startCellU + width, startCellV))) != Long.MIN_VALUE && !visitedCells.contains(nextCellKey) && NeoShadowsProjection.sameReceiverStrength(strength, this.faceWeights.get(nextPosKey))) {
                     ++width;
                 }
@@ -817,7 +817,6 @@ final class NeoShadowsTypes {
                     NeoShadowsProjection.SCRATCH_RECEIVER_SAMPLES.set(scratch);
                 }
                 for (UvPoint probe : probes) {
-                    double distance;
                     if (!NeoShadowsProjection.isProbeInsideRect(probe, localBounds)) continue;
                     double sx = facePlane.sampleX(probe.u, probe.v);
                     double sy = facePlane.sampleY(probe.u, probe.v);
@@ -826,6 +825,7 @@ final class NeoShadowsTypes {
                     double dy = sy - sy0;
                     double dz = sz - sz0;
                     double distanceSq = dx * dx + dy * dy + dz * dz;
+                    double distance;
                     if (distanceSq > maxDistanceSq || LightRtMath.getFalloff(emission, distance = Math.sqrt(distanceSq)) <= 0) continue;
                     scratch[writeIndex++] = sx;
                     scratch[writeIndex++] = sy;
@@ -1128,12 +1128,12 @@ final class NeoShadowsTypes {
                 mergedByBlock.remove(blockKey);
             }
             for (ShadowPolygon polygon : output.shadowPolygons) {
-                int faceIndex;
                 long blockKey = polygon.blockPos.m_121878_();
                 List<ShadowPolygon>[] buckets = mergedByBlock.get(blockKey);
                 if (buckets == null) {
                     buckets = StaticHotPatchOverlay.newFaceBuckets();
                 }
+                int faceIndex;
                 List<ShadowPolygon> facePolygons = buckets[faceIndex = polygon.face.ordinal()];
                 if (facePolygons == null) {
                     facePolygons = new ArrayList<ShadowPolygon>();
