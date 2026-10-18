@@ -166,24 +166,27 @@ final class NeoShadowsStaticPipeline {
         Long2ByteOpenHashMap affectedFacesByBlock = new Long2ByteOpenHashMap();
         affectedFacesByBlock.defaultReturnValue((byte)0);
         LongIterator iterator = changedBlocks.iterator();
+        int processed = 0;
         NeoShadowsTypes.BuildScratch scratch = new NeoShadowsTypes.BuildScratch();
-        block0: for (int processed = 0; iterator.hasNext() && processed < maxBlocks && output.size() < 12288; ++processed) {
+        while (iterator.hasNext() && processed < maxBlocks && output.size() < 12288) {
             BlockPos center = BlockPos.m_122022_((long)iterator.nextLong());
             NeoShadowsStaticPipeline.markImmediateHotPatchFaces(affectedFacesByBlock, center);
             NeoShadowsTypes.GeometryBuildState state = new NeoShadowsTypes.GeometryBuildState(this.engine, level, center, exposedFaceService, false, DynamicShadowMeshCapture.Snapshot.empty());
             List<NeoShadowsTypes.FaceCandidate> candidates = this.engine.visibility.buildLocalFaceCandidates(level, center, localRadius, exposedFaceService);
             state.receiverFaceCount = candidates.size();
             NeoShadowsStaticPipeline.markAffectedReceiverFaces(affectedFacesByBlock, candidates);
-            if (candidates.isEmpty()) continue;
-            List<NeoShadowsTypes.ReceiverPlaneGroup> planeGroups = this.buildReceiverPlaneGroups(torchState, candidates, state);
-            for (NeoShadowsTypes.ReceiverPlaneGroup group : planeGroups) {
-                if (output.size() >= 12288) continue block0;
-                scratch.reset();
-                this.processReceiverPlaneGroup(level, group, state, scratch);
-                if (!scratch.shadowPolygons.isEmpty()) {
-                    output.addAll(scratch.shadowPolygons);
+            if (!candidates.isEmpty()) {
+                List<NeoShadowsTypes.ReceiverPlaneGroup> planeGroups = this.buildReceiverPlaneGroups(torchState, candidates, state);
+                for (NeoShadowsTypes.ReceiverPlaneGroup group : planeGroups) {
+                    if (output.size() >= 12288) break;
+                    scratch.reset();
+                    this.processReceiverPlaneGroup(level, group, state, scratch);
+                    if (!scratch.shadowPolygons.isEmpty()) {
+                        output.addAll(scratch.shadowPolygons);
+                    }
                 }
             }
+            ++processed;
         }
         if (affectedFacesByBlock.isEmpty()) {
             return NeoShadowsTypes.StaticHotPatchOutput.EMPTY;
