@@ -67,6 +67,13 @@ public final class Grass {
     private static final int SIN_SIZE = 4096;
     private static final float SIN_TO_IDX = 651.8986f;
     private static final float[] SIN_TABLE = new float[4096];
+
+    static {
+        for (int i = 0; i < 4096; ++i) {
+            Grass.SIN_TABLE[i] = (float)Math.sin((double)i * 0.0015339807878856412);
+        }
+    }
+
     public static final int BLADES_PER_BLOCK_MIN = 30;
     public static final int BLADES_PER_BLOCK_MAX = 45;
     private static final float BLADE_HEIGHT = 0.5f;
@@ -74,20 +81,25 @@ public final class Grass {
     private static final int COLOR_VARIATION = 12;
     private static final float WIND_DIR_DRIFT = 0.018f;
     private static final float WIND_DIR_OFFSET = 0.65f;
-    private static final long ANIMATION_START_NANOS;
-    private static final ResourceLocation TEXTURE;
+    private static final long ANIMATION_START_NANOS = System.nanoTime();
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"textures/grass.png");
     private static final int LIGHT_REFRESH_TICKS = 40;
-    private static final ExecutorService ASYNC;
-    private static final AtomicBoolean asyncBusy;
-    private static final AtomicReference<BufferBuilder.RenderedBuffer> pendingUpload;
-    private static volatile ScanData currentScan;
-    private static VertexBuffer grassVbo;
-    private static volatile boolean enabled;
-    private static volatile int renderRadius;
-    private static volatile boolean needsRescan;
-    private static long lastLightRefreshTick;
-    private static float windDirX;
-    private static float windDirZ;
+    private static final ExecutorService ASYNC = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "luxium-GrassBuilder");
+        t.setDaemon(true);
+        t.setPriority(4);
+        return t;
+    });
+    private static final AtomicBoolean asyncBusy = new AtomicBoolean(false);
+    private static final AtomicReference<BufferBuilder.RenderedBuffer> pendingUpload = new AtomicReference<BufferBuilder.RenderedBuffer>();
+    private static volatile ScanData currentScan = null;
+    private static VertexBuffer grassVbo = null;
+    private static volatile boolean enabled = false;
+    private static volatile int renderRadius = 12;
+    private static volatile boolean needsRescan = false;
+    private static long lastLightRefreshTick = -999L;
+    private static float windDirX = 1.0f;
+    private static float windDirZ = 0.0f;
 
     private Grass() {
     }
@@ -199,8 +211,8 @@ public final class Grass {
         ClientLevel levelRef = mc.f_91073_;
         ASYNC.submit(() -> {
             try {
-                ScanData sd;
-                currentScan = sd = Grass.doScan(levelRef, origin, radius);
+                ScanData sd = Grass.doScan(levelRef, origin, radius);
+                currentScan = sd;
                 pendingUpload.set(Grass.doFill(sd));
             }
             catch (Throwable t) {
@@ -370,7 +382,8 @@ public final class Grass {
         float r = 0.0f;
         float f = 1.0f;
         for (int i = idx + 1; i > 0; i >>= 1) {
-            r += (f *= 0.5f) * (float)(i & 1);
+            f *= 0.5f;
+            r += f * (float)(i & 1);
         }
         return r;
     }
@@ -379,7 +392,8 @@ public final class Grass {
         float r = 0.0f;
         float f = 1.0f;
         for (int i = idx + 1; i > 0; i /= 3) {
-            r += (f /= 3.0f) * (float)(i % 3);
+            f /= 3.0f;
+            r += f * (float)(i % 3);
         }
         return r;
     }
@@ -403,30 +417,6 @@ public final class Grass {
         int[] r = new int[len];
         System.arraycopy(src, 0, r, 0, len);
         return r;
-    }
-
-    static {
-        for (int i = 0; i < 4096; ++i) {
-            Grass.SIN_TABLE[i] = (float)Math.sin((double)i * 0.0015339807878856412);
-        }
-        ANIMATION_START_NANOS = System.nanoTime();
-        TEXTURE = ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"textures/grass.png");
-        ASYNC = Executors.newSingleThreadExecutor(r -> {
-            Thread t = new Thread(r, "luxium-GrassBuilder");
-            t.setDaemon(true);
-            t.setPriority(4);
-            return t;
-        });
-        asyncBusy = new AtomicBoolean(false);
-        pendingUpload = new AtomicReference();
-        currentScan = null;
-        grassVbo = null;
-        enabled = false;
-        renderRadius = 12;
-        needsRescan = false;
-        lastLightRefreshTick = -999L;
-        windDirX = 1.0f;
-        windDirZ = 0.0f;
     }
 
     private static final class ScanData {

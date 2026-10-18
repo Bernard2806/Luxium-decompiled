@@ -133,10 +133,11 @@ public final class VanillaLavaLightEngine {
             long sectionKey = SectionPos.m_123209_((int)chunkX, (int)sectionY, (int)chunkZ);
             this.pendingSectionScans.remove(sectionKey);
             LongOpenHashSet knownSources = (LongOpenHashSet)this.lavaSourcesBySection.remove(sectionKey);
-            if (!canQueueChecks || knownSources == null) continue;
-            LongIterator iterator = knownSources.iterator();
-            while (iterator.hasNext()) {
-                this.enqueueSourceCheck(iterator.nextLong());
+            if (canQueueChecks && knownSources != null) {
+                LongIterator iterator = knownSources.iterator();
+                while (iterator.hasNext()) {
+                    this.enqueueSourceCheck(iterator.nextLong());
+                }
             }
         }
         if (!canQueueChecks) {
@@ -285,10 +286,10 @@ public final class VanillaLavaLightEngine {
                 this.pendingSectionScans.remove(sectionKey);
                 this.publishCompletedSectionScan(scan);
                 ++completed;
-                continue;
+            } else {
+                this.pendingSectionOrder.enqueue(sectionKey);
+                break;
             }
-            this.pendingSectionOrder.enqueue(sectionKey);
-            break;
         }
     }
 
@@ -323,8 +324,8 @@ public final class VanillaLavaLightEngine {
         while (scan.cursor < 4096) {
             int index = scan.cursor++;
             int localX = index & 0xF;
-            int localY = index >>> 8 & 0xF;
             int localZ = index >>> 4 & 0xF;
+            int localY = index >>> 8 & 0xF;
             BlockState state2 = section.m_62982_(localX, localY, localZ);
             if (state2.m_60819_().m_205070_(FluidTags.f_13132_)) {
                 scan.foundSources.add(BlockPos.m_121882_((int)(baseX + localX), (int)(baseY + localY), (int)(baseZ + localZ)));
