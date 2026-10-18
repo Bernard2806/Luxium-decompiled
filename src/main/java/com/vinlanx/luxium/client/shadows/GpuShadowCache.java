@@ -538,113 +538,108 @@ public final class GpuShadowCache {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     public void buildPendingShadows(LevelRenderer levelRenderer, float partialTick, long finishNano, GameRenderer gameRenderer, LightTexture lightTexture) {
-        block23: {
-            if (!GpuShadowCache.captureConsumerActive() || this.entries.isEmpty()) {
-                return;
+        if (!GpuShadowCache.captureConsumerActive() || this.entries.isEmpty()) {
+            return;
+        }
+        this.flushExpectedRenderedSectionsIfTimedOut();
+        this.flushRenderedSectionInvalidationsIfReady();
+        boolean urgentMeshUploadPending = !this.expectedRenderedSections.isEmpty();
+        boolean hasDirty = false;
+        for (Entry e : this.entries.values()) {
+            if (GpuShadowCache.hasDirtyFaces(e)) {
+                hasDirty = true;
+                break;
             }
-            this.flushExpectedRenderedSectionsIfTimedOut();
-            this.flushRenderedSectionInvalidationsIfReady();
-            boolean urgentMeshUploadPending = !this.expectedRenderedSections.isEmpty();
-            boolean hasDirty = false;
-            for (Entry e : this.entries.values()) {
-                if (GpuShadowCache.hasDirtyFaces(e)) {
-                    hasDirty = true;
-                    break;
-                }
-            }
-            if (!hasDirty) {
-                return;
-            }
-            Minecraft mc = Minecraft.m_91087_();
-            ClientLevel level = mc.f_91073_;
-            if (level == null) {
-                return;
-            }
-            RenderTarget oldMainTarget = mc.m_91385_();
-            Matrix4f oldProj = new Matrix4f((Matrix4fc)RenderSystem.getProjectionMatrix());
-            VertexSorting oldSorting = RenderSystem.getVertexSorting();
-            this.ensureAtlasAndTargets();
-            this.shadowCamera.m_90575_((BlockGetter)level, (Entity)(mc.m_91288_() != null ? mc.m_91288_() : mc.f_91074_), true, false, partialTick);
-            ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(this.shadowTileTarget);
-            NeoGpuVanillaGpuDebug.beginCapture();
-            try {
-                int staticBuildsThisFrame = 0;
-                int dynamicFacesThisFrame = 0;
-                if (NeoGpuVanilla.isConfiguredEnabled()) {
-                    int faceBudget = this.neoGpuFaceRebuildBudget();
-                    for (staticBuildsThisFrame = 0; staticBuildsThisFrame < faceBudget; ++staticBuildsThisFrame) {
-                        int face;
-                        Entry nearestDirty = null;
-                        for (Entry entry : this.entries.values()) {
-                            if (entry.lastVisibleFrame == this.visibilityFrame && GpuShadowCache.hasDirtyFaces(entry) && entry.staticDirty && (!urgentMeshUploadPending || !entry.urgentStaticDirty) && (nearestDirty == null || (entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty) || (entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority))) {
-                                nearestDirty = entry;
-                            }
-                        }
-                        if (nearestDirty != null && (face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 0x3F)) >= 0 && face < 6) {
-                            this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
-                            continue;
-                        }
-                        break;
-                    }
-                } else if (GpuNeoShadows.isHardShadowBakeEnabled()) {
-                    int faceBudget = Math.max(1, (Integer)Config.CLIENT.gpuHardShadowCaptureBudget.get());
-                    while (staticBuildsThisFrame < faceBudget) {
-                        int face;
-                        Entry nearestDirty = null;
-                        for (Entry entry : this.entries.values()) {
-                            if (entry.lastVisibleFrame == this.visibilityFrame && GpuShadowCache.hasDirtyFaces(entry) && entry.staticDirty && (nearestDirty == null || (entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty) || (entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority))) {
-                                nearestDirty = entry;
-                            }
-                        }
-                        if (nearestDirty != null && (face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 0x3F)) >= 0 && face < 6) {
-                            this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
-                            ++staticBuildsThisFrame;
-                            continue;
-                        }
-                        break;
-                    }
-                } else {
+        }
+        if (!hasDirty) {
+            return;
+        }
+        Minecraft mc = Minecraft.m_91087_();
+        ClientLevel level = mc.f_91073_;
+        if (level == null) {
+            return;
+        }
+        RenderTarget oldMainTarget = mc.m_91385_();
+        Matrix4f oldProj = new Matrix4f((Matrix4fc)RenderSystem.getProjectionMatrix());
+        VertexSorting oldSorting = RenderSystem.getVertexSorting();
+        this.ensureAtlasAndTargets();
+        this.shadowCamera.m_90575_((BlockGetter)level, (Entity)(mc.m_91288_() != null ? mc.m_91288_() : mc.f_91074_), true, false, partialTick);
+        ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(this.shadowTileTarget);
+        NeoGpuVanillaGpuDebug.beginCapture();
+        try {
+            int staticBuildsThisFrame = 0;
+            int dynamicFacesThisFrame = 0;
+            if (NeoGpuVanilla.isConfiguredEnabled()) {
+                int faceBudget = this.neoGpuFaceRebuildBudget();
+                while (staticBuildsThisFrame < faceBudget) {
+                    Entry nearestDirty = null;
                     for (Entry entry : this.entries.values()) {
-                        if (staticBuildsThisFrame < 1) {
-                            if (GpuShadowCache.hasDirtyFaces(entry) && entry.staticDirty) {
-                                this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entry, entry.dirtyFaceMask);
-                                ++staticBuildsThisFrame;
-                                continue;
-                            }
+                        if (entry.lastVisibleFrame != this.visibilityFrame || !GpuShadowCache.hasDirtyFaces(entry) || !entry.staticDirty) continue;
+                        if (urgentMeshUploadPending && entry.urgentStaticDirty) continue;
+                        if (nearestDirty == null || entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty || entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority) {
+                            nearestDirty = entry;
                         }
-                        break;
                     }
+                    if (nearestDirty == null) break;
+                    int face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 0x3F);
+                    if (face < 0 || face >= 6) break;
+                    this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
+                    ++staticBuildsThisFrame;
                 }
-                if (dynamicFacesThisFrame >= 24) break block23;
+            } else if (GpuNeoShadows.isHardShadowBakeEnabled()) {
+                int faceBudget = Math.max(1, (Integer)Config.CLIENT.gpuHardShadowCaptureBudget.get());
+                while (staticBuildsThisFrame < faceBudget) {
+                    Entry nearestDirty = null;
+                    for (Entry entry : this.entries.values()) {
+                        if (entry.lastVisibleFrame != this.visibilityFrame || !GpuShadowCache.hasDirtyFaces(entry) || !entry.staticDirty) continue;
+                        if (nearestDirty == null || entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty || entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority) {
+                            nearestDirty = entry;
+                        }
+                    }
+                    if (nearestDirty == null) break;
+                    int face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 0x3F);
+                    if (face < 0 || face >= 6) break;
+                    this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
+                    ++staticBuildsThisFrame;
+                }
+            } else {
                 for (Entry entry : this.entries.values()) {
-                    int singleFaceMask;
-                    if (dynamicFacesThisFrame >= 24) {
-                        break;
-                    }
+                    if (staticBuildsThisFrame >= 1) break;
+                    if (!GpuShadowCache.hasDirtyFaces(entry) || !entry.staticDirty) continue;
+                    this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entry, entry.dirtyFaceMask);
+                    ++staticBuildsThisFrame;
+                }
+            }
+            if (dynamicFacesThisFrame < 24) {
+                for (Entry entry : this.entries.values()) {
+                    if (dynamicFacesThisFrame >= 24) break;
                     if (!GpuShadowCache.hasDirtyFaces(entry) || entry.staticDirty) continue;
-                    for (int mask = entry.dirtyFaceMask; mask != 0 && dynamicFacesThisFrame < 24; mask &= ~singleFaceMask, ++dynamicFacesThisFrame) {
+                    int mask = entry.dirtyFaceMask;
+                    while (mask != 0 && dynamicFacesThisFrame < 24) {
                         int face = Integer.numberOfTrailingZeros(mask);
-                        singleFaceMask = 1 << face;
+                        int singleFaceMask = 1 << face;
                         this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entry, singleFaceMask);
+                        mask &= ~singleFaceMask;
+                        ++dynamicFacesThisFrame;
                     }
                 }
             }
-            finally {
-                NeoGpuVanillaGpuDebug.endCapture();
-                NeoShadowsEngine.endGpuShadowAtlasCapture();
-                ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(oldMainTarget);
-                RenderSystem.setProjectionMatrix((Matrix4f)oldProj, (VertexSorting)oldSorting);
-                oldMainTarget.m_83947_(true);
-                GL11.glDisable((int)3089);
-                GlStateManager._activeTexture((int)33984);
-                GlStateManager._colorMask((boolean)true, (boolean)true, (boolean)true, (boolean)true);
-                GlStateManager._depthMask((boolean)true);
-                GlStateManager._enableDepthTest();
-                RenderSystem.depthFunc((int)515);
-                RenderSystem.disableBlend();
-                RenderSystem.enableCull();
-                GL11.glCullFace((int)1029);
-            }
+        }
+        finally {
+            NeoGpuVanillaGpuDebug.endCapture();
+            NeoShadowsEngine.endGpuShadowAtlasCapture();
+            ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(oldMainTarget);
+            RenderSystem.setProjectionMatrix((Matrix4f)oldProj, (VertexSorting)oldSorting);
+            oldMainTarget.m_83947_(true);
+            GL11.glDisable((int)3089);
+            GlStateManager._activeTexture((int)33984);
+            GlStateManager._colorMask((boolean)true, (boolean)true, (boolean)true, (boolean)true);
+            GlStateManager._depthMask((boolean)true);
+            GlStateManager._enableDepthTest();
+            RenderSystem.depthFunc((int)515);
+            RenderSystem.disableBlend();
+            RenderSystem.enableCull();
+            GL11.glCullFace((int)1029);
         }
     }
 
