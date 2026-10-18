@@ -535,8 +535,9 @@ final class NeoShadowsStaticPipeline {
                 int index = pixelY * width + pixelX;
                 if (!opaquePixels[index] || consumed[index]) continue;
                 int rectWidth = 1;
-                int nextIndex;
-                while (pixelX + rectWidth < width && opaquePixels[nextIndex = pixelY * width + pixelX + rectWidth] && !consumed[nextIndex]) {
+                while (pixelX + rectWidth < width) {
+                    int nextIndex = pixelY * width + pixelX + rectWidth;
+                    if (!opaquePixels[nextIndex] || consumed[nextIndex]) break;
                     ++rectWidth;
                 }
                 int rectHeight = 1;
@@ -544,8 +545,8 @@ final class NeoShadowsStaticPipeline {
                 while (pixelY + rectHeight < height && canGrow) {
                     int nextRowOffset = (pixelY + rectHeight) * width;
                     for (int scanX = 0; scanX < rectWidth; ++scanX) {
-                        int nextIndex2 = nextRowOffset + pixelX + scanX;
-                        if (!opaquePixels[nextIndex2] || consumed[nextIndex2]) {
+                        int nextIndex = nextRowOffset + pixelX + scanX;
+                        if (!opaquePixels[nextIndex] || consumed[nextIndex]) {
                             canGrow = false;
                             break;
                         }
@@ -701,10 +702,11 @@ final class NeoShadowsStaticPipeline {
         double directionU = innerUv.u - outerUv.u;
         double directionV = innerUv.v - outerUv.v;
         double directionLengthSq = directionU * directionU + directionV * directionV;
-        Vec3 edgeDirection;
         if (directionLengthSq <= 1.0E-6) {
-            edgeDirection = end.m_82546_(start);
-            directionLengthSq = (directionU = edgeDirection.m_82526_(plane.axisU)) * directionU + (directionV = edgeDirection.m_82526_(plane.axisV)) * directionV;
+            Vec3 edgeDirection = end.m_82546_(start);
+            directionU = edgeDirection.m_82526_(plane.axisU);
+            directionV = edgeDirection.m_82526_(plane.axisV);
+            directionLengthSq = directionU * directionU + directionV * directionV;
             if (directionLengthSq <= 1.0E-6) {
                 return;
             }
@@ -752,7 +754,8 @@ final class NeoShadowsStaticPipeline {
                 return;
             }
             NeoShadowsTypes.PlaneRect rect = receiverRect.planeRect;
-            if (rect.maxU - rect.minU <= 1.0E-6 || rect.maxV - rect.minV <= 1.0E-6 || rect.maxU <= minU || rect.minU >= maxU || rect.maxV <= minV || rect.minV >= maxV) continue;
+            if (rect.maxU - rect.minU <= 1.0E-6 || rect.maxV - rect.minV <= 1.0E-6) continue;
+            if (rect.maxU <= minU || rect.minU >= maxU || rect.maxV <= minV || rect.minV >= maxV) continue;
             if (rect.maxU - rect.minU > 1.000001 || rect.maxV - rect.minV > 1.000001) {
                 int minCellU = Mth.m_14107_((double)(rect.minU + 1.0E-6));
                 int maxCellU = Mth.m_14165_((double)(rect.maxU - 1.0E-6)) - 1;

@@ -226,8 +226,9 @@ final class NeoCpuShadowShapeBaker {
                 int index = pixelY * width + pixelX;
                 if (!opaque[index] || consumed[index]) continue;
                 int rectWidth = 1;
-                int nextIndex;
-                while (pixelX + rectWidth < width && opaque[nextIndex = pixelY * width + pixelX + rectWidth] && !consumed[nextIndex]) {
+                while (pixelX + rectWidth < width) {
+                    int nextIndex = pixelY * width + pixelX + rectWidth;
+                    if (!opaque[nextIndex] || consumed[nextIndex]) break;
                     ++rectWidth;
                 }
                 int rectHeight = 1;
@@ -235,8 +236,8 @@ final class NeoCpuShadowShapeBaker {
                 while (pixelY + rectHeight < height && canGrow) {
                     int nextRowOffset = (pixelY + rectHeight) * width;
                     for (int scanX = 0; scanX < rectWidth; ++scanX) {
-                        int nextIndex2 = nextRowOffset + pixelX + scanX;
-                        if (!opaque[nextIndex2] || consumed[nextIndex2]) {
+                        int nextIndex = nextRowOffset + pixelX + scanX;
+                        if (!opaque[nextIndex] || consumed[nextIndex]) {
                             canGrow = false;
                             break;
                         }
