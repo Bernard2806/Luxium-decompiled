@@ -745,8 +745,7 @@ public final class GpuShadowCache {
             buf.m_5483_((double)this.tileSize, 0.0, 0.0).m_7421_(1.0f, 1.0f).m_5752_();
             buf.m_5483_(0.0, 0.0, 0.0).m_7421_(0.0f, 1.0f).m_5752_();
             BufferUploader.m_231209_((BufferBuilder.RenderedBuffer)buf.m_231175_());
-            boolean bl = true;
-            return bl;
+            return true;
         }
         finally {
             shader.m_173362_();
@@ -893,9 +892,7 @@ public final class GpuShadowCache {
     }
 
     private void markDynamicCasterDiff(Long2ObjectOpenHashMap<AABB> nextCasters) {
-        LongIterator longIterator = this.trackedDynamicCasters.keySet().iterator();
-        while (longIterator.hasNext()) {
-            long key = (Long)longIterator.next();
+        for (long key : this.trackedDynamicCasters.keySet()) {
             AABB oldBox = (AABB)this.trackedDynamicCasters.get(key);
             AABB newBox = (AABB)nextCasters.get(key);
             if (newBox == null) {
@@ -906,9 +903,7 @@ public final class GpuShadowCache {
                 this.markEntriesAffectedByCasterBounds(GpuShadowCache.union(oldBox, newBox));
             }
         }
-        longIterator = nextCasters.keySet().iterator();
-        while (longIterator.hasNext()) {
-            long key = (Long)longIterator.next();
+        for (long key : nextCasters.keySet()) {
             if (!this.trackedDynamicCasters.containsKey(key)) {
                 this.markEntriesAffectedByCasterBounds((AABB)nextCasters.get(key));
             }

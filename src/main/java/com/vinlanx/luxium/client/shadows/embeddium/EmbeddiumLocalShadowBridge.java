@@ -141,8 +141,7 @@ public final class EmbeddiumLocalShadowBridge {
             if (!NeoGpuVanilla.isConfiguredEnabled() || Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaCutoutEnabled)) {
                 capture.renderer.render(matrices, commandList, (ChunkRenderListIterable)capture.lists, DefaultTerrainRenderPasses.CUTOUT, camera);
             }
-            boolean bl = true;
-            return bl;
+            return true;
         }
         finally {
             GlStateManager._colorMask((boolean)true, (boolean)true, (boolean)true, (boolean)true);

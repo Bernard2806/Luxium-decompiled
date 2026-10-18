@@ -81,8 +81,7 @@ public final class WaterSurfaceRenderer {
                 }
             }
             if (!materialRendered || !WaterSurfaceState.resolvedReady()) {
-                boolean bl = false;
-                return bl;
+                return false;
             }
             main.m_83947_(true);
             WaterSurfaceState.beginResolvePass();
@@ -93,8 +92,7 @@ public final class WaterSurfaceRenderer {
             finally {
                 WaterSurfaceState.finishResolvePass();
             }
-            boolean bl = true;
-            return bl;
+            return true;
         }
         finally {
             RenderDevice.exitManagedCode();
@@ -154,8 +152,7 @@ public final class WaterSurfaceRenderer {
                 WaterSurfaceState.finishLateReflectionPass(reflectionRendered);
             }
             if (!reflectionRendered || !WaterSurfaceState.lateReflectionResolvedReady()) {
-                boolean bl = false;
-                return bl;
+                return false;
             }
             main.m_83947_(true);
             WaterSurfaceState.beginLateResolvePass();
@@ -165,8 +162,7 @@ public final class WaterSurfaceRenderer {
             finally {
                 WaterSurfaceState.finishLateResolvePass();
             }
-            boolean bl = true;
-            return bl;
+            return true;
         }
         finally {
             RenderDevice.exitManagedCode();

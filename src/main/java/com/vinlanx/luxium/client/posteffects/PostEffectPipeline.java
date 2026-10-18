@@ -294,8 +294,7 @@ public final class PostEffectPipeline {
             PostEffectPipeline.draw(shader, main.f_83917_, main.f_83918_, BlendMode.OVERWRITE);
             PostProcessSwapChain.commit(main);
             PostEffectPipeline.clearDeferredTonemap();
-            boolean bl = true;
-            return bl;
+            return true;
         }
         finally {
             if (main.f_83922_ != previousSceneFilter) {

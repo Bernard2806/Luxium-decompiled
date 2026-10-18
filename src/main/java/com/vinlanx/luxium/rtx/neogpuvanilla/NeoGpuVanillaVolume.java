@@ -373,8 +373,7 @@ final class NeoGpuVanillaVolume {
             this.bakedSourceCount = sourceCount;
             this.ready = true;
             ++this.revision;
-            boolean bl = true;
-            return bl;
+            return true;
         }
         finally {
             GL30.glBindFramebuffer((int)36160, (int)oldFramebuffer);

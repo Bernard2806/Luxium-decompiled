@@ -85,8 +85,7 @@ public final class NeoSkyEmbeddiumShadowBridge {
             RenderSystem.disableCull();
             renderer.render(matrices, commandList, (ChunkRenderListIterable)lists, DefaultTerrainRenderPasses.SOLID, camera);
             renderer.render(matrices, commandList, (ChunkRenderListIterable)lists, DefaultTerrainRenderPasses.CUTOUT, camera);
-            boolean bl = true;
-            return bl;
+            return true;
         }
         finally {
             SodiumClientMod.options().performance.useBlockFaceCulling = previousBlockFaceCulling;
