@@ -24,12 +24,12 @@ jobs:
       - name: Preparar Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Calcular cobertura de clases decompiladas
-        id: decompilation-match
-        run: python3 scripts/calculate_decompilation_match.py
-
       - name: Compilar JAR de release
         run: ./gradlew --no-daemon clean build -PmodVersion="${GITHUB_REF_NAME#v}"
+
+      - name: Calcular cobertura de clases decompiladas
+        id: decompilation-match
+        run: python3 scripts/calculate_decompilation_match.py --built-jar 'build/libs/luxium-*.jar'
 
       - name: Crear GitHub Release y adjuntar JAR
         uses: softprops/action-gh-release@v2
@@ -41,7 +41,9 @@ jobs:
 
             **${{ steps.decompilation-match.outputs.percentage }}%** — ${{ steps.decompilation-match.outputs.matched }} of ${{ steps.decompilation-match.outputs.total }} top-level classes from the original mod JAR have corresponding Java source files in this decompilation with no methods left undecompiled (${{ steps.decompilation-match.outputs.failed_methods }} methods failed to decompile).
 
-            *This measures class-name/source-file coverage and decompilation failures; it does not compare source-code or bytecode similarity.*
+            **${{ steps.decompilation-match.outputs.bytecode_percentage }}%** — ${{ steps.decompilation-match.outputs.bytecode_identical }} of ${{ steps.decompilation-match.outputs.bytecode_total }} methods of the original JAR compile to identical bytecode in this release.
+
+            *Bytecode is compared instruction by instruction, ignoring constant pool indices, branch offsets and lambda numbering. Methods that differ may still behave the same.*
 
             ## Credits
 
