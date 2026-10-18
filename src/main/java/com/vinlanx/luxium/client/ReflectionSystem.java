@@ -768,11 +768,12 @@ public final class ReflectionSystem {
                 long[] bucket = snapshot.get(ChunkPos.m_45589_((int)(centerChunkX + dx), (int)(centerChunkZ + dz)));
                 if (bucket == null) continue;
                 for (long blockKey : bucket) {
-                    byte exposedMask;
                     BlockPos pos = BlockPos.m_122022_((long)blockKey);
                     BlockState state = mc.f_91073_.m_8055_(pos);
                     ReflectionMaterial material = ReflectionMaterialRegistry.find(state);
-                    if (material == null || (exposedMask = exposedFaceService.getExposedFaceMask(mc.f_91073_, blockKey)) == 0) continue;
+                    if (material == null) continue;
+                    byte exposedMask = exposedFaceService.getExposedFaceMask(mc.f_91073_, blockKey);
+                    if (exposedMask == 0) continue;
                     for (Direction face : Direction.values()) {
                         if (((exposedMask & 1 << face.ordinal()) == 0) || ReflectionSystem.faceCenter(pos, face).m_82557_(cameraPos) > faceInclusionRadiusSq || !material.shouldReflectFace(mc, pos, state, face)) continue;
                         PlaneKey key = PlaneKey.of(pos, face);
@@ -1276,14 +1277,13 @@ public final class ReflectionSystem {
                 long n = 0L;
                 for (int dx = -radius; dx <= radius; ++dx) {
                     int xx = x + dx;
-                    if (xx >= 0 && xx < w) {
-                        int px = src[y * w + xx];
-                        aa += (long)(px >>> 24 & 0xFF);
-                        ra += (long)(px >>> 16 & 0xFF);
-                        ga += (long)(px >>> 8 & 0xFF);
-                        ba += (long)(px & 0xFF);
-                        ++n;
-                    }
+                    if (xx < 0 || xx >= w) continue;
+                    int px = src[y * w + xx];
+                    aa += (long)(px >>> 24 & 0xFF);
+                    ra += (long)(px >>> 16 & 0xFF);
+                    ga += (long)(px >>> 8 & 0xFF);
+                    ba += (long)(px & 0xFF);
+                    ++n;
                 }
                 horizontal[y * w + x] = (int)(aa / n) << 24 | (int)(ra / n) << 16 | (int)(ga / n) << 8 | (int)(ba / n);
             }

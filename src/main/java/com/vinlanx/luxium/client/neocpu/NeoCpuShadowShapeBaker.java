@@ -117,9 +117,10 @@ final class NeoCpuShadowShapeBaker {
         }
         ArrayList<NeoCpuShadowShape.LocalQuadTemplate> result = new ArrayList<NeoCpuShadowShape.LocalQuadTemplate>(quads.size() * 4);
         for (BakedQuad quad : quads) {
-            LocalTexturedQuad texturedQuad;
             TextureAtlasSprite sprite = quad.m_173410_();
-            if (sprite == null || (texturedQuad = LocalTexturedQuad.from(quad)) == null) continue;
+            if (sprite == null) continue;
+            LocalTexturedQuad texturedQuad = LocalTexturedQuad.from(quad);
+            if (texturedQuad == null) continue;
             SpriteAlphaMask mask = this.spriteMaskCache.computeIfAbsent(sprite, this::buildSpriteMask);
             if (mask.fullyTransparent || mask.averageOpacity < 0.003921569f) continue;
             if (mask.fullyOpaque) {

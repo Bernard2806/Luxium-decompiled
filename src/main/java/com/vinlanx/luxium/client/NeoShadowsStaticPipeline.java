@@ -386,10 +386,11 @@ final class NeoShadowsStaticPipeline {
                 minZ = Math.min(minZ, current.m_123343_());
                 maxZ = Math.max(maxZ, current.m_123343_());
                 for (Direction direction : NeoShadowsEngine.FACES) {
-                    NeoShadowsOcclusionPipeline.OccluderHit neighbourHit;
                     BlockPos neighbour = current.m_121945_(direction);
                     long neighbourKey = neighbour.m_121878_();
-                    if (clusterKeys.contains(neighbourKey) || consumedHits.contains(neighbourKey) || (neighbourHit = (NeoShadowsOcclusionPipeline.OccluderHit)hitsByBlock.get(neighbourKey)) == null || !NeoShadowsStaticPipeline.isMergeableFullBlockOccluder(level, neighbourHit)) continue;
+                    if (clusterKeys.contains(neighbourKey) || consumedHits.contains(neighbourKey)) continue;
+                    NeoShadowsOcclusionPipeline.OccluderHit neighbourHit = (NeoShadowsOcclusionPipeline.OccluderHit)hitsByBlock.get(neighbourKey);
+                    if (neighbourHit == null || !NeoShadowsStaticPipeline.isMergeableFullBlockOccluder(level, neighbourHit)) continue;
                     clusterKeys.add(neighbourKey);
                     queue.addLast(neighbour);
                 }
@@ -438,10 +439,11 @@ final class NeoShadowsStaticPipeline {
         }
         int polygonsBefore = scratch.shadowPolygons.size();
         block1: for (BakedQuad quad : quads) {
-            TextureAtlasSprite sprite;
             if (scratch.shadowPolygons.size() >= 12288) break;
             NeoShadowsTypes.TexturedQuad texturedQuad = NeoShadowsTypes.TexturedQuad.from(quad, hit.blockPos);
-            if (texturedQuad == null || !texturedQuad.facesSource(group.source) || (sprite = quad.m_173410_()) == null) continue;
+            if (texturedQuad == null || !texturedQuad.facesSource(group.source)) continue;
+            TextureAtlasSprite sprite = quad.m_173410_();
+            if (sprite == null) continue;
             NeoShadowsTypes.SpriteOpaqueMask mask = this.getSpriteOpaqueMask(sprite);
             if (mask.fullyTransparent) continue;
             if (mask.fullyOpaque) {
@@ -451,13 +453,14 @@ final class NeoShadowsStaticPipeline {
             NeoShadowsTypes.SpritePixelBounds usedPixels = NeoShadowsStaticPipeline.computeQuadPixelBounds(texturedQuad, sprite);
             if (usedPixels == null) continue;
             for (NeoShadowsTypes.SpriteRect rect : mask.rectangles) {
-                Vec3[] opaqueRectVertices;
                 if (scratch.shadowPolygons.size() >= 12288) continue block1;
                 double minPixelX = Math.max((double)rect.minX, usedPixels.minX);
                 double maxPixelX = Math.min((double)rect.maxX, usedPixels.maxX);
                 double minPixelY = Math.max((double)rect.minY, usedPixels.minY);
                 double maxPixelY = Math.min((double)rect.maxY, usedPixels.maxY);
-                if (maxPixelX - minPixelX <= 1.0E-6 || maxPixelY - minPixelY <= 1.0E-6 || (opaqueRectVertices = NeoShadowsStaticPipeline.buildOpaqueRectVertices(texturedQuad, sprite, minPixelX, maxPixelX, minPixelY, maxPixelY)) == null) continue;
+                if (maxPixelX - minPixelX <= 1.0E-6 || maxPixelY - minPixelY <= 1.0E-6) continue;
+                Vec3[] opaqueRectVertices = NeoShadowsStaticPipeline.buildOpaqueRectVertices(texturedQuad, sprite, minPixelX, maxPixelX, minPixelY, maxPixelY);
+                if (opaqueRectVertices == null) continue;
                 this.addProjectedQuadShadow(group, opaqueRectVertices, scratch);
             }
         }

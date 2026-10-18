@@ -93,12 +93,14 @@ public final class EmbeddiumLocalShadowBridge {
         for (int sx = minSectionX; sx <= maxSectionX; ++sx) {
             for (int sz = minSectionZ; sz <= maxSectionZ; ++sz) {
                 for (int sy = minSectionY; sy <= maxSectionY; ++sy) {
-                    RenderRegion region;
-                    double dz;
-                    double dy;
-                    double dx;
                     RenderSection section = (RenderSection)sections.get(SectionPos.m_123209_((int)sx, (int)sy, (int)sz));
-                    if (section == null || !section.isBuilt() || section.isDisposed() || (section.getFlags() & 1) == 0 || (dx = (double)section.getCenterX() - lightX) * dx + (dy = (double)section.getCenterY() - lightY) * dy + (dz = (double)section.getCenterZ() - lightZ) * dz > maxDistanceSq || (region = section.getRegion()) == null) continue;
+                    if (section == null || !section.isBuilt() || section.isDisposed() || (section.getFlags() & 1) == 0) continue;
+                    double dx = (double)section.getCenterX() - lightX;
+                    double dy = (double)section.getCenterY() - lightY;
+                    double dz = (double)section.getCenterZ() - lightZ;
+                    if (dx * dx + dy * dy + dz * dz > maxDistanceSq) continue;
+                    RenderRegion region = section.getRegion();
+                    if (region == null) continue;
                     ChunkRenderList list = (ChunkRenderList)byRegion.get((Object)region);
                     if (list == null) {
                         list = new ChunkRenderList(region);

@@ -106,11 +106,12 @@ public final class DynamicShadowMeshCapture {
                 if (chunk == null) continue;
                 for (BlockEntity blockEntity : chunk.m_62954_().values()) {
                     CapturedCaster captured;
-                    BlockEntityRenderer renderer;
                     if (casters.size() >= maxCasters) {
                         return new Snapshot(level, List.copyOf(casters));
                     }
-                    if (blockEntity == null || blockEntity.m_58901_() || (renderer = blockEntityDispatcher.m_112265_(blockEntity)) == null || !renderer.m_142756_(blockEntity, cameraPos)) continue;
+                    if (blockEntity == null || blockEntity.m_58901_()) continue;
+                    BlockEntityRenderer renderer = blockEntityDispatcher.m_112265_(blockEntity);
+                    if (renderer == null || !renderer.m_142756_(blockEntity, cameraPos)) continue;
                     AABB box = blockEntity.getRenderBoundingBox();
                     if (box == null) {
                         box = new AABB(blockEntity.m_58899_());

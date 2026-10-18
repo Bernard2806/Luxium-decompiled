@@ -127,10 +127,11 @@ public final class RainPuddleManager {
         CollisionContext collision = CollisionContext.m_82749_();
         for (int dz = 0; dz < size; ++dz) {
             for (int dx = 0; dx < size; ++dx) {
-                VoxelShape shape;
                 BlockPos pos = new BlockPos(minX + dx, blockY, minZ + dz);
                 BlockState state = level.m_8055_(pos);
-                if (state.m_60795_() || (shape = state.m_60651_((BlockGetter)level, pos, collision)).m_83281_()) continue;
+                if (state.m_60795_()) continue;
+                VoxelShape shape = state.m_60651_((BlockGetter)level, pos, collision);
+                if (shape.m_83281_()) continue;
                 float blockU0 = (float)dx / (float)size;
                 float blockV0 = (float)dz / (float)size;
                 float blockUScale = 1.0f / (float)size;

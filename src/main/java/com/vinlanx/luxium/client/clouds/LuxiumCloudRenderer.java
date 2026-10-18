@@ -193,10 +193,11 @@ public final class LuxiumCloudRenderer {
         RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
         Vec3 center = new Vec3(centerX, centerY, centerZ);
         for (int i = 0; i < this.layers.length; ++i) {
-            double casterY;
-            ShadowPlane plane;
             LayerConfig layer = config[i];
-            if (!layer.enabled || layer.opacity <= 0.0 || (plane = LuxiumCloudRenderer.buildShadowPlane(center, toLight, lightViewRotation, projectionRadius, casterY = LuxiumCloudRenderer.shadowCasterHeight(layer, cloudStatus))) == null || plane.maxFront <= 0.0) continue;
+            if (!layer.enabled || layer.opacity <= 0.0) continue;
+            double casterY = LuxiumCloudRenderer.shadowCasterHeight(layer, cloudStatus);
+            ShadowPlane plane = LuxiumCloudRenderer.buildShadowPlane(center, toLight, lightViewRotation, projectionRadius, casterY);
+            if (plane == null || plane.maxFront <= 0.0) continue;
             ResourceLocation texture = this.textureForLayer(i, layer, textureWeather);
             RenderSystem.setShaderTexture((int)0, (ResourceLocation)texture);
             this.uploadShadowPlane(this.layers[i], plane, i, layer, partialTick, centerX, centerZ, ticks);
@@ -225,7 +226,9 @@ public final class LuxiumCloudRenderer {
         double maxFront = Double.NEGATIVE_INFINITY;
         for (LayerConfig layer : config) {
             ShadowPlane plane;
-            if (layer.enabled && layer.opacity > 0.0 && (plane = LuxiumCloudRenderer.buildShadowPlane(center, toLight, lightViewRotation, projectionRadius, LuxiumCloudRenderer.shadowCasterHeight(layer, cloudStatus))) != null && Double.isFinite(plane.maxFront)) {
+            if (!layer.enabled || layer.opacity <= 0.0) continue;
+            plane = LuxiumCloudRenderer.buildShadowPlane(center, toLight, lightViewRotation, projectionRadius, LuxiumCloudRenderer.shadowCasterHeight(layer, cloudStatus));
+            if (plane != null && Double.isFinite(plane.maxFront)) {
                 maxFront = Math.max(maxFront, plane.maxFront);
             }
         }
@@ -295,9 +298,10 @@ public final class LuxiumCloudRenderer {
 
     private void renderCustomOcclusionMask(PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, double cameraX, double cameraY, double cameraZ, int ticks, CloudStatus cloudStatus, float textureWeather, LayerConfig[] config) {
         for (int i = 0; i < this.layers.length; ++i) {
-            MaskLayerFrame frame;
             LayerConfig layer = config[i];
-            if (!layer.enabled || layer.opacity <= 0.0 || (frame = this.prepareMaskLayer(i, layer, cloudStatus, partialTick, cameraX, cameraY, cameraZ, ticks, textureWeather)) == null) continue;
+            if (!layer.enabled || layer.opacity <= 0.0) continue;
+            MaskLayerFrame frame = this.prepareMaskLayer(i, layer, cloudStatus, partialTick, cameraX, cameraY, cameraZ, ticks, textureWeather);
+            if (frame == null) continue;
             Matrix4f cloudProjection = LuxiumCloudRenderer.cloudProjectionMatrix(projectionMatrix, layer, cloudStatus, cameraY);
             LuxiumCloudRenderer.drawOcclusionMaskLayer(poseStack, cloudProjection, this.layers[i], frame, (float)(layer.opacity / 100.0));
         }
@@ -340,9 +344,10 @@ public final class LuxiumCloudRenderer {
         boolean ordinaryDistanceFog = LuxiumCloudRenderer.isOrdinaryTerrainDistanceFog(savedFogEnd, savedFogShape);
         Vec3 cloudColor = level.m_104808_(partialTick);
         for (int i = 0; i < this.layers.length; ++i) {
-            LayerFrame frame;
             LayerConfig layer = config[i];
-            if (!layer.enabled || layer.opacity <= 0.0 || (frame = this.prepareLayer(i, layer, cloudStatus, partialTick, cameraX, cameraY, cameraZ, ticks, textureWeather)) == null) continue;
+            if (!layer.enabled || layer.opacity <= 0.0) continue;
+            LayerFrame frame = this.prepareLayer(i, layer, cloudStatus, partialTick, cameraX, cameraY, cameraZ, ticks, textureWeather);
+            if (frame == null) continue;
             Matrix4f cloudProjection = LuxiumCloudRenderer.cloudProjectionMatrix(projectionMatrix, layer, cloudStatus, cameraY);
             if (ordinaryDistanceFog) {
                 LuxiumCloudRenderer.applyLayerDistanceFog(layer, cloudStatus, cameraY);
@@ -404,9 +409,10 @@ public final class LuxiumCloudRenderer {
         RenderSystem.colorMask((boolean)false, (boolean)false, (boolean)false, (boolean)false);
         RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
         for (int i = 0; i < this.layers.length; ++i) {
-            LayerFrame frame;
             LayerConfig layer = config[i];
-            if (!layer.enabled || layer.opacity <= 0.0 || (frame = this.prepareLayer(i, layer, cloudStatus, partialTick, cameraX, cameraY, cameraZ, ticks, textureWeather)) == null) continue;
+            if (!layer.enabled || layer.opacity <= 0.0) continue;
+            LayerFrame frame = this.prepareLayer(i, layer, cloudStatus, partialTick, cameraX, cameraY, cameraZ, ticks, textureWeather);
+            if (frame == null) continue;
             RenderSystem.setShaderTexture((int)0, (ResourceLocation)frame.texture);
             poseStack.m_85836_();
             poseStack.m_85841_(frame.blockScale, 1.0f, frame.blockScale);
@@ -863,7 +869,10 @@ public final class LuxiumCloudRenderer {
                     int nx;
                     int ny;
                     int next;
-                    if ((dx != 0 || dy != 0) && !(nearest[next = (ny = y + dy & 0xFF) << 8 | (nx = x + dx & 0xFF)] != -1)) {
+                    if (dx == 0 && dy == 0) continue;
+                    ny = y + dy & 0xFF;
+                    nx = x + dx & 0xFF;
+                    if (!(nearest[next = ny << 8 | nx] != -1)) {
                         nearest[next] = source;
                         queue[tail++] = next;
                     }
@@ -896,9 +905,13 @@ public final class LuxiumCloudRenderer {
                     int nx;
                     int ny;
                     int next;
-                    if ((dx != 0 || dy != 0) && !(distance[next = (ny = y + dy & 0xFF) << 8 | (nx = x + dx & 0xFF)] != Integer.MAX_VALUE)) {
-                        distance[next] = nextDistance;
-                        queue[tail++] = next;
+                    if ((dx != 0 || dy != 0)) {
+                        ny = y + dy & 0xFF;
+                        nx = x + dx & 0xFF;
+                        if (!(distance[next = ny << 8 | nx] != Integer.MAX_VALUE)) {
+                            distance[next] = nextDistance;
+                            queue[tail++] = next;
+                        }
                     }
                 }
             }

@@ -293,8 +293,9 @@ final class NeoShadowsProjection {
         List<NeoShadowsTypes.UvPoint> unique = scratch.hullUniqueBuf;
         unique.clear();
         for (NeoShadowsTypes.UvPoint uvPoint : sorted) {
-            if (!unique.isEmpty() && (uvPoint.equalsApprox(unique.get(unique.size() - 1)))) continue;
-            unique.add(uvPoint);
+            if (unique.isEmpty() || !(uvPoint.equalsApprox(unique.get(unique.size() - 1)))) {
+                unique.add(uvPoint);
+            }
         }
         if (unique.size() < 3) {
             return unique;

@@ -313,7 +313,6 @@ extends Screen {
         }
         graphics.m_280588_(left, top, right, bottom);
         for (ControlRow control : this.controls) {
-            AbstractWidget abstractWidget;
             boolean visible;
             int animatedOffset = Math.round((1.0f - this.tabAnimation) * 10.0f);
             int y = control.baseY - (int)this.scroll + animatedOffset;
@@ -340,7 +339,9 @@ extends Screen {
             int labelWidth = Math.max(20, control.widget.m_252754_() - labelX - 6);
             graphics.m_280614_(this.f_96547_, this.fittedUpper(option.label(), labelWidth), labelX, y + 12, option.isEnabled() ? -461080 : -6249040, true);
             control.widget.m_88315_(graphics, mouseX, mouseY, partialTick);
-            if (option.type() != ConfigOption.Type.COLOR || !((abstractWidget = control.widget) instanceof EditBox)) continue;
+            if (option.type() != ConfigOption.Type.COLOR) continue;
+            AbstractWidget abstractWidget = control.widget;
+            if (!(abstractWidget instanceof EditBox)) continue;
             EditBox box = (EditBox)abstractWidget;
             try {
                 String hex = box.m_94155_().replace("#", "");

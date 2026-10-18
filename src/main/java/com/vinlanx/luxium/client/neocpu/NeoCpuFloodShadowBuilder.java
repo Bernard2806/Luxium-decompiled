@@ -302,9 +302,10 @@ public final class NeoCpuFloodShadowBuilder {
 
     private ContributionData buildContributionData(TorchRtxState torchState, NeoCpuShadowTypes.ReceiverSurface receiver, long sourceKey, long[] candidateKeys, int candidateKeyCount, double sampleX, double sampleY, double sampleZ) {
         for (int index = 0; index < candidateKeyCount; ++index) {
-            boolean hasCoverage;
             long sampleKey = candidateKeys[index];
-            if (sampleKey == Long.MIN_VALUE || !(hasCoverage = this.hasPositiveCoverageAt(torchState, sampleKey))) continue;
+            if (sampleKey == Long.MIN_VALUE) continue;
+            boolean hasCoverage = this.hasPositiveCoverageAt(torchState, sampleKey);
+            if (!hasCoverage) continue;
             if (this.dominantSourceAt(torchState, sampleKey) == sourceKey) {
                 ++this.debugStats.dominantBaseAccepts;
                 return new ContributionData(true, 1.0f);

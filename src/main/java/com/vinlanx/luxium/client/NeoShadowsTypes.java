@@ -818,14 +818,15 @@ final class NeoShadowsTypes {
                 }
                 for (UvPoint probe : probes) {
                     double distance;
-                    double sz;
-                    double dz;
-                    double sy;
-                    double dy;
-                    double sx;
-                    double dx;
-                    double distanceSq;
-                    if (!NeoShadowsProjection.isProbeInsideRect(probe, localBounds) || (distanceSq = (dx = (sx = facePlane.sampleX(probe.u, probe.v)) - sx0) * dx + (dy = (sy = facePlane.sampleY(probe.u, probe.v)) - sy0) * dy + (dz = (sz = facePlane.sampleZ(probe.u, probe.v)) - sz0) * dz) > maxDistanceSq || LightRtMath.getFalloff(emission, distance = Math.sqrt(distanceSq)) <= 0) continue;
+                    if (!NeoShadowsProjection.isProbeInsideRect(probe, localBounds)) continue;
+                    double sx = facePlane.sampleX(probe.u, probe.v);
+                    double sy = facePlane.sampleY(probe.u, probe.v);
+                    double sz = facePlane.sampleZ(probe.u, probe.v);
+                    double dx = sx - sx0;
+                    double dy = sy - sy0;
+                    double dz = sz - sz0;
+                    double distanceSq = dx * dx + dy * dy + dz * dz;
+                    if (distanceSq > maxDistanceSq || LightRtMath.getFalloff(emission, distance = Math.sqrt(distanceSq)) <= 0) continue;
                     scratch[writeIndex++] = sx;
                     scratch[writeIndex++] = sy;
                     scratch[writeIndex++] = sz;

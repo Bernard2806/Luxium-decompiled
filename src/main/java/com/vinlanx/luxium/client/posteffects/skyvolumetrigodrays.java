@@ -122,7 +122,6 @@ public final class skyvolumetrigodrays {
     }
 
     private static float updateAutoAdaptation() {
-        float alpha;
         boolean enabled = Config.isFeatureEnabled(Config.CLIENT.skyVolumetricGodRaysAutoAdaptation);
         Minecraft minecraft = Minecraft.m_91087_();
         if (!enabled || minecraft.f_91073_ == null) {
@@ -158,8 +157,11 @@ public final class skyvolumetrigodrays {
         float dt = (float)((double)(nowNs - lastAdaptationUpdateNs) * 1.0E-9);
         lastAdaptationUpdateNs = nowNs;
         dt = Mth.m_14036_((float)dt, (float)0.0f, (float)0.25f);
-        if (dt > 0.0f && Math.abs(adaptationTarget - (adaptationSmoothed += (adaptationTarget - adaptationSmoothed) * (alpha = 1.0f - (float)Math.exp(-6.0f * dt / 0.5f)))) < 1.0E-4f) {
-            adaptationSmoothed = adaptationTarget;
+        if (dt > 0.0f) {
+            float alpha = 1.0f - (float)Math.exp(-6.0f * dt / 0.5f);
+            if (Math.abs(adaptationTarget - (adaptationSmoothed += (adaptationTarget - adaptationSmoothed) * alpha)) < 1.0E-4f) {
+                adaptationSmoothed = adaptationTarget;
+            }
         }
         return Mth.m_14036_((float)adaptationSmoothed, (float)0.0f, (float)1.0f);
     }

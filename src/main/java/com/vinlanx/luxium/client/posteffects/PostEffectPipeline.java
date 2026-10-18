@@ -133,7 +133,6 @@ public final class PostEffectPipeline {
             modelViewStack.m_252880_(0.0f, 0.0f, -2000.0f);
             RenderSystem.applyModelViewMatrix();
             try {
-                ShaderInstance shader;
                 if (renderEffects) {
                     RenderTarget destination = main;
                     int activeEffectCount = (renderFog ? 1 : 0) + (renderRays ? 1 : 0) + (renderVolumetricRays ? 1 : 0) + (renderFlare ? 1 : 0);
@@ -201,7 +200,7 @@ public final class PostEffectPipeline {
                     }
                 }
                 if (renderTonemap) {
-                    shader = tonemap.getShader();
+                    ShaderInstance shader = tonemap.getShader();
                     if (shader == null) break block35;
                     int sceneTexture = main.m_83975_();
                     int effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.m_83975_() : 0;
@@ -229,10 +228,13 @@ public final class PostEffectPipeline {
                     PostProcessSwapChain.commit(main);
                     break block35;
                 }
-                if (useEffectsTarget && effectsTarget != null && (shader = ShaderManager.getPostEffectCompositeShader()) != null) {
-                    shader.m_173350_("EffectsSampler", (Object)effectsTarget.m_83975_());
-                    main.m_83947_(true);
-                    PostEffectPipeline.draw(shader, width, height, BlendMode.PREMULTIPLIED);
+                if (useEffectsTarget && effectsTarget != null) {
+                    ShaderInstance shader = ShaderManager.getPostEffectCompositeShader();
+                    if (shader != null) {
+                        shader.m_173350_("EffectsSampler", (Object)effectsTarget.m_83975_());
+                        main.m_83947_(true);
+                        PostEffectPipeline.draw(shader, width, height, BlendMode.PREMULTIPLIED);
+                    }
                 }
             }
             finally {

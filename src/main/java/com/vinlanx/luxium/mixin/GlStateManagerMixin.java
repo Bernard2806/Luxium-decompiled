@@ -40,9 +40,13 @@ public class GlStateManagerMixin {
     private static void luxium$clampViewportToRenderTarget(int x, int y, int w, int h, CallbackInfo ci) {
         Minecraft mc;
         RenderTarget target;
-        if ((NeoShadowsEngine.isAnyShadowCapturePass() || ReflectionSystem.isRenderingWorldPass() || TemporalFrameSystem.isWorldPassActive() || LsrSystem.isWorldPassActive()) && (target = (mc = Minecraft.m_91087_()).m_91385_()) != null && (w > target.f_83917_ || h > target.f_83918_)) {
-            GL11.glViewport((int)x, (int)y, (int)target.f_83917_, (int)target.f_83918_);
-            ci.cancel();
+        if ((NeoShadowsEngine.isAnyShadowCapturePass() || ReflectionSystem.isRenderingWorldPass() || TemporalFrameSystem.isWorldPassActive() || LsrSystem.isWorldPassActive())) {
+            mc = Minecraft.m_91087_();
+            target = mc.m_91385_();
+            if (target != null && (w > target.f_83917_ || h > target.f_83918_)) {
+                GL11.glViewport((int)x, (int)y, (int)target.f_83917_, (int)target.f_83918_);
+                ci.cancel();
+            }
         }
     }
 }

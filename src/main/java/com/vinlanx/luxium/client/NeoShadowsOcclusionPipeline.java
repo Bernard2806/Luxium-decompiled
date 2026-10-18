@@ -101,15 +101,16 @@ final class NeoShadowsOcclusionPipeline {
         NeoShadowsTypes.UvPoint[] occlusionProbes = NeoShadowsOcclusionPipeline.buildOcclusionFaceProbes(candidate.face);
         ProbeFirstHitCache firstHitCache = state.firstHitScalarCache(sourceKey, candidateKey, occlusionProbes.length);
         for (int probeIndex = 0; probeIndex < occlusionProbes.length; ++probeIndex) {
-            double sz;
-            double ddz;
-            double sy;
-            double ddy;
-            double sx;
-            double ddx;
-            double distance;
             NeoShadowsTypes.UvPoint probe = occlusionProbes[probeIndex];
-            if (!NeoShadowsProjection.isProbeInsideRect(probe, localBounds) || (distance = Math.sqrt((ddx = (sx = plane.sampleX(probe.u, probe.v)) - source.f_82479_) * ddx + (ddy = (sy = plane.sampleY(probe.u, probe.v)) - source.f_82480_) * ddy + (ddz = (sz = plane.sampleZ(probe.u, probe.v)) - source.f_82481_) * ddz)) > maxDist || LightRtMath.getFalloff(sourceEmission, distance) <= 0) continue;
+            if (!NeoShadowsProjection.isProbeInsideRect(probe, localBounds)) continue;
+            double sx = plane.sampleX(probe.u, probe.v);
+            double sy = plane.sampleY(probe.u, probe.v);
+            double sz = plane.sampleZ(probe.u, probe.v);
+            double ddx = sx - source.f_82479_;
+            double ddy = sy - source.f_82480_;
+            double ddz = sz - source.f_82481_;
+            double distance = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
+            if (distance > maxDist || LightRtMath.getFalloff(sourceEmission, distance) <= 0) continue;
             CachedFirstScalarHit cachedHit = firstHitCache.get(probeIndex);
             if (cachedHit == null) {
                 cachedHit = firstHitCache.findReusableHit(source.f_82479_, source.f_82480_, source.f_82481_, sx, sy, sz);
@@ -420,7 +421,6 @@ final class NeoShadowsOcclusionPipeline {
                         cachedSectionIndex = Integer.MIN_VALUE;
                     }
                     if (cachedChunk != null) {
-                        BlockState state;
                         if (sectionIndex != cachedSectionIndex) {
                             if (cachedSections == null || sectionIndex < 0 || sectionIndex >= cachedSections.length) {
                                 cachedSection = null;
@@ -437,31 +437,34 @@ final class NeoShadowsOcclusionPipeline {
                                 break;
                             }
                         }
-                        if (!sectionIsAir && cachedSection != null && !(state = cachedSection.m_62982_(traversal.blockX & 0xF, traversal.blockY & 0xF, traversal.blockZ & 0xF)).m_60795_()) {
-                            NeoShadowsTypes.Box[] boxes = BOX_CACHE.get(state);
-                            if (boxes == null) {
-                                cursor.m_122178_(traversal.blockX, traversal.blockY, traversal.blockZ);
-                                NeoShadowsTypes.Box[] built = SolidOccluderCache.buildBoxes(state, level, (BlockPos)cursor);
-                                NeoShadowsTypes.Box[] existing = BOX_CACHE.putIfAbsent(state, built);
-                                boxes = existing != null ? existing : built;
-                            }
-                            if (boxes == FULL_BLOCK_BOXES) {
-                                out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
-                                out.boxes = boxes;
-                                return true;
-                            }
-                            if (boxes.length == 1) {
-                                if (boxes[0].intersectsSegmentWithOffset(start.f_82479_, start.f_82480_, start.f_82481_, endX, endY, endZ, traversal.blockX, traversal.blockY, traversal.blockZ)) {
+                        if (!sectionIsAir && cachedSection != null) {
+                            BlockState state = cachedSection.m_62982_(traversal.blockX & 0xF, traversal.blockY & 0xF, traversal.blockZ & 0xF);
+                            if (!state.m_60795_()) {
+                                NeoShadowsTypes.Box[] boxes = BOX_CACHE.get(state);
+                                if (boxes == null) {
+                                    cursor.m_122178_(traversal.blockX, traversal.blockY, traversal.blockZ);
+                                    NeoShadowsTypes.Box[] built = SolidOccluderCache.buildBoxes(state, level, (BlockPos)cursor);
+                                    NeoShadowsTypes.Box[] existing = BOX_CACHE.putIfAbsent(state, built);
+                                    boxes = existing != null ? existing : built;
+                                }
+                                if (boxes == FULL_BLOCK_BOXES) {
                                     out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
                                     out.boxes = boxes;
                                     return true;
                                 }
-                            } else if (boxes.length > 1) {
-                                for (NeoShadowsTypes.Box box : boxes) {
-                                    if (box.intersectsSegmentWithOffset(start.f_82479_, start.f_82480_, start.f_82481_, endX, endY, endZ, traversal.blockX, traversal.blockY, traversal.blockZ)) {
+                                if (boxes.length == 1) {
+                                    if (boxes[0].intersectsSegmentWithOffset(start.f_82479_, start.f_82480_, start.f_82481_, endX, endY, endZ, traversal.blockX, traversal.blockY, traversal.blockZ)) {
                                         out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
                                         out.boxes = boxes;
                                         return true;
+                                    }
+                                } else if (boxes.length > 1) {
+                                    for (NeoShadowsTypes.Box box : boxes) {
+                                        if (box.intersectsSegmentWithOffset(start.f_82479_, start.f_82480_, start.f_82481_, endX, endY, endZ, traversal.blockX, traversal.blockY, traversal.blockZ)) {
+                                            out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
+                                            out.boxes = boxes;
+                                            return true;
+                                        }
                                     }
                                 }
                             }
