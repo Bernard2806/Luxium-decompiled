@@ -126,8 +126,6 @@ public final class Grass {
 
     @SubscribeEvent
     public static void onRenderLevel(RenderLevelStageEvent event) {
-        BufferBuilder.RenderedBuffer ready;
-        long gameTick;
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
             return;
         }
@@ -149,7 +147,8 @@ public final class Grass {
             needsRescan = false;
             Grass.scheduleAsyncScan(mc);
         }
-        if ((gameTick = mc.f_91073_.m_46467_()) - lastLightRefreshTick >= 40L) {
+        long gameTick = mc.f_91073_.m_46467_();
+        if (gameTick - lastLightRefreshTick >= 40L) {
             lastLightRefreshTick = gameTick;
             ScanData sd = currentScan;
             if (sd != null) {
@@ -157,7 +156,8 @@ public final class Grass {
                 Grass.scheduleAsyncBuild(sd);
             }
         }
-        if ((ready = (BufferBuilder.RenderedBuffer)pendingUpload.getAndSet(null)) != null) {
+        BufferBuilder.RenderedBuffer ready = (BufferBuilder.RenderedBuffer)pendingUpload.getAndSet(null);
+        if (ready != null) {
             if (grassVbo == null) {
                 grassVbo = new VertexBuffer(VertexBuffer.Usage.DYNAMIC);
             }
@@ -236,16 +236,20 @@ public final class Grass {
         if (u != null) {
             u.m_5985_(time);
         }
-        if ((u = s.m_173348_("WindDirX")) != null) {
+        u = s.m_173348_("WindDirX");
+        if (u != null) {
             u.m_5985_(windDirX);
         }
-        if ((u = s.m_173348_("WindDirZ")) != null) {
+        u = s.m_173348_("WindDirZ");
+        if (u != null) {
             u.m_5985_(windDirZ);
         }
-        if ((u = s.m_173348_("CameraX")) != null) {
+        u = s.m_173348_("CameraX");
+        if (u != null) {
             u.m_5985_((float)camera.f_82479_);
         }
-        if ((u = s.m_173348_("CameraZ")) != null) {
+        u = s.m_173348_("CameraZ");
+        if (u != null) {
             u.m_5985_((float)camera.f_82481_);
         }
     }
@@ -258,7 +262,7 @@ public final class Grass {
             for (int dz = -radius; dz <= radius; ++dz) {
                 for (int by = minY; by <= maxY; ++by) {
                     BlockPos p = new BlockPos(origin.m_123341_() + dx, by, origin.m_123343_() + dz);
-                    if (!level.m_8055_(p).m_60713_(Blocks.f_50440_) || !level.m_8055_(p.m_7494_()).m_60795_()) continue;
+                    if (!(level.m_8055_(p).m_60713_(Blocks.f_50440_)) || !(level.m_8055_(p.m_7494_()).m_60795_())) continue;
                     ++blockCount;
                 }
             }

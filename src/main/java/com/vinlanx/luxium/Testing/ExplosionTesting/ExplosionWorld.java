@@ -87,7 +87,6 @@ public final class ExplosionWorld {
     private void stepInternal(float dt) {
         SpawnRequest request;
         while ((request = this.spawnQueue.poll()) != null) {
-            int limit;
             if (this.level != request.level) {
                 this.clearInternal();
                 this.level = request.level;
@@ -95,7 +94,7 @@ public final class ExplosionWorld {
             this.fluid.inject(this.collision, request.center, request.profile);
             this.particles.trigger(request.center, request.profile, true);
             this.sources.add(new Source(request.center, request.profile));
-            int n = limit = request.profile.tntKg() >= 100.0 ? 2 : 4;
+            int limit = request.profile.tntKg() >= 100.0 ? 2 : 4;
             while (this.sources.size() > limit) {
                 this.sources.remove(0);
             }
@@ -119,8 +118,9 @@ public final class ExplosionWorld {
                     this.particles.spawnAfterburn(source.center, source.profile, spawn);
                 }
             }
-            if (!(source.age >= 1.2f * duration)) continue;
-            iterator.remove();
+            if (source.age >= 1.2f * duration) {
+                iterator.remove();
+            }
         }
         this.fluidAccumulator += dt;
         for (int iterations = 0; this.fluidAccumulator >= 0.033333335f && iterations < 2; ++iterations) {
@@ -155,8 +155,7 @@ public final class ExplosionWorld {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private void publishSnapshot() {
-        ExplosionRenderSnapshot explosionRenderSnapshot = this.writeSnapshot;
-        synchronized (explosionRenderSnapshot) {
+        synchronized (this.writeSnapshot) {
             ExplosionRenderSnapshot previousRead;
             this.particles.writeSnapshot(this.writeSnapshot);
             this.writeSnapshot = previousRead = this.publishedSnapshot.getAndSet(this.writeSnapshot);

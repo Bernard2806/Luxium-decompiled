@@ -144,8 +144,9 @@ public final class TestFlashLight {
                 BlockPos blockPos = BlockPos.m_274446_((Position)point);
                 long key = blockPos.m_121878_();
                 byte current = newMap.get(key);
-                if ((current & 0xFF) >= brightness) continue;
-                newMap.put(key, (byte)brightness);
+                if ((current & 0xFF) < brightness) {
+                    newMap.put(key, (byte)brightness);
+                }
             }
         }
         TestFlashLight.markDirtyVolume(mc, start, maxDistance);

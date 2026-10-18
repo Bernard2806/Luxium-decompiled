@@ -93,8 +93,9 @@ final class SphereWarpEffect {
         while (iterator.hasNext()) {
             Instance instance = iterator.next();
             ++instance.ageTicks;
-            if (instance.ageTicks < instance.totalTicks) continue;
-            iterator.remove();
+            if (instance.ageTicks >= instance.totalTicks) {
+                iterator.remove();
+            }
         }
     }
 

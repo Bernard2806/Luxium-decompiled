@@ -87,8 +87,8 @@ public final class ExplosionRenderer {
         float dt = ExplosionRenderer.frameDelta();
         ExplosionWorld world = ExplosionWorld.get();
         world.requestStep(dt);
-        ExplosionRenderSnapshot explosionRenderSnapshot = snapshot = world.snapshot();
-        synchronized (explosionRenderSnapshot) {
+        snapshot = world.snapshot();
+        synchronized (snapshot) {
             if (snapshot.totalCount == 0) {
                 return;
             }

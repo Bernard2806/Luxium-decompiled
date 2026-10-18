@@ -41,8 +41,9 @@ final class ExplosionParticleSystem {
     void writeSnapshot(ExplosionRenderSnapshot snapshot) {
         int smoke = 0;
         for (Particle particle : this.particles) {
-            if (particle.emissive()) continue;
-            ++smoke;
+            if (!particle.emissive()) {
+                ++smoke;
+            }
         }
         int smokeIndex = 0;
         int hotIndex = smoke;
@@ -63,12 +64,12 @@ final class ExplosionParticleSystem {
     }
 
     void trigger(Vec3 center, ExplosionProfile profile, boolean nearGround) {
-        int available;
         int requested = (int)(12400.0f * profile.particleMultiplier());
         if (70000 - this.particles.size() < Math.max(2000, requested)) {
             this.compact(true);
         }
-        if ((available = 70000 - this.particles.size()) <= 0) {
+        int available = 70000 - this.particles.size();
+        if (available <= 0) {
             return;
         }
         double multiplier = profile.particleMultiplier();
@@ -78,8 +79,7 @@ final class ExplosionParticleSystem {
         if (total > (double)available) {
             int i = 0;
             while (i < target.length) {
-                int n = i++;
-                target[n] = target[n] * ((double)available / total);
+                target[i++] *= ((double)available / total);
             }
         }
         this.spawnKind(center, profile, (byte)0, (int)target[0], nearGround);
@@ -112,9 +112,8 @@ final class ExplosionParticleSystem {
             float temperature;
             float speed;
             float radius;
-            Vec3 direction;
             boolean upward = nearGround || kind == 2 || kind == 3;
-            Vec3 vec3 = direction = kind == 3 ? this.dustDirection() : this.randomDirection(upward);
+            Vec3 direction = kind == 3 ? this.dustDirection() : this.randomDirection(upward);
             if (kind == 0) {
                 radius = (float)Math.cbrt(this.random.nextFloat()) * 0.58f * spatialScale;
                 speed = profile.blastStrength() * this.randomRange(0.62f, 1.28f);
@@ -202,9 +201,9 @@ final class ExplosionParticleSystem {
 
     private static void moveWithCollision(Particle p, float dt, ExplosionCollisionCache collision) {
         float oldX = p.x;
-        float nextX = oldX + p.vx * dt;
         float oldY = p.y;
         float oldZ = p.z;
+        float nextX = oldX + p.vx * dt;
         if (!collision.isSolid(nextX, oldY, oldZ)) {
             p.x = nextX;
         } else {
@@ -247,14 +246,14 @@ final class ExplosionParticleSystem {
     private void compact(boolean forceDrop) {
         Iterator<Particle> it = this.particles.iterator();
         while (it.hasNext()) {
-            boolean alive;
             Particle p = it.next();
-            boolean bl = alive = p.age < p.life && p.alpha > 0.003f && (double)p.y > -64.0;
+            boolean alive = p.age < p.life && p.alpha > 0.003f && (double)p.y > -64.0;
             if (forceDrop && (double)this.particles.size() > 50400.0 && p.kind != 0 && p.kind != 2 && p.age >= p.life * 0.72f) {
                 alive = false;
             }
-            if (alive) continue;
-            it.remove();
+            if (!alive) {
+                it.remove();
+            }
         }
     }
 
@@ -297,11 +296,10 @@ final class ExplosionParticleSystem {
     }
 
     private static float[] blackbody(float kelvin) {
-        float g;
         float t = Mth.m_14036_((float)kelvin, (float)1000.0f, (float)40000.0f) / 100.0f;
         float safeHot = Math.max(t - 60.0f, 0.001f);
         float r = t <= 66.0f ? 255.0f : 329.69873f * (float)Math.pow(safeHot, -0.1332047592);
-        float f = g = t <= 66.0f ? 99.4708f * (float)Math.log(Math.max(t, 1.0E-4f)) - 161.11957f : 288.12216f * (float)Math.pow(safeHot, -0.0755148492);
+        float g = t <= 66.0f ? 99.4708f * (float)Math.log(Math.max(t, 1.0E-4f)) - 161.11957f : 288.12216f * (float)Math.pow(safeHot, -0.0755148492);
         float b = t >= 66.0f ? 255.0f : (t <= 19.0f ? 0.0f : 138.51773f * (float)Math.log(Math.max(t - 10.0f, 1.0E-4f)) - 305.0448f);
         return new float[]{Mth.m_14036_((float)(r / 255.0f), (float)0.0f, (float)1.0f), Mth.m_14036_((float)(g / 255.0f), (float)0.0f, (float)1.0f), Mth.m_14036_((float)(b / 255.0f), (float)0.0f, (float)1.0f)};
     }
