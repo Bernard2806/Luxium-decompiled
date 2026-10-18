@@ -415,14 +415,14 @@ public final class ExposedFaceService {
         if (!ExposedFaceService.isCacheActive() || this.sectionFaces.isEmpty()) {
             return Collections.emptyMap();
         }
-        Long2ObjectOpenHashMap blocksByChunk = new Long2ObjectOpenHashMap();
+        Long2ObjectOpenHashMap<LongOpenHashSet> blocksByChunk = new Long2ObjectOpenHashMap<LongOpenHashSet>();
         for (SectionFaceData sectionData : this.sectionFaces.values()) {
             if (sectionData == null || sectionData.isEmpty()) continue;
             for (Long2ByteMap.Entry entry : sectionData.facesByBlock.long2ByteEntrySet()) {
                 if (entry.getByteValue() == 0) continue;
                 long blockKey = entry.getLongKey();
                 long chunkKey = ChunkPos.m_45589_((int)(BlockPos.m_121983_((long)blockKey) >> 4), (int)(BlockPos.m_122015_((long)blockKey) >> 4));
-                ((LongOpenHashSet)blocksByChunk.computeIfAbsent(chunkKey, ignored -> new LongOpenHashSet())).add(blockKey);
+                blocksByChunk.computeIfAbsent(chunkKey, ignored -> new LongOpenHashSet()).add(blockKey);
             }
         }
         if (blocksByChunk.isEmpty()) {
@@ -601,9 +601,9 @@ public final class ExposedFaceService {
                 List<SurfaceRect> fragments = new ArrayList<SurfaceRect>();
                 fragments.add(initialRect);
                 for (int otherIndex = 0; otherIndex < boxes.size() && !fragments.isEmpty(); ++otherIndex) {
-                    AABB otherBox;
                     if (otherIndex == boxIndex) continue;
-                    if (!(ExposedFaceService.coversFacePlane(face, planeCoordinate, otherBox = (AABB)boxes.get(otherIndex)))) continue;
+                    AABB otherBox = (AABB)boxes.get(otherIndex);
+                    if (!ExposedFaceService.coversFacePlane(face, planeCoordinate, otherBox)) continue;
                     fragments = ExposedFaceService.subtractSurfaceRectList(fragments, ExposedFaceService.canonicalFaceRect(face, otherBox));
                 }
                 boolean boundaryFace = ExposedFaceService.isBoundaryFace(face, planeCoordinate);
@@ -755,9 +755,9 @@ public final class ExposedFaceService {
 
     private void drainCompletedSectionBuilds() {
         boolean changed = false;
-        BuiltSectionCommit built;
         for (int i = 0; i < 64; ++i) {
-            if ((built = this.completedSectionBuilds.poll()) == null) break;
+            BuiltSectionCommit built = this.completedSectionBuilds.poll();
+            if (built == null) break;
             Long latest = this.latestSectionBuildRevision.get(built.sectionKey);
             if (latest == null || latest != built.revision) continue;
             this.latestSectionBuildRevision.remove(built.sectionKey, built.revision);
@@ -870,7 +870,8 @@ public final class ExposedFaceService {
         long value = ((long)faceOrdinal & 7L) << 61;
         value |= ((long)planeCoordinate & 0x1FFFFFL) << 40;
         value |= ((long)cellU & 0xFFFFFL) << 20;
-        return value |= (long)cellV & 0xFFFFFL;
+        value |= (long)cellV & 0xFFFFFL;
+        return value;
     }
 
     private static int unpackFaceOrdinal(long key) {
