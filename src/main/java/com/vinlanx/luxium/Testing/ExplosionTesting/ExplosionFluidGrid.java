@@ -180,7 +180,8 @@ final class ExplosionFluidGrid {
             this.temperature[i] = Mth.m_14036_((float)(this.temperature[i] * heatDecay), (float)0.0f, (float)5.0f);
             this.smoke[i] = Mth.m_14036_((float)(this.smoke[i] * smokeDecay), (float)0.0f, (float)4.0f);
             this.fuel[i] = Mth.m_14036_((float)(this.fuel[i] * fuelDecay), (float)0.0f, (float)3.0f);
-            this.expansion[i++] *= expansionDecay;
+            this.expansion[i] *= expansionDecay;
+            ++i;
         }
         this.applySolidBoundary();
     }
@@ -221,16 +222,13 @@ final class ExplosionFluidGrid {
     }
 
     private void vorticity(float dt, float strength) {
-        int x;
-        int z;
-        int y;
         Arrays.fill(this.curlX, 0.0f);
         Arrays.fill(this.curlY, 0.0f);
         Arrays.fill(this.curlZ, 0.0f);
         Arrays.fill(this.curlMagnitude, 0.0f);
-        for (y = 1; y < 18; ++y) {
-            for (z = 1; z < 21; ++z) {
-                for (x = 1; x < 21; ++x) {
+        for (int y = 1; y < 18; ++y) {
+            for (int z = 1; z < 21; ++z) {
+                for (int x = 1; x < 21; ++x) {
                     int i = ExplosionFluidGrid.index(x, y, z);
                     this.curlX[i] = (this.vz[ExplosionFluidGrid.index(x, y + 1, z)] - this.vz[ExplosionFluidGrid.index(x, y - 1, z)]) * 0.5f - (this.vy[ExplosionFluidGrid.index(x, y, z + 1)] - this.vy[ExplosionFluidGrid.index(x, y, z - 1)]) * 0.5f;
                     this.curlY[i] = (this.vx[ExplosionFluidGrid.index(x, y, z + 1)] - this.vx[ExplosionFluidGrid.index(x, y, z - 1)]) * 0.5f - (this.vz[ExplosionFluidGrid.index(x + 1, y, z)] - this.vz[ExplosionFluidGrid.index(x - 1, y, z)]) * 0.5f;
@@ -239,16 +237,19 @@ final class ExplosionFluidGrid {
                 }
             }
         }
-        for (y = 2; y < 17; ++y) {
-            for (z = 2; z < 20; ++z) {
-                for (x = 2; x < 20; ++x) {
+        for (int y = 2; y < 17; ++y) {
+            for (int z = 2; z < 20; ++z) {
+                for (int x = 2; x < 20; ++x) {
                     int i = ExplosionFluidGrid.index(x, y, z);
                     float nx = (this.curlMagnitude[ExplosionFluidGrid.index(x + 1, y, z)] - this.curlMagnitude[ExplosionFluidGrid.index(x - 1, y, z)]) * 0.5f;
                     float ny = (this.curlMagnitude[ExplosionFluidGrid.index(x, y + 1, z)] - this.curlMagnitude[ExplosionFluidGrid.index(x, y - 1, z)]) * 0.5f;
                     float nz = (this.curlMagnitude[ExplosionFluidGrid.index(x, y, z + 1)] - this.curlMagnitude[ExplosionFluidGrid.index(x, y, z - 1)]) * 0.5f;
                     float inv = Mth.m_264536_((float)(nx * nx + ny * ny + nz * nz + 1.0E-5f));
-                    this.vx[i] += ((ny *= inv) * this.curlZ[i] - (nz *= inv) * this.curlY[i]) * dt * strength;
-                    this.vy[i] += (nz * this.curlX[i] - (nx *= inv) * this.curlZ[i]) * dt * strength;
+                    nx *= inv;
+                    ny *= inv;
+                    nz *= inv;
+                    this.vx[i] += (ny * this.curlZ[i] - nz * this.curlY[i]) * dt * strength;
+                    this.vy[i] += (nz * this.curlX[i] - nx * this.curlZ[i]) * dt * strength;
                     this.vz[i] += (nx * this.curlY[i] - ny * this.curlX[i]) * dt * strength;
                 }
             }
@@ -256,14 +257,11 @@ final class ExplosionFluidGrid {
     }
 
     private void projectPressure() {
-        int i;
-        int z;
-        int y;
         Arrays.fill(this.scratch, 0.0f);
-        for (y = 1; y < 18; ++y) {
-            for (z = 1; z < 21; ++z) {
+        for (int y = 1; y < 18; ++y) {
+            for (int z = 1; z < 21; ++z) {
                 for (int x = 1; x < 21; ++x) {
-                    i = ExplosionFluidGrid.index(x, y, z);
+                    int i = ExplosionFluidGrid.index(x, y, z);
                     this.scratch[i] = (this.vx[ExplosionFluidGrid.index(x + 1, y, z)] - this.vx[ExplosionFluidGrid.index(x - 1, y, z)] + this.vy[ExplosionFluidGrid.index(x, y + 1, z)] - this.vy[ExplosionFluidGrid.index(x, y - 1, z)] + this.vz[ExplosionFluidGrid.index(x, y, z + 1)] - this.vz[ExplosionFluidGrid.index(x, y, z - 1)]) * 0.5f - this.expansion[i];
                 }
             }
@@ -283,10 +281,11 @@ final class ExplosionFluidGrid {
             }
             System.arraycopy(this.nextPressure, 0, this.pressure, 0, 9196);
         }
-        for (y = 1; y < 18; ++y) {
-            for (z = 1; z < 21; ++z) {
+        for (int y = 1; y < 18; ++y) {
+            for (int z = 1; z < 21; ++z) {
                 for (int x = 1; x < 21; ++x) {
-                    this.vx[i = ExplosionFluidGrid.index(x, y, z)] -= (this.pressure[ExplosionFluidGrid.index(x + 1, y, z)] - this.pressure[ExplosionFluidGrid.index(x - 1, y, z)]) * 0.5f;
+                    int i = ExplosionFluidGrid.index(x, y, z);
+                    this.vx[i] -= (this.pressure[ExplosionFluidGrid.index(x + 1, y, z)] - this.pressure[ExplosionFluidGrid.index(x - 1, y, z)]) * 0.5f;
                     this.vy[i] -= (this.pressure[ExplosionFluidGrid.index(x, y + 1, z)] - this.pressure[ExplosionFluidGrid.index(x, y - 1, z)]) * 0.5f;
                     this.vz[i] -= (this.pressure[ExplosionFluidGrid.index(x, y, z + 1)] - this.pressure[ExplosionFluidGrid.index(x, y, z - 1)]) * 0.5f;
                 }
@@ -316,14 +315,9 @@ final class ExplosionFluidGrid {
 
     private void applySolidBoundary() {
         for (int i = 0; i < 9196; ++i) {
-            if (!this.solid[i]) continue;
-            this.expansion[i] = 0.0f;
-            this.fuel[i] = 0.0f;
-            this.smoke[i] = 0.0f;
-            this.temperature[i] = 0.0f;
-            this.vz[i] = 0.0f;
-            this.vy[i] = 0.0f;
-            this.vx[i] = 0.0f;
+            if (this.solid[i]) {
+                this.vx[i] = this.vy[i] = this.vz[i] = this.temperature[i] = this.smoke[i] = this.fuel[i] = this.expansion[i] = 0.0f;
+            }
         }
     }
 
