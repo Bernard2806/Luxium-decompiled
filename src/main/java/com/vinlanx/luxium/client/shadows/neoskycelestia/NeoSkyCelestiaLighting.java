@@ -37,8 +37,6 @@ public final class NeoSkyCelestiaLighting {
     }
 
     public static State calculate(ClientLevel level, float partialTick, CelestialPath.State celestialPath) {
-        float globalDirectScale;
-        float directBaseStrength;
         if (level == null || !level.m_6042_().f_223549_()) {
             return State.disabled();
         }
@@ -63,6 +61,8 @@ public final class NeoSkyCelestiaLighting {
         Vector3f directColor = NeoSkyCelestiaLighting.mix(moonColor, sunDirectColor, directColorBlend);
         Vector3f skyAmbient = NeoSkyCelestiaLighting.mix(NeoSkyCelestiaLighting.mix(NIGHT_SKY, SUNSET_SKY, nightToTwilight), DAY_SKY, twilightToDay);
         Vector3f groundAmbient = NeoSkyCelestiaLighting.mix(NeoSkyCelestiaLighting.mix(NIGHT_GROUND, SUNSET_GROUND, nightToTwilight), DAY_GROUND, twilightToDay);
+        float directBaseStrength;
+        float globalDirectScale;
         if (moon) {
             directBaseStrength = ((Double)Config.CLIENT.skyLightMoonBaseStrength.get()).floatValue() * 0.01f;
             globalDirectScale = ((Double)Config.CLIENT.skyLightMoonStrength.get()).floatValue() * 0.01f;
