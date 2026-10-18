@@ -163,7 +163,8 @@ public final class skyvolumetrigodrays {
         dt = Mth.m_14036_((float)dt, (float)0.0f, (float)0.25f);
         if (dt > 0.0f) {
             float alpha = 1.0f - (float)Math.exp(-6.0f * dt / 0.5f);
-            if (Math.abs(adaptationTarget - (adaptationSmoothed += (adaptationTarget - adaptationSmoothed) * alpha)) < 1.0E-4f) {
+            adaptationSmoothed += (adaptationTarget - adaptationSmoothed) * alpha;
+if (Math.abs(adaptationTarget - adaptationSmoothed) < 1.0E-4f) {
                 adaptationSmoothed = adaptationTarget;
             }
         }
