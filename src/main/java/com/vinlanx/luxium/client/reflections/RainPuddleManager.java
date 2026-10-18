@@ -255,8 +255,7 @@ public final class RainPuddleManager {
             int width = image.m_84982_();
             int height = image.m_85084_();
             if (width <= 0 || height <= 0) {
-                RainHeightmap rainHeightmap = null;
-                return rainHeightmap;
+                return null;
             }
             float[] opacity = new float[width * height];
             for (int y = 0; y < height; ++y) {
@@ -270,11 +269,9 @@ public final class RainPuddleManager {
             RainHeightmap heightmap = new RainHeightmap(id, width, height, opacity);
             if (!heightmap.hasVisiblePixels()) {
                 LOGGER.warn("Skipping rain heightmap {} because it has no visible puddle data", (Object)id);
-                RainHeightmap rainHeightmap = null;
-                return rainHeightmap;
+                return null;
             }
-            RainHeightmap rainHeightmap = heightmap;
-            return rainHeightmap;
+            return heightmap;
         }
         catch (IOException e) {
             LOGGER.error("Failed to decode rain heightmap {}", (Object)id, (Object)e);

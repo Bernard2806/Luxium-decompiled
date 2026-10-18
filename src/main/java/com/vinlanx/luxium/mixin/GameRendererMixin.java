@@ -83,8 +83,7 @@ public abstract class GameRendererMixin {
                 return Optional.of(new Resource(definition.m_247173_(), () -> {
                     try (InputStream stream = definition.m_215507_();){
                         String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8).replace("\"vertex\": \"luxium_entity_shadow\"", "\"vertex\": \"luxium_entity_blocklighttest\"").replace("\"fragment\": \"luxium_entity_shadow\"", "\"fragment\": \"luxium_entity_blocklighttest\"");
-                        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
-                        return byteArrayInputStream;
+                        return new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
                     }
                 }));
             };
@@ -98,8 +97,7 @@ public abstract class GameRendererMixin {
                 return Optional.of(new Resource(receiverDefinition.m_247173_(), () -> {
                     try (InputStream stream = receiverDefinition.m_215507_();){
                         String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8).replace("\"fragment\": \"luxium_entity_shadow\"", "\"fragment\": \"luxium_entity_neogpuvanilla\"");
-                        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
-                        return byteArrayInputStream;
+                        return new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
                     }
                 }));
             };
@@ -119,8 +117,7 @@ public abstract class GameRendererMixin {
             return Optional.of(new Resource(receiverDefinition.m_247173_(), () -> {
                 try (InputStream stream = receiverDefinition.m_215507_();){
                     String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8).replace("\"vertex\": \"luxium_entity_shadow\"", "\"vertex\": \"luxium_entity_neoskycelestia\"").replace("\"fragment\": \"luxium_entity_shadow\"", "\"fragment\": \"luxium_entity_neoskycelestia\"");
-                    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
-                    return byteArrayInputStream;
+                    return new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
                 }
             }));
         };
