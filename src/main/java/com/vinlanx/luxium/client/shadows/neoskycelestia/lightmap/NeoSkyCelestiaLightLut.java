@@ -58,10 +58,9 @@ implements AutoCloseable {
 
     public int update(LightTexture lightTexture, NeoSkyCelestiaLighting.State lighting, boolean shadowsEnabled, float sunShadowBlockVisibility) {
         RenderSystem.assertOnRenderThread();
-        if (!(lightTexture instanceof NeoSkyLightTextureExtension)) {
+        if (!(lightTexture instanceof NeoSkyLightTextureExtension extension)) {
             return -1;
         }
-        NeoSkyLightTextureExtension extension = (NeoSkyLightTextureExtension)lightTexture;
         this.ensureTextures();
         long lightmapRevision = extension.neosky$getLightmapRevision();
         int configHash = NeoSkyCelestiaLightLut.lightingConfigHash();

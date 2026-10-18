@@ -34,10 +34,9 @@ public abstract class LevelBlockStateMixin {
     @Inject(method={"onBlockStateChange(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/state/BlockState;)V"}, at={@At(value="HEAD")})
     private void luxium$onVanillaBlockStateChanged(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
         LevelBlockStateMixin levelBlockStateMixin = this;
-        if (!(levelBlockStateMixin instanceof ClientLevel)) {
+        if (!(levelBlockStateMixin instanceof ClientLevel level)) {
             return;
         }
-        ClientLevel level = (ClientLevel)levelBlockStateMixin;
         if (pos == null || oldState == null || newState == null || oldState == newState || oldState.equals(newState)) {
             return;
         }

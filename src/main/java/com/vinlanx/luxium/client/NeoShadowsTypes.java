@@ -861,10 +861,9 @@ final class NeoShadowsTypes {
             if (this == other) {
                 return true;
             }
-            if (!(other instanceof ReceiverPlaneKey)) {
+            if (!(other instanceof ReceiverPlaneKey key)) {
                 return false;
             }
-            ReceiverPlaneKey key = (ReceiverPlaneKey)other;
             return this.face == key.face && Double.compare(this.planeCoordinate, key.planeCoordinate) == 0 && this.sourceKey == key.sourceKey;
         }
 

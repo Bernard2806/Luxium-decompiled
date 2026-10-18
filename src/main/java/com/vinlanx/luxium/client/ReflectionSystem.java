@@ -776,7 +776,9 @@ public final class ReflectionSystem {
                     byte exposedMask = exposedFaceService.getExposedFaceMask(mc.f_91073_, blockKey);
                     if (exposedMask == 0) continue;
                     for (Direction face : Direction.values()) {
-                        if (((exposedMask & 1 << face.ordinal()) == 0) || ReflectionSystem.faceCenter(pos, face).m_82557_(cameraPos) > faceInclusionRadiusSq || !material.shouldReflectFace(mc, pos, state, face)) continue;
+                        if ((exposedMask & 1 << face.ordinal()) == 0) continue;
+                        if (ReflectionSystem.faceCenter(pos, face).m_82557_(cameraPos) > faceInclusionRadiusSq) continue;
+                        if (!material.shouldReflectFace(mc, pos, state, face)) continue;
                         PlaneKey key = PlaneKey.of(pos, face);
                         MirrorPlane plane = planes.computeIfAbsent(key, k -> new MirrorPlane(face, ReflectionSystem.planePointForFace(pos, face)));
                         boolean usePolishedShader = state.m_60713_(Blocks.f_50387_);
@@ -932,7 +934,8 @@ public final class ReflectionSystem {
         mc.m_91290_().m_114408_((Level)mc.f_91073_, this.reflectionCamera, mc.f_91076_);
         MultiBufferSource.BufferSource buffers = mc.m_91269_().m_110104_();
         for (Entity entity : mc.f_91073_.m_104735_()) {
-            if (!(mc.m_91290_().m_114397_(entity, frustum, cameraX, cameraY, cameraZ)) || (entity == this.reflectionCamera.m_90592_() && !this.reflectionCamera.m_90594_())) continue;
+            if (!mc.m_91290_().m_114397_(entity, frustum, cameraX, cameraY, cameraZ)) continue;
+            if (entity == this.reflectionCamera.m_90592_() && !this.reflectionCamera.m_90594_()) continue;
             double x = Mth.m_14139_((double)this.framePartialTick, (double)entity.f_19790_, (double)entity.m_20185_()) - cameraX;
             double y = Mth.m_14139_((double)this.framePartialTick, (double)entity.f_19791_, (double)entity.m_20186_()) - cameraY;
             double z = Mth.m_14139_((double)this.framePartialTick, (double)entity.f_19792_, (double)entity.m_20189_()) - cameraZ;
@@ -1254,28 +1257,18 @@ public final class ReflectionSystem {
     }
 
     private static void boxBlur(NativeImage img, int radius) {
-        long aa;
-        long ba;
-        long ga;
-        long ra;
-        int x;
-        int y;
         int w = img.m_84982_();
         int h = img.m_85084_();
         int[] src = new int[w * h];
-        for (int y2 = 0; y2 < h; ++y2) {
-            for (int x2 = 0; x2 < w; ++x2) {
-                src[y2 * w + x2] = img.m_84985_(x2, y2);
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                src[y * w + x] = img.m_84985_(x, y);
             }
         }
         int[] horizontal = new int[w * h];
-        for (y = 0; y < h; ++y) {
-            for (x = 0; x < w; ++x) {
-                ra = 0L;
-                ga = 0L;
-                ba = 0L;
-                aa = 0L;
-                long n = 0L;
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                long ra = 0L, ga = 0L, ba = 0L, aa = 0L, n = 0L;
                 for (int dx = -radius; dx <= radius; ++dx) {
                     int xx = x + dx;
                     if (xx < 0 || xx >= w) continue;
@@ -1289,13 +1282,9 @@ public final class ReflectionSystem {
                 horizontal[y * w + x] = (int)(aa / n) << 24 | (int)(ra / n) << 16 | (int)(ga / n) << 8 | (int)(ba / n);
             }
         }
-        for (y = 0; y < h; ++y) {
-            for (x = 0; x < w; ++x) {
-                ra = 0L;
-                ga = 0L;
-                ba = 0L;
-                aa = 0L;
-                long n = 0L;
+        for (int y = 0; y < h; ++y) {
+            for (int x = 0; x < w; ++x) {
+                long ra = 0L, ga = 0L, ba = 0L, aa = 0L, n = 0L;
                 for (int dy = -radius; dy <= radius; ++dy) {
                     int yy = y + dy;
                     if (yy < 0 || yy >= h) continue;
@@ -1535,10 +1524,9 @@ public final class ReflectionSystem {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof PlaneKey)) {
+            if (!(o instanceof PlaneKey k)) {
                 return false;
             }
-            PlaneKey k = (PlaneKey)o;
             return this.face == k.face && this.coordinate == k.coordinate;
         }
 
