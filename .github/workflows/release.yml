@@ -39,9 +39,9 @@ jobs:
           body: |
             ## Decompiled source coverage
 
-            **${{ steps.decompilation-match.outputs.percentage }}%** — ${{ steps.decompilation-match.outputs.matched }} of ${{ steps.decompilation-match.outputs.total }} top-level classes from the original mod JAR have corresponding Java source files in this decompilation.
+            **${{ steps.decompilation-match.outputs.percentage }}%** — ${{ steps.decompilation-match.outputs.matched }} of ${{ steps.decompilation-match.outputs.total }} top-level classes from the original mod JAR have corresponding Java source files in this decompilation with no methods left undecompiled (${{ steps.decompilation-match.outputs.failed_methods }} methods failed to decompile).
 
-            *This measures class-name/source-file coverage; it does not compare source-code or bytecode similarity.*
+            *This measures class-name/source-file coverage and decompilation failures; it does not compare source-code or bytecode similarity.*
 
             ## Credits
 
