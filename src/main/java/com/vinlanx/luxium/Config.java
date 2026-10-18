@@ -38,7 +38,10 @@ public class Config {
         if (!Config.isEnabled() || !((Boolean)feature.get()).booleanValue()) {
             return false;
         }
-        return (Boolean)Config.CLIENT.blockLightTestEnabled.get() == false || feature != Config.CLIENT.rtxEnabled && feature != Config.CLIENT.gpuShadowsEnabled && feature != Config.CLIENT.neoGpuVanillaEnabled && feature != Config.CLIENT.neoCpuShadowsEnabled;
+        if (((Boolean)Config.CLIENT.blockLightTestEnabled.get()).booleanValue() && (feature == Config.CLIENT.rtxEnabled || feature == Config.CLIENT.gpuShadowsEnabled || feature == Config.CLIENT.neoGpuVanillaEnabled || feature == Config.CLIENT.neoCpuShadowsEnabled)) {
+            return false;
+        }
+        return true;
     }
 
     static {
