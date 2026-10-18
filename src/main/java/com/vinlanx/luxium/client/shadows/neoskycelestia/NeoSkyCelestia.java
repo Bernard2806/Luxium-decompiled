@@ -93,8 +93,6 @@ public final class NeoSkyCelestia {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     public void prepareForMainWorldRender(Minecraft mc, Camera camera, float partialTick, Matrix4f mainProjection, Matrix4f mainViewRotation) {
-        boolean buildNear;
-        boolean wantsShadows;
         RenderSystem.assertOnRenderThread();
         this.mainPassActive = false;
         this.inlineTerrainPass = false;
@@ -113,7 +111,7 @@ public final class NeoSkyCelestia {
         NeoSkyCelestiaLighting.State lighting = NeoSkyFrameCache.lighting(mc.f_91073_, partialTick);
         float horizonVisibility = NeoSkyCelestiaMath.horizonFade(toLight);
         boolean wantsLighting = this.isGpuModeSelected() && lighting.enabled();
-        boolean bl = wantsShadows = wantsLighting && this.isGpuModeSelected() && horizonVisibility > 0.005f;
+        boolean wantsShadows = wantsLighting && this.isGpuModeSelected() && horizonVisibility > 0.005f;
         if (!wantsShadows && !wantsLighting) {
             this.publishDisabledState(mc);
             return;
@@ -123,14 +121,13 @@ public final class NeoSkyCelestia {
         boolean wantsEntityShadows = wantsShadows && Config.isFeatureEnabled(Config.CLIENT.skyEntityShadowsEnabled);
         double nearMovementThreshold = Math.max(1.5, (double)this.near.radius() * 16.0 / (double)this.near.resolution());
         long nearUpdateIntervalNanos = Math.max(10000000L, (long)((Double)Config.CLIENT.skyShadowNearUpdateIntervalSeconds.get() * 1.0E9));
-        boolean bl2 = buildNear = wantsShadows && this.near.shouldBuild(cameraPosition, toLight, nearMovementThreshold, 0.0, nearUpdateIntervalNanos, now);
+        boolean buildNear = wantsShadows && this.near.shouldBuild(cameraPosition, toLight, nearMovementThreshold, 0.0, nearUpdateIntervalNanos, now);
         boolean buildFar = wantsShadows && this.far.shouldBuild(cameraPosition, toLight, 4.0, Config.isFeatureEnabled(Config.CLIENT.skyCloudShadowsEnabled) ? 0.0 : 0.75, (long)((Integer)Config.CLIENT.skyShadowFarUpdateMs.get()).intValue() * 1000000L, now);
         long nearGenerationBefore = this.near.generation();
         long farGenerationBefore = this.far.generation();
         if (buildNear || buildFar) {
             this.rebuilding = true;
             try {
-                NeoSkyEmbeddiumShadowBridge.PreparedRenderLists prepared;
                 Matrix4f sharedLightRotation = NeoSkyCelestiaMath.buildLightViewRotation(toLight);
                 if (buildNear) {
                     this.near.prepareReceiver(cameraPosition, toLight, sharedLightRotation);
@@ -138,7 +135,8 @@ public final class NeoSkyCelestia {
                 if (buildFar) {
                     this.far.prepareReceiver(cameraPosition, toLight, sharedLightRotation);
                 }
-                if ((prepared = this.embeddium.prepareRenderLists(this.near, buildNear, this.far, buildFar)) == null) {
+                NeoSkyEmbeddiumShadowBridge.PreparedRenderLists prepared = this.embeddium.prepareRenderLists(this.near, buildNear, this.far, buildFar);
+                if (prepared == null) {
                     if (buildNear) {
                         this.near.markDirty();
                     }

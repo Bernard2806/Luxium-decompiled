@@ -166,7 +166,6 @@ public final class GpuNeoShadows {
     }
 
     public static void prepareMainWorldRender(Minecraft mc, Camera camera, Matrix4f projection, Matrix4f view) {
-        int hardBakeDirtyFaces;
         mainPassActive = false;
         if (!GpuNeoShadows.isUsable(mc) || stagedSources.length == 0) {
             TorchRtxState.get().clearGpuDirectSources();
@@ -178,7 +177,7 @@ public final class GpuNeoShadows {
         int lightLimit = GpuNeoShadows.getActiveLightLimit();
         boolean hardBake = GpuNeoShadows.isHardShadowBakeEnabled();
         long hardBakeInputSignature = hardBake ? GpuNeoShadows.hardBakeSignature(cache, stagedSources, stagedEmissions, lightLimit) : Long.MIN_VALUE;
-        int n = hardBakeDirtyFaces = hardBake ? cache.countDirtyFacesForSources(stagedSources, lightLimit) : 0;
+        int hardBakeDirtyFaces = hardBake ? cache.countDirtyFacesForSources(stagedSources, lightLimit) : 0;
         if (hardBake && BAKED_HARD_VOLUME.isReady() && (hardBakeDirtyFaces > 0 || BAKED_HARD_VOLUME.matches(cameraPos, hardBakeInputSignature))) {
             GpuNeoShadows.publishBakedHardOnly(cameraPos);
             return;
@@ -220,9 +219,10 @@ public final class GpuNeoShadows {
             GpuNeoShadows.LIGHT_ATLAS_RECT_BUF[rectBase + 6] = LIGHT_COLOR_INTENSITY_BUF[lightBase + 2];
             GpuNeoShadows.LIGHT_ATLAS_RECT_BUF[rectBase + 7] = gpuWeight;
             GpuLocalLightResolver.writeGeometryMetadata(geometry, LIGHT_ATLAS_RECT_BUF, rectBase);
-            if (mode != Config.GpuLocalShadowMode.FAST_SPREAD) continue;
-            int visibilitySlot = VISIBLE_VISIBILITY_SLOTS_BUF[i];
-            GpuNeoShadows.LIGHT_ATLAS_RECT_BUF[rectBase + 19] = visibilitySlot >= 0 ? (float)visibilitySlot + 1.0f : 0.0f;
+            if (mode == Config.GpuLocalShadowMode.FAST_SPREAD) {
+                int visibilitySlot = VISIBLE_VISIBILITY_SLOTS_BUF[i];
+                GpuNeoShadows.LIGHT_ATLAS_RECT_BUF[rectBase + 19] = visibilitySlot >= 0 ? (float)visibilitySlot + 1.0f : 0.0f;
+            }
         }
         if (hardBake) {
             if (hardBakeDirtyFaces == 0 && lightCount > 0) {

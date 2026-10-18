@@ -83,12 +83,11 @@ implements ChunkRenderListIterable {
     }
 
     private static void classifySection(RenderSection section, BuildAccumulator near, CasterVolume nearVolume, BuildAccumulator far, CasterVolume farVolume, Vector3f scratch) {
-        float farFront;
         if (section.isDisposed()) {
             return;
         }
         float nearFront = near != null ? nearVolume.intersectingCasterFront(section, scratch) : Float.NaN;
-        float f = farFront = far != null ? farVolume.intersectingCasterFront(section, scratch) : Float.NaN;
+        float farFront = far != null ? farVolume.intersectingCasterFront(section, scratch) : Float.NaN;
         if (!section.isBuilt()) {
             if (Float.isFinite(nearFront)) {
                 near.observeIncomplete(nearFront);
@@ -169,8 +168,9 @@ implements ChunkRenderListIterable {
             }
             ObjectIterator iterator = this.lists.keySet().iterator();
             while (iterator.hasNext()) {
-                if (active.containsKey(iterator.next())) continue;
-                iterator.remove();
+                if (!(active.containsKey(iterator.next()))) {
+                    iterator.remove();
+                }
             }
         }
 

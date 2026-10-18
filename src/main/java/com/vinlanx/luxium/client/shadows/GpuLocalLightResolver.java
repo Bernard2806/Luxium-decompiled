@@ -46,11 +46,10 @@ public final class GpuLocalLightResolver {
         float green = 0.76f;
         float blue = 0.48f;
         if (level != null) {
-            String path;
             BlockPos pos = BlockPos.m_122022_((long)sourceKey);
             BlockState state = level.m_8055_(pos);
             ResourceLocation id = BuiltInRegistries.f_256975_.m_7981_((Object)state.m_60734_());
-            String string = path = id == null ? "" : id.m_135815_();
+            String path = id == null ? "" : id.m_135815_();
             if (path.contains("soul") && path.contains("torch") || GpuLocalLightResolver.containsAny(path, "soul_lantern", "soul_fire", "soul_campfire")) {
                 red = 0.28f;
                 green = 0.78f;
@@ -206,8 +205,9 @@ public final class GpuLocalLightResolver {
 
     private static boolean containsAny(String value, String ... needles) {
         for (String needle : needles) {
-            if (!value.contains(needle)) continue;
-            return true;
+            if (value.contains(needle)) {
+                return true;
+            }
         }
         return false;
     }

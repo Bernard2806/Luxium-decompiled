@@ -135,11 +135,12 @@ final class NeoShadowsDynamicPipeline {
                 hash = this.mixFingerprint(hash, Double.doubleToLongBits(first.f_82479_));
                 hash = this.mixFingerprint(hash, Double.doubleToLongBits(first.f_82480_));
                 hash = this.mixFingerprint(hash, Double.doubleToLongBits(first.f_82481_));
-                if (quad.length <= 2) continue;
-                Vec3 opposite = quad[2];
-                hash = this.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82479_));
-                hash = this.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82480_));
-                hash = this.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82481_));
+                if (quad.length > 2) {
+                    Vec3 opposite = quad[2];
+                    hash = this.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82479_));
+                    hash = this.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82480_));
+                    hash = this.mixFingerprint(hash, Double.doubleToLongBits(opposite.f_82481_));
+                }
             }
         }
         return hash;
@@ -167,7 +168,6 @@ final class NeoShadowsDynamicPipeline {
         double maxDist = Math.min(LightRtMath.getMaxDistance(group.sourceEmission), 30.0);
         for (NeoShadowsTypes.DynamicCaster caster : state.dynamicCasters) {
             List<NeoShadowsTypes.UvPoint> projected;
-            List<NeoShadowsTypes.UvPoint> polygon;
             if (scratch.shadowPolygons.size() >= 12288) {
                 return;
             }
@@ -186,7 +186,8 @@ final class NeoShadowsDynamicPipeline {
                     continue;
                 }
             }
-            if ((polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected = NeoShadowsProjection.collectProjectedBoxPoints(group.plane, group.source, caster.boxCorners, scratch.projectedPointBuf), scratch)) == null) continue;
+            List<NeoShadowsTypes.UvPoint> polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected = NeoShadowsProjection.collectProjectedBoxPoints(group.plane, group.source, caster.boxCorners, scratch.projectedPointBuf), scratch);
+            if (polygon == null) continue;
             this.engine.staticPipeline.addPlaneShadowPolygons(group, polygon, scratch);
             ++scratch.occluderHitCount;
         }
@@ -195,8 +196,9 @@ final class NeoShadowsDynamicPipeline {
     boolean blocksAnyReceiverSample(NeoShadowsTypes.ReceiverPlaneGroup group, NeoShadowsTypes.DynamicCaster caster) {
         double[] samples = group.receiverSamples;
         for (int index = 0; index < samples.length; index += 3) {
-            if (!caster.intersectsSegment(group.source.f_82479_, group.source.f_82480_, group.source.f_82481_, samples[index], samples[index + 1], samples[index + 2])) continue;
-            return true;
+            if (caster.intersectsSegment(group.source.f_82479_, group.source.f_82480_, group.source.f_82481_, samples[index], samples[index + 1], samples[index + 2])) {
+                return true;
+            }
         }
         return false;
     }
@@ -206,11 +208,12 @@ final class NeoShadowsDynamicPipeline {
             return Collections.emptyList();
         }
         if (snapshot.level == level && !snapshot.casters.isEmpty()) {
-            ArrayList<NeoShadowsTypes.DynamicCaster> casters = new ArrayList<NeoShadowsTypes.DynamicCaster>(Math.min(snapshot.casters.size(), 160));
+            List<NeoShadowsTypes.DynamicCaster> casters = new ArrayList<NeoShadowsTypes.DynamicCaster>(Math.min(snapshot.casters.size(), 160));
             for (DynamicShadowMeshCapture.CapturedCaster captured : snapshot.casters) {
                 casters.add(new NeoShadowsTypes.DynamicCaster(captured.id, NeoShadowsTypes.Box.fromAabb(captured.bounds), captured.quads));
-                if (casters.size() < 160) continue;
-                break;
+                if (casters.size() >= 160) {
+                    break;
+                }
             }
             if (!casters.isEmpty()) {
                 return casters;
@@ -219,7 +222,7 @@ final class NeoShadowsDynamicPipeline {
         Vec3 centerPos = Vec3.m_82512_((Vec3i)center);
         double radius = 70.0;
         double radiusSq = radius * radius;
-        ArrayList<NeoShadowsTypes.DynamicCaster> fallbackCasters = new ArrayList<NeoShadowsTypes.DynamicCaster>(160);
+        List<NeoShadowsTypes.DynamicCaster> fallbackCasters = new ArrayList<NeoShadowsTypes.DynamicCaster>(160);
         long nextId = 1L;
         for (Entity entity : level.m_104735_()) {
             AABB box;

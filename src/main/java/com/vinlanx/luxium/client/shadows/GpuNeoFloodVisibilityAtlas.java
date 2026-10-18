@@ -116,23 +116,26 @@ final class GpuNeoFloodVisibilityAtlas {
 
     private int findExistingSlot(long sourceKey, int capacity) {
         for (int slot = 0; slot < capacity; ++slot) {
-            if (this.slotSourceKeys[slot] != sourceKey) continue;
-            return slot;
+            if (this.slotSourceKeys[slot] == sourceKey) {
+                return slot;
+            }
         }
         return -1;
     }
 
     private int acquireSlot(int capacity) {
         for (int slot = 0; slot < capacity; ++slot) {
-            if (this.slotUsedThisFrame[slot] || this.slotSourceKeys[slot] != Long.MIN_VALUE) continue;
-            return slot;
+            if (!(this.slotUsedThisFrame[slot]) && this.slotSourceKeys[slot] == Long.MIN_VALUE) {
+                return slot;
+            }
         }
         int bestSlot = -1;
         int oldestFrame = Integer.MAX_VALUE;
         for (int slot = 0; slot < capacity; ++slot) {
-            if (this.slotUsedThisFrame[slot] || this.slotLastUsed[slot] >= oldestFrame) continue;
-            oldestFrame = this.slotLastUsed[slot];
-            bestSlot = slot;
+            if (!(this.slotUsedThisFrame[slot]) && this.slotLastUsed[slot] < oldestFrame) {
+                oldestFrame = this.slotLastUsed[slot];
+                bestSlot = slot;
+            }
         }
         return bestSlot;
     }

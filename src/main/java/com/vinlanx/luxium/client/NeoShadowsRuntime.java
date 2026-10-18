@@ -81,13 +81,12 @@ final class NeoShadowsRuntime {
     }
 
     void consumePendingRebuildIfReady() {
-        boolean maxDeferralElapsed;
         if (!this.engine.pendingRebuild) {
             return;
         }
         long nowMs = System.currentTimeMillis();
         boolean quietWindowElapsed = nowMs - this.engine.pendingRebuildSinceMs >= 2L;
-        boolean bl = maxDeferralElapsed = nowMs - this.engine.pendingRebuildFirstRequestMs >= 1500L;
+        boolean maxDeferralElapsed = nowMs - this.engine.pendingRebuildFirstRequestMs >= 1500L;
         if (!quietWindowElapsed && !maxDeferralElapsed) {
             return;
         }
@@ -151,9 +150,8 @@ final class NeoShadowsRuntime {
     }
 
     void scheduleStaticBuild(ClientLevel level, BlockPos center) {
-        boolean sameRequest;
         NeoShadowsTypes.StaticRequest existing = this.engine.latestStaticRequest;
-        boolean bl = sameRequest = existing != null && existing.epoch == this.engine.buildEpoch && existing.level == level && existing.center.m_123341_() == center.m_123341_() && existing.center.m_123342_() == center.m_123342_() && existing.center.m_123343_() == center.m_123343_();
+        boolean sameRequest = existing != null && existing.epoch == this.engine.buildEpoch && existing.level == level && existing.center.m_123341_() == center.m_123341_() && existing.center.m_123342_() == center.m_123342_() && existing.center.m_123343_() == center.m_123343_();
         if (!sameRequest) {
             this.engine.latestStaticRequest = new NeoShadowsTypes.StaticRequest(this.engine.nextStaticRequestId++, this.engine.buildEpoch, level, center.m_7949_());
         }
@@ -270,10 +268,7 @@ final class NeoShadowsRuntime {
     }
 
     void scheduleDynamicBuild(ClientLevel level, BlockPos center, float partialTick) {
-        boolean shouldRecaptureMesh;
-        boolean levelChanged;
         long previousFingerprint;
-        boolean meshRefreshElapsed;
         if (this.engine.activeStaticOutput == null) {
             this.engine.activeStaticHotPatch = NeoShadowsTypes.StaticHotPatchOverlay.EMPTY;
             this.engine.activeDynamicPolygons = Collections.emptyList();
@@ -299,20 +294,20 @@ final class NeoShadowsRuntime {
         long dynamicUpdateIntervalMs = this.getDynamicUpdateIntervalMs();
         boolean staticChanged = this.engine.activeDynamicStaticResultId != this.engine.activeStaticResultId;
         boolean scanElapsed = nowMs - this.engine.lastDynamicStateScanMs >= dynamicUpdateIntervalMs;
-        boolean bl = meshRefreshElapsed = nowMs - this.engine.lastDynamicMeshCaptureMs >= dynamicUpdateIntervalMs;
+        boolean meshRefreshElapsed = nowMs - this.engine.lastDynamicMeshCaptureMs >= dynamicUpdateIntervalMs;
         if (!(this.engine.dynamicDirty || staticChanged || scanElapsed || meshRefreshElapsed)) {
             return;
         }
         DynamicShadowMeshCapture.Snapshot previousSnapshot = this.engine.dynamicCasterSnapshot;
         long nextFingerprint = previousFingerprint = this.engine.dynamicCasterFingerprint;
         boolean sceneChanged = false;
-        boolean bl2 = levelChanged = previousSnapshot.level != level;
+        boolean levelChanged = previousSnapshot.level != level;
         if (this.engine.dynamicDirty || scanElapsed || levelChanged) {
             nextFingerprint = this.engine.dynamicPipeline.scanDynamicSceneFingerprint(level, center);
             this.engine.lastDynamicStateScanMs = nowMs;
             sceneChanged = levelChanged || previousFingerprint != nextFingerprint;
         }
-        boolean bl3 = shouldRecaptureMesh = levelChanged || sceneChanged || meshRefreshElapsed;
+        boolean shouldRecaptureMesh = levelChanged || sceneChanged || meshRefreshElapsed;
         if (shouldRecaptureMesh) {
             this.requestDynamicCapture(level, center, partialTick, nextFingerprint);
         }

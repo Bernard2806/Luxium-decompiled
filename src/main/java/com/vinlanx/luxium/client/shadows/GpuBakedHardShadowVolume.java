@@ -142,7 +142,6 @@ final class GpuBakedHardShadowVolume {
             return;
         }
         if (!this.building || this.buildingSignature != signature || this.buildAnchorX != targetAnchorX || this.buildAnchorY != targetAnchorY || this.buildAnchorZ != targetAnchorZ) {
-            boolean sameAnchor;
             this.ensureResources();
             this.buildAnchorX = targetAnchorX;
             this.buildAnchorY = targetAnchorY;
@@ -151,7 +150,7 @@ final class GpuBakedHardShadowVolume {
             this.buildDirection = 0;
             this.buildLayerCursor = 0;
             this.building = true;
-            boolean bl = sameAnchor = this.ready && this.activeAnchorX == this.buildAnchorX && this.activeAnchorY == this.buildAnchorY && this.activeAnchorZ == this.buildAnchorZ;
+            boolean sameAnchor = this.ready && this.activeAnchorX == this.buildAnchorX && this.activeAnchorY == this.buildAnchorY && this.activeAnchorZ == this.buildAnchorZ;
             if (!sameAnchor) {
                 this.ready = false;
             }
@@ -280,9 +279,10 @@ final class GpuBakedHardShadowVolume {
             this.metadataTexture = -1;
         }
         for (int d = 0; d < 6; ++d) {
-            if (this.textures[d] == -1) continue;
-            TextureUtil.releaseTextureId((int)this.textures[d]);
-            this.textures[d] = -1;
+            if (this.textures[d] != -1) {
+                TextureUtil.releaseTextureId((int)this.textures[d]);
+                this.textures[d] = -1;
+            }
         }
         if (this.buildTexture != -1) {
             TextureUtil.releaseTextureId((int)this.buildTexture);

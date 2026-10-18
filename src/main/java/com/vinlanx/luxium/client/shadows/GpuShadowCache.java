@@ -219,9 +219,10 @@ public final class GpuShadowCache {
             double dy = entry.worldY - py;
             double dz = entry.worldZ - pz;
             double maxDistance = (double)entry.radius + 1.25;
-            if (!(dx * dx + dy * dy + dz * dz <= maxDistance * maxDistance)) continue;
-            GpuShadowCache.markAllFacesDirty(entry, true);
-            changed = true;
+            if (dx * dx + dy * dy + dz * dz <= maxDistance * maxDistance) {
+                GpuShadowCache.markAllFacesDirty(entry, true);
+                changed = true;
+            }
         }
         if (changed) {
             ++this.revision;
@@ -271,7 +272,6 @@ public final class GpuShadowCache {
     }
 
     public void refreshDynamicCasters(ClientLevel level, BlockPos center, Vec3 cameraPos) {
-        boolean centerChanged;
         if (level == null || center == null || cameraPos == null) {
             return;
         }
@@ -282,7 +282,7 @@ public final class GpuShadowCache {
         long nowMs = System.currentTimeMillis();
         long intervalMs = this.getDynamicUpdateIntervalMs();
         boolean levelChanged = this.trackedDynamicLevel != level;
-        boolean bl = centerChanged = this.trackedDynamicCenter == null || !this.trackedDynamicCenter.equals((Object)center);
+        boolean centerChanged = this.trackedDynamicCenter == null || !this.trackedDynamicCenter.equals((Object)center);
         if (!levelChanged && !centerChanged && nowMs - this.lastDynamicScanMs < intervalMs) {
             return;
         }
@@ -326,8 +326,9 @@ public final class GpuShadowCache {
         }
         LongOpenHashSet visibleKeys = new LongOpenHashSet(max);
         for (i = 0; i < max; ++i) {
-            if (emissions[i] <= 0) continue;
-            visibleKeys.add(sourceKeys[i]);
+            if (emissions[i] > 0) {
+                visibleKeys.add(sourceKeys[i]);
+            }
         }
         for (i = 0; i < max; ++i) {
             long sourceKey = sourceKeys[i];
@@ -339,7 +340,8 @@ public final class GpuShadowCache {
                 if (this.freeTileCount < 6) {
                     this.evictLeastRecentlyVisible(visibleKeys);
                 }
-                if ((entry = this.createEntry(geometry, emission)) == null) continue;
+                entry = this.createEntry(geometry, emission);
+                if (entry == null) continue;
                 this.entries.put(sourceKey, (Object)entry);
             } else {
                 boolean geometryChanged = GpuShadowCache.applyGeometry(entry, geometry);
@@ -357,13 +359,15 @@ public final class GpuShadowCache {
             ++entry.framesAlive;
             if (NeoGpuVanilla.isConfiguredEnabled() || GpuNeoShadows.isHardShadowBakeEnabled()) continue;
             if (entry.refreshCount < 8) {
-                if (entry.framesAlive != 10 && entry.framesAlive != 30 && entry.framesAlive != 60 && entry.framesAlive != 120 && entry.framesAlive != 240 && entry.framesAlive != 480 && entry.framesAlive != 900) continue;
-                GpuShadowCache.markAllFacesDirty(entry, true);
-                ++entry.refreshCount;
-                continue;
+                if (entry.framesAlive == 10 || entry.framesAlive == 30 || entry.framesAlive == 60 || entry.framesAlive == 120 || entry.framesAlive == 240 || entry.framesAlive == 480 || entry.framesAlive == 900) {
+                    GpuShadowCache.markAllFacesDirty(entry, true);
+                    ++entry.refreshCount;
+                    continue;
+                }
             }
-            if (entry.framesAlive % 600 != 0) continue;
-            GpuShadowCache.markAllFacesDirty(entry, true);
+            if (entry.framesAlive % 600 == 0) {
+                GpuShadowCache.markAllFacesDirty(entry, true);
+            }
         }
     }
 
@@ -489,8 +493,9 @@ public final class GpuShadowCache {
         int max = Math.min(limit, sourceKeys.length);
         for (int i = 0; i < max; ++i) {
             Entry entry = (Entry)this.entries.get(sourceKeys[i]);
-            if (entry != null && entry.ready && !GpuShadowCache.hasDirtyFaces(entry)) continue;
-            return true;
+            if (entry == null || !entry.ready || GpuShadowCache.hasDirtyFaces(entry)) {
+                return true;
+            }
         }
         return false;
     }
@@ -542,9 +547,10 @@ public final class GpuShadowCache {
             boolean urgentMeshUploadPending = !this.expectedRenderedSections.isEmpty();
             boolean hasDirty = false;
             for (Entry e : this.entries.values()) {
-                if (!GpuShadowCache.hasDirtyFaces(e)) continue;
-                hasDirty = true;
-                break;
+                if (GpuShadowCache.hasDirtyFaces(e)) {
+                    hasDirty = true;
+                    break;
+                }
             }
             if (!hasDirty) {
                 return;
@@ -562,17 +568,17 @@ public final class GpuShadowCache {
             ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(this.shadowTileTarget);
             NeoGpuVanillaGpuDebug.beginCapture();
             try {
-                int dynamicFacesThisFrame = 0;
                 int staticBuildsThisFrame = 0;
-                Entry nearestDirty;
+                int dynamicFacesThisFrame = 0;
                 if (NeoGpuVanilla.isConfiguredEnabled()) {
                     int faceBudget = this.neoGpuFaceRebuildBudget();
                     for (staticBuildsThisFrame = 0; staticBuildsThisFrame < faceBudget; ++staticBuildsThisFrame) {
                         int face;
-                        nearestDirty = null;
+                        Entry nearestDirty = null;
                         for (Entry entry : this.entries.values()) {
-                            if (entry.lastVisibleFrame != this.visibilityFrame || !GpuShadowCache.hasDirtyFaces(entry) || !entry.staticDirty || urgentMeshUploadPending && entry.urgentStaticDirty || nearestDirty != null && (!entry.urgentStaticDirty || nearestDirty.urgentStaticDirty) && (entry.urgentStaticDirty != nearestDirty.urgentStaticDirty || entry.stagedPriority >= nearestDirty.stagedPriority)) continue;
-                            nearestDirty = entry;
+                            if (entry.lastVisibleFrame == this.visibilityFrame && GpuShadowCache.hasDirtyFaces(entry) && entry.staticDirty && (!urgentMeshUploadPending || !entry.urgentStaticDirty) && (nearestDirty == null || (entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty) || (entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority))) {
+                                nearestDirty = entry;
+                            }
                         }
                         if (nearestDirty != null && (face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 0x3F)) >= 0 && face < 6) {
                             this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
@@ -584,10 +590,11 @@ public final class GpuShadowCache {
                     int faceBudget = Math.max(1, (Integer)Config.CLIENT.gpuHardShadowCaptureBudget.get());
                     while (staticBuildsThisFrame < faceBudget) {
                         int face;
-                        nearestDirty = null;
+                        Entry nearestDirty = null;
                         for (Entry entry : this.entries.values()) {
-                            if (entry.lastVisibleFrame != this.visibilityFrame || !GpuShadowCache.hasDirtyFaces(entry) || !entry.staticDirty || nearestDirty != null && (!entry.urgentStaticDirty || nearestDirty.urgentStaticDirty) && (entry.urgentStaticDirty != nearestDirty.urgentStaticDirty || entry.stagedPriority >= nearestDirty.stagedPriority)) continue;
-                            nearestDirty = entry;
+                            if (entry.lastVisibleFrame == this.visibilityFrame && GpuShadowCache.hasDirtyFaces(entry) && entry.staticDirty && (nearestDirty == null || (entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty) || (entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority))) {
+                                nearestDirty = entry;
+                            }
                         }
                         if (nearestDirty != null && (face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 0x3F)) >= 0 && face < 6) {
                             this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
@@ -599,10 +606,11 @@ public final class GpuShadowCache {
                 } else {
                     for (Entry entry : this.entries.values()) {
                         if (staticBuildsThisFrame < 1) {
-                            if (!GpuShadowCache.hasDirtyFaces(entry) || !entry.staticDirty) continue;
-                            this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entry, entry.dirtyFaceMask);
-                            ++staticBuildsThisFrame;
-                            continue;
+                            if (GpuShadowCache.hasDirtyFaces(entry) && entry.staticDirty) {
+                                this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entry, entry.dirtyFaceMask);
+                                ++staticBuildsThisFrame;
+                                continue;
+                            }
                         }
                         break;
                     }
@@ -644,13 +652,12 @@ public final class GpuShadowCache {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private void rebuildFaces(LevelRenderer levelRenderer, float partialTick, long finishNano, GameRenderer gameRenderer, LightTexture lightTexture, Entry entry, int faceMask) {
-        EmbeddiumLocalShadowBridge.PreparedCapture directCapture;
         int mask = faceMask & 0x3F;
         if (mask == 0) {
             return;
         }
         boolean directEmbeddium = NeoGpuVanilla.isConfiguredEnabled() && this.embeddiumLocalShadowBridge.isAvailable();
-        EmbeddiumLocalShadowBridge.PreparedCapture preparedCapture = directCapture = directEmbeddium ? this.embeddiumLocalShadowBridge.prepare(entry.worldX, entry.worldY, entry.worldZ, entry.radius) : null;
+        EmbeddiumLocalShadowBridge.PreparedCapture directCapture = directEmbeddium ? this.embeddiumLocalShadowBridge.prepare(entry.worldX, entry.worldY, entry.worldZ, entry.radius) : null;
         if (directEmbeddium && (directCapture == null || directCapture.lists().regionCount() == 0)) {
             return;
         }
@@ -665,12 +672,11 @@ public final class GpuShadowCache {
             RenderSystem.setProjectionMatrix((Matrix4f)proj, (VertexSorting)VertexSorting.f_276450_);
             NeoShadowsEngine.beginGpuShadowAtlasCapture(entry.worldX, entry.worldY, entry.worldZ, entry.radius, face, GpuNeoShadows.entityShadowCastersEnabled() && GpuNeoShadows.isActive());
             try {
-                boolean renderedDirect;
                 PoseStack shadowPose = new PoseStack();
                 shadowPose.m_252781_(Axis.f_252529_.m_252977_(this.shadowCamera.m_90589_()));
                 shadowPose.m_252781_(Axis.f_252436_.m_252977_(this.shadowCamera.m_90590_() + 180.0f));
                 Matrix4f lightViewRotation = new Matrix4f((Matrix4fc)shadowPose.m_85850_().m_252922_());
-                boolean bl = renderedDirect = directEmbeddium && this.embeddiumLocalShadowBridge.renderFace(directCapture, proj, lightViewRotation);
+                boolean renderedDirect = directEmbeddium && this.embeddiumLocalShadowBridge.renderFace(directCapture, proj, lightViewRotation);
                 if (directEmbeddium && !renderedDirect) {
                     return;
                 }
@@ -812,9 +818,10 @@ public final class GpuShadowCache {
         while (longIterator.hasNext()) {
             Entry candidate;
             long key = (Long)longIterator.next();
-            if (protectedKeys.contains(key) || (candidate = (Entry)this.entries.get(key)) == null || victim != null && candidate.lastVisibleFrame >= victim.lastVisibleFrame) continue;
-            victimKey = key;
-            victim = candidate;
+            if (!protectedKeys.contains(key) && (candidate = (Entry)this.entries.get(key)) != null && (victim == null || candidate.lastVisibleFrame < victim.lastVisibleFrame)) {
+                victimKey = key;
+                victim = candidate;
+            }
         }
         if (victim != null) {
             this.entries.remove(victimKey);
@@ -827,8 +834,9 @@ public final class GpuShadowCache {
             return;
         }
         for (int face = 0; face < 6; ++face) {
-            if (this.freeTileCount >= this.freeTiles.length) continue;
-            this.freeTiles[this.freeTileCount++] = entry.tileIndices[face];
+            if (this.freeTileCount < this.freeTiles.length) {
+                this.freeTiles[this.freeTileCount++] = entry.tileIndices[face];
+            }
         }
     }
 
@@ -886,24 +894,25 @@ public final class GpuShadowCache {
     }
 
     private void markDynamicCasterDiff(Long2ObjectOpenHashMap<AABB> nextCasters) {
-        long key;
         LongIterator longIterator = this.trackedDynamicCasters.keySet().iterator();
         while (longIterator.hasNext()) {
-            key = (Long)longIterator.next();
+            long key = (Long)longIterator.next();
             AABB oldBox = (AABB)this.trackedDynamicCasters.get(key);
             AABB newBox = (AABB)nextCasters.get(key);
             if (newBox == null) {
                 this.markEntriesAffectedByCasterBounds(oldBox);
                 continue;
             }
-            if (GpuShadowCache.sameBounds(oldBox, newBox)) continue;
-            this.markEntriesAffectedByCasterBounds(GpuShadowCache.union(oldBox, newBox));
+            if (!GpuShadowCache.sameBounds(oldBox, newBox)) {
+                this.markEntriesAffectedByCasterBounds(GpuShadowCache.union(oldBox, newBox));
+            }
         }
         longIterator = nextCasters.keySet().iterator();
         while (longIterator.hasNext()) {
-            key = (Long)longIterator.next();
-            if (this.trackedDynamicCasters.containsKey(key)) continue;
-            this.markEntriesAffectedByCasterBounds((AABB)nextCasters.get(key));
+            long key = (Long)longIterator.next();
+            if (!this.trackedDynamicCasters.containsKey(key)) {
+                this.markEntriesAffectedByCasterBounds((AABB)nextCasters.get(key));
+            }
         }
     }
 
@@ -939,8 +948,9 @@ public final class GpuShadowCache {
             entry.dirtyFaceMask |= faceMask;
             entry.staticDirty = true;
             entry.urgentStaticDirty = true;
-            if (newlyDirty == 0) continue;
-            changed = true;
+            if (newlyDirty != 0) {
+                changed = true;
+            }
         }
         if (changed) {
             ++this.revision;
@@ -948,13 +958,13 @@ public final class GpuShadowCache {
     }
 
     private static boolean isBoundsNearLight(AABB bounds, double lightX, double lightY, double lightZ, double influence) {
-        double cz;
-        double dz;
-        double cy;
-        double dy;
         double cx = GpuShadowCache.clamp(lightX, bounds.f_82288_, bounds.f_82291_);
+        double cy = GpuShadowCache.clamp(lightY, bounds.f_82289_, bounds.f_82292_);
+        double cz = GpuShadowCache.clamp(lightZ, bounds.f_82290_, bounds.f_82293_);
         double dx = lightX - cx;
-        return dx * dx + (dy = lightY - (cy = GpuShadowCache.clamp(lightY, bounds.f_82289_, bounds.f_82292_))) * dy + (dz = lightZ - (cz = GpuShadowCache.clamp(lightZ, bounds.f_82290_, bounds.f_82293_))) * dz <= influence * influence;
+        double dy = lightY - cy;
+        double dz = lightZ - cz;
+        return dx * dx + dy * dy + dz * dz <= influence * influence;
     }
 
     private static int computeAffectedFaceMask(Entry entry, AABB bounds) {
@@ -999,8 +1009,9 @@ public final class GpuShadowCache {
     private void clearDynamicTracking(boolean markDirty) {
         if (markDirty) {
             for (Entry entry : this.entries.values()) {
-                if (!entry.dynamicDirty) continue;
-                entry.dynamicDirty = false;
+                if (entry.dynamicDirty) {
+                    entry.dynamicDirty = false;
+                }
             }
         }
         this.trackedDynamicCasters.clear();
@@ -1115,8 +1126,9 @@ public final class GpuShadowCache {
                 entry.dirtyFaceMask |= faceMask;
                 entry.staticDirty = true;
                 entry.urgentStaticDirty = true;
-                if (newlyDirty == 0) continue;
-                changed = true;
+                if (newlyDirty != 0) {
+                    changed = true;
+                }
             }
         }
         this.pendingRenderedSections.clear();
@@ -1137,7 +1149,8 @@ public final class GpuShadowCache {
 
     private void syncLayout() {
         int requested = NeoGpuVanilla.isConfiguredEnabled() ? GpuShadowCache.neoGpuVanillaCapturePixels((Integer)Config.CLIENT.neoGpuVanillaCaptureResolution.get(), Math.max(1, Math.min(40, (Integer)Config.CLIENT.neoGpuVanillaMaxSources.get()))) : 256;
-        if ((requested = GpuShadowCache.nearestPowerOfTwo(Math.max(16, Math.min(512, requested)))) == this.tileSize) {
+        requested = GpuShadowCache.nearestPowerOfTwo(Math.max(16, Math.min(512, requested)));
+        if (requested == this.tileSize) {
             return;
         }
         if (this.fboId != -1) {
@@ -1184,9 +1197,10 @@ public final class GpuShadowCache {
         int bestDistance = Math.abs(value - best);
         for (int candidate : values) {
             int distance = Math.abs(value - candidate);
-            if (distance >= bestDistance) continue;
-            best = candidate;
-            bestDistance = distance;
+            if (distance < bestDistance) {
+                best = candidate;
+                bestDistance = distance;
+            }
         }
         return best;
     }

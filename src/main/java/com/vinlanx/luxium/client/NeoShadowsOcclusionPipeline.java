@@ -163,15 +163,14 @@ final class NeoShadowsOcclusionPipeline {
         double min = inset;
         double max = 1.0 - inset;
         double step = gridSize <= 1 ? 0.0 : (max - min) / (double)(gridSize - 1);
-        ArrayList<NeoShadowsTypes.UvPoint> probes = new ArrayList<NeoShadowsTypes.UvPoint>(gridSize * gridSize + 1);
+        List<NeoShadowsTypes.UvPoint> probes = new ArrayList<NeoShadowsTypes.UvPoint>(gridSize * gridSize + 1);
         if (includeCenterFirst) {
             probes.add(new NeoShadowsTypes.UvPoint(0.5, 0.5));
         }
         for (int vIndex = 0; vIndex < gridSize; ++vIndex) {
             double v = gridSize <= 1 ? 0.5 : min + step * (double)vIndex;
             for (int uIndex = 0; uIndex < gridSize; ++uIndex) {
-                double u;
-                double d = u = gridSize <= 1 ? 0.5 : min + step * (double)uIndex;
+                double u = gridSize <= 1 ? 0.5 : min + step * (double)uIndex;
                 if (includeCenterFirst && Math.abs(u - 0.5) <= 1.0E-6 && Math.abs(v - 0.5) <= 1.0E-6) continue;
                 probes.add(new NeoShadowsTypes.UvPoint(u, v));
             }
@@ -197,19 +196,21 @@ final class NeoShadowsOcclusionPipeline {
     }
 
     static List<Double> collectUniqueProbeCoordinates(NeoShadowsTypes.UvPoint[] probes, boolean useU) {
-        ArrayList<Double> values = new ArrayList<Double>(probes.length);
+        List<Double> values = new ArrayList<Double>(probes.length);
         for (NeoShadowsTypes.UvPoint probe : probes) {
             double value = useU ? probe.u : probe.v;
             boolean exists = false;
             Iterator iterator = values.iterator();
             while (iterator.hasNext()) {
                 double existing = (Double)iterator.next();
-                if (!(Math.abs(existing - value) <= 1.0E-6)) continue;
-                exists = true;
-                break;
+                if (Math.abs(existing - value) <= 1.0E-6) {
+                    exists = true;
+                    break;
+                }
             }
-            if (exists) continue;
-            values.add(value);
+            if (!exists) {
+                values.add(value);
+            }
         }
         values.sort(Double::compare);
         return values;
@@ -217,8 +218,9 @@ final class NeoShadowsOcclusionPipeline {
 
     static int findProbeCoordinateIndex(List<Double> coordinates, double value) {
         for (int index = 0; index < coordinates.size(); ++index) {
-            if (!(Math.abs(coordinates.get(index) - value) <= 1.0E-6)) continue;
-            return index;
+            if (Math.abs(coordinates.get(index) - value) <= 1.0E-6) {
+                return index;
+            }
         }
         return -1;
     }
@@ -362,8 +364,9 @@ final class NeoShadowsOcclusionPipeline {
                 return this.boxes[0].intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, this.blockX, this.blockY, this.blockZ);
             }
             for (NeoShadowsTypes.Box box : this.boxes) {
-                if (!box.intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, this.blockX, this.blockY, this.blockZ)) continue;
-                return true;
+                if (box.intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, this.blockX, this.blockY, this.blockZ)) {
+                    return true;
+                }
             }
             return false;
         }
@@ -430,8 +433,9 @@ final class NeoShadowsOcclusionPipeline {
                         }
                         if (sectionIsAir) {
                             double nextTraveled = SectionSkip.skipEmptySection(traversal, chunkX, chunkZ, sectionIndex, minBuildHeight, maxDistance, 0.01);
-                            if (!(nextTraveled >= maxDistance)) continue;
-                            break;
+                            if (nextTraveled >= maxDistance) {
+                                break;
+                            }
                         }
                         if (!sectionIsAir && cachedSection != null && !(state = cachedSection.m_62982_(traversal.blockX & 0xF, traversal.blockY & 0xF, traversal.blockZ & 0xF)).m_60795_()) {
                             NeoShadowsTypes.Box[] boxes = BOX_CACHE.get(state);
@@ -439,7 +443,7 @@ final class NeoShadowsOcclusionPipeline {
                                 cursor.m_122178_(traversal.blockX, traversal.blockY, traversal.blockZ);
                                 NeoShadowsTypes.Box[] built = SolidOccluderCache.buildBoxes(state, level, (BlockPos)cursor);
                                 NeoShadowsTypes.Box[] existing = BOX_CACHE.putIfAbsent(state, built);
-                                NeoShadowsTypes.Box[] boxArray = boxes = existing != null ? existing : built;
+                                boxes = existing != null ? existing : built;
                             }
                             if (boxes == FULL_BLOCK_BOXES) {
                                 out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
@@ -454,10 +458,11 @@ final class NeoShadowsOcclusionPipeline {
                                 }
                             } else if (boxes.length > 1) {
                                 for (NeoShadowsTypes.Box box : boxes) {
-                                    if (!box.intersectsSegmentWithOffset(start.f_82479_, start.f_82480_, start.f_82481_, endX, endY, endZ, traversal.blockX, traversal.blockY, traversal.blockZ)) continue;
-                                    out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
-                                    out.boxes = boxes;
-                                    return true;
+                                    if (box.intersectsSegmentWithOffset(start.f_82479_, start.f_82480_, start.f_82481_, endX, endY, endZ, traversal.blockX, traversal.blockY, traversal.blockZ)) {
+                                        out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
+                                        out.boxes = boxes;
+                                        return true;
+                                    }
                                 }
                             }
                         }
@@ -477,7 +482,7 @@ final class NeoShadowsOcclusionPipeline {
             if (state.m_60838_((BlockGetter)level, pos)) {
                 return FULL_BLOCK_BOXES;
             }
-            ArrayList<NeoShadowsTypes.Box> boxes = new ArrayList<>();
+            List<NeoShadowsTypes.Box> boxes = new ArrayList<>();
             shape.m_83286_((minX, minY, minZ, maxX, maxY, maxZ) -> {
                 if (maxX - minX > 1.0E-6 && maxY - minY > 1.0E-6 && maxZ - minZ > 1.0E-6) {
                     boxes.add(new NeoShadowsTypes.Box(minX, minY, minZ, maxX, maxY, maxZ));

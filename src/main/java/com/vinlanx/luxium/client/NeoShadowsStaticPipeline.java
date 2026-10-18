@@ -86,13 +86,12 @@ final class NeoShadowsStaticPipeline {
         NeoShadowsStaticPipeline.sortPlaneGroupsByPriority(planeGroups, center);
         int groupCount = planeGroups.size();
         if (groupCount > 0) {
-            ExecutorService pool;
             int workerCount = Math.max(1, Math.min(NeoShadowsEngine.SHADOW_WORKER_COUNT, groupCount));
             NeoShadowsTypes.BuildScratch[] scratches = new NeoShadowsTypes.BuildScratch[workerCount];
             for (int i = 0; i < workerCount; ++i) {
                 scratches[i] = new NeoShadowsTypes.BuildScratch();
             }
-            ExecutorService executorService = pool = workerCount > 1 ? NeoShadowsEngine.shadowWorkerPool() : null;
+            ExecutorService pool = workerCount > 1 ? NeoShadowsEngine.shadowWorkerPool() : null;
             if (pool == null) {
                 NeoShadowsTypes.BuildScratch scratch = scratches[0];
                 scratch.reset();
@@ -143,8 +142,9 @@ final class NeoShadowsStaticPipeline {
                     for (w = 0; w < activeWorkers; ++w) {
                         NeoShadowsEngine.mergeScratch(state, scratches[w]);
                     }
-                    if (progressPublisher == null) continue;
-                    progressPublisher.accept(state.shadowPolygons);
+                    if (progressPublisher != null) {
+                        progressPublisher.accept(state.shadowPolygons);
+                    }
                 }
             }
         }
@@ -161,7 +161,7 @@ final class NeoShadowsStaticPipeline {
         }
         ExposedFaceService exposedFaceService = ExposedFaceService.get();
         TorchRtxState torchState = TorchRtxState.get();
-        ArrayList<NeoShadowsTypes.ShadowPolygon> output = new ArrayList<NeoShadowsTypes.ShadowPolygon>();
+        List<NeoShadowsTypes.ShadowPolygon> output = new ArrayList<NeoShadowsTypes.ShadowPolygon>();
         Long2ByteOpenHashMap affectedFacesByBlock = new Long2ByteOpenHashMap();
         affectedFacesByBlock.defaultReturnValue((byte)0);
         LongIterator iterator = changedBlocks.iterator();
@@ -179,8 +179,9 @@ final class NeoShadowsStaticPipeline {
                 if (output.size() >= 12288) continue block0;
                 scratch.reset();
                 this.processReceiverPlaneGroup(level, group, state, scratch);
-                if (scratch.shadowPolygons.isEmpty()) continue;
-                output.addAll(scratch.shadowPolygons);
+                if (!scratch.shadowPolygons.isEmpty()) {
+                    output.addAll(scratch.shadowPolygons);
+                }
             }
         }
         if (affectedFacesByBlock.isEmpty()) {
@@ -208,7 +209,6 @@ final class NeoShadowsStaticPipeline {
     }
 
     List<NeoShadowsTypes.ReceiverPlaneGroup> buildReceiverPlaneGroups(TorchRtxState torchState, List<NeoShadowsTypes.FaceCandidate> candidates, NeoShadowsTypes.GeometryBuildState state) {
-        NeoShadowsTypes.FaceCandidate candidate;
         int initialCapacity = Math.max(16, Math.min(candidates.size() * 2, 4096));
         LinkedHashMap<NeoShadowsTypes.ReceiverPlaneKey, NeoShadowsTypes.ReceiverPlaneGroup> groups = new LinkedHashMap<NeoShadowsTypes.ReceiverPlaneKey, NeoShadowsTypes.ReceiverPlaneGroup>(initialCapacity);
         int n = candidates.size();
@@ -242,12 +242,12 @@ final class NeoShadowsStaticPipeline {
             }
         } else {
             for (int i = 0; i < n; ++i) {
-                candidate = candidates.get(i);
+                NeoShadowsTypes.FaceCandidate candidate = candidates.get(i);
                 lightingByIndex[i] = this.engine.visibility.resolveFaceLightingCached(torchState, state, candidate);
             }
         }
         for (int i = 0; i < n; ++i) {
-            candidate = candidates.get(i);
+            NeoShadowsTypes.FaceCandidate candidate = candidates.get(i);
             NeoShadowsTypes.FaceLightingInfo lighting = lightingByIndex[i];
             if (lighting == null) {
                 lighting = this.engine.visibility.resolveFaceLightingCached(torchState, state, candidate);
@@ -266,7 +266,7 @@ final class NeoShadowsStaticPipeline {
                 group.addFace(candidate, contribution.weight, contribution.localFaceBounds);
             }
         }
-        ArrayList<NeoShadowsTypes.ReceiverPlaneGroup> result = new ArrayList<NeoShadowsTypes.ReceiverPlaneGroup>(groups.values());
+        List<NeoShadowsTypes.ReceiverPlaneGroup> result = new ArrayList<NeoShadowsTypes.ReceiverPlaneGroup>(groups.values());
         int rgCount = result.size();
         if (rgCount > 1) {
             ExecutorService finalizePool = NeoShadowsEngine.shadowWorkerPool();
@@ -334,16 +334,18 @@ final class NeoShadowsStaticPipeline {
         for (NeoShadowsOcclusionPipeline.OccluderHit hit : hitsByBlock.values()) {
             if (mergedFullBlockHits.contains(hit.blockPos.m_121878_())) continue;
             if (this.addModelShadowPolygons(level, group, hit, state, scratch)) {
-                if (scratch.shadowPolygons.size() < 12288) continue;
-                return;
+                if (scratch.shadowPolygons.size() >= 12288) {
+                    return;
+                }
             }
             for (NeoShadowsTypes.Box bounds : hit.boxes) {
                 List<NeoShadowsTypes.UvPoint> projected = NeoShadowsProjection.collectProjectedBoxPoints(group.plane, group.source, bounds, hit.blockPos);
                 List<NeoShadowsTypes.UvPoint> polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected, scratch);
                 if (polygon == null) continue;
                 this.addPlaneShadowPolygons(group, polygon, scratch);
-                if (scratch.shadowPolygons.size() < 12288) continue;
-                return;
+                if (scratch.shadowPolygons.size() >= 12288) {
+                    return;
+                }
             }
         }
         if (state.includeDynamicCasters && scratch.shadowPolygons.size() < 12288) {
@@ -427,9 +429,10 @@ final class NeoShadowsStaticPipeline {
             TextureAtlasSprite sprite = quad.m_173410_();
             if (sprite == null) continue;
             NeoShadowsTypes.SpriteOpaqueMask mask = this.getSpriteOpaqueMask(sprite);
-            if (mask.fullyOpaque) continue;
-            allSpritesOpaque = false;
-            break;
+            if (!mask.fullyOpaque) {
+                allSpritesOpaque = false;
+                break;
+            }
         }
         if (fullBlockOccluder && allSpritesOpaque) {
             return false;
@@ -463,7 +466,7 @@ final class NeoShadowsStaticPipeline {
     }
 
     static List<BakedQuad> collectModelQuads(BakedModel model, BlockState state) {
-        ArrayList<BakedQuad> quads = new ArrayList<BakedQuad>();
+        List<BakedQuad> quads = new ArrayList<BakedQuad>();
         RandomSource random = RANDOM_SOURCE_TL.get();
         for (Direction face : NeoShadowsEngine.FACES) {
             random.m_188584_(42L);
@@ -523,7 +526,7 @@ final class NeoShadowsStaticPipeline {
             return NeoShadowsTypes.SpriteOpaqueMask.fullyOpaque();
         }
         boolean[] consumed = new boolean[opaquePixels.length];
-        ArrayList<NeoShadowsTypes.SpriteRect> rectangles = new ArrayList<NeoShadowsTypes.SpriteRect>();
+        List<NeoShadowsTypes.SpriteRect> rectangles = new ArrayList<NeoShadowsTypes.SpriteRect>();
         for (int pixelY = 0; pixelY < height; ++pixelY) {
             for (int pixelX = 0; pixelX < width; ++pixelX) {
                 int nextIndex;
@@ -539,12 +542,14 @@ final class NeoShadowsStaticPipeline {
                     int nextRowOffset = (pixelY + rectHeight) * width;
                     for (int scanX = 0; scanX < rectWidth; ++scanX) {
                         int nextIndex2 = nextRowOffset + pixelX + scanX;
-                        if (opaquePixels[nextIndex2] && !consumed[nextIndex2]) continue;
-                        canGrow = false;
-                        break;
+                        if (!(opaquePixels[nextIndex2]) || !(!consumed[nextIndex2])) {
+                            canGrow = false;
+                            break;
+                        }
                     }
-                    if (!canGrow) continue;
-                    ++rectHeight;
+                    if (canGrow) {
+                        ++rectHeight;
+                    }
                 }
                 for (int fillY = 0; fillY < rectHeight; ++fillY) {
                     int fillRowOffset = (pixelY + fillY) * width;
@@ -646,12 +651,13 @@ final class NeoShadowsStaticPipeline {
 
     static List<NeoShadowsTypes.UvPoint> collectProjectedQuadPoints(NeoShadowsTypes.GlobalReceiverPlane plane, Vec3 source, Vec3[] corners) {
         NeoShadowsTypes.ProjectionPoint[] projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
-        ArrayList<NeoShadowsTypes.UvPoint> points = new ArrayList<NeoShadowsTypes.UvPoint>(corners.length + NeoShadowsEngine.QUAD_EDGE_VERTEX_INDICES.length * 2);
+        List<NeoShadowsTypes.UvPoint> points = new ArrayList<NeoShadowsTypes.UvPoint>(corners.length + NeoShadowsEngine.QUAD_EDGE_VERTEX_INDICES.length * 2);
         for (int index = 0; index < corners.length; ++index) {
             NeoShadowsTypes.ProjectionPoint projection;
             projectedCorners[index] = projection = plane.projectPoint(source, corners[index]);
-            if (projection.uv == null) continue;
-            points.add(projection.uv);
+            if (projection.uv != null) {
+                points.add(projection.uv);
+            }
         }
         for (int[] edge : NeoShadowsEngine.QUAD_EDGE_VERTEX_INDICES) {
             NeoShadowsStaticPipeline.appendExtendedQuadEdgePoints(plane, source, corners[edge[0]], corners[edge[1]], projectedCorners[edge[0]], projectedCorners[edge[1]], points);
@@ -661,9 +667,8 @@ final class NeoShadowsStaticPipeline {
 
     private static void appendExtendedQuadEdgePoints(NeoShadowsTypes.GlobalReceiverPlane plane, Vec3 source, Vec3 start, Vec3 end, NeoShadowsTypes.ProjectionPoint startProjection, NeoShadowsTypes.ProjectionPoint endProjection, List<NeoShadowsTypes.UvPoint> points) {
         Vec3 edgeDirection;
-        boolean endValid;
         boolean startValid = startProjection.uv != null;
-        boolean bl = endValid = endProjection.uv != null;
+        boolean endValid = endProjection.uv != null;
         if (startValid == endValid) {
             return;
         }
@@ -791,10 +796,12 @@ final class NeoShadowsStaticPipeline {
         if (clipped.size() < 3 || NeoShadowsProjection.polygonArea(clipped) <= 1.0E-5) {
             return;
         }
-        if ((clipped = NeoShadowsProjection.buildConvexHull(clipped)).size() < 3 || NeoShadowsProjection.polygonArea(clipped) <= 1.0E-5) {
+        clipped = NeoShadowsProjection.buildConvexHull(clipped);
+        if (clipped.size() < 3 || NeoShadowsProjection.polygonArea(clipped) <= 1.0E-5) {
             return;
         }
-        if ((clipped = NeoShadowsProjection.normalizeShadowPolygonToRect(clipped, rect, group.key.face, scratch)) == null || clipped.size() < 3 || NeoShadowsProjection.polygonArea(clipped) <= 1.0E-5) {
+        clipped = NeoShadowsProjection.normalizeShadowPolygonToRect(clipped, rect, group.key.face, scratch);
+        if (clipped == null || clipped.size() < 3 || NeoShadowsProjection.polygonArea(clipped) <= 1.0E-5) {
             return;
         }
         double[] vertices = new double[clipped.size() * 3];

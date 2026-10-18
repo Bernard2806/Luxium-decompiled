@@ -76,15 +76,14 @@ implements AutoCloseable {
             float nz = NeoSkyCelestiaLightLut.normalZ(normalCode);
             float rawNdotL = nx * lighting.direction().x + ny * lighting.direction().y + nz * lighting.direction().z;
             for (int skyLevel = 0; skyLevel < 16; ++skyLevel) {
-                int index;
                 int blockLevel;
                 int row = skyLevel << 4;
                 for (blockLevel = 0; blockLevel < 16; ++blockLevel) {
-                    index = row | blockLevel;
+                    int index = row | blockLevel;
                     this.putEndpoint(this.mainLightPixels[index], this.blockOnlyLightPixels[index], this.blockOnlyLightPixels[row], this.mainLightPixels[row], ny, rawNdotL, lighting, shadowsEnabled, sunShadowBlockVisibility, 0.0f);
                 }
                 for (blockLevel = 0; blockLevel < 16; ++blockLevel) {
-                    index = row | blockLevel;
+                    int index = row | blockLevel;
                     this.putEndpoint(this.mainLightPixels[index], this.blockOnlyLightPixels[index], this.blockOnlyLightPixels[row], this.mainLightPixels[row], ny, rawNdotL, lighting, shadowsEnabled, sunShadowBlockVisibility, 1.0f);
                 }
             }
@@ -324,9 +323,10 @@ implements AutoCloseable {
     public void close() {
         RenderSystem.assertOnRenderThread();
         for (int i = 0; i < 3; ++i) {
-            if (this.textureIds[i] == 0) continue;
-            GlStateManager._deleteTexture((int)this.textureIds[i]);
-            this.textureIds[i] = 0;
+            if (this.textureIds[i] != 0) {
+                GlStateManager._deleteTexture((int)this.textureIds[i]);
+                this.textureIds[i] = 0;
+            }
         }
         this.currentTextureIndex = -1;
         this.cacheValid = false;

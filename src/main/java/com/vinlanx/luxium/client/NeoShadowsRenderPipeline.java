@@ -82,8 +82,6 @@ final class NeoShadowsRenderPipeline {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     void captureSkyLightSceneInternal(LevelRenderer levelRenderer, PoseStack poseStack, float partialTick, long finishNano, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix) {
-        LightTextureAccessor lightTextureAccessor;
-        boolean hasShadowPolygons;
         Minecraft mc = Minecraft.m_91087_();
         boolean neoSelected = this.engine.isSelected();
         boolean cpuSelected = NeoCpuShadowsEngine.isActive();
@@ -98,7 +96,7 @@ final class NeoShadowsRenderPipeline {
         if (this.engine.enabled && !this.engine.framePrepared) {
             this.engine.runtime.prepareFrameInternal(mc, camera, partialTick);
         }
-        boolean bl = hasShadowPolygons = this.engine.enabled && this.engine.hasAnyShadowPolygons() || NeoCpuShadowsEngine.hasActivePolygons();
+        boolean hasShadowPolygons = this.engine.enabled && this.engine.hasAnyShadowPolygons() || NeoCpuShadowsEngine.hasActivePolygons();
         if (!hasShadowPolygons) {
             this.engine.skySceneReady = false;
             return;
@@ -129,7 +127,7 @@ final class NeoShadowsRenderPipeline {
         this.engine.skyLightCapturePass = true;
         this.engine.skySceneReady = false;
         try {
-            lightTextureAccessor = (LightTextureAccessor)lightTexture;
+            LightTextureAccessor lightTextureAccessor = (LightTextureAccessor)lightTexture;
             lightTextureAccessor.luxium$setUpdateLightTexture(true);
             lightTexture.m_109881_(partialTick);
             levelRenderer.m_109599_(skyPose, partialTick, finishNano, false, camera, gameRenderer, lightTexture, projectionMatrix);
@@ -152,7 +150,7 @@ final class NeoShadowsRenderPipeline {
             RenderSystem.setShaderTexture((int)1, (int)savedShaderTex1);
             RenderSystem.setShaderTexture((int)2, (int)savedShaderTex2);
             RenderSystem.setShaderTexture((int)3, (int)savedShaderTex3);
-            lightTextureAccessor = (LightTextureAccessor)lightTexture;
+            LightTextureAccessor lightTextureAccessor = (LightTextureAccessor)lightTexture;
             lightTextureAccessor.luxium$setUpdateLightTexture(true);
             lightTexture.m_109881_(partialTick);
             originalTarget.m_83947_(true);
@@ -166,7 +164,6 @@ final class NeoShadowsRenderPipeline {
     }
 
     void renderShadowMask(Minecraft mc, PoseStack poseStack, Camera camera, @Nullable Frustum frustum) {
-        boolean hasHotPatch;
         if (!this.engine.framePrepared) {
             this.engine.runtime.prepareFrameInternal(mc, camera, mc.getPartialTick());
         }
@@ -188,29 +185,33 @@ final class NeoShadowsRenderPipeline {
         VertexConsumer consumer = bufferSource.m_6299_(NeoShadowsEngine.MASK_PASS);
         Matrix4f pose = poseStack.m_85850_().m_252922_();
         NeoShadowsTypes.StaticHotPatchOverlay hotPatch = this.engine.activeStaticHotPatch;
-        boolean bl = hasHotPatch = !hotPatch.isEmpty();
+        boolean hasHotPatch = !hotPatch.isEmpty();
         if (this.engine.activeStaticOutput != null) {
             for (NeoShadowsTypes.ShadowPolygon polygon : this.engine.activeStaticOutput.shadowPolygons) {
-                if (hasHotPatch && hotPatch.replaces(polygon) || this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) continue;
-                this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
+                if ((!hasHotPatch || !hotPatch.replaces(polygon)) && !this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
+                    this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
+                }
             }
         }
         List<NeoShadowsTypes.ShadowPolygon> staging = this.engine.inFlightStaticPolygons;
         if (this.engine.activeStaticOutput == null && !staging.isEmpty() && this.engine.inFlightStaticEpoch == this.engine.buildEpoch) {
             for (NeoShadowsTypes.ShadowPolygon polygon : staging) {
-                if (this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) continue;
-                this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
+                if (!this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
+                    this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
+                }
             }
         }
         if (hasHotPatch) {
             for (NeoShadowsTypes.ShadowPolygon polygon : hotPatch.polygons) {
-                if (this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) continue;
-                this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
+                if (!this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
+                    this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
+                }
             }
         }
         for (NeoShadowsTypes.ShadowPolygon polygon : this.engine.activeDynamicPolygons) {
-            if (this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) continue;
-            this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
+            if (!this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
+                this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
+            }
         }
         bufferSource.m_109912_(NeoShadowsEngine.MASK_PASS);
         main.m_83947_(false);
@@ -338,10 +339,10 @@ final class NeoShadowsRenderPipeline {
     }
 
     static boolean isCompatibleBuildCenter(BlockPos buildCenter, BlockPos currentCenter) {
-        double dz;
-        double dy;
         double dx = buildCenter.m_123341_() - currentCenter.m_123341_();
-        return dx * dx + (dy = (double)(buildCenter.m_123342_() - currentCenter.m_123342_())) * dy + (dz = (double)(buildCenter.m_123343_() - currentCenter.m_123343_())) * dz <= 256.0;
+        double dy = (double)(buildCenter.m_123342_() - currentCenter.m_123342_());
+        double dz = (double)(buildCenter.m_123343_() - currentCenter.m_123343_());
+        return dx * dx + dy * dy + dz * dz <= 256.0;
     }
 }
 

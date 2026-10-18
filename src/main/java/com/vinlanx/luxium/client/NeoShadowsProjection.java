@@ -34,12 +34,13 @@ final class NeoShadowsProjection {
     static List<NeoShadowsTypes.UvPoint> collectProjectedBoxPoints(NeoShadowsTypes.GlobalReceiverPlane plane, Vec3 source, NeoShadowsTypes.Box worldBox) {
         Vec3[] corners = worldBox.corners();
         NeoShadowsTypes.ProjectionPoint[] projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
-        ArrayList<NeoShadowsTypes.UvPoint> points = new ArrayList<NeoShadowsTypes.UvPoint>(corners.length + BOX_EDGE_VERTEX_INDICES.length * 2);
+        List<NeoShadowsTypes.UvPoint> points = new ArrayList<NeoShadowsTypes.UvPoint>(corners.length + BOX_EDGE_VERTEX_INDICES.length * 2);
         for (int index = 0; index < corners.length; ++index) {
             NeoShadowsTypes.ProjectionPoint projection;
             projectedCorners[index] = projection = plane.projectPoint(source, corners[index]);
-            if (projection.uv == null) continue;
-            points.add(projection.uv);
+            if (projection.uv != null) {
+                points.add(projection.uv);
+            }
         }
         for (int[] edge : BOX_EDGE_VERTEX_INDICES) {
             NeoShadowsProjection.appendExtendedEdgePoints(plane, source, corners[edge[0]], corners[edge[1]], projectedCorners[edge[0]], projectedCorners[edge[1]], points);
@@ -53,8 +54,9 @@ final class NeoShadowsProjection {
         for (int index = 0; index < corners.length; ++index) {
             NeoShadowsTypes.ProjectionPoint projection;
             projectedCorners[index] = projection = plane.projectPoint(source, corners[index]);
-            if (projection.uv == null) continue;
-            points.add(projection.uv);
+            if (projection.uv != null) {
+                points.add(projection.uv);
+            }
         }
         for (int[] edge : BOX_EDGE_VERTEX_INDICES) {
             NeoShadowsProjection.appendExtendedEdgePoints(plane, source, corners[edge[0]], corners[edge[1]], projectedCorners[edge[0]], projectedCorners[edge[1]], points);
@@ -65,12 +67,13 @@ final class NeoShadowsProjection {
     static List<NeoShadowsTypes.UvPoint> collectProjectedBoxPoints(NeoShadowsTypes.GlobalReceiverPlane plane, Vec3 source, NeoShadowsTypes.Box localBox, BlockPos blockPos) {
         Vec3[] corners = localBox.cornersWithOffset(blockPos.m_123341_(), blockPos.m_123342_(), blockPos.m_123343_());
         NeoShadowsTypes.ProjectionPoint[] projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
-        ArrayList<NeoShadowsTypes.UvPoint> points = new ArrayList<NeoShadowsTypes.UvPoint>(corners.length + BOX_EDGE_VERTEX_INDICES.length * 2);
+        List<NeoShadowsTypes.UvPoint> points = new ArrayList<NeoShadowsTypes.UvPoint>(corners.length + BOX_EDGE_VERTEX_INDICES.length * 2);
         for (int index = 0; index < corners.length; ++index) {
             NeoShadowsTypes.ProjectionPoint projection;
             projectedCorners[index] = projection = plane.projectPoint(source, corners[index]);
-            if (projection.uv == null) continue;
-            points.add(projection.uv);
+            if (projection.uv != null) {
+                points.add(projection.uv);
+            }
         }
         for (int[] edge : BOX_EDGE_VERTEX_INDICES) {
             NeoShadowsProjection.appendExtendedEdgePoints(plane, source, corners[edge[0]], corners[edge[1]], projectedCorners[edge[0]], projectedCorners[edge[1]], points);
@@ -80,9 +83,8 @@ final class NeoShadowsProjection {
 
     private static void appendExtendedEdgePoints(NeoShadowsTypes.GlobalReceiverPlane plane, Vec3 source, Vec3 start, Vec3 end, NeoShadowsTypes.ProjectionPoint startProjection, NeoShadowsTypes.ProjectionPoint endProjection, List<NeoShadowsTypes.UvPoint> points) {
         Vec3 edgeDirection;
-        boolean endValid;
         boolean startValid = startProjection.uv != null;
-        boolean bl = endValid = endProjection.uv != null;
+        boolean endValid = endProjection.uv != null;
         if (startValid == endValid) {
             return;
         }
@@ -157,13 +159,13 @@ final class NeoShadowsProjection {
     }
 
     static long sampleRtxPosKey(BlockPos pos, Direction face, double sampleX, double sampleY, double sampleZ) {
-        int sampleBlockZ;
-        int sampleBlockY;
         double outwardX = (double)face.m_122429_() * 0.05;
         double outwardY = (double)face.m_122430_() * 0.05;
         double outwardZ = (double)face.m_122431_() * 0.05;
         int sampleBlockX = Mth.m_14107_((double)(sampleX + outwardX));
-        long sampleKey = BlockPos.m_121882_((int)sampleBlockX, (int)(sampleBlockY = Mth.m_14107_((double)(sampleY + outwardY))), (int)(sampleBlockZ = Mth.m_14107_((double)(sampleZ + outwardZ))));
+        int sampleBlockY = Mth.m_14107_((double)(sampleY + outwardY));
+        int sampleBlockZ = Mth.m_14107_((double)(sampleZ + outwardZ));
+        long sampleKey = BlockPos.m_121882_((int)sampleBlockX, (int)sampleBlockY, (int)sampleBlockZ);
         if (sampleKey == pos.m_121878_()) {
             return BlockPos.m_121882_((int)(pos.m_123341_() + face.m_122429_()), (int)(pos.m_123342_() + face.m_122430_()), (int)(pos.m_123343_() + face.m_122431_()));
         }
@@ -225,12 +227,13 @@ final class NeoShadowsProjection {
     }
 
     static int[][] buildReceiverOffsets() {
-        ArrayList<int[]> offsets = new ArrayList<int[]>();
+        List<int[]> offsets = new ArrayList<int[]>();
         for (int dy = -3; dy <= 3; ++dy) {
             for (int dz = -3; dz <= 3; ++dz) {
                 for (int dx = -3; dx <= 3; ++dx) {
-                    if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > 3) continue;
-                    offsets.add(new int[]{dx, dy, dz});
+                    if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) <= 3) {
+                        offsets.add(new int[]{dx, dy, dz});
+                    }
                 }
             }
         }
@@ -238,7 +241,7 @@ final class NeoShadowsProjection {
     }
 
     static List<NeoShadowsTypes.UvPoint> buildConvexHull(List<NeoShadowsTypes.UvPoint> points) {
-        ArrayList<NeoShadowsTypes.UvPoint> sorted = new ArrayList<NeoShadowsTypes.UvPoint>(points);
+        List<NeoShadowsTypes.UvPoint> sorted = new ArrayList<NeoShadowsTypes.UvPoint>(points);
         sorted.sort((left, right) -> {
             int cmpU = Double.compare(left.u, right.u);
             if (cmpU != 0) {
@@ -246,15 +249,16 @@ final class NeoShadowsProjection {
             }
             return Double.compare(left.v, right.v);
         });
-        ArrayList<NeoShadowsTypes.UvPoint> unique = new ArrayList<NeoShadowsTypes.UvPoint>(sorted.size());
+        List<NeoShadowsTypes.UvPoint> unique = new ArrayList<NeoShadowsTypes.UvPoint>(sorted.size());
         for (NeoShadowsTypes.UvPoint uvPoint : sorted) {
-            if (!unique.isEmpty() && uvPoint.equalsApprox((NeoShadowsTypes.UvPoint)unique.get(unique.size() - 1))) continue;
-            unique.add(uvPoint);
+            if (unique.isEmpty() || !(uvPoint.equalsApprox((NeoShadowsTypes.UvPoint)unique.get(unique.size() - 1)))) {
+                unique.add(uvPoint);
+            }
         }
         if (unique.size() < 3) {
             return unique;
         }
-        ArrayList<NeoShadowsTypes.UvPoint> lower = new ArrayList<NeoShadowsTypes.UvPoint>();
+        List<NeoShadowsTypes.UvPoint> lower = new ArrayList<NeoShadowsTypes.UvPoint>();
         for (NeoShadowsTypes.UvPoint point : unique) {
             while (lower.size() >= 2 && NeoShadowsProjection.cross((NeoShadowsTypes.UvPoint)lower.get(lower.size() - 2), (NeoShadowsTypes.UvPoint)lower.get(lower.size() - 1), point) <= 1.0E-6) {
                 lower.remove(lower.size() - 1);
@@ -290,7 +294,7 @@ final class NeoShadowsProjection {
         List<NeoShadowsTypes.UvPoint> unique = scratch.hullUniqueBuf;
         unique.clear();
         for (NeoShadowsTypes.UvPoint uvPoint : sorted) {
-            if (!unique.isEmpty() && uvPoint.equalsApprox(unique.get(unique.size() - 1))) continue;
+            if (!unique.isEmpty() && (uvPoint.equalsApprox(unique.get(unique.size() - 1)))) continue;
             unique.add(uvPoint);
         }
         if (unique.size() < 3) {
@@ -409,8 +413,7 @@ final class NeoShadowsProjection {
 
     static boolean convexPolygonContainsPoint(List<NeoShadowsTypes.UvPoint> polygon, double u, double v) {
         double sign = 0.0;
-        int size = polygon.size();
-        for (int index = 0; index < size; ++index) {
+        for (int index = 0, size = polygon.size(); index < size; ++index) {
             NeoShadowsTypes.UvPoint current = polygon.get(index);
             NeoShadowsTypes.UvPoint next = polygon.get((index + 1) % size);
             double cross = (next.u - current.u) * (v - current.v) - (next.v - current.v) * (u - current.u);
@@ -419,8 +422,9 @@ final class NeoShadowsProjection {
                 sign = Math.copySign(1.0, cross);
                 continue;
             }
-            if (!(cross * sign < -1.0E-6)) continue;
-            return false;
+            if (cross * sign < -1.0E-6) {
+                return false;
+            }
         }
         return true;
     }
@@ -460,7 +464,7 @@ final class NeoShadowsProjection {
         if (NeoShadowsProjection.polygonArea(normalizedLocal) >= 0.988) {
             return NeoShadowsProjection.rectShadowPolygon(rect);
         }
-        ArrayList<NeoShadowsTypes.UvPoint> normalized = new ArrayList<NeoShadowsTypes.UvPoint>(normalizedLocal.size());
+        List<NeoShadowsTypes.UvPoint> normalized = new ArrayList<NeoShadowsTypes.UvPoint>(normalizedLocal.size());
         for (NeoShadowsTypes.UvPoint point : normalizedLocal) {
             normalized.add(new NeoShadowsTypes.UvPoint(rect.minU + point.u * rectWidth, rect.minV + point.v * rectHeight));
         }
