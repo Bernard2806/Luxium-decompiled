@@ -149,8 +149,7 @@ public final class NeoFloodEngine {
         if (level == null || emission <= 0) {
             return;
         }
-        Object object = this.stateLock;
-        synchronized (object) {
+        synchronized (this.stateLock) {
             SourceState state = this.sources.get(key);
             boolean membershipChanged = false;
             if (state == null) {
@@ -190,8 +189,7 @@ public final class NeoFloodEngine {
         if (sourceBatch == null || sourceBatch.isEmpty()) {
             return;
         }
-        Object object = this.stateLock;
-        synchronized (object) {
+        synchronized (this.stateLock) {
             boolean membershipChanged = false;
             ObjectIterator it = sourceBatch.long2ByteEntrySet().fastIterator();
             while (it.hasNext()) {
@@ -208,12 +206,13 @@ public final class NeoFloodEngine {
                 } else if (!state.active) {
                     membershipChanged = true;
                 }
-                if (state.active && state.emission == emission && state.result != null) continue;
-                state.active = true;
-                state.emission = emission;
-                state.maxReachBlocks = NeoFloodEngine.sourceReach(emission);
-                ++state.generation;
-                this.worldDirtyQueue.add(key);
+                if (!state.active || state.emission != emission || state.result == null) {
+                    state.active = true;
+                    state.emission = emission;
+                    state.maxReachBlocks = NeoFloodEngine.sourceReach(emission);
+                    ++state.generation;
+                    this.worldDirtyQueue.add(key);
+                }
             }
             if (membershipChanged) {
                 this.activeSourceSnapshotDirty = true;
@@ -248,8 +247,7 @@ public final class NeoFloodEngine {
             return;
         }
         ArrayList<SourceState> removed = new ArrayList<SourceState>(keys.size());
-        Object object = this.stateLock;
-        synchronized (object) {
+        synchronized (this.stateLock) {
             LongIterator it = keys.iterator();
             while (it.hasNext()) {
                 long key = it.nextLong();
@@ -280,8 +278,7 @@ public final class NeoFloodEngine {
         if (keys == null || keys.isEmpty()) {
             return;
         }
-        Object object = this.stateLock;
-        synchronized (object) {
+        synchronized (this.stateLock) {
             LongIterator it = keys.iterator();
             while (it.hasNext()) {
                 long key = it.nextLong();
@@ -298,12 +295,10 @@ public final class NeoFloodEngine {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     public void clear() {
-        Consumer<LongOpenHashSet> callback;
         this.epoch.incrementAndGet();
         ArrayList<SourceState> oldStates = new ArrayList<SourceState>();
         LongOpenHashSet oldSections = new LongOpenHashSet();
-        Object object = this.stateLock;
-        synchronized (object) {
+        synchronized (this.stateLock) {
             for (SourceState state : this.sources.values()) {
                 state.active = false;
                 ++state.generation;
@@ -320,29 +315,29 @@ public final class NeoFloodEngine {
             this.snapshot = Snapshot.empty();
             this.snapshotVersion.incrementAndGet();
         }
-        object = this.dirtyBlocksLock;
-        synchronized (object) {
+        synchronized (this.dirtyBlocksLock) {
             this.pendingDirtyBlocks.clear();
             this.dirtyBlockDelay = -1;
         }
         this.publishExecutor.execute(() -> {
             this.sourcesBySection.clear();
-            Iterator iterator = oldStates.iterator();
-            while (iterator.hasNext()) {
+            for (SourceState state : oldStates) {
                 PackedSourceData old;
-                SourceState state;
-                SourceState sourceState = state = (SourceState)iterator.next();
-                synchronized (sourceState) {
+                synchronized (state) {
                     old = state.result;
                     state.result = null;
                     state.visibilityRevision = 0L;
                 }
-                if (old == null) continue;
-                NeoFloodRtEngine.recycleVisibilityVolume(old.visibilityVolume);
+                if (old != null) {
+                    NeoFloodRtEngine.recycleVisibilityVolume(old.visibilityVolume);
+                }
             }
         });
-        if (!oldSections.isEmpty() && (callback = this.onSectionsChanged) != null) {
-            callback.accept(oldSections);
+        if (!oldSections.isEmpty()) {
+            Consumer<LongOpenHashSet> callback = this.onSectionsChanged;
+            if (callback != null) {
+                callback.accept(oldSections);
+            }
         }
     }
 
@@ -359,8 +354,7 @@ public final class NeoFloodEngine {
             this.dispatchExecutor.execute(() -> this.processDirtyBlocks(blocks));
             return;
         }
-        Object object = this.dirtyBlocksLock;
-        synchronized (object) {
+        synchronized (this.dirtyBlocksLock) {
             this.pendingDirtyBlocks.add(pos.m_121878_());
             this.dirtyBlockDelay = 2;
         }
@@ -414,8 +408,9 @@ public final class NeoFloodEngine {
         int z = BlockPos.m_122015_((long)posKey);
         for (SourceState source : this.activeSourceSnapshot) {
             int reach = source.maxReachBlocks + Math.max(0, extraRadius);
-            if (Math.abs(x - source.x) > reach || Math.abs(y - source.y) > reach || Math.abs(z - source.z) > reach) continue;
-            return true;
+            if (Math.abs(x - source.x) <= reach && Math.abs(y - source.y) <= reach && Math.abs(z - source.z) <= reach) {
+                return true;
+            }
         }
         return false;
     }
@@ -431,17 +426,20 @@ public final class NeoFloodEngine {
         double bestDistance = Double.POSITIVE_INFINITY;
         for (int dv = -searchRadius; dv <= searchRadius; ++dv) {
             for (int du = -searchRadius; du <= searchRadius; ++du) {
-                double dz;
-                double dy;
-                double dx;
-                double distance;
-                int z;
-                int y;
-                int x;
-                long key;
-                if (du == 0 && dv == 0 || this.getLight(key = BlockPos.m_121882_((int)(x = baseX + axisUX * du + axisVX * dv), (int)(y = baseY + axisUY * du + axisVY * dv), (int)(z = baseZ + axisUZ * du + axisVZ * dv))) <= 0 || !((distance = (dx = (double)x + 0.5 - sampleX) * dx + (dy = (double)y + 0.5 - sampleY) * dy + (dz = (double)z + 0.5 - sampleZ) * dz) < bestDistance)) continue;
-                bestDistance = distance;
-                best = key;
+                if (du == 0 && dv == 0) continue;
+                int x = baseX + axisUX * du + axisVX * dv;
+                int y = baseY + axisUY * du + axisVY * dv;
+                int z = baseZ + axisUZ * du + axisVZ * dv;
+                long key = BlockPos.m_121882_((int)x, (int)y, (int)z);
+                if (this.getLight(key) <= 0) continue;
+                double dx = (double)x + 0.5 - sampleX;
+                double dy = (double)y + 0.5 - sampleY;
+                double dz = (double)z + 0.5 - sampleZ;
+                double distance = dx * dx + dy * dy + dz * dz;
+                if (distance < bestDistance) {
+                    bestDistance = distance;
+                    best = key;
+                }
             }
         }
         return best;
@@ -461,18 +459,19 @@ public final class NeoFloodEngine {
         int bestCoverage = 0;
         double bestDistance = Double.POSITIVE_INFINITY;
         for (long sourceKey : section.sourceKeys) {
-            int light;
-            PackedSourceData data;
             SourceState state = this.sources.get(sourceKey);
-            PackedSourceData packedSourceData = data = state == null || !state.active ? null : state.result;
-            if (data == null || (light = data.getLight(posKey)) <= 0) continue;
+            PackedSourceData data = state == null || !state.active ? null : state.result;
+            if (data == null) continue;
+            int light = data.getLight(posKey);
+            if (light <= 0) continue;
             int coverage = data.getCoverage(posKey);
             double distance = NeoFloodEngine.distanceSq(sourceKey, posKey);
-            if (!(light > bestLight || light == bestLight && coverage > bestCoverage || light == bestLight && coverage == bestCoverage && distance < bestDistance) && (light != bestLight || coverage != bestCoverage || distance != bestDistance || sourceKey >= bestKey)) continue;
-            bestKey = sourceKey;
-            bestLight = light;
-            bestCoverage = coverage;
-            bestDistance = distance;
+            if (light > bestLight || light == bestLight && coverage > bestCoverage || light == bestLight && coverage == bestCoverage && distance < bestDistance || light == bestLight && coverage == bestCoverage && distance == bestDistance && sourceKey < bestKey) {
+                bestKey = sourceKey;
+                bestLight = light;
+                bestCoverage = coverage;
+                bestDistance = distance;
+            }
         }
         return bestKey;
     }
@@ -491,12 +490,11 @@ public final class NeoFloodEngine {
     }
 
     public void visitContributor(long sourceKey, long posKey, ContributorVisitor visitor) {
-        PackedSourceData data;
         if (visitor == null) {
             return;
         }
         SourceState state = this.sources.get(sourceKey);
-        PackedSourceData packedSourceData = data = state == null || !state.active ? null : state.result;
+        PackedSourceData data = state == null || !state.active ? null : state.result;
         if (data == null) {
             return;
         }
@@ -535,8 +533,7 @@ public final class NeoFloodEngine {
         if (state == null || !state.active) {
             return 0L;
         }
-        SourceState sourceState = state;
-        synchronized (sourceState) {
+        synchronized (state) {
             PackedSourceData data = state.result;
             long revision = state.visibilityRevision;
             if (data == null || revision <= 0L) {
@@ -560,8 +557,9 @@ public final class NeoFloodEngine {
         int z = BlockPos.m_122015_((long)key);
         for (Direction face : FACES) {
             long neighbour = BlockPos.m_121882_((int)(x + face.m_122429_()), (int)(y + face.m_122430_()), (int)(z + face.m_122431_()));
-            if (this.getLight(neighbour) > 0 && this.getCoverage(neighbour) >= coverageThreshold) continue;
-            return true;
+            if (this.getLight(neighbour) <= 0 || this.getCoverage(neighbour) < coverageThreshold) {
+                return true;
+            }
         }
         return false;
     }
@@ -600,8 +598,7 @@ public final class NeoFloodEngine {
      */
     private void tickPendingDirtyBlocks() {
         LongOpenHashSet blocks = new LongOpenHashSet();
-        Object object = this.dirtyBlocksLock;
-        synchronized (object) {
+        synchronized (this.dirtyBlocksLock) {
             if (this.dirtyBlockDelay < 0) {
                 return;
             }
@@ -622,8 +619,7 @@ public final class NeoFloodEngine {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private void processDirtyBlocks(LongOpenHashSet blocks) {
-        Object object = this.stateLock;
-        synchronized (object) {
+        synchronized (this.stateLock) {
             LongOpenHashSet affected = new LongOpenHashSet();
             LongIterator blockIt = blocks.iterator();
             while (blockIt.hasNext()) {
@@ -671,8 +667,7 @@ public final class NeoFloodEngine {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private boolean hasQueuedWorldSources() {
-        Object object = this.stateLock;
-        synchronized (object) {
+        synchronized (this.stateLock) {
             return !this.worldDirtyQueue.isEmpty();
         }
     }
@@ -704,13 +699,12 @@ public final class NeoFloodEngine {
      */
     private ArrayList<TraceCapture> selectTraceBatch(int limit) {
         ArrayList<TraceCapture> captures = new ArrayList<TraceCapture>(Math.max(1, limit));
-        Object object = this.stateLock;
-        synchronized (object) {
-            long[] nearest;
+        synchronized (this.stateLock) {
             if (this.worldDirtyQueue.isEmpty()) {
                 return captures;
             }
-            for (long key : nearest = this.selectNearestLocked(this.worldDirtyQueue, this.playerPos, limit)) {
+            long[] nearest = this.selectNearestLocked(this.worldDirtyQueue, this.playerPos, limit);
+            for (long key : nearest) {
                 SourceState state = this.sources.get(key);
                 if (state == null || !state.active || state.emission <= 0) {
                     this.worldDirtyQueue.remove(key);
@@ -774,8 +768,7 @@ public final class NeoFloodEngine {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private void restoreFailedTrace(TraceCapture capture) {
-        Object object = this.stateLock;
-        synchronized (object) {
+        synchronized (this.stateLock) {
             SourceState state = capture.state;
             if (this.isCaptureCurrent(capture)) {
                 state.submittedGeneration = capture.generation - 1;
@@ -789,8 +782,7 @@ public final class NeoFloodEngine {
      */
     private boolean submitTrace(long key, ClientLevel level, boolean highPriority) {
         if (!highPriority) {
-            Object object = this.stateLock;
-            synchronized (object) {
+            synchronized (this.stateLock) {
                 SourceState state = this.sources.get(key);
                 if (state == null || !state.active) {
                     return false;
@@ -814,8 +806,7 @@ public final class NeoFloodEngine {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private TraceCapture captureTrace(long key) {
-        Object object = this.stateLock;
-        synchronized (object) {
+        synchronized (this.stateLock) {
             SourceState state = this.sources.get(key);
             if (state == null || !state.active || state.emission <= 0) {
                 return null;
@@ -834,20 +825,19 @@ public final class NeoFloodEngine {
     private void publishTraceBatch(CompletedTrace[] completed, boolean highPriority) {
         ArrayList<CompletedTrace> pending = new ArrayList<CompletedTrace>(completed.length);
         for (CompletedTrace trace : completed) {
-            if (trace == null) continue;
-            pending.add(trace);
+            if (trace != null) {
+                pending.add(trace);
+            }
         }
         if (pending.isEmpty()) {
             return;
         }
         while (!pending.isEmpty()) {
-            Runnable runnable;
             Long2ObjectOpenHashMap replacements = new Long2ObjectOpenHashMap(pending.size());
             Long2ObjectOpenHashMap oldDataBySource = new Long2ObjectOpenHashMap(pending.size());
             LongOpenHashSet affected = new LongOpenHashSet();
             ArrayList<CompletedTrace> current = new ArrayList<CompletedTrace>(pending.size());
-            Object object = this.stateLock;
-            synchronized (object) {
+            synchronized (this.stateLock) {
                 for (CompletedTrace completedTrace : pending) {
                     if (!this.isCaptureCurrent(completedTrace.capture)) {
                         NeoFloodRtEngine.recycleVisibilityVolume(completedTrace.data.visibilityVolume);
@@ -870,19 +860,18 @@ public final class NeoFloodEngine {
             }
             PublishResult rebuilt = this.rebuildSectionsBatch(affected, (Long2ObjectOpenHashMap<PackedSourceData>)replacements, null);
             boolean allCurrent = true;
-            Object object2 = this.stateLock;
-            synchronized (object2) {
+            synchronized (this.stateLock) {
                 for (CompletedTrace completedTrace : current) {
-                    if (this.isCaptureCurrent(completedTrace.capture)) continue;
-                    allCurrent = false;
-                    break;
+                    if (!this.isCaptureCurrent(completedTrace.capture)) {
+                        allCurrent = false;
+                        break;
+                    }
                 }
                 if (allCurrent) {
                     for (CompletedTrace completedTrace : current) {
                         SourceState state = completedTrace.capture.state;
                         PackedSourceData oldData = (PackedSourceData)oldDataBySource.get(state.key);
-                        SourceState sourceState = state;
-                        synchronized (sourceState) {
+                        synchronized (state) {
                             state.result = completedTrace.data;
                             state.visibilityRevision = this.visibilityRevision.incrementAndGet();
                         }
@@ -899,20 +888,24 @@ public final class NeoFloodEngine {
                 for (CompletedTrace completedTrace : current) {
                     if (this.isCaptureCurrent(completedTrace.capture)) {
                         pending.add(completedTrace);
-                        continue;
+                    } else {
+                        NeoFloodRtEngine.recycleVisibilityVolume(completedTrace.data.visibilityVolume);
                     }
-                    NeoFloodRtEngine.recycleVisibilityVolume(completedTrace.data.visibilityVolume);
                 }
                 continue;
             }
             for (CompletedTrace completedTrace : current) {
                 PackedSourceData packedSourceData = (PackedSourceData)oldDataBySource.get(completedTrace.capture.state.key);
-                if (packedSourceData == null || packedSourceData.visibilityVolume == completedTrace.data.visibilityVolume) continue;
-                NeoFloodRtEngine.recycleVisibilityVolume(packedSourceData.visibilityVolume);
+                if (packedSourceData != null && packedSourceData.visibilityVolume != completedTrace.data.visibilityVolume) {
+                    NeoFloodRtEngine.recycleVisibilityVolume(packedSourceData.visibilityVolume);
+                }
             }
             this.notifyRebuiltSections(rebuilt, highPriority);
-            if (highPriority && (runnable = this.onHighPriorityTraceDone) != null) {
-                runnable.run();
+            if (highPriority) {
+                Runnable callback = this.onHighPriorityTraceDone;
+                if (callback != null) {
+                    callback.run();
+                }
             }
             return;
         }
@@ -927,21 +920,19 @@ public final class NeoFloodEngine {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private void publishRemovedSources(List<SourceState> removed, boolean highPriority, int removalEpoch) {
-        Runnable callback;
-        boolean publish;
-        Object old;
         LongOpenHashSet removedKeys = new LongOpenHashSet(removed.size());
         LongOpenHashSet affected = new LongOpenHashSet();
         for (SourceState state : removed) {
             removedKeys.add(state.key);
-            old = state.result;
-            if (old == null) continue;
-            affected.addAll((LongCollection)((PackedSourceData)old).sectionBits.keySet());
+            PackedSourceData old = state.result;
+            if (old != null) {
+                affected.addAll((LongCollection)old.sectionBits.keySet());
+            }
         }
         PublishResult rebuilt = this.rebuildSectionsBatch(affected, null, removedKeys);
-        old = this.stateLock;
-        synchronized (old) {
-            boolean bl = publish = removalEpoch == this.epoch.get();
+        boolean publish;
+        synchronized (this.stateLock) {
+            publish = removalEpoch == this.epoch.get();
             if (publish) {
                 for (SourceState state : removed) {
                     this.updateReverseIndex(state.key, state.result, null);
@@ -951,11 +942,8 @@ public final class NeoFloodEngine {
                 }
                 this.applyRebuiltSnapshot(rebuilt);
             }
-            Iterator<SourceState> iterator = removed.iterator();
-            while (iterator.hasNext()) {
-                SourceState state;
-                SourceState sourceState = state = iterator.next();
-                synchronized (sourceState) {
+            for (SourceState state : removed) {
+                synchronized (state) {
                     state.result = null;
                     state.visibilityRevision = 0L;
                 }
@@ -963,16 +951,20 @@ public final class NeoFloodEngine {
             }
         }
         for (SourceState state : removed) {
-            PackedSourceData old2 = state.removedResult;
+            PackedSourceData old = state.removedResult;
             state.removedResult = null;
-            if (old2 == null) continue;
-            NeoFloodRtEngine.recycleVisibilityVolume(old2.visibilityVolume);
+            if (old != null) {
+                NeoFloodRtEngine.recycleVisibilityVolume(old.visibilityVolume);
+            }
         }
         if (publish) {
             this.notifyRebuiltSections(rebuilt, highPriority);
         }
-        if (publish && highPriority && (callback = this.onHighPriorityTraceDone) != null) {
-            callback.run();
+        if (publish && highPriority) {
+            Runnable callback = this.onHighPriorityTraceDone;
+            if (callback != null) {
+                callback.run();
+            }
         }
     }
 
@@ -1021,7 +1013,6 @@ public final class NeoFloodEngine {
     }
 
     private SectionBuildOutput buildSection(long sectionKey, LongOpenHashSet candidates, Long2ObjectOpenHashMap<PackedSourceData> replacements, SectionLightData previous) {
-        boolean sameSources;
         SectionBuildScratch scratch = this.sectionBuildScratch;
         scratch.reset(candidates.size());
         int baseX = SectionPos.m_123223_((int)SectionPos.m_123213_((long)sectionKey));
@@ -1029,16 +1020,17 @@ public final class NeoFloodEngine {
         int baseZ = SectionPos.m_123223_((int)SectionPos.m_123230_((long)sectionKey));
         LongIterator sourceIt = candidates.iterator();
         while (sourceIt.hasNext()) {
-            long[] bitsForSection;
-            PackedSourceData data;
             long sourceKey = sourceIt.nextLong();
+            PackedSourceData data;
             if (replacements != null && replacements.containsKey(sourceKey)) {
                 data = (PackedSourceData)replacements.get(sourceKey);
             } else {
                 SourceState state = this.sources.get(sourceKey);
-                PackedSourceData packedSourceData = data = state == null || !state.active ? null : state.result;
+                data = state == null || !state.active ? null : state.result;
             }
-            if (data == null || (bitsForSection = (long[])data.sectionBits.get(sectionKey)) == null) continue;
+            if (data == null) continue;
+            long[] bitsForSection = (long[])data.sectionBits.get(sectionKey);
+            if (bitsForSection == null) continue;
             scratch.sourceKeys[scratch.sourceCount++] = sourceKey;
             for (int word = 0; word < 64; ++word) {
                 for (long bits = bitsForSection[word]; bits != 0L; bits &= bits - 1L) {
@@ -1051,15 +1043,16 @@ public final class NeoFloodEngine {
                     int candidateCoverage = data.getCoverage(worldX, worldY, worldZ);
                     int currentLight = scratch.light[localIndex] & 0xFF;
                     int currentCoverage = scratch.coverage[localIndex] & 0xFF;
-                    if (candidateLight <= currentLight && (candidateLight != currentLight || candidateCoverage <= currentCoverage)) continue;
-                    scratch.light[localIndex] = (byte)candidateLight;
-                    scratch.coverage[localIndex] = (byte)candidateCoverage;
+                    if (candidateLight > currentLight || (candidateLight == currentLight && candidateCoverage > currentCoverage)) {
+                        scratch.light[localIndex] = (byte)candidateLight;
+                        scratch.coverage[localIndex] = (byte)candidateCoverage;
+                    }
                 }
             }
         }
         Arrays.sort(scratch.sourceKeys, 0, scratch.sourceCount);
         long[] dirtyWords = NeoFloodEngine.diffSection(previous, scratch.light, scratch.coverage);
-        boolean bl = sameSources = previous != null && Arrays.equals(previous.sourceKeys, 0, previous.sourceKeys.length, scratch.sourceKeys, 0, scratch.sourceCount);
+        boolean sameSources = previous != null && Arrays.equals(previous.sourceKeys, 0, previous.sourceKeys.length, scratch.sourceKeys, 0, scratch.sourceCount);
         if (scratch.sourceCount == 0) {
             return new SectionBuildOutput(null, dirtyWords);
         }
@@ -1075,15 +1068,13 @@ public final class NeoFloodEngine {
     private static long[] diffSection(SectionLightData previous, byte[] light, byte[] coverage) {
         long[] words = null;
         for (int i = 0; i < 4096; ++i) {
-            int oldCoverage;
             int oldLight = previous == null ? 0 : previous.light[i] & 0xFF;
-            int n = oldCoverage = previous == null ? 0 : previous.coverage[i] & 0xFF;
+            int oldCoverage = previous == null ? 0 : previous.coverage[i] & 0xFF;
             if (oldLight == (light[i] & 0xFF) && oldCoverage == (coverage[i] & 0xFF)) continue;
             if (words == null) {
                 words = new long[64];
             }
-            int n2 = i >>> 6;
-            words[n2] = words[n2] | 1L << (i & 0x3F);
+            words[i >>> 6] |= 1L << (i & 0x3F);
         }
         return words;
     }
@@ -1108,21 +1099,23 @@ public final class NeoFloodEngine {
                 continue;
             }
             SectionLightData section = (SectionLightData)rebuilt.rebuilt.get(sectionKey);
-            if (section == null) continue;
-            nextShards[shardIndex].put(sectionKey, (Object)section);
+            if (section != null) {
+                nextShards[shardIndex].put(sectionKey, (Object)section);
+            }
         }
         this.snapshot = new Snapshot(nextShards);
         this.snapshotVersion.incrementAndGet();
     }
 
     private void notifyRebuiltSections(PublishResult rebuilt, boolean highPriority) {
-        Consumer<LightChangeBatch> lightCallback;
-        if (!rebuilt.changed.isEmpty() && (lightCallback = this.onLightChanges) != null) {
-            lightCallback.accept(new LightChangeBatch(rebuilt.changed.sections));
+        if (!rebuilt.changed.isEmpty()) {
+            Consumer<LightChangeBatch> lightCallback = this.onLightChanges;
+            if (lightCallback != null) {
+                lightCallback.accept(new LightChangeBatch(rebuilt.changed.sections));
+            }
         }
         if (!rebuilt.changedSections.isEmpty()) {
-            Consumer<LongOpenHashSet> sectionCallback;
-            Consumer<LongOpenHashSet> consumer = sectionCallback = highPriority ? this.onImmediateSectionsChanged : this.onSectionsChanged;
+            Consumer<LongOpenHashSet> sectionCallback = highPriority ? this.onImmediateSectionsChanged : this.onSectionsChanged;
             if (sectionCallback != null) {
                 sectionCallback.accept(rebuilt.changedSections);
             }
@@ -1130,24 +1123,24 @@ public final class NeoFloodEngine {
     }
 
     private void updateReverseIndex(long sourceKey, PackedSourceData oldData, PackedSourceData newData) {
-        LongOpenHashSet bucket;
-        long sectionKey;
-        LongIterator it;
         if (oldData != null) {
-            it = oldData.sectionBits.keySet().iterator();
+            LongIterator it = oldData.sectionBits.keySet().iterator();
             while (it.hasNext()) {
-                sectionKey = it.nextLong();
-                if (newData != null && newData.sectionBits.containsKey(sectionKey) || (bucket = (LongOpenHashSet)this.sourcesBySection.get(sectionKey)) == null) continue;
+                long sectionKey = it.nextLong();
+                if (newData != null && newData.sectionBits.containsKey(sectionKey)) continue;
+                LongOpenHashSet bucket = (LongOpenHashSet)this.sourcesBySection.get(sectionKey);
+                if (bucket == null) continue;
                 bucket.remove(sourceKey);
-                if (!bucket.isEmpty()) continue;
-                this.sourcesBySection.remove(sectionKey);
+                if (bucket.isEmpty()) {
+                    this.sourcesBySection.remove(sectionKey);
+                }
             }
         }
         if (newData != null) {
-            it = newData.sectionBits.keySet().iterator();
+            LongIterator it = newData.sectionBits.keySet().iterator();
             while (it.hasNext()) {
-                sectionKey = it.nextLong();
-                bucket = (LongOpenHashSet)this.sourcesBySection.get(sectionKey);
+                long sectionKey = it.nextLong();
+                LongOpenHashSet bucket = (LongOpenHashSet)this.sourcesBySection.get(sectionKey);
                 if (bucket == null) {
                     bucket = new LongOpenHashSet();
                     this.sourcesBySection.put(sectionKey, (Object)bucket);
@@ -1169,14 +1162,16 @@ public final class NeoFloodEngine {
                 if (bucket == null) continue;
                 LongIterator it = bucket.iterator();
                 while (it.hasNext()) {
-                    int reach;
-                    int sz;
-                    int sy;
-                    int sx;
                     long key = it.nextLong();
                     SourceState source = this.sources.get(key);
-                    if (source == null || !source.active || (sx = blockX - source.x) * sx + (sy = blockY - source.y) * sy + (sz = blockZ - source.z) * sz > (reach = source.maxReachBlocks) * reach) continue;
-                    output.add(key);
+                    if (source == null || !source.active) continue;
+                    int sx = blockX - source.x;
+                    int sy = blockY - source.y;
+                    int sz = blockZ - source.z;
+                    int reach = source.maxReachBlocks;
+                    if (sx * sx + sy * sy + sz * sz <= reach * reach) {
+                        output.add(key);
+                    }
                 }
             }
         }
@@ -1207,7 +1202,6 @@ public final class NeoFloodEngine {
         int count = 0;
         LongIterator it = selection.iterator();
         while (it.hasNext()) {
-            int insert;
             long key = it.nextLong();
             SourceState state = this.sources.get(key);
             if (state == null || !state.active) continue;
@@ -1215,15 +1209,19 @@ public final class NeoFloodEngine {
             double dy = (double)state.y + 0.5 - origin.f_82480_;
             double dz = (double)state.z + 0.5 - origin.f_82481_;
             double distance = dx * dx + dy * dy + dz * dz;
-            for (insert = Math.min(count, capacity - 1); insert > 0 && distance < bestDistances[insert - 1]; --insert) {
+            int insert = Math.min(count, capacity - 1);
+            while (insert > 0 && distance < bestDistances[insert - 1]) {
                 bestDistances[insert] = bestDistances[insert - 1];
                 bestKeys[insert] = bestKeys[insert - 1];
+                --insert;
             }
-            if (!(distance < bestDistances[insert])) continue;
-            bestDistances[insert] = distance;
-            bestKeys[insert] = key;
-            if (count >= capacity) continue;
-            ++count;
+            if (distance < bestDistances[insert]) {
+                bestDistances[insert] = distance;
+                bestKeys[insert] = key;
+                if (count < capacity) {
+                    ++count;
+                }
+            }
         }
         return count == capacity ? bestKeys : Arrays.copyOf(bestKeys, count);
     }
@@ -1255,8 +1253,9 @@ public final class NeoFloodEngine {
         LongIterator it = bucket.iterator();
         while (it.hasNext()) {
             long key = it.nextLong();
-            if (!dirty.contains(key)) continue;
-            output.add(key);
+            if (dirty.contains(key)) {
+                output.add(key);
+            }
         }
     }
 
@@ -1286,8 +1285,9 @@ public final class NeoFloodEngine {
         SourceState[] buffer = new SourceState[this.sources.size()];
         int count = 0;
         for (SourceState state : this.sources.values()) {
-            if (!state.active) continue;
-            buffer[count++] = state;
+            if (state.active) {
+                buffer[count++] = state;
+            }
         }
         this.activeSourceSnapshot = count == buffer.length ? buffer : Arrays.copyOf(buffer, count);
         this.activeSourceSnapshotDirty = false;
@@ -1429,14 +1429,16 @@ public final class NeoFloodEngine {
             int originZ = BlockPos.m_122015_((long)sourceKey);
             Long2ObjectOpenHashMap sectionBits = new Long2ObjectOpenHashMap();
             for (int wordIndex = 0; wordIndex < result.touchedBits.length; ++wordIndex) {
-                int volumeIndex;
-                for (long bits = result.touchedBits[wordIndex]; bits != 0L && (volumeIndex = (wordIndex << 6) + Long.numberOfTrailingZeros(bits)) < 389017; bits &= bits - 1L) {
+                long bits = result.touchedBits[wordIndex];
+                while (bits != 0L) {
+                    int volumeIndex = (wordIndex << 6) + Long.numberOfTrailingZeros(bits);
+                    if (volumeIndex >= 389017) break;
                     int xIndex = volumeIndex % 73;
-                    int worldX = originX + xIndex - 36;
                     int yz = volumeIndex / 73;
-                    int yIndex = yz / 73;
-                    int worldY = originY + yIndex - 36;
                     int zIndex = yz % 73;
+                    int yIndex = yz / 73;
+                    int worldX = originX + xIndex - 36;
+                    int worldY = originY + yIndex - 36;
                     int worldZ = originZ + zIndex - 36;
                     long posKey = BlockPos.m_121882_((int)worldX, (int)worldY, (int)worldZ);
                     long sectionKey = NeoFloodEngine.sectionKeyForBlock(posKey);
@@ -1446,8 +1448,8 @@ public final class NeoFloodEngine {
                         sectionBits.put(sectionKey, (Object)localBits);
                     }
                     int localIndex = NeoFloodEngine.localSectionIndex(posKey);
-                    int n = localIndex >>> 6;
-                    localBits[n] = localBits[n] | 1L << (localIndex & 0x3F);
+                    localBits[localIndex >>> 6] |= 1L << (localIndex & 0x3F);
+                    bits &= bits - 1L;
                 }
             }
             return new PackedSourceData(originX, originY, originZ, result.packedLight, result.visibilityVolume, (Long2ObjectOpenHashMap<long[]>)sectionBits);

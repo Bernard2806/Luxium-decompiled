@@ -78,11 +78,10 @@ public final class VanillaLavaLightEngine {
     }
 
     public void tick(ClientLevel level, boolean rtxEnabled) {
-        boolean shouldBeActive;
         if (level != this.currentLevel) {
             this.reset(level);
         }
-        boolean bl = shouldBeActive = !NeoGpuVanilla.isConfiguredEnabled() && rtxEnabled && (!Config.isFeatureEnabled(Config.CLIENT.rtxLavaTracingEnabled) || level.m_46472_() == Level.f_46429_);
+        boolean shouldBeActive = !NeoGpuVanilla.isConfiguredEnabled() && rtxEnabled && (!Config.isFeatureEnabled(Config.CLIENT.rtxLavaTracingEnabled) || level.m_46472_() == Level.f_46429_);
         if (shouldBeActive != this.active) {
             this.setActive(shouldBeActive);
         }
@@ -151,8 +150,6 @@ public final class VanillaLavaLightEngine {
     }
 
     public void onBlockChanged(ClientLevel level, BlockPos pos, BlockState oldState, BlockState newState) {
-        boolean newLava;
-        boolean oldLava;
         BlockLightEngine current = this.engine;
         if (!this.active || current == null || level != this.currentLevel) {
             return;
@@ -165,7 +162,9 @@ public final class VanillaLavaLightEngine {
                 current.m_6191_(SectionPos.m_123199_((BlockPos)pos), sections[sectionIndex].m_188008_());
             }
         }
-        if ((oldLava = oldState.m_60819_().m_205070_(FluidTags.f_13132_)) != (newLava = newState.m_60819_().m_205070_(FluidTags.f_13132_))) {
+        boolean oldLava = oldState.m_60819_().m_205070_(FluidTags.f_13132_);
+        boolean newLava = newState.m_60819_().m_205070_(FluidTags.f_13132_);
+        if (oldLava != newLava) {
             long sectionKey = SectionPos.m_175568_((BlockPos)pos);
             LongOpenHashSet bucket = (LongOpenHashSet)this.lavaSourcesBySection.get(sectionKey);
             if (newLava) {
@@ -233,8 +232,9 @@ public final class VanillaLavaLightEngine {
             for (int dx = -1; dx <= 1; ++dx) {
                 int nearbyX = chunkX + dx;
                 int nearbyZ = chunkZ + dz;
-                if (!this.loadedChunks.contains(ChunkPos.m_45589_((int)nearbyX, (int)nearbyZ))) continue;
-                this.queueChunkSections(nearbyX, nearbyZ);
+                if (this.loadedChunks.contains(ChunkPos.m_45589_((int)nearbyX, (int)nearbyZ))) {
+                    this.queueChunkSections(nearbyX, nearbyZ);
+                }
             }
         }
     }
@@ -330,8 +330,9 @@ public final class VanillaLavaLightEngine {
             if (state2.m_60819_().m_205070_(FluidTags.f_13132_)) {
                 scan.foundSources.add(BlockPos.m_121882_((int)(baseX + localX), (int)(baseY + localY), (int)(baseZ + localZ)));
             }
-            if ((index & 0x3F) != 63 || System.nanoTime() < deadline) continue;
-            return false;
+            if ((index & 0x3F) == 63 && System.nanoTime() >= deadline) {
+                return false;
+            }
         }
         return true;
     }
@@ -351,8 +352,9 @@ public final class VanillaLavaLightEngine {
             LongIterator iterator = previous.iterator();
             while (iterator.hasNext()) {
                 long key = iterator.nextLong();
-                if (immutableWorkingSet.contains(key)) continue;
-                this.enqueueSourceCheck(key);
+                if (!immutableWorkingSet.contains(key)) {
+                    this.enqueueSourceCheck(key);
+                }
             }
         }
     }

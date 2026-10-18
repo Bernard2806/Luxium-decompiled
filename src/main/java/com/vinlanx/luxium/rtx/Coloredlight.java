@@ -182,14 +182,14 @@ public final class Coloredlight {
     }
 
     private static int hsvToRgb(float hue, float saturation, float value) {
-        float b;
-        float g;
-        float r;
         int h = (int)(hue * 6.0f);
         float f = hue * 6.0f - (float)h;
         float p = value * (1.0f - saturation);
         float q = value * (1.0f - f * saturation);
         float t = value * (1.0f - (1.0f - f) * saturation);
+        float r;
+        float g;
+        float b;
         switch (h % 6) {
             case 0: {
                 r = value;
@@ -228,9 +228,7 @@ public final class Coloredlight {
                 break;
             }
             default: {
-                b = 0.0f;
-                g = 0.0f;
-                r = 0.0f;
+                r = g = b = 0.0f;
             }
         }
         int ri = (int)(r * 255.0f);

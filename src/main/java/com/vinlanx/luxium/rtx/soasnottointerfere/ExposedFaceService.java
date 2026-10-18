@@ -385,9 +385,10 @@ public final class ExposedFaceService {
             double selectedPriority = Double.MAX_VALUE;
             for (Map.Entry<Long, Double> entry : this.pendingSectionCaptures.entrySet()) {
                 double priority = entry.getValue();
-                if (!(priority < selectedPriority)) continue;
-                selectedPriority = priority;
-                selectedKey = entry.getKey();
+                if (priority < selectedPriority) {
+                    selectedPriority = priority;
+                    selectedKey = entry.getKey();
+                }
             }
             if (selectedKey == Long.MIN_VALUE) {
                 return;
@@ -396,9 +397,10 @@ public final class ExposedFaceService {
                 --processed;
                 continue;
             }
-            if (this.ensureSectionCapturedNow(level, selectedKey)) continue;
-            this.pendingSectionCaptures.merge(selectedKey, selectedPriority, Math::min);
-            return;
+            if (!this.ensureSectionCapturedNow(level, selectedKey)) {
+                this.pendingSectionCaptures.merge(selectedKey, selectedPriority, Math::min);
+                return;
+            }
         }
     }
 
@@ -426,13 +428,14 @@ public final class ExposedFaceService {
         if (blocksByChunk.isEmpty()) {
             return Collections.emptyMap();
         }
-        HashMap<Long, long[]> snapshot = new HashMap<Long, long[]>(blocksByChunk.size());
+        Map<Long, long[]> snapshot = new HashMap<Long, long[]>(blocksByChunk.size());
         LongIterator longIterator = blocksByChunk.keySet().iterator();
         while (longIterator.hasNext()) {
             long chunkKey = (Long)longIterator.next();
             LongOpenHashSet bucket = (LongOpenHashSet)blocksByChunk.get(chunkKey);
-            if (bucket == null || bucket.isEmpty()) continue;
-            snapshot.put(chunkKey, bucket.toLongArray());
+            if (bucket != null && !bucket.isEmpty()) {
+                snapshot.put(chunkKey, bucket.toLongArray());
+            }
         }
         return snapshot;
     }
@@ -461,23 +464,27 @@ public final class ExposedFaceService {
     private boolean removeChunkEntries(int chunkX, int chunkZ) {
         boolean changed = false;
         for (Long sectionKey : this.sectionFaces.keySet()) {
-            if (SectionPos.m_123213_((long)sectionKey) != chunkX || SectionPos.m_123230_((long)sectionKey) != chunkZ) continue;
-            changed |= this.sectionFaces.remove(sectionKey) != null;
-            this.sectionFaceSnapshots.remove(sectionKey);
-            this.sectionReceivers.remove(sectionKey);
-            this.sectionCompleteReceiverSurfaces.remove(sectionKey);
+            if (SectionPos.m_123213_((long)sectionKey) == chunkX && SectionPos.m_123230_((long)sectionKey) == chunkZ) {
+                changed |= this.sectionFaces.remove(sectionKey) != null;
+                this.sectionFaceSnapshots.remove(sectionKey);
+                this.sectionReceivers.remove(sectionKey);
+                this.sectionCompleteReceiverSurfaces.remove(sectionKey);
+            }
         }
         for (Long sectionKey : this.fullyCapturedSections.keySet()) {
-            if (SectionPos.m_123213_((long)sectionKey) != chunkX || SectionPos.m_123230_((long)sectionKey) != chunkZ) continue;
-            changed |= this.fullyCapturedSections.remove(sectionKey) != null;
+            if (SectionPos.m_123213_((long)sectionKey) == chunkX && SectionPos.m_123230_((long)sectionKey) == chunkZ) {
+                changed |= this.fullyCapturedSections.remove(sectionKey) != null;
+            }
         }
         for (Long sectionKey : this.pendingSectionCaptures.keySet()) {
-            if (SectionPos.m_123213_((long)sectionKey) != chunkX || SectionPos.m_123230_((long)sectionKey) != chunkZ) continue;
-            this.pendingSectionCaptures.remove(sectionKey);
+            if (SectionPos.m_123213_((long)sectionKey) == chunkX && SectionPos.m_123230_((long)sectionKey) == chunkZ) {
+                this.pendingSectionCaptures.remove(sectionKey);
+            }
         }
         for (Long sectionKey : this.latestSectionBuildRevision.keySet()) {
-            if (SectionPos.m_123213_((long)sectionKey) != chunkX || SectionPos.m_123230_((long)sectionKey) != chunkZ) continue;
-            this.latestSectionBuildRevision.remove(sectionKey);
+            if (SectionPos.m_123213_((long)sectionKey) == chunkX && SectionPos.m_123230_((long)sectionKey) == chunkZ) {
+                this.latestSectionBuildRevision.remove(sectionKey);
+            }
         }
         return changed;
     }
@@ -518,8 +525,9 @@ public final class ExposedFaceService {
                     pos.m_122178_(baseX + localX, baseY + localY, baseZ + localZ);
                     ReceiverShapeTemplate template = this.resolveReceiverShapeTemplate(state, (BlockGetter)level, (BlockPos)pos);
                     byte mask = template.computeFaceMask(state, (BlockGetter)level, (BlockPos)pos);
-                    if (mask == 0) continue;
-                    faces.put(pos.m_121878_(), mask);
+                    if (mask != 0) {
+                        faces.put(pos.m_121878_(), mask);
+                    }
                 }
             }
         }
@@ -585,7 +593,7 @@ public final class ExposedFaceService {
         if (boxes.isEmpty()) {
             return ReceiverShapeTemplate.EMPTY;
         }
-        ArrayList<ReceiverSurfaceTemplate> surfaces = new ArrayList<ReceiverSurfaceTemplate>();
+        List<ReceiverSurfaceTemplate> surfaces = new ArrayList<ReceiverSurfaceTemplate>();
         for (int boxIndex = 0; boxIndex < boxes.size(); ++boxIndex) {
             AABB box = (AABB)boxes.get(boxIndex);
             for (Direction face : FACES) {
@@ -596,7 +604,7 @@ public final class ExposedFaceService {
                 fragments.add(initialRect);
                 for (int otherIndex = 0; otherIndex < boxes.size() && !fragments.isEmpty(); ++otherIndex) {
                     AABB otherBox;
-                    if (otherIndex == boxIndex || !ExposedFaceService.coversFacePlane(face, planeCoordinate, otherBox = (AABB)boxes.get(otherIndex))) continue;
+                    if (otherIndex == boxIndex || !(ExposedFaceService.coversFacePlane(face, planeCoordinate, otherBox = (AABB)boxes.get(otherIndex)))) continue;
                     fragments = ExposedFaceService.subtractSurfaceRectList(fragments, ExposedFaceService.canonicalFaceRect(face, otherBox));
                 }
                 boolean boundaryFace = ExposedFaceService.isBoundaryFace(face, planeCoordinate);
@@ -614,7 +622,7 @@ public final class ExposedFaceService {
         if (coverRect == null || sourceRects.isEmpty()) {
             return sourceRects;
         }
-        ArrayList<SurfaceRect> result = new ArrayList<SurfaceRect>(sourceRects.size());
+        List<SurfaceRect> result = new ArrayList<SurfaceRect>(sourceRects.size());
         for (SurfaceRect rect : sourceRects) {
             ExposedFaceService.subtractSurfaceRect(rect, coverRect, result);
         }
@@ -793,8 +801,7 @@ public final class ExposedFaceService {
             if (faceMask == 0) continue;
             long blockKey = entry.getLongKey();
             int localIndex = ExposedFaceService.sectionLocalIndex(BlockPos.m_121983_((long)blockKey) & 0xF, BlockPos.m_122008_((long)blockKey) & 0xF, BlockPos.m_122015_((long)blockKey) & 0xF);
-            int n = localIndex >>> 6;
-            renderableSolidBits[n] = renderableSolidBits[n] | 1L << (localIndex & 0x3F);
+            renderableSolidBits[localIndex >>> 6] |= 1L << (localIndex & 0x3F);
             faceMasks[localIndex] = faceMask;
             anyCandidateReceivers = true;
         }
@@ -840,9 +847,10 @@ public final class ExposedFaceService {
                 boolean rowMatches = true;
                 for (int offsetU = 0; offsetU < width; ++offsetU) {
                     long nextKey = ExposedFaceService.receiverCellKey(faceOrdinal, planeCoordinate, startCellU + offsetU, nextV);
-                    if (faceCells.containsKey(nextKey) && !visited.contains(nextKey)) continue;
-                    rowMatches = false;
-                    break;
+                    if (!faceCells.containsKey(nextKey) || visited.contains(nextKey)) {
+                        rowMatches = false;
+                        break;
+                    }
                 }
                 if (!rowMatches) break;
                 ++height;
@@ -979,9 +987,10 @@ public final class ExposedFaceService {
             this.surfaces = surfaces;
             boolean anyBoundaryFaces = false;
             for (ReceiverSurfaceTemplate surface : surfaces) {
-                if (!surface.boundaryFace) continue;
-                anyBoundaryFaces = true;
-                break;
+                if (surface.boundaryFace) {
+                    anyBoundaryFaces = true;
+                    break;
+                }
             }
             this.hasBoundaryFaces = anyBoundaryFaces;
         }
@@ -1001,8 +1010,9 @@ public final class ExposedFaceService {
             for (int i = 0; i < this.surfaces.length; ++i) {
                 ReceiverSurfaceTemplate a = this.surfaces[i];
                 ReceiverSurfaceTemplate b = other.surfaces[i];
-                if (a.face == b.face && a.boundaryFace == b.boundaryFace && Double.doubleToLongBits(a.planeCoordinate) == Double.doubleToLongBits(b.planeCoordinate) && Double.doubleToLongBits(a.bounds.minU) == Double.doubleToLongBits(b.bounds.minU) && Double.doubleToLongBits(a.bounds.maxU) == Double.doubleToLongBits(b.bounds.maxU) && Double.doubleToLongBits(a.bounds.minV) == Double.doubleToLongBits(b.bounds.minV) && Double.doubleToLongBits(a.bounds.maxV) == Double.doubleToLongBits(b.bounds.maxV)) continue;
-                return false;
+                if (a.face != b.face || a.boundaryFace != b.boundaryFace || Double.doubleToLongBits(a.planeCoordinate) != Double.doubleToLongBits(b.planeCoordinate) || Double.doubleToLongBits(a.bounds.minU) != Double.doubleToLongBits(b.bounds.minU) || Double.doubleToLongBits(a.bounds.maxU) != Double.doubleToLongBits(b.bounds.maxU) || Double.doubleToLongBits(a.bounds.minV) != Double.doubleToLongBits(b.bounds.minV) || Double.doubleToLongBits(a.bounds.maxV) != Double.doubleToLongBits(b.bounds.maxV)) {
+                    return false;
+                }
             }
             return true;
         }
@@ -1117,8 +1127,9 @@ public final class ExposedFaceService {
                 return false;
             }
             for (Long2ByteMap.Entry entry : this.facesByBlock.long2ByteEntrySet()) {
-                if (other.facesByBlock.get(entry.getLongKey()) == entry.getByteValue()) continue;
-                return false;
+                if (other.facesByBlock.get(entry.getLongKey()) != entry.getByteValue()) {
+                    return false;
+                }
             }
             return true;
         }

@@ -17,13 +17,12 @@ public final class FloodRtSettings {
     }
 
     public static synchronized boolean apply(int configuredRadiusCap, double configuredSoftness, double configuredCornerSeal, double configuredDirectionalBias, int configuredUpdateBudget) {
-        boolean changed;
         int nextRadius = FloodRtSettings.clampInt(configuredRadiusCap, 16, 36);
         float nextSoftness = (float)FloodRtSettings.clampDouble(configuredSoftness, 0.0, 1.0);
         float nextSeal = (float)FloodRtSettings.clampDouble(configuredCornerSeal, 0.0, 4.0);
         float nextBias = (float)FloodRtSettings.clampDouble(configuredDirectionalBias, 0.25, 4.0);
         int nextBudget = FloodRtSettings.clampInt(configuredUpdateBudget, 1, 64);
-        boolean bl = changed = radiusCap != nextRadius || penumbraSoftness != nextSoftness || cornerSeal != nextSeal || directionalBias != nextBias || updateBudgetPerTick != nextBudget;
+        boolean changed = radiusCap != nextRadius || penumbraSoftness != nextSoftness || cornerSeal != nextSeal || directionalBias != nextBias || updateBudgetPerTick != nextBudget;
         if (!changed) {
             return false;
         }

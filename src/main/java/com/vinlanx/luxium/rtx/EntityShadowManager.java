@@ -68,16 +68,17 @@ public final class EntityShadowManager {
                 LongOpenHashSet newShadows = new LongOpenHashSet();
                 for (Entity entity : level.m_104735_()) {
                     Vec3 entityCenter;
-                    int emission;
                     AABB box;
                     if (entity.m_20238_(playerPos) > radiusSq || (box = entity.m_20191_()) == null) continue;
                     long dominantSourceKey = engine.getDominantSource(entity.m_20183_());
                     if (dominantSourceKey == Long.MIN_VALUE) {
                         long[] closest = TorchRtxState.get().getClosestSources(entity.m_20182_(), 256.0, 1);
-                        if (closest.length <= 0) continue;
-                        dominantSourceKey = closest[0];
+                        if (closest.length > 0) {
+                            dominantSourceKey = closest[0];
+                        }
                     }
-                    if ((emission = TorchRtxState.get().getSourceEmission(dominantSourceKey)) <= 0) {
+                    int emission = TorchRtxState.get().getSourceEmission(dominantSourceKey);
+                    if (emission <= 0) {
                         emission = 15;
                     }
                     double maxLightDist = LightRtMath.getMaxDistance(emission);
@@ -115,8 +116,9 @@ public final class EntityShadowManager {
                     double bx = (double)x + 0.5;
                     double by = (double)y + 0.5;
                     double bz = (double)z + 0.5;
-                    if (!EntityShadowManager.intersect(bx, by, bz, lightPos.f_82479_, lightPos.f_82480_, lightPos.f_82481_, entityBox)) continue;
-                    outShadows.add(BlockPos.m_121882_((int)x, (int)y, (int)z));
+                    if (EntityShadowManager.intersect(bx, by, bz, lightPos.f_82479_, lightPos.f_82480_, lightPos.f_82481_, entityBox)) {
+                        outShadows.add(BlockPos.m_121882_((int)x, (int)y, (int)z));
+                    }
                 }
             }
         }
@@ -128,14 +130,16 @@ public final class EntityShadowManager {
         LongIterator oldIt = oldShadows.iterator();
         while (oldIt.hasNext()) {
             long k = oldIt.nextLong();
-            if (newShadows.contains(k)) continue;
-            blocksToUpdate.add(k);
+            if (!newShadows.contains(k)) {
+                blocksToUpdate.add(k);
+            }
         }
         LongIterator newIt = newShadows.iterator();
         while (newIt.hasNext()) {
             long k = newIt.nextLong();
-            if (oldShadows.contains(k)) continue;
-            blocksToUpdate.add(k);
+            if (!oldShadows.contains(k)) {
+                blocksToUpdate.add(k);
+            }
         }
         if (!blocksToUpdate.isEmpty()) {
             Minecraft.m_91087_().execute(() -> {

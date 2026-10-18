@@ -138,7 +138,6 @@ public final class NeoGpuVanilla {
     }
 
     public static void prepareMainWorldRender(Minecraft mc, Camera camera) {
-        boolean wantsBake;
         mainPassActive = false;
         if (!NeoGpuVanilla.isActive() || mc.f_91073_ == null || camera == null) {
             NeoGpuVanilla.publishCurrentFrame(camera);
@@ -161,14 +160,14 @@ public final class NeoGpuVanilla {
             NeoGpuVanilla.SOURCE_DATA[i * 4 + 3] = VISIBLE_EMISSIONS[i];
             GpuLocalLightResolver.resolve(mc.f_91073_, VISIBLE_KEYS[i], VISIBLE_EMISSIONS[i], SOURCE_COLORS, i * 4);
             int flags = Math.round(SOURCE_GEOMETRY[i * 4 + 3]);
-            if ((flags & 0x80) == 0) continue;
-            capturePending = true;
+            if ((flags & 0x80) != 0) {
+                capturePending = true;
+            }
         }
         long contentGeneration = cache.getNeoGpuVanillaContentGeneration(stagedSources, stagedSources.length);
-        boolean bl = wantsBake = stagedSignature != bakedSignature || contentGeneration != observedContentGeneration || requestedVanillaGeneration != bakedVanillaGeneration || !VOLUME.isReady();
+        boolean wantsBake = stagedSignature != bakedSignature || contentGeneration != observedContentGeneration || requestedVanillaGeneration != bakedVanillaGeneration || !VOLUME.isReady();
         if (wantsBake) {
-            int atlasTexture;
-            int n = atlasTexture = count > 0 ? cache.getAtlasTextureId() : 0;
+            int atlasTexture = count > 0 ? cache.getAtlasTextureId() : 0;
             if (VOLUME.bake(mc.f_91073_, atlasTexture, count, SOURCE_DATA, SOURCE_GEOMETRY, SOURCE_COLORS, ATLAS_RECTS)) {
                 bakedSignature = stagedSignature;
                 observedContentGeneration = contentGeneration;

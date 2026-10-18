@@ -175,7 +175,6 @@ final class NeoGpuVanillaVolume {
     }
 
     boolean updateAnchor(double cameraX, double cameraY, double cameraZ) {
-        boolean outside;
         int desiredX = NeoGpuVanillaVolume.snapToGrid(Mth.m_14107_((double)cameraX) - 24, 8);
         int desiredY = NeoGpuVanillaVolume.snapToGrid(Mth.m_14107_((double)cameraY) - 16, 8);
         int desiredZ = NeoGpuVanillaVolume.snapToGrid(Mth.m_14107_((double)cameraZ) - 24, 8);
@@ -191,7 +190,7 @@ final class NeoGpuVanillaVolume {
         int bx = Mth.m_14107_((double)cameraX);
         int by = Mth.m_14107_((double)cameraY);
         int bz = Mth.m_14107_((double)cameraZ);
-        boolean bl = outside = bx < referenceX + 10 || bx > referenceX + 48 - 10 || by < referenceY + 10 || by > referenceY + 32 - 10 || bz < referenceZ + 10 || bz > referenceZ + 48 - 10;
+        boolean outside = bx < referenceX + 10 || bx > referenceX + 48 - 10 || by < referenceY + 10 || by > referenceY + 32 - 10 || bz < referenceZ + 10 || bz > referenceZ + 48 - 10;
         if (!outside) {
             return false;
         }
@@ -211,7 +210,6 @@ final class NeoGpuVanillaVolume {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     boolean bake(ClientLevel level, int shadowAtlasTexture, int sourceCount, float[] sourceData, float[] sourceGeometry, float[] sourceColors, float[] atlasRects) {
-        ShaderInstance fastShader;
         if (level == null || sourceCount < 0 || sourceCount > 40 || this.buildAnchorX == Integer.MIN_VALUE) {
             return false;
         }
@@ -221,7 +219,7 @@ final class NeoGpuVanillaVolume {
         ShaderInstance coarseShader = ShaderManager.getNeoGpuVanillaBakeShader();
         ShaderInstance resolveShader = ShaderManager.getNeoGpuVanillaResolveShader();
         boolean fastEnabled = Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaFastShadowsEnabled);
-        Object object = fastShader = fastEnabled ? ShaderManager.getNeoGpuVanillaFastResolveShader() : null;
+        ShaderInstance fastShader = fastEnabled ? ShaderManager.getNeoGpuVanillaFastResolveShader() : null;
         if (coarseShader == null || resolveShader == null || fastEnabled && fastShader == null) {
             return false;
         }
@@ -233,9 +231,10 @@ final class NeoGpuVanillaVolume {
             int max = Math.min(sourceCount, sourceGeometry.length / 4);
             for (int i = 0; i < max; ++i) {
                 int flags = Math.round(sourceGeometry[i * 4 + 3]);
-                if ((flags & 0x80) == 0) continue;
-                fastSnapshotComplete = false;
-                break;
+                if ((flags & 0x80) != 0) {
+                    fastSnapshotComplete = false;
+                    break;
+                }
             }
         }
         int buildIndex = this.ready ? 1 - this.activeIndex : this.activeIndex;
@@ -462,9 +461,10 @@ final class NeoGpuVanillaVolume {
                 this.receiverTextures[i] = -1;
             }
             for (int d = 0; d < 6; ++d) {
-                if (this.fastLightTextures[i][d] == -1) continue;
-                TextureUtil.releaseTextureId((int)this.fastLightTextures[i][d]);
-                this.fastLightTextures[i][d] = -1;
+                if (this.fastLightTextures[i][d] != -1) {
+                    TextureUtil.releaseTextureId((int)this.fastLightTextures[i][d]);
+                    this.fastLightTextures[i][d] = -1;
+                }
             }
             this.fastLightReady[i] = false;
             this.receiverScales[i] = 0;
@@ -498,8 +498,9 @@ final class NeoGpuVanillaVolume {
             this.fbo = GL30.glGenFramebuffers();
         }
         for (int i = 0; i < 2; ++i) {
-            if (this.candidateTextures[i] != -1) continue;
-            this.candidateTextures[i] = NeoGpuVanillaVolume.createRgba8Texture(2304, 32);
+            if (this.candidateTextures[i] == -1) {
+                this.candidateTextures[i] = NeoGpuVanillaVolume.createRgba8Texture(2304, 32);
+            }
         }
         if (this.vanillaTexture == -1) {
             this.vanillaTexture = NeoGpuVanillaVolume.createR8Texture(2304, 32);
@@ -531,8 +532,9 @@ final class NeoGpuVanillaVolume {
             return;
         }
         for (int d = 0; d < 6; ++d) {
-            if (this.fastLightTextures[index][d] != -1) continue;
-            this.fastLightTextures[index][d] = NeoGpuVanillaVolume.createRgba16f3dTexture(48, 32, 48);
+            if (this.fastLightTextures[index][d] == -1) {
+                this.fastLightTextures[index][d] = NeoGpuVanillaVolume.createRgba16f3dTexture(48, 32, 48);
+            }
         }
     }
 

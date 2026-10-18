@@ -35,6 +35,7 @@
  */
 package com.vinlanx.luxium.rtx;
 
+import java.util.List;
 import com.vinlanx.luxium.Config;
 import com.vinlanx.luxium.client.NeoShadowsEngine;
 import com.vinlanx.luxium.client.ReflectionSystem;
@@ -215,20 +216,20 @@ public final class TorchRtxState {
             LongIterator it = this.lightSources.keySet().iterator();
             while (it.hasNext()) {
                 long k = it.nextLong();
-                if (!this.shouldTraceSource(k)) continue;
-                this.engine.addOrUpdateSource(k, this.lightSources.get(k) & 0xFF, false);
+                if (this.shouldTraceSource(k)) {
+                    this.engine.addOrUpdateSource(k, this.lightSources.get(k) & 0xFF, false);
+                }
             }
         }
         this.triggerGlobalUpdate();
     }
 
     public void tick(@Nullable ClientLevel level) {
-        boolean levelChanged;
         if (level == null) {
             this.lastLevel = null;
             return;
         }
-        boolean bl = levelChanged = level != this.lastLevel;
+        boolean levelChanged = level != this.lastLevel;
         if (levelChanged) {
             this.lastLevel = level;
             this.warmupTicks = 40;
@@ -304,14 +305,7 @@ public final class TorchRtxState {
             this.tickLoadedChunkInvalidations();
             this.engine.tick();
         } else {
-            Vec3 registryCenter = null;
-            if (mc.f_91074_ != null) {
-                registryCenter = mc.f_91074_.m_20182_();
-            } else if (mc.f_91075_ != null) {
-                registryCenter = mc.f_91075_.m_20182_();
-            } else if (mc.f_91063_ != null && mc.f_91063_.m_109153_() != null) {
-                registryCenter = mc.f_91063_.m_109153_().m_90583_();
-            }
+            Vec3 registryCenter = mc.f_91074_ != null ? mc.f_91074_.m_20182_() : (mc.f_91075_ != null ? mc.f_91075_.m_20182_() : (mc.f_91063_ != null && mc.f_91063_.m_109153_() != null ? mc.f_91063_.m_109153_().m_90583_() : null));
             if (NeoGpuVanilla.isConfiguredEnabled()) {
                 this.discoverLoadedChunkSources(level, registryCenter);
             }
@@ -331,8 +325,6 @@ public final class TorchRtxState {
     }
 
     public boolean isImmediateStateChange(BlockPos pos) {
-        double dz;
-        double dy;
         Minecraft mc = Minecraft.m_91087_();
         Vec3 observer = null;
         if (mc.f_91074_ != null) {
@@ -346,7 +338,9 @@ public final class TorchRtxState {
             return false;
         }
         double dx = (double)pos.m_123341_() + 0.5 - observer.f_82479_;
-        return dx * dx + (dy = (double)pos.m_123342_() + 0.5 - observer.f_82480_) * dy + (dz = (double)pos.m_123343_() + 0.5 - observer.f_82481_) * dz <= 4096.0;
+        double dy = (double)pos.m_123342_() + 0.5 - observer.f_82480_;
+        double dz = (double)pos.m_123343_() + 0.5 - observer.f_82481_;
+        return dx * dx + dy * dy + dz * dz <= 4096.0;
     }
 
     public void trackBlockTransition(ClientLevel level, BlockPos pos, BlockState oldState, BlockState newState, boolean immediate, boolean geometryChanged) {
@@ -458,8 +452,6 @@ public final class TorchRtxState {
     }
 
     private void registerVanillaChunkLightSourcesNow(ClientLevel level, LevelChunk chunk) {
-        LongIterator it;
-        boolean changed;
         if (level == null || chunk == null || !NeoGpuVanilla.isConfiguredEnabled()) {
             return;
         }
@@ -476,9 +468,9 @@ public final class TorchRtxState {
         LongOpenHashSet next = new LongOpenHashSet((LongCollection)discovered.keySet());
         LongOpenHashSet removed = previous == null ? new LongOpenHashSet() : new LongOpenHashSet((LongCollection)previous);
         removed.removeAll((LongCollection)next);
-        boolean bl = changed = !removed.isEmpty();
+        boolean changed = !removed.isEmpty();
         if (!removed.isEmpty()) {
-            it = removed.iterator();
+            LongIterator it = removed.iterator();
             while (it.hasNext()) {
                 this.lightSources.remove(it.nextLong());
             }
@@ -486,11 +478,10 @@ public final class TorchRtxState {
         }
         ObjectIterator<Long2ByteMap.Entry> entries = discovered.long2ByteEntrySet().fastIterator();
         while (entries.hasNext()) {
-            int oldEmission;
             Long2ByteMap.Entry entry = entries.next();
             long key = entry.getLongKey();
             byte emission = entry.getByteValue();
-            int n = oldEmission = this.lightSources.containsKey(key) ? this.lightSources.get(key) & 0xFF : -1;
+            int oldEmission = this.lightSources.containsKey(key) ? this.lightSources.get(key) & 0xFF : -1;
             if (oldEmission != (emission & 0xFF) || previous == null || !previous.contains(key)) {
                 changed = true;
             }
@@ -518,8 +509,7 @@ public final class TorchRtxState {
      */
     public void removeChunkLightSources(int chunkX, int chunkZ) {
         long chunkKey = ChunkPos.m_45589_((int)chunkX, (int)chunkZ);
-        Object object = this.chunkLifecycleLock;
-        synchronized (object) {
+        synchronized (this.chunkLifecycleLock) {
             this.pendingChunkScans.remove(chunkKey);
             this.scannedLightChunks.remove(chunkKey);
             if (this.pendingChunkUnloads.add(chunkKey)) {
@@ -682,8 +672,9 @@ public final class TorchRtxState {
                 for (int dx = -2; dx <= 2; ++dx) {
                     if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > 2) continue;
                     cursor.m_122178_(pos.m_123341_() + dx, pos.m_123342_() + dy, pos.m_123343_() + dz);
-                    if (!this.frontierBlockSnapshot.contains(cursor.m_121878_())) continue;
-                    return true;
+                    if (this.frontierBlockSnapshot.contains(cursor.m_121878_())) {
+                        return true;
+                    }
                 }
             }
         }
@@ -703,9 +694,11 @@ public final class TorchRtxState {
         for (int dy = -2; dy <= 2; ++dy) {
             for (int dz = -2; dz <= 2; ++dz) {
                 for (int dx = -2; dx <= 2; ++dx) {
-                    long nearbyKey;
-                    if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > 2 || !this.frontierBlockSnapshot.contains(nearbyKey = BlockPos.m_121882_((int)(baseX + dx), (int)(baseY + dy), (int)(baseZ + dz)))) continue;
-                    return true;
+                    if (Math.abs(dx) + Math.abs(dy) + Math.abs(dz) > 2) continue;
+                    long nearbyKey = BlockPos.m_121882_((int)(baseX + dx), (int)(baseY + dy), (int)(baseZ + dz));
+                    if (this.frontierBlockSnapshot.contains(nearbyKey)) {
+                        return true;
+                    }
                 }
             }
         }
@@ -729,11 +722,12 @@ public final class TorchRtxState {
                 long[] bucket = snap.get(ChunkPos.m_45589_((int)(centerChunkX + dx), (int)(centerChunkZ + dz)));
                 if (bucket == null || bucket.length == 0) continue;
                 for (long key : bucket) {
-                    double ddz;
-                    double ddy;
                     double ddx = (double)BlockPos.m_121983_((long)key) + 0.5 - ox;
-                    if (!(ddx * ddx + (ddy = (double)BlockPos.m_122008_((long)key) + 0.5 - oy) * ddy + (ddz = (double)BlockPos.m_122015_((long)key) + 0.5 - oz) * ddz <= maxDistanceSq)) continue;
-                    matches.add(key);
+                    double ddy = (double)BlockPos.m_122008_((long)key) + 0.5 - oy;
+                    double ddz = (double)BlockPos.m_122015_((long)key) + 0.5 - oz;
+                    if (ddx * ddx + ddy * ddy + ddz * ddz <= maxDistanceSq) {
+                        matches.add(key);
+                    }
                 }
             }
         }
@@ -783,14 +777,15 @@ public final class TorchRtxState {
                 long[] b = snap.get(ChunkPos.m_45589_((int)(ccX + dx), (int)(ccZ + dz)));
                 if (b == null) continue;
                 for (long sk : b) {
-                    double sz;
-                    double sy;
                     double sx = (double)BlockPos.m_121983_((long)sk) - ox;
-                    double d = sx * sx + (sy = (double)BlockPos.m_122008_((long)sk) - oy) * sy + (sz = (double)BlockPos.m_122015_((long)sk) - oz) * sz;
-                    if (!(d < best)) continue;
-                    best = d;
-                    closest = BlockPos.m_122022_((long)sk);
-                    if (best < 1.0) break block0;
+                    double sy = (double)BlockPos.m_122008_((long)sk) - oy;
+                    double sz = (double)BlockPos.m_122015_((long)sk) - oz;
+                    double d = sx * sx + sy * sy + sz * sz;
+                    if (d < best) {
+                        best = d;
+                        closest = BlockPos.m_122022_((long)sk);
+                        if (best < 1.0) break block0;
+                    }
                 }
             }
         }
@@ -811,19 +806,18 @@ public final class TorchRtxState {
     }
 
     public synchronized void setGpuDirectSources(long[] sourceKeys, float[] weights, int count) {
-        long sourceKey;
         LongOpenHashSet previous = this.gpuDirectOwnedSourceSnapshot;
         boolean hybridTracing = this.enabled && Config.isFeatureEnabled(Config.CLIENT.rtxEnabled) && Config.isFeatureEnabled(Config.CLIENT.gpuShadowsEnabled) && Config.CLIENT.gpuLocalLightingMode.get() == Config.GpuLocalLightingMode.HYBRID;
         LongOpenHashSet next = new LongOpenHashSet();
         if (hybridTracing && sourceKeys != null && weights != null) {
             int limit = Math.min(Math.max(count, 0), Math.min(sourceKeys.length, weights.length));
             for (int i = 0; i < limit; ++i) {
-                float threshold;
-                sourceKey = sourceKeys[i];
+                long sourceKey = sourceKeys[i];
                 float weight = Mth.m_14036_((float)weights[i], (float)0.0f, (float)1.0f);
-                float f = threshold = previous.contains(sourceKey) ? 0.9f : 0.995f;
-                if (!(weight >= threshold)) continue;
-                next.add(sourceKey);
+                float threshold = previous.contains(sourceKey) ? 0.9f : 0.995f;
+                if (weight >= threshold) {
+                    next.add(sourceKey);
+                }
             }
         }
         if (previous.equals((Object)next) && this.gpuDirectHybridApplied == hybridTracing) {
@@ -833,14 +827,16 @@ public final class TorchRtxState {
             LongIterator oldIterator = previous.iterator();
             while (oldIterator.hasNext()) {
                 long sourceKey2 = oldIterator.nextLong();
-                if (next.contains(sourceKey2) || !this.lightSources.containsKey(sourceKey2)) continue;
-                this.engine.addOrUpdateSource(sourceKey2, this.lightSources.get(sourceKey2) & 0xFF, false);
+                if (!next.contains(sourceKey2) && this.lightSources.containsKey(sourceKey2)) {
+                    this.engine.addOrUpdateSource(sourceKey2, this.lightSources.get(sourceKey2) & 0xFF, false);
+                }
             }
             LongIterator newIterator = next.iterator();
             while (newIterator.hasNext()) {
-                sourceKey = newIterator.nextLong();
-                if (previous.contains(sourceKey)) continue;
-                this.engine.removeSource(sourceKey);
+                long sourceKey = newIterator.nextLong();
+                if (!previous.contains(sourceKey)) {
+                    this.engine.removeSource(sourceKey);
+                }
             }
         }
         this.gpuDirectOwnedSourceSnapshot = next;
@@ -885,10 +881,10 @@ public final class TorchRtxState {
                 long[] bucket = snap.get(ChunkPos.m_45589_((int)(centerChunkX + dx), (int)(centerChunkZ + dz)));
                 if (bucket == null) continue;
                 for (long sourceKey : bucket) {
-                    double sz;
-                    double sy;
                     double sx = (double)BlockPos.m_121983_((long)sourceKey) + 0.5 - origin.f_82479_;
-                    double distanceSq = sx * sx + (sy = (double)BlockPos.m_122008_((long)sourceKey) + 0.5 - origin.f_82480_) * sy + (sz = (double)BlockPos.m_122015_((long)sourceKey) + 0.5 - origin.f_82481_) * sz;
+                    double sy = (double)BlockPos.m_122008_((long)sourceKey) + 0.5 - origin.f_82480_;
+                    double sz = (double)BlockPos.m_122015_((long)sourceKey) + 0.5 - origin.f_82481_;
+                    double distanceSq = sx * sx + sy * sy + sz * sz;
                     if (distanceSq > maxDistanceSq) continue;
                     if (size < limit) {
                         bestKeys[size] = sourceKey;
@@ -900,26 +896,29 @@ public final class TorchRtxState {
                     double worstDistance = bestDistances[0];
                     long worstKey = bestKeys[0];
                     for (int index = 1; index < size; ++index) {
-                        if (!(bestDistances[index] > worstDistance) && (Double.compare(bestDistances[index], worstDistance) != 0 || bestKeys[index] <= worstKey)) continue;
-                        worstDistance = bestDistances[index];
-                        worstKey = bestKeys[index];
-                        worstIndex = index;
+                        if ((bestDistances[index] > worstDistance) || (Double.compare(bestDistances[index], worstDistance) == 0 && bestKeys[index] > worstKey)) {
+                            worstDistance = bestDistances[index];
+                            worstKey = bestKeys[index];
+                            worstIndex = index;
+                        }
                     }
-                    if (!(distanceSq < worstDistance) && (Double.compare(distanceSq, worstDistance) != 0 || sourceKey >= worstKey)) continue;
-                    bestKeys[worstIndex] = sourceKey;
-                    bestDistances[worstIndex] = distanceSq;
+                    if ((distanceSq < worstDistance) || (Double.compare(distanceSq, worstDistance) == 0 && sourceKey < worstKey)) {
+                        bestKeys[worstIndex] = sourceKey;
+                        bestDistances[worstIndex] = distanceSq;
+                    }
                 }
             }
         }
         for (int i = 0; i < size - 1; ++i) {
             for (int j = i + 1; j < size; ++j) {
-                if (!(bestDistances[j] < bestDistances[i]) && (Double.compare(bestDistances[j], bestDistances[i]) != 0 || bestKeys[j] >= bestKeys[i])) continue;
-                double tempDistance = bestDistances[i];
-                bestDistances[i] = bestDistances[j];
-                bestDistances[j] = tempDistance;
-                long tempKey = bestKeys[i];
-                bestKeys[i] = bestKeys[j];
-                bestKeys[j] = tempKey;
+                if ((bestDistances[j] < bestDistances[i]) || (Double.compare(bestDistances[j], bestDistances[i]) == 0 && bestKeys[j] < bestKeys[i])) {
+                    double tempDistance = bestDistances[i];
+                    bestDistances[i] = bestDistances[j];
+                    bestDistances[j] = tempDistance;
+                    long tempKey = bestKeys[i];
+                    bestKeys[i] = bestKeys[j];
+                    bestKeys[j] = tempKey;
+                }
             }
         }
         long[] result = new long[size];
@@ -943,11 +942,11 @@ public final class TorchRtxState {
                 if (bucket == null || bucket.isEmpty()) continue;
                 LongIterator it = bucket.iterator();
                 while (it.hasNext()) {
-                    double sz;
-                    double sy;
                     long sourceKey = it.nextLong();
                     double sx = (double)BlockPos.m_121983_((long)sourceKey) + 0.5 - origin.f_82479_;
-                    double distanceSq = sx * sx + (sy = (double)BlockPos.m_122008_((long)sourceKey) + 0.5 - origin.f_82480_) * sy + (sz = (double)BlockPos.m_122015_((long)sourceKey) + 0.5 - origin.f_82481_) * sz;
+                    double sy = (double)BlockPos.m_122008_((long)sourceKey) + 0.5 - origin.f_82480_;
+                    double sz = (double)BlockPos.m_122015_((long)sourceKey) + 0.5 - origin.f_82481_;
+                    double distanceSq = sx * sx + sy * sy + sz * sz;
                     if (distanceSq > maxDistanceSq) continue;
                     if (size < limit) {
                         bestKeys[size] = sourceKey;
@@ -959,26 +958,29 @@ public final class TorchRtxState {
                     double worstDistance = bestDistances[0];
                     long worstKey = bestKeys[0];
                     for (int index = 1; index < size; ++index) {
-                        if (!(bestDistances[index] > worstDistance) && (Double.compare(bestDistances[index], worstDistance) != 0 || bestKeys[index] <= worstKey)) continue;
-                        worstDistance = bestDistances[index];
-                        worstKey = bestKeys[index];
-                        worstIndex = index;
+                        if ((bestDistances[index] > worstDistance) || (Double.compare(bestDistances[index], worstDistance) == 0 && bestKeys[index] > worstKey)) {
+                            worstDistance = bestDistances[index];
+                            worstKey = bestKeys[index];
+                            worstIndex = index;
+                        }
                     }
-                    if (!(distanceSq < worstDistance) && (Double.compare(distanceSq, worstDistance) != 0 || sourceKey >= worstKey)) continue;
-                    bestKeys[worstIndex] = sourceKey;
-                    bestDistances[worstIndex] = distanceSq;
+                    if ((distanceSq < worstDistance) || (Double.compare(distanceSq, worstDistance) == 0 && sourceKey < worstKey)) {
+                        bestKeys[worstIndex] = sourceKey;
+                        bestDistances[worstIndex] = distanceSq;
+                    }
                 }
             }
         }
         for (int i = 0; i < size - 1; ++i) {
             for (int j = i + 1; j < size; ++j) {
-                if (!(bestDistances[j] < bestDistances[i]) && (Double.compare(bestDistances[j], bestDistances[i]) != 0 || bestKeys[j] >= bestKeys[i])) continue;
-                double td = bestDistances[i];
-                bestDistances[i] = bestDistances[j];
-                bestDistances[j] = td;
-                long tk = bestKeys[i];
-                bestKeys[i] = bestKeys[j];
-                bestKeys[j] = tk;
+                if ((bestDistances[j] < bestDistances[i]) || (Double.compare(bestDistances[j], bestDistances[i]) == 0 && bestKeys[j] < bestKeys[i])) {
+                    double td = bestDistances[i];
+                    bestDistances[i] = bestDistances[j];
+                    bestDistances[j] = td;
+                    long tk = bestKeys[i];
+                    bestKeys[i] = bestKeys[j];
+                    bestKeys[j] = tk;
+                }
             }
         }
         return Arrays.copyOf(bestKeys, size);
@@ -1020,20 +1022,20 @@ public final class TorchRtxState {
         long now = System.currentTimeMillis();
         Minecraft mc = Minecraft.m_91087_();
         Vec3 viewer = mc.f_91063_ != null && mc.f_91063_.m_109153_() != null ? mc.f_91063_.m_109153_().m_90583_() : (mc.f_91074_ != null ? mc.f_91074_.m_20182_() : Vec3.f_82478_);
-        Object object = this.pendingRendererSectionsLock;
-        synchronized (object) {
+        synchronized (this.pendingRendererSectionsLock) {
             LongIterator it = sections.iterator();
             while (it.hasNext()) {
-                long previous;
-                long eligibleAt;
                 long section = it.nextLong();
                 long cooldown = this.rendererSectionCooldownUntil.getOrDefault(section, 0L);
                 if (cooldown <= now) {
                     this.rendererSectionCooldownUntil.remove(section);
                     cooldown = 0L;
                 }
-                if ((eligibleAt = Math.max(now + TorchRtxState.rendererDelayForSection(section, viewer), cooldown)) >= (previous = this.pendingRendererSections.getOrDefault(section, Long.MAX_VALUE))) continue;
-                this.pendingRendererSections.put(section, eligibleAt);
+                long eligibleAt = Math.max(now + TorchRtxState.rendererDelayForSection(section, viewer), cooldown);
+                long previous = this.pendingRendererSections.getOrDefault(section, Long.MAX_VALUE);
+                if (eligibleAt < previous) {
+                    this.pendingRendererSections.put(section, eligibleAt);
+                }
             }
         }
     }
@@ -1046,8 +1048,7 @@ public final class TorchRtxState {
         LongOpenHashSet atomicSections = new LongOpenHashSet((LongCollection)sections);
         mc.execute(() -> {
             long now = System.currentTimeMillis();
-            Object object = this.pendingRendererSectionsLock;
-            synchronized (object) {
+            synchronized (this.pendingRendererSectionsLock) {
                 LongIterator it = atomicSections.iterator();
                 while (it.hasNext()) {
                     long section = it.nextLong();
@@ -1090,8 +1091,7 @@ public final class TorchRtxState {
         if (changes == null || changes.sectionCount() == 0) {
             return;
         }
-        Object object = this.pendingLightChangesLock;
-        synchronized (object) {
+        synchronized (this.pendingLightChangesLock) {
             changes.forEachSection((sectionKey, incomingWords) -> {
                 long[] target = (long[])this.pendingLightChangeBitsBySection.get(sectionKey);
                 if (target == null) {
@@ -1100,10 +1100,10 @@ public final class TorchRtxState {
                 }
                 for (int i = 0; i < 64; ++i) {
                     long added = incomingWords[i] & (target[i] ^ 0xFFFFFFFFFFFFFFFFL);
-                    if (added == 0L) continue;
-                    int n = i;
-                    target[n] = target[n] | added;
-                    this.pendingLightChangeCount += Long.bitCount(added);
+                    if (added != 0L) {
+                        target[i] |= added;
+                        this.pendingLightChangeCount += Long.bitCount(added);
+                    }
                 }
             });
         }
@@ -1115,18 +1115,18 @@ public final class TorchRtxState {
     private void drainPendingSectionNotifications() {
         long now = System.currentTimeMillis();
         LongOpenHashSet batch = new LongOpenHashSet(16);
-        Object object = this.pendingRendererSectionsLock;
-        synchronized (object) {
+        synchronized (this.pendingRendererSectionsLock) {
             if (this.pendingRendererSections.isEmpty()) {
                 return;
             }
             ObjectIterator it = this.pendingRendererSections.long2LongEntrySet().fastIterator();
             while (it.hasNext() && batch.size() < 16) {
                 Long2LongMap.Entry entry = (Long2LongMap.Entry)it.next();
-                if (now < entry.getLongValue()) continue;
-                batch.add(entry.getLongKey());
-                this.rendererSectionCooldownUntil.put(entry.getLongKey(), now + 100L);
-                it.remove();
+                if (now >= entry.getLongValue()) {
+                    batch.add(entry.getLongKey());
+                    this.rendererSectionCooldownUntil.put(entry.getLongKey(), now + 100L);
+                    it.remove();
+                }
             }
         }
         if (!batch.isEmpty()) {
@@ -1142,13 +1142,13 @@ public final class TorchRtxState {
         long extractionDeadline = started + Math.min(250000L, 250000L);
         long deadline = started + 1000000L;
         LongArrayList changed = new LongArrayList(192);
-        Object object = this.pendingLightChangesLock;
-        synchronized (object) {
+        synchronized (this.pendingLightChangesLock) {
             if (this.pendingLightChangeCount <= 0 || this.pendingLightChangeBitsBySection.isEmpty()) {
                 return;
             }
+            int sectionsProcessed = 0;
             ObjectIterator sectionIt = this.pendingLightChangeBitsBySection.long2ObjectEntrySet().fastIterator();
-            for (int sectionsProcessed = 0; sectionIt.hasNext() && sectionsProcessed < 48 && changed.size() < 192 && System.nanoTime() < extractionDeadline; ++sectionsProcessed) {
+            while (sectionIt.hasNext() && sectionsProcessed < 48 && changed.size() < 192 && System.nanoTime() < extractionDeadline) {
                 Long2ObjectMap.Entry entry = (Long2ObjectMap.Entry)sectionIt.next();
                 long sectionKey = entry.getLongKey();
                 long[] words = (long[])entry.getValue();
@@ -1161,20 +1161,22 @@ public final class TorchRtxState {
                         int bit = Long.numberOfTrailingZeros(bits);
                         int localIndex = (wordIndex << 6) + bit;
                         changed.add(BlockPos.m_121882_((int)(baseX + (localIndex & 0xF)), (int)(baseY + (localIndex >>> 8 & 0xF)), (int)(baseZ + (localIndex >>> 4 & 0xF))));
-                        int n = wordIndex;
-                        words[n] = words[n] & (1L << bit ^ 0xFFFFFFFFFFFFFFFFL);
+                        words[wordIndex] &= (1L << bit ^ 0xFFFFFFFFFFFFFFFFL);
                         bits &= bits - 1L;
                         --this.pendingLightChangeCount;
                     }
                 }
                 boolean empty = true;
                 for (long word : words) {
-                    if (word == 0L) continue;
-                    empty = false;
-                    break;
+                    if (word != 0L) {
+                        empty = false;
+                        break;
+                    }
                 }
-                if (!empty) continue;
-                sectionIt.remove();
+                if (empty) {
+                    sectionIt.remove();
+                }
+                ++sectionsProcessed;
             }
             if (this.pendingLightChangeCount < 0) {
                 this.pendingLightChangeCount = 0;
@@ -1190,14 +1192,15 @@ public final class TorchRtxState {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     private void applyLightChangesBudgeted(LongArrayList changedBlocks, long deadline) {
-        int processed;
         if (!this.enabled || !this.engine.isReady()) {
             this.clearFrontierCache();
             NeoShadowsEngine.get().onLightingChanged();
             return;
         }
         LongOpenHashSet affected = new LongOpenHashSet(changedBlocks.size() * 7);
-        for (processed = 0; processed < changedBlocks.size() && (processed <= 0 || System.nanoTime() < deadline); ++processed) {
+        int processed = 0;
+        for (; processed < changedBlocks.size(); ++processed) {
+            if (processed > 0 && System.nanoTime() >= deadline) break;
             long key = changedBlocks.getLong(processed);
             int x = BlockPos.m_121983_((long)key);
             int y = BlockPos.m_122008_((long)key);
@@ -1208,8 +1211,7 @@ public final class TorchRtxState {
             }
         }
         if (processed < changedBlocks.size()) {
-            Object object = this.pendingLightChangesLock;
-            synchronized (object) {
+            synchronized (this.pendingLightChangesLock) {
                 for (int i = processed; i < changedBlocks.size(); ++i) {
                     this.requeueLightChangeLocked(changedBlocks.getLong(i));
                 }
@@ -1223,18 +1225,17 @@ public final class TorchRtxState {
     }
 
     private void requeueLightChangeLocked(long posKey) {
-        long mask;
-        int localIndex;
-        int wordIndex;
         long sectionKey = SectionPos.m_123209_((int)(BlockPos.m_121983_((long)posKey) >> 4), (int)(BlockPos.m_122008_((long)posKey) >> 4), (int)(BlockPos.m_122015_((long)posKey) >> 4));
         long[] words = (long[])this.pendingLightChangeBitsBySection.get(sectionKey);
         if (words == null) {
             words = new long[64];
             this.pendingLightChangeBitsBySection.put(sectionKey, (Object)words);
         }
-        if ((words[wordIndex = (localIndex = (BlockPos.m_122008_((long)posKey) & 0xF) << 8 | (BlockPos.m_122015_((long)posKey) & 0xF) << 4 | BlockPos.m_121983_((long)posKey) & 0xF) >>> 6] & (mask = 1L << (localIndex & 0x3F))) == 0L) {
-            int n = wordIndex;
-            words[n] = words[n] | mask;
+        int localIndex = (BlockPos.m_122008_((long)posKey) & 0xF) << 8 | (BlockPos.m_122015_((long)posKey) & 0xF) << 4 | BlockPos.m_121983_((long)posKey) & 0xF;
+        int wordIndex = localIndex >>> 6;
+        long mask = 1L << (localIndex & 0x3F);
+        if ((words[wordIndex] & mask) == 0L) {
+            words[wordIndex] |= mask;
             ++this.pendingLightChangeCount;
         }
     }
@@ -1255,8 +1256,7 @@ public final class TorchRtxState {
             return;
         }
         long chunkKey = ChunkPos.m_45589_((int)chunk.m_7697_().f_45578_, (int)chunk.m_7697_().f_45579_);
-        Object object = this.chunkLifecycleLock;
-        synchronized (object) {
+        synchronized (this.chunkLifecycleLock) {
             if (!force && (scanLight && this.scannedLightChunks.contains(chunkKey) || this.pendingChunkScans.containsKey(chunkKey))) {
                 return;
             }
@@ -1280,8 +1280,7 @@ public final class TorchRtxState {
         int unloads = 0;
         while (unloads < 8 && System.nanoTime() < deadline) {
             long chunkKey;
-            Object object = this.chunkLifecycleLock;
-            synchronized (object) {
+            synchronized (this.chunkLifecycleLock) {
                 if (this.pendingChunkUnloadOrder.isEmpty()) {
                     break;
                 }
@@ -1296,10 +1295,9 @@ public final class TorchRtxState {
         int populatedSections = 0;
         int queueVisits = 0;
         while (populatedSections < 2 && System.nanoTime() < deadline) {
-            PendingChunkScan task;
             long chunkKey;
-            Object object = this.chunkLifecycleLock;
-            synchronized (object) {
+            PendingChunkScan task;
+            synchronized (this.chunkLifecycleLock) {
                 if (this.pendingChunkScanOrder.isEmpty()) {
                     break;
                 }
@@ -1308,13 +1306,12 @@ public final class TorchRtxState {
             }
             if (task == null) continue;
             if (task.level != level || level.m_7726_().m_7131_(task.chunkX, task.chunkZ) != task.chunk) {
-                object = this.chunkLifecycleLock;
-                synchronized (object) {
+                synchronized (this.chunkLifecycleLock) {
                     if (this.pendingChunkScans.get(chunkKey) == task) {
                         this.pendingChunkScans.remove(chunkKey);
                     }
-                    continue;
                 }
+                continue;
             }
             int scannedPopulated = this.scanNextChunkSection(task);
             populatedSections += scannedPopulated;
@@ -1333,25 +1330,25 @@ public final class TorchRtxState {
                     }
                 }
             }
-            if (queueVisits < 64) continue;
-            break;
+            if (queueVisits >= 64) {
+                break;
+            }
         }
         this.finishChunkLifecycleBatch(batch);
     }
 
     private int scanNextChunkSection(PendingChunkScan task) {
-        boolean maybeReflective;
-        int sectionIndex;
-        LevelChunkSection section;
         LevelChunkSection[] sections = task.chunk.m_7103_();
         if (task.sectionIndex >= sections.length) {
             return 0;
         }
-        if ((section = sections[sectionIndex = task.sectionIndex++]) == null || section.m_188008_()) {
+        int sectionIndex = task.sectionIndex++;
+        LevelChunkSection section = sections[sectionIndex];
+        if (section == null || section.m_188008_()) {
             return 0;
         }
         boolean maybeLight = task.scanLight && section.m_63002_(state -> state.getLightEmission((BlockGetter)task.level, BlockPos.f_121853_) != 0);
-        boolean bl = maybeReflective = task.scanReflective && TorchRtxState.shouldScanReflectiveSources() && section.m_63002_(state -> ReflectionMaterialRegistry.find(state) != null);
+        boolean maybeReflective = task.scanReflective && TorchRtxState.shouldScanReflectiveSources() && section.m_63002_(state -> ReflectionMaterialRegistry.find(state) != null);
         if (!maybeLight && !maybeReflective) {
             return 0;
         }
@@ -1362,14 +1359,17 @@ public final class TorchRtxState {
         for (int y = 0; y < 16; ++y) {
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
-                    int emission;
                     BlockState state2 = section.m_62982_(x, y, z);
                     pos.m_122178_(baseX + x, baseY + y, baseZ + z);
-                    if (maybeLight && (emission = state2.getLightEmission((BlockGetter)task.level, (BlockPos)pos)) > 0 && TorchRtxState.shouldRegisterRtxSource(task.level, state2)) {
-                        task.sources.put(pos.m_121878_(), (byte)emission);
+                    if (maybeLight) {
+                        int emission = state2.getLightEmission((BlockGetter)task.level, (BlockPos)pos);
+                        if (emission > 0 && TorchRtxState.shouldRegisterRtxSource(task.level, state2)) {
+                            task.sources.put(pos.m_121878_(), (byte)emission);
+                        }
                     }
-                    if (!maybeReflective || ReflectionMaterialRegistry.find(state2) == null) continue;
-                    task.reflections.add(pos.m_121878_());
+                    if (maybeReflective && ReflectionMaterialRegistry.find(state2) != null) {
+                        task.reflections.add(pos.m_121878_());
+                    }
                 }
             }
         }
@@ -1377,7 +1377,6 @@ public final class TorchRtxState {
     }
 
     private void applyQueuedChunkUnload(long chunkKey, ChunkLifecycleBatch batch) {
-        LongOpenHashSet reflectionBucket;
         this.scannedLightChunks.remove(chunkKey);
         LongOpenHashSet sourceBucket = (LongOpenHashSet)this.sourcesByChunk.remove(chunkKey);
         if (sourceBucket != null && !sourceBucket.isEmpty()) {
@@ -1390,7 +1389,8 @@ public final class TorchRtxState {
             }
             batch.sourceRegistryChanged = true;
         }
-        if ((reflectionBucket = (LongOpenHashSet)this.reflectiveByChunk.remove(chunkKey)) != null && !reflectionBucket.isEmpty()) {
+        LongOpenHashSet reflectionBucket = (LongOpenHashSet)this.reflectiveByChunk.remove(chunkKey);
+        if (reflectionBucket != null && !reflectionBucket.isEmpty()) {
             this.dirtyReflectiveChunks.add(chunkKey);
             LongIterator it = reflectionBucket.iterator();
             while (it.hasNext()) {
@@ -1403,7 +1403,6 @@ public final class TorchRtxState {
     private void finishChunkScan(PendingChunkScan task, ChunkLifecycleBatch batch) {
         long chunkKey = task.chunkKey;
         if (task.scanLight) {
-            long key;
             LongOpenHashSet oldSources = (LongOpenHashSet)this.sourcesByChunk.get(chunkKey);
             LongOpenHashSet newSources = new LongOpenHashSet();
             newSources.addAll((LongCollection)task.sources.keySet());
@@ -1414,7 +1413,7 @@ public final class TorchRtxState {
                 if (!removed.isEmpty()) {
                     LongIterator it = removed.iterator();
                     while (it.hasNext()) {
-                        key = it.nextLong();
+                        long key = it.nextLong();
                         this.lightSources.remove(key);
                         batch.removedSources.add(key);
                     }
@@ -1424,16 +1423,17 @@ public final class TorchRtxState {
             ObjectIterator sourceIt = task.sources.long2ByteEntrySet().fastIterator();
             while (sourceIt.hasNext()) {
                 Long2ByteMap.Entry entry = (Long2ByteMap.Entry)sourceIt.next();
-                key = entry.getLongKey();
+                long key = entry.getLongKey();
                 byte emission = entry.getByteValue();
                 int previous = this.lightSources.containsKey(key) ? this.lightSources.get(key) & 0xFF : -1;
                 this.lightSources.put(key, emission);
-                if (oldSources != null && oldSources.contains(key) && previous == (emission & 0xFF)) continue;
-                if (this.shouldTraceSource(key)) {
-                    batch.addedOrChangedSources.put(key, emission);
+                if (oldSources == null || !oldSources.contains(key) || previous != (emission & 0xFF)) {
+                    if (this.shouldTraceSource(key)) {
+                        batch.addedOrChangedSources.put(key, emission);
+                    }
+                    ExposedFaceService.get().requestSectionCapture(SectionPos.m_123209_((int)(BlockPos.m_121983_((long)key) >> 4), (int)(BlockPos.m_122008_((long)key) >> 4), (int)(BlockPos.m_122015_((long)key) >> 4)), 0.0);
+                    sourceChunkChanged = true;
                 }
-                ExposedFaceService.get().requestSectionCapture(SectionPos.m_123209_((int)(BlockPos.m_121983_((long)key) >> 4), (int)(BlockPos.m_122008_((long)key) >> 4), (int)(BlockPos.m_122015_((long)key) >> 4)), 0.0);
-                sourceChunkChanged = true;
             }
             if (newSources.isEmpty()) {
                 this.sourcesByChunk.remove(chunkKey);
@@ -1576,8 +1576,9 @@ public final class TorchRtxState {
                         double sourceZ = (double)BlockPos.m_122015_((long)sourceKey) + 0.5;
                         double distX = sourceX < minX ? minX - sourceX : sourceX > maxX ? sourceX - maxX : 0.0;
                         double distZ = sourceZ < minZ ? minZ - sourceZ : sourceZ > maxZ ? sourceZ - maxZ : 0.0;
-                        if (!(distX * distX + distZ * distZ <= maxSq)) continue;
-                        nearby.add(sourceKey);
+                        if (distX * distX + distZ * distZ <= maxSq) {
+                            nearby.add(sourceKey);
+                        }
                     }
                 }
             }
@@ -1615,31 +1616,36 @@ public final class TorchRtxState {
             this.discoveryRestartCooldown = 0;
             this.discoveryCursor = 0;
         }
-        for (int attempts = 0; attempts < 24 && this.discoveryCursor < this.discoveryOffsets.length; ++attempts) {
-            LevelChunk chunk;
+        int attempts = 0;
+        while (attempts < 24 && this.discoveryCursor < this.discoveryOffsets.length) {
             int packed = this.discoveryOffsets[this.discoveryCursor++];
+            ++attempts;
             short dx = (short)(packed >>> 16);
-            int chunkX = centerX + dx;
             short dz = (short)packed;
+            int chunkX = centerX + dx;
             int chunkZ = centerZ + dz;
             long key = ChunkPos.m_45589_((int)chunkX, (int)chunkZ);
-            if (this.scannedLightChunks.contains(key) || (chunk = level.m_7726_().m_7131_(chunkX, chunkZ)) == null) continue;
+            if (this.scannedLightChunks.contains(key)) continue;
+            LevelChunk chunk = level.m_7726_().m_7131_(chunkX, chunkZ);
+            if (chunk == null) continue;
             if (NeoGpuVanilla.isConfiguredEnabled()) {
                 this.registerVanillaChunkLightSourcesNow(level, chunk);
-                if (!TorchRtxState.shouldScanReflectiveSources()) continue;
-                this.queueChunkScan(level, chunk, false, false, true);
-                continue;
+                if (TorchRtxState.shouldScanReflectiveSources()) {
+                    this.queueChunkScan(level, chunk, false, false, true);
+                }
+            } else {
+                this.queueChunkScan(level, chunk, false);
             }
-            this.queueChunkScan(level, chunk, false);
         }
     }
 
     private static int[] buildNearestChunkOffsets(int radius) {
-        ArrayList<int[]> offsets = new ArrayList<int[]>((radius * 2 + 1) * (radius * 2 + 1));
+        List<int[]> offsets = new ArrayList<int[]>((radius * 2 + 1) * (radius * 2 + 1));
         for (int dz = -radius; dz <= radius; ++dz) {
             for (int dx = -radius; dx <= radius; ++dx) {
-                if (dx * dx + dz * dz > radius * radius) continue;
-                offsets.add(new int[]{dx, dz});
+                if (dx * dx + dz * dz <= radius * radius) {
+                    offsets.add(new int[]{dx, dz});
+                }
             }
         }
         offsets.sort(Comparator.comparingInt(v -> v[0] * v[0] + v[1] * v[1]));
@@ -1734,7 +1740,6 @@ public final class TorchRtxState {
     }
 
     private void rescanLoadedChunks(@Nullable ClientLevel level, boolean scanLight, boolean scanReflective) {
-        int[] offsets;
         if (level == null || !scanLight && !scanReflective) {
             return;
         }
@@ -1757,7 +1762,8 @@ public final class TorchRtxState {
         }
         int chunkRadius = Math.max(1, (int)Math.ceil(blockRadius / 16.0));
         boolean rescannedAny = false;
-        for (int packedOffset : offsets = TorchRtxState.buildNearestChunkOffsets(chunkRadius)) {
+        int[] offsets = TorchRtxState.buildNearestChunkOffsets(chunkRadius);
+        for (int packedOffset : offsets) {
             short dx = (short)(packedOffset >>> 16);
             short dz = (short)packedOffset;
             LevelChunk chunk = level.m_7726_().m_7131_(centerChunkX + dx, centerChunkZ + dz);
@@ -1794,8 +1800,7 @@ public final class TorchRtxState {
         this.discoveryCursor = 0;
         this.discoveryRestartCooldown = 0;
         this.discoveryOffsets = new int[0];
-        Object object = this.chunkLifecycleLock;
-        synchronized (object) {
+        synchronized (this.chunkLifecycleLock) {
             this.pendingChunkScans.clear();
             this.pendingChunkScanOrder.clear();
             this.pendingChunkUnloads.clear();
@@ -1805,13 +1810,11 @@ public final class TorchRtxState {
         this.loadedChunkInvalidationDelay = -1;
         this.loadedChunkInvalidationAge = 0;
         this.sourceIndexSnapshot = Collections.emptyMap();
-        object = this.pendingLightChangesLock;
-        synchronized (object) {
+        synchronized (this.pendingLightChangesLock) {
             this.pendingLightChangeBitsBySection.clear();
             this.pendingLightChangeCount = 0;
         }
-        object = this.pendingRendererSectionsLock;
-        synchronized (object) {
+        synchronized (this.pendingRendererSectionsLock) {
             this.pendingRendererSections.clear();
             this.rendererSectionCooldownUntil.clear();
         }
@@ -1902,7 +1905,7 @@ public final class TorchRtxState {
         Map<Long, long[]> previousSnapshot = this.sourceIndexSnapshot;
         int finalCount = count;
         CompletableFuture.runAsync(() -> {
-            HashMap<Long, long[]> nextSnapshot = new HashMap<Long, long[]>(previousSnapshot.size() + finalCount);
+            Map<Long, long[]> nextSnapshot = new HashMap<Long, long[]>(previousSnapshot.size() + finalCount);
             nextSnapshot.putAll(previousSnapshot);
             for (int i = 0; i < finalCount; ++i) {
                 long[] values = updatedBucketArrays[i];
@@ -1951,7 +1954,7 @@ public final class TorchRtxState {
         Map<Long, long[]> previousSnapshot = this.reflectiveSnapshot;
         int finalCount = count;
         CompletableFuture.runAsync(() -> {
-            HashMap<Long, long[]> nextSnapshot = new HashMap<Long, long[]>(previousSnapshot.size() + finalCount);
+            Map<Long, long[]> nextSnapshot = new HashMap<Long, long[]>(previousSnapshot.size() + finalCount);
             nextSnapshot.putAll(previousSnapshot);
             for (int i = 0; i < finalCount; ++i) {
                 long[] values = updatedBucketArrays[i];
@@ -1993,8 +1996,7 @@ public final class TorchRtxState {
         if (positions == null || positions.isEmpty() || !this.enabled) {
             return;
         }
-        Object object = this.frontierQueueLock;
-        synchronized (object) {
+        synchronized (this.frontierQueueLock) {
             this.pendingFrontierChecks.addAll((LongCollection)positions);
         }
         this.scheduleFrontierWorker();
@@ -2097,8 +2099,7 @@ public final class TorchRtxState {
      */
     private void clearFrontierCache() {
         this.frontierEpoch.incrementAndGet();
-        Object object = this.frontierQueueLock;
-        synchronized (object) {
+        synchronized (this.frontierQueueLock) {
             this.pendingFrontierChecks.clear();
         }
         this.frontierBlockSnapshot = new LongOpenHashSet();

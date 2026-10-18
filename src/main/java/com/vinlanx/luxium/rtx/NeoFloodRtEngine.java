@@ -71,15 +71,19 @@ final class NeoFloodRtEngine {
     }
 
     static void recycleVisibilityVolume(byte[] volume) {
-        int size;
         if (volume == null || volume.length != 389017) {
             return;
         }
-        do {
-            if ((size = VISIBILITY_VOLUME_POOL_SIZE.get()) < 32) continue;
-            return;
-        } while (!VISIBILITY_VOLUME_POOL_SIZE.compareAndSet(size, size + 1));
-        VISIBILITY_VOLUME_POOL.offer(volume);
+        while (true) {
+            int size = VISIBILITY_VOLUME_POOL_SIZE.get();
+            if (size >= 32) {
+                return;
+            }
+            if (VISIBILITY_VOLUME_POOL_SIZE.compareAndSet(size, size + 1)) {
+                VISIBILITY_VOLUME_POOL.offer(volume);
+                return;
+            }
+        }
     }
 
     private static boolean fillOpacity(ClientLevel level, int originX, int originY, int originZ, int radius, Scratch scratch) {
@@ -108,23 +112,27 @@ final class NeoFloodRtEngine {
                 int chunkMinZ = Math.max(minZ, SectionPos.m_123223_((int)sectionZ));
                 int chunkMaxZ = Math.min(maxZ, SectionPos.m_123223_((int)sectionZ) + 15);
                 for (int sectionY = minSectionY; sectionY <= maxSectionY; ++sectionY) {
-                    boolean hasOccludersOrEmitters;
-                    int chunkMaxY;
                     int sectionBaseY = SectionPos.m_123223_((int)sectionY);
                     int chunkMinY = Math.max(minY, sectionBaseY);
-                    if (chunkMinY > (chunkMaxY = Math.min(maxY, sectionBaseY + 15))) continue;
+                    int chunkMaxY = Math.min(maxY, sectionBaseY + 15);
+                    if (chunkMinY > chunkMaxY) continue;
                     LevelChunkSection section = null;
                     if (sections != null) {
                         int sectionIndex = sectionBaseY - minBuildHeight >> 4;
-                        if (sectionIndex < 0 || sectionIndex >= sections.length) continue;
-                        section = sections[sectionIndex];
+                        if (sectionIndex >= 0 && sectionIndex < sections.length) {
+                            section = sections[sectionIndex];
+                        } else {
+                            continue;
+                        }
                     }
                     if (chunk == null) {
                         complete = false;
                         NeoFloodRtEngine.fillSolidRange(opacity, originX, originY, originZ, radius, chunkMinX, chunkMaxX, chunkMinY, chunkMaxY, chunkMinZ, chunkMaxZ);
                         continue;
                     }
-                    if (section == null || section.m_188008_() || !(hasOccludersOrEmitters = section.m_63019_().m_63109_(state -> state.m_60815_() || state.m_60791_() > 0))) continue;
+                    if (section == null || section.m_188008_()) continue;
+                    boolean hasOccludersOrEmitters = section.m_63019_().m_63109_(state -> state.m_60815_() || state.m_60791_() > 0);
+                    if (!hasOccludersOrEmitters) continue;
                     NeoFloodRtEngine.fillSectionRange(opacity, section, originX, originY, originZ, radius, chunkMinX, chunkMaxX, chunkMinY, chunkMaxY, chunkMinZ, chunkMaxZ, scratch);
                 }
             }
@@ -178,8 +186,9 @@ final class NeoFloodRtEngine {
                         cachedState = state;
                         cachedOpacity = NeoFloodRtEngine.computeOpacity(state);
                     }
-                    if (cachedOpacity == 0) continue;
-                    opacity[baseYZ + (dx + 36)] = (byte)cachedOpacity;
+                    if (cachedOpacity != 0) {
+                        opacity[baseYZ + (dx + 36)] = (byte)cachedOpacity;
+                    }
                 }
             }
         }
@@ -208,20 +217,22 @@ final class NeoFloodRtEngine {
         throughput[centerIndex] = 1.0f;
         NeoFloodRtEngine.emit(scratch, visibilityVolume, centerIndex, 0, 1.0f, brightnessLut);
         for (int octant = 0; octant < 8; ++octant) {
-            int ay2;
             int signX = (octant & 1) == 0 ? 1 : -1;
             int signY = (octant & 2) == 0 ? 1 : -1;
             int signZ = (octant & 4) == 0 ? 1 : -1;
-            for (int ay = 0; ay <= radius && (ay2 = ay * ay) <= radiusSq; ++ay) {
-                int ayz2;
+            for (int ay = 0; ay <= radius; ++ay) {
+                int ay2 = ay * ay;
+                if (ay2 > radiusSq) break;
                 int dy = ay * signY;
                 int baseY = (dy + 36) * 5329;
-                for (int az = 0; az <= radius && (ayz2 = ay2 + az * az) <= radiusSq; ++az) {
-                    int distanceSq;
+                for (int az = 0; az <= radius; ++az) {
+                    int ayz2 = ay2 + az * az;
+                    if (ayz2 > radiusSq) break;
                     int dz = az * signZ;
                     int baseYZ = baseY + (dz + 36) * 73;
-                    for (int ax = 0; ax <= radius && (distanceSq = ayz2 + ax * ax) <= radiusSq; ++ax) {
-                        int cellOpacity;
+                    for (int ax = 0; ax <= radius; ++ax) {
+                        int distanceSq = ayz2 + ax * ax;
+                        if (distanceSq > radiusSq) break;
                         if (distanceSq == 0) continue;
                         int dx = ax * signX;
                         int index = baseYZ + (dx + 36);
@@ -233,7 +244,8 @@ final class NeoFloodRtEngine {
                         if (incident > 1.0f) {
                             incident = 1.0f;
                         }
-                        throughput[index] = (cellOpacity = opacity[index] & 0xFF) >= 255 ? 0.0f : (cellOpacity == 0 ? incident : incident * (1.0f - (float)cellOpacity * 0.003921569f));
+                        int cellOpacity = opacity[index] & 0xFF;
+                        throughput[index] = cellOpacity >= 255 ? 0.0f : (cellOpacity == 0 ? incident : incident * (1.0f - (float)cellOpacity * 0.003921569f));
                         NeoFloodRtEngine.emit(scratch, visibilityVolume, index, distanceSq, incident, brightnessLut);
                     }
                 }
@@ -242,11 +254,6 @@ final class NeoFloodRtEngine {
     }
 
     private static float sampleBackProjected(Scratch scratch, int ax, int ay, int az, int signX, int signY, int signZ, float softness, float edgeSeal) {
-        float nearest;
-        float smooth;
-        float v000;
-        float v001;
-        float v100;
         int shell = Math.max(ax, Math.max(ay, az));
         int row = shell * 37;
         int lowX = scratch.projectionLow[row + ax] & 0xFF;
@@ -263,15 +270,18 @@ final class NeoFloodRtEngine {
         int stepZ = signZ * 73;
         int base = NeoFloodRtEngine.volumeIndex(signX * lowX, signY * lowY, signZ * lowZ);
         float[] throughput = scratch.throughput;
-        float minimum = v000 = throughput[base];
+        float v000 = throughput[base];
+        float minimum = v000;
         float maximum = v000;
+        float smooth;
+        float nearest;
         if (fracX == 0.0f) {
             if (fracY == 0.0f) {
                 if (fracZ == 0.0f) {
                     smooth = v000;
                     nearest = v000;
                 } else {
-                    v001 = throughput[base + stepZ];
+                    float v001 = throughput[base + stepZ];
                     minimum = Math.min(minimum, v001);
                     maximum = Math.max(maximum, v001);
                     smooth = NeoFloodRtEngine.lerp(v000, v001, fracZ);
@@ -284,7 +294,7 @@ final class NeoFloodRtEngine {
                 smooth = NeoFloodRtEngine.lerp(v000, v010, fracY);
                 nearest = nearHighY ? v010 : v000;
             } else {
-                v001 = throughput[base + stepZ];
+                float v001 = throughput[base + stepZ];
                 float v010 = throughput[base + stepY];
                 float v011 = throughput[base + stepY + stepZ];
                 minimum = Math.min(Math.min(v000, v001), Math.min(v010, v011));
@@ -294,14 +304,14 @@ final class NeoFloodRtEngine {
             }
         } else if (fracY == 0.0f) {
             if (fracZ == 0.0f) {
-                v100 = throughput[base + stepX];
+                float v100 = throughput[base + stepX];
                 minimum = Math.min(minimum, v100);
                 maximum = Math.max(maximum, v100);
                 smooth = NeoFloodRtEngine.lerp(v000, v100, fracX);
                 nearest = nearHighX ? v100 : v000;
             } else {
-                v100 = throughput[base + stepX];
-                v001 = throughput[base + stepZ];
+                float v100 = throughput[base + stepX];
+                float v001 = throughput[base + stepZ];
                 float v101 = throughput[base + stepX + stepZ];
                 minimum = Math.min(Math.min(v000, v100), Math.min(v001, v101));
                 maximum = Math.max(Math.max(v000, v100), Math.max(v001, v101));
@@ -309,7 +319,7 @@ final class NeoFloodRtEngine {
                 nearest = nearHighX ? (nearHighZ ? v101 : v100) : (nearHighZ ? v001 : v000);
             }
         } else {
-            v100 = throughput[base + stepX];
+            float v100 = throughput[base + stepX];
             float v010 = throughput[base + stepY];
             float v110 = throughput[base + stepX + stepY];
             minimum = Math.min(Math.min(v000, v100), Math.min(v010, v110));
@@ -333,7 +343,6 @@ final class NeoFloodRtEngine {
     }
 
     private static void emit(Scratch scratch, byte[] visibilityVolume, int index, int distanceSq, float incident, int[] brightnessLut) {
-        int coverage;
         int brightness = brightnessLut[distanceSq];
         if (brightness <= 0) {
             return;
@@ -345,14 +354,14 @@ final class NeoFloodRtEngine {
         if (light > 15) {
             light = 15;
         }
-        if ((coverage = (int)(incident * 255.0f + 0.5f)) < 1) {
+        int coverage = (int)(incident * 255.0f + 0.5f);
+        if (coverage < 1) {
             coverage = 1;
         } else if (coverage > 255) {
             coverage = 255;
         }
         if (scratch.light[index] == 0) {
-            int n = index >>> 6;
-            scratch.touchedBits[n] = scratch.touchedBits[n] | 1L << (index & 0x3F);
+            scratch.touchedBits[index >>> 6] |= 1L << (index & 0x3F);
             ++scratch.touchedCount;
         }
         if (light > (scratch.light[index] & 0xFF)) {
@@ -368,13 +377,17 @@ final class NeoFloodRtEngine {
         byte[] packedLight = new byte[194509];
         long[] touchedBits = Arrays.copyOf(scratch.touchedBits, scratch.touchedBits.length);
         for (int wordIndex = 0; wordIndex < touchedBits.length; ++wordIndex) {
-            int index;
-            for (long bits = touchedBits[wordIndex]; bits != 0L && (index = (wordIndex << 6) + Long.numberOfTrailingZeros(bits)) < 389017; bits &= bits - 1L) {
+            long bits = touchedBits[wordIndex];
+            while (bits != 0L) {
+                int index = (wordIndex << 6) + Long.numberOfTrailingZeros(bits);
+                if (index >= 389017) break;
                 int light = scratch.light[index] & 0xF;
-                if (light == 0) continue;
-                int packedIndex = index >>> 1;
-                int current = packedLight[packedIndex] & 0xFF;
-                packedLight[packedIndex] = (byte)((index & 1) == 0 ? current & 0xF0 | light : current & 0xF | light << 4);
+                if (light != 0) {
+                    int packedIndex = index >>> 1;
+                    int current = packedLight[packedIndex] & 0xFF;
+                    packedLight[packedIndex] = (byte)((index & 1) == 0 ? current & 0xF0 | light : current & 0xF | light << 4);
+                }
+                bits &= bits - 1L;
             }
         }
         return new Result(packedLight, visibilityVolume, touchedBits, touchedCount, dataIncomplete);
@@ -404,9 +417,12 @@ final class NeoFloodRtEngine {
 
         void reset() {
             for (int wordIndex = 0; wordIndex < this.touchedBits.length; ++wordIndex) {
-                int index;
-                for (long bits = this.touchedBits[wordIndex]; bits != 0L && (index = (wordIndex << 6) + Long.numberOfTrailingZeros(bits)) < 389017; bits &= bits - 1L) {
+                long bits = this.touchedBits[wordIndex];
+                while (bits != 0L) {
+                    int index = (wordIndex << 6) + Long.numberOfTrailingZeros(bits);
+                    if (index >= 389017) break;
                     this.light[index] = 0;
+                    bits &= bits - 1L;
                 }
             }
             Arrays.fill(this.touchedBits, 0L);
