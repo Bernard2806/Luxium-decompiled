@@ -46,8 +46,9 @@ implements AutoCloseable {
         }
         int previousFramebuffer = GL11.glGetInteger((int)36006);
         int previousTexture = GL11.glGetInteger((int)32873);
+        IntBuffer previousViewport;
         try (MemoryStack stack = MemoryStack.stackPush();){
-            IntBuffer previousViewport = stack.mallocInt(4);
+            previousViewport = stack.mallocInt(4);
             GL11.glGetIntegerv((int)2978, (IntBuffer)previousViewport);
             int viewportX = previousViewport.get(0);
             int viewportY = previousViewport.get(1);

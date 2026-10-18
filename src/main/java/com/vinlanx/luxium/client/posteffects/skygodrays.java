@@ -129,7 +129,8 @@ public final class skygodrays {
         float distFromCenter = (float)Math.sqrt(ndcX * ndcX + ndcY * ndcY);
         float fade = 1.0f - Mth.m_14036_((float)((distFromCenter - 0.8f) / 0.5f), (float)0.0f, (float)1.0f);
         CelestialLook look = skygodrays.buildCelestialLook(useMoon, partialTick);
-        if ((fade *= look.horizonFade) <= 0.0f) {
+        fade *= look.horizonFade;
+        if (fade <= 0.0f) {
             return null;
         }
         return new CelestialScreenPos(screenX, screenY, fade, look.color, look.rayStrength, look.haloStrength, look.discStrength, look.haloRadius, look.discRadius, look.centerSuppression, useMoon);

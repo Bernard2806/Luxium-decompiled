@@ -83,7 +83,7 @@ public final class PostEffectPipeline {
      */
     @SubscribeEvent(priority=EventPriority.LOWEST)
     public static void onRenderLevel(RenderLevelStageEvent event) {
-        block35: {
+        {
             if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
                 return;
             }
@@ -207,34 +207,33 @@ public final class PostEffectPipeline {
                 }
                 if (renderTonemap) {
                     ShaderInstance shader = tonemap.getShader();
-                    if (shader == null) break block35;
-                    int sceneTexture = main.m_83975_();
-                    int effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.m_83975_() : 0;
-                    if (LsrSystem.shouldDeferTonemap()) {
-                        deferredTonemap = true;
-                        deferredTonemapCompositeEffects = useEffectsTarget;
-                        deferredEffectsTextureId = effectsTexture;
-                        break block35;
-                    }
-                    tonemap.configure(shader, sceneTexture, effectsTexture, useEffectsTarget);
-                    int previousSceneFilter = main.f_83922_;
-                    if (previousSceneFilter != 9729) {
-                        main.m_83936_(9729);
-                    }
-                    try {
-                        RenderTarget postTarget = PostProcessSwapChain.begin(main);
-                        postTarget.m_83947_(true);
-                        PostEffectPipeline.draw(shader, width, height, BlendMode.OVERWRITE);
-                    }
-                    finally {
-                        if (main.f_83922_ != previousSceneFilter) {
-                            main.m_83936_(previousSceneFilter);
+                    if (shader != null) {
+                        int sceneTexture = main.m_83975_();
+                        int effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.m_83975_() : 0;
+                        if (LsrSystem.shouldDeferTonemap()) {
+                            deferredTonemap = true;
+                            deferredTonemapCompositeEffects = useEffectsTarget;
+                            deferredEffectsTextureId = effectsTexture;
+                        } else {
+                            tonemap.configure(shader, sceneTexture, effectsTexture, useEffectsTarget);
+                            int previousSceneFilter = main.f_83922_;
+                            if (previousSceneFilter != 9729) {
+                                main.m_83936_(9729);
+                            }
+                            try {
+                                RenderTarget postTarget = PostProcessSwapChain.begin(main);
+                                postTarget.m_83947_(true);
+                                PostEffectPipeline.draw(shader, width, height, BlendMode.OVERWRITE);
+                            }
+                            finally {
+                                if (main.f_83922_ != previousSceneFilter) {
+                                    main.m_83936_(previousSceneFilter);
+                                }
+                            }
+                            PostProcessSwapChain.commit(main);
                         }
                     }
-                    PostProcessSwapChain.commit(main);
-                    break block35;
-                }
-                if (useEffectsTarget && effectsTarget != null) {
+                } else if (useEffectsTarget && effectsTarget != null) {
                     ShaderInstance shader = ShaderManager.getPostEffectCompositeShader();
                     if (shader != null) {
                         shader.m_173350_("EffectsSampler", (Object)effectsTarget.m_83975_());
