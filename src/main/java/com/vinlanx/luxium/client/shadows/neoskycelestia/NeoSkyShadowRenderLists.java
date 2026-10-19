@@ -49,7 +49,7 @@ implements ChunkRenderListIterable {
             return this.lists.iterator();
         }
         final ListIterator<ChunkRenderList> iterator = this.lists.listIterator(this.lists.size());
-        return new Iterator<ChunkRenderList>(){
+        return new Iterator<>(){
 
             @Override
             public boolean hasNext() {

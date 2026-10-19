@@ -121,19 +121,19 @@ public final class NeoShadowsEngine {
     static final long REBUILD_MAX_DEFERRAL_MS = 1500L;
     static final int SHADOW_WORKER_COUNT = Math.max(1, Math.min(8, Runtime.getRuntime().availableProcessors()));
     static volatile ExecutorService shadowWorkerPool;
-    static final Direction[] FACES;
-    static final int[][] QUAD_EDGE_VERTEX_INDICES;
-    static final NeoShadowsTypes.UvPoint[] LIGHTING_FACE_PROBES;
-    static final NeoShadowsTypes.UvPoint[] OCCLUSION_FACE_PROBES;
-    static final NeoShadowsTypes.UvPoint[] HORIZONTAL_LIGHTING_FACE_PROBES;
-    static final NeoShadowsTypes.UvPoint[] HORIZONTAL_OCCLUSION_FACE_PROBES;
-    static final NeoShadowsTypes.PlaneRect[] LIGHTING_FACE_PROBE_RECTS;
-    static final NeoShadowsTypes.PlaneRect[] HORIZONTAL_LIGHTING_FACE_PROBE_RECTS;
-    static final int[][] RECEIVER_OFFSETS;
-    static final RenderType MASK_PASS;
-    static final ThreadLocal<long[]> CANDIDATE_KEYS_TL;
-    static final ThreadLocal<double[]> CANDIDATE_DISTANCES_TL;
-    static final ThreadLocal<byte[]> CANDIDATE_MASKS_TL;
+    static final Direction[] FACES = Direction.values();
+    static final int[][] QUAD_EDGE_VERTEX_INDICES = new int[][]{{0, 1}, {1, 2}, {2, 3}, {3, 0}};
+    static final NeoShadowsTypes.UvPoint[] LIGHTING_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(1, true, 0.18f);
+    static final NeoShadowsTypes.UvPoint[] OCCLUSION_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(1, true, 0.18f);
+    static final NeoShadowsTypes.UvPoint[] HORIZONTAL_LIGHTING_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(3, true, 0.18f);
+    static final NeoShadowsTypes.UvPoint[] HORIZONTAL_OCCLUSION_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(3, true, 0.18f);
+    static final NeoShadowsTypes.PlaneRect[] LIGHTING_FACE_PROBE_RECTS = NeoShadowsOcclusionPipeline.createProbeSupportRects(LIGHTING_FACE_PROBES);
+    static final NeoShadowsTypes.PlaneRect[] HORIZONTAL_LIGHTING_FACE_PROBE_RECTS = NeoShadowsOcclusionPipeline.createProbeSupportRects(HORIZONTAL_LIGHTING_FACE_PROBES);
+    static final int[][] RECEIVER_OFFSETS = NeoShadowsProjection.buildReceiverOffsets();
+    static final RenderType MASK_PASS = NeoShadowsEngine.buildMaskPass();
+    static final ThreadLocal<long[]> CANDIDATE_KEYS_TL = ThreadLocal.withInitial(() -> new long[2048]);
+    static final ThreadLocal<double[]> CANDIDATE_DISTANCES_TL = ThreadLocal.withInitial(() -> new double[2048]);
+    static final ThreadLocal<byte[]> CANDIDATE_MASKS_TL = ThreadLocal.withInitial(() -> new byte[2048]);
     final ConcurrentHashMap<TextureAtlasSprite, NeoShadowsTypes.SpriteOpaqueMask> spriteOpaqueMaskCache = new ConcurrentHashMap();
     final AtomicBoolean staticTaskQueued = new AtomicBoolean(false);
     final AtomicBoolean staticHotPatchTaskQueued = new AtomicBoolean(false);
@@ -574,21 +574,6 @@ public final class NeoShadowsEngine {
         return RenderType.m_173215_((String)"luxium_neo_shadow_mask", (VertexFormat)DefaultVertexFormat.f_85815_, (VertexFormat.Mode)VertexFormat.Mode.TRIANGLES, (int)262144, (boolean)false, (boolean)true, (RenderType.CompositeState)state);
     }
 
-    static {
-        FACES = Direction.values();
-        QUAD_EDGE_VERTEX_INDICES = new int[][]{{0, 1}, {1, 2}, {2, 3}, {3, 0}};
-        LIGHTING_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(1, true, 0.18f);
-        OCCLUSION_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(1, true, 0.18f);
-        HORIZONTAL_LIGHTING_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(3, true, 0.18f);
-        HORIZONTAL_OCCLUSION_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(3, true, 0.18f);
-        LIGHTING_FACE_PROBE_RECTS = NeoShadowsOcclusionPipeline.createProbeSupportRects(LIGHTING_FACE_PROBES);
-        HORIZONTAL_LIGHTING_FACE_PROBE_RECTS = NeoShadowsOcclusionPipeline.createProbeSupportRects(HORIZONTAL_LIGHTING_FACE_PROBES);
-        RECEIVER_OFFSETS = NeoShadowsProjection.buildReceiverOffsets();
-        MASK_PASS = NeoShadowsEngine.buildMaskPass();
-        CANDIDATE_KEYS_TL = ThreadLocal.withInitial(() -> new long[2048]);
-        CANDIDATE_DISTANCES_TL = ThreadLocal.withInitial(() -> new double[2048]);
-        CANDIDATE_MASKS_TL = ThreadLocal.withInitial(() -> new byte[2048]);
-    }
 
     static final class RenderHelper
     extends RenderStateShard {
