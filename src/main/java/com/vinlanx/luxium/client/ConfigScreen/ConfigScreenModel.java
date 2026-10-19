@@ -267,7 +267,7 @@ public final class ConfigScreenModel {
     }
 
     public static List<Folder> createFolders() {
-        List ready = new ArrayList();
+        List<Category> ready = new ArrayList();
         List<Category> development = new ArrayList<Category>();
         Set<String> developmentIds = Set.of("general", "reflection", "vanilla_gpu", "realistic_shadows", "sky", "clouds", "ssr", "rain_puddles", "wet", "grass", "kawase_bloom", "testing", "block_light_test");
         for (Category category : ConfigScreenModel.create()) {

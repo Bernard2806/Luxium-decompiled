@@ -87,7 +87,7 @@ public final class EmbeddiumLocalShadowBridge {
         int maxSectionY = SectionPos.m_123171_((int)Mth.m_14107_((double)(lightY + reach)));
         int maxSectionZ = SectionPos.m_123171_((int)Mth.m_14107_((double)(lightZ + reach)));
         int currentFrame = ++this.frameId;
-        Reference2ObjectLinkedOpenHashMap byRegion = new Reference2ObjectLinkedOpenHashMap();
+        Reference2ObjectLinkedOpenHashMap<RenderRegion, ChunkRenderList> byRegion = new Reference2ObjectLinkedOpenHashMap();
         double maxDistance = reach + 14.0;
         double maxDistanceSq = maxDistance * maxDistance;
         for (int sx = minSectionX; sx <= maxSectionX; ++sx) {

@@ -443,7 +443,7 @@ extends Screen {
         int popupWidth = Math.max(80, Math.min(320, this.panelWidth - 16));
         int padding = 10;
         int textWidth = popupWidth - padding * 2;
-        List lines = this.f_96547_.m_92923_((FormattedText)this.hoveredOption.description(), textWidth);
+        List<FormattedCharSequence> lines = this.f_96547_.m_92923_((FormattedText)this.hoveredOption.description(), textWidth);
         boolean hasImage = ConfigPreviewImages.hasPreview(this.hoveredOption);
         int imageHeight = hasImage ? Math.min(150, textWidth * 9 / 16) : 0;
         int popupHeight = padding + 9 + 8 + imageHeight + (imageHeight > 0 ? 28 : 0) + lines.size() * 11 + padding;

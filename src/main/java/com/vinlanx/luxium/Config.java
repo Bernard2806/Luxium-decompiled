@@ -45,7 +45,7 @@ public class Config {
     }
 
     static {
-        Pair specPair = new ForgeConfigSpec.Builder().configure(Client::new);
+        Pair<Client, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Client::new);
         CLIENT = (Client)specPair.getLeft();
         CLIENT_SPEC = (ForgeConfigSpec)specPair.getRight();
     }

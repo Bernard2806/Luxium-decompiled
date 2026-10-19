@@ -810,7 +810,7 @@ public final class LuxiumCloudRenderer {
             return;
         }
         Minecraft mc = Minecraft.m_91087_();
-        Optional resource = mc.m_91098_().m_213713_(VANILLA_CLOUDS);
+        Optional<Resource> resource = mc.m_91098_().m_213713_(VANILLA_CLOUDS);
         if (resource.isEmpty()) {
             LOGGER.warn("Luxium custom clouds could not find {}. Falling back to the vanilla texture without coverage shaping.", (Object)VANILLA_CLOUDS);
             this.sourceLoadFailed = true;

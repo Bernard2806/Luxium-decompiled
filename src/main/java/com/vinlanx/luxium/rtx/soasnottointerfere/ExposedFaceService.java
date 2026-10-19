@@ -587,7 +587,7 @@ public final class ExposedFaceService {
         if (shape.m_83281_()) {
             return ReceiverShapeTemplate.EMPTY;
         }
-        List boxes = shape.m_83299_();
+        List<AABB> boxes = shape.m_83299_();
         if (boxes.isEmpty()) {
             return ReceiverShapeTemplate.EMPTY;
         }
@@ -831,7 +831,7 @@ public final class ExposedFaceService {
             }
         }
         HashSet<Long> visited = new HashSet<Long>(faceCells.size());
-        for (Map.Entry entry : faceCells.entrySet()) {
+        for (Map.Entry<Long, Long> entry : faceCells.entrySet()) {
             long packedCell = (Long)entry.getKey();
             if (!visited.add(packedCell)) continue;
             int faceOrdinal = ExposedFaceService.unpackFaceOrdinal(packedCell);

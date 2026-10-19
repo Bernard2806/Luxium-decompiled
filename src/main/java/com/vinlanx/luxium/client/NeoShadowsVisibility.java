@@ -90,7 +90,7 @@ final class NeoShadowsVisibility {
             return empty;
         }
         NearestFaceCandidateCollector candidates = new NearestFaceCandidateCollector(limit);
-        for (Long2ObjectMap.Entry entry : touchedSections.long2ObjectEntrySet()) {
+        for (Long2ObjectMap.Entry<TouchedSectionData> entry : touchedSections.long2ObjectEntrySet()) {
             this.appendSectionReceiverCandidates(candidates, level, exposedFaceService, entry.getLongKey(), (TouchedSectionData)entry.getValue(), center);
         }
         NeoShadowsTypes.FaceCandidate[] sortedCandidates = candidates.toSortedArray();
@@ -311,7 +311,7 @@ final class NeoShadowsVisibility {
      * WARNING - Removed try catching itself - possible behaviour change.
      */
     NeoShadowsTypes.FaceLightingInfo resolveFaceLightingCached(TorchRtxState torchState, @Nullable NeoShadowsTypes.GeometryBuildState state, NeoShadowsTypes.FaceCandidate candidate) {
-        Long2ObjectOpenHashMap faceCache;
+        Long2ObjectOpenHashMap<NeoShadowsTypes.FaceLightingInfo> faceCache;
         if (state == null) {
             return this.resolveFaceLighting(torchState, candidate, null);
         }

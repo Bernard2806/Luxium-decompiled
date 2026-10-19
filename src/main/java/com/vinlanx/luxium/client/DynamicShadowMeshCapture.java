@@ -132,7 +132,7 @@ public final class DynamicShadowMeshCapture {
 
     @Nullable
     private static <E extends Entity> CapturedCaster captureEntity(EntityRenderDispatcher dispatcher, E entity, long id, float partialTick, AABB fallbackBounds) {
-        EntityRenderer renderer = dispatcher.m_114382_(entity);
+        EntityRenderer<? super E> renderer = dispatcher.m_114382_(entity);
         if (renderer == null) {
             return null;
         }

@@ -191,7 +191,7 @@ public final class NeoFloodEngine {
         }
         synchronized (this.stateLock) {
             boolean membershipChanged = false;
-            ObjectIterator it = sourceBatch.long2ByteEntrySet().fastIterator();
+            ObjectIterator<Long2ByteMap.Entry> it = sourceBatch.long2ByteEntrySet().fastIterator();
             while (it.hasNext()) {
                 Long2ByteMap.Entry entry = (Long2ByteMap.Entry)it.next();
                 int emission = entry.getByteValue() & 0xFF;
@@ -833,8 +833,8 @@ public final class NeoFloodEngine {
             return;
         }
         while (!pending.isEmpty()) {
-            Long2ObjectOpenHashMap replacements = new Long2ObjectOpenHashMap(pending.size());
-            Long2ObjectOpenHashMap oldDataBySource = new Long2ObjectOpenHashMap(pending.size());
+            Long2ObjectOpenHashMap<PackedSourceData> replacements = new Long2ObjectOpenHashMap(pending.size());
+            Long2ObjectOpenHashMap<PackedSourceData> oldDataBySource = new Long2ObjectOpenHashMap(pending.size());
             LongOpenHashSet affected = new LongOpenHashSet();
             ArrayList<CompletedTrace> current = new ArrayList<CompletedTrace>(pending.size());
             synchronized (this.stateLock) {
@@ -970,7 +970,7 @@ public final class NeoFloodEngine {
 
     private PublishResult rebuildSectionsBatch(LongOpenHashSet affected, Long2ObjectOpenHashMap<PackedSourceData> replacements, LongOpenHashSet removedKeys) {
         Snapshot oldSnapshot = this.snapshot;
-        Long2ObjectOpenHashMap rebuilt = new Long2ObjectOpenHashMap();
+        Long2ObjectOpenHashMap<SectionLightData> rebuilt = new Long2ObjectOpenHashMap();
         LongOpenHashSet emptySections = new LongOpenHashSet();
         ChangedCells changed = new ChangedCells();
         LongOpenHashSet changedSections = new LongOpenHashSet();
@@ -987,9 +987,9 @@ public final class NeoFloodEngine {
                 candidates.removeAll((LongCollection)removedKeys);
             }
             if (replacements != null) {
-                ObjectIterator replacementIt = replacements.long2ObjectEntrySet().fastIterator();
+                ObjectIterator<Long2ObjectMap.Entry<PackedSourceData>> replacementIt = replacements.long2ObjectEntrySet().fastIterator();
                 while (replacementIt.hasNext()) {
-                    Long2ObjectMap.Entry entry = (Long2ObjectMap.Entry)replacementIt.next();
+                    Long2ObjectMap.Entry<PackedSourceData> entry = (Long2ObjectMap.Entry)replacementIt.next();
                     if (((PackedSourceData)entry.getValue()).sectionBits.containsKey(sectionKey)) {
                         candidates.add(entry.getLongKey());
                         continue;
@@ -1086,7 +1086,7 @@ public final class NeoFloodEngine {
             return;
         }
         Snapshot old = this.snapshot;
-        Long2ObjectOpenHashMap[] nextShards = (Long2ObjectOpenHashMap[])old.shards.clone();
+        Long2ObjectOpenHashMap<SectionLightData>[] nextShards = (Long2ObjectOpenHashMap[])old.shards.clone();
         boolean[] copied = new boolean[64];
         LongIterator it = rebuilt.affected.iterator();
         while (it.hasNext()) {
@@ -1336,7 +1336,7 @@ public final class NeoFloodEngine {
         }
 
         static Snapshot empty() {
-            Long2ObjectOpenHashMap[] shards = new Long2ObjectOpenHashMap[64];
+            Long2ObjectOpenHashMap<SectionLightData>[] shards = new Long2ObjectOpenHashMap[64];
             for (int i = 0; i < shards.length; ++i) {
                 shards[i] = new Long2ObjectOpenHashMap();
             }
@@ -1429,7 +1429,7 @@ public final class NeoFloodEngine {
             int originX = BlockPos.m_121983_((long)sourceKey);
             int originY = BlockPos.m_122008_((long)sourceKey);
             int originZ = BlockPos.m_122015_((long)sourceKey);
-            Long2ObjectOpenHashMap sectionBits = new Long2ObjectOpenHashMap();
+            Long2ObjectOpenHashMap<long[]> sectionBits = new Long2ObjectOpenHashMap();
             for (int wordIndex = 0; wordIndex < result.touchedBits.length; ++wordIndex) {
                 long bits = result.touchedBits[wordIndex];
                 while (bits != 0L) {
@@ -1613,9 +1613,9 @@ public final class NeoFloodEngine {
             if (visitor == null) {
                 return;
             }
-            ObjectIterator it = this.sections.long2ObjectEntrySet().fastIterator();
+            ObjectIterator<Long2ObjectMap.Entry<long[]>> it = this.sections.long2ObjectEntrySet().fastIterator();
             while (it.hasNext()) {
-                Long2ObjectMap.Entry entry = (Long2ObjectMap.Entry)it.next();
+                Long2ObjectMap.Entry<long[]> entry = (Long2ObjectMap.Entry)it.next();
                 visitor.visit(entry.getLongKey(), (long[])entry.getValue());
             }
         }

@@ -741,7 +741,7 @@ final class NeoShadowsTypes {
             LongOpenHashSet visitedCells = new LongOpenHashSet(this.receiverFacesByKey.size());
             ArrayList<ReceiverContributionRect> rects = new ArrayList<ReceiverContributionRect>(this.receiverFacesByKey.size());
             fullFacePosByCell.defaultReturnValue(Long.MIN_VALUE);
-            for (Long2ObjectMap.Entry entry : this.receiverFacesByKey.long2ObjectEntrySet()) {
+            for (Long2ObjectMap.Entry<FaceCandidate> entry : this.receiverFacesByKey.long2ObjectEntrySet()) {
                 long receiverKey = entry.getLongKey();
                 FaceCandidate candidate = (FaceCandidate)entry.getValue();
                 PlaneRect localBounds = this.localContributionBoundsForReceiverPosKey(receiverKey);
@@ -1183,9 +1183,9 @@ final class NeoShadowsTypes {
         }
 
         private static List<ShadowPolygon> flattenPolygons(Long2ObjectOpenHashMap<List<ShadowPolygon>[]> polygonsByBlock) {
-            List flattened = new ArrayList();
-            for (List[] buckets : polygonsByBlock.values()) {
-                for (List bucket : buckets) {
+            List<ShadowPolygon> flattened = new ArrayList();
+            for (List<ShadowPolygon>[] buckets : polygonsByBlock.values()) {
+                for (List<ShadowPolygon> bucket : buckets) {
                     if (bucket != null && !bucket.isEmpty()) {
                         flattened.addAll(bucket);
                     }
@@ -1467,7 +1467,7 @@ final class NeoShadowsTypes {
          * WARNING - Removed try catching itself - possible behaviour change.
          */
         NeoShadowsOcclusionPipeline.ProbeFirstHitCache firstHitScalarCache(long sourceKey, long receiverKey, int probeCount) {
-            Long2ObjectOpenHashMap inner;
+            Long2ObjectOpenHashMap<NeoShadowsOcclusionPipeline.ProbeFirstHitCache> inner;
             synchronized (this.firstHitScalarCache) {
                 inner = (Long2ObjectOpenHashMap)this.firstHitScalarCache.get(sourceKey);
                 if (inner == null) {

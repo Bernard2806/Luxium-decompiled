@@ -113,7 +113,7 @@ public final class RainPuddleManager {
     }
 
     private List<ResourceLocation> findDepthMaps(Minecraft mc) {
-        Map resources = mc.m_91098_().m_214159_(RESOURCE_ROOT, id -> id.m_135827_().equals("luxium") && id.m_135815_().toLowerCase(Locale.ROOT).endsWith(".png"));
+        Map<ResourceLocation, net.minecraft.server.packs.resources.Resource> resources = mc.m_91098_().m_214159_(RESOURCE_ROOT, id -> id.m_135827_().equals("luxium") && id.m_135815_().toLowerCase(Locale.ROOT).endsWith(".png"));
         if (resources.isEmpty()) {
             return List.of();
         }

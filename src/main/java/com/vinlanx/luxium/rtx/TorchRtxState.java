@@ -1119,7 +1119,7 @@ public final class TorchRtxState {
             if (this.pendingRendererSections.isEmpty()) {
                 return;
             }
-            ObjectIterator it = this.pendingRendererSections.long2LongEntrySet().fastIterator();
+            ObjectIterator<Long2LongMap.Entry> it = this.pendingRendererSections.long2LongEntrySet().fastIterator();
             while (it.hasNext() && batch.size() < 16) {
                 Long2LongMap.Entry entry = (Long2LongMap.Entry)it.next();
                 if (now >= entry.getLongValue()) {
@@ -1147,9 +1147,9 @@ public final class TorchRtxState {
                 return;
             }
             int sectionsProcessed = 0;
-            ObjectIterator sectionIt = this.pendingLightChangeBitsBySection.long2ObjectEntrySet().fastIterator();
+            ObjectIterator<Long2ObjectMap.Entry<long[]>> sectionIt = this.pendingLightChangeBitsBySection.long2ObjectEntrySet().fastIterator();
             while (sectionIt.hasNext() && sectionsProcessed < 48 && changed.size() < 192 && System.nanoTime() < extractionDeadline) {
-                Long2ObjectMap.Entry entry = (Long2ObjectMap.Entry)sectionIt.next();
+                Long2ObjectMap.Entry<long[]> entry = (Long2ObjectMap.Entry)sectionIt.next();
                 long sectionKey = entry.getLongKey();
                 long[] words = (long[])entry.getValue();
                 int baseX = SectionPos.m_123223_((int)SectionPos.m_123213_((long)sectionKey));
@@ -1420,7 +1420,7 @@ public final class TorchRtxState {
                     sourceChunkChanged = true;
                 }
             }
-            ObjectIterator sourceIt = task.sources.long2ByteEntrySet().fastIterator();
+            ObjectIterator<Long2ByteMap.Entry> sourceIt = task.sources.long2ByteEntrySet().fastIterator();
             while (sourceIt.hasNext()) {
                 Long2ByteMap.Entry entry = (Long2ByteMap.Entry)sourceIt.next();
                 long key = entry.getLongKey();

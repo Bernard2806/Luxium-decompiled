@@ -75,7 +75,7 @@ public final class BlockLightTest {
         BlockLightTest.removeChunk(x, z);
         long chunkKey = ChunkPos.m_45589_((int)x, (int)z);
         SCANNED_CHUNKS.add(chunkKey);
-        Set members = new HashSet();
+        Set<Long> members = new HashSet();
         chunk.m_284254_((pos, state) -> {
             int strength = state.getLightEmission((BlockGetter)current, pos);
             if (strength <= 0) {
@@ -105,7 +105,7 @@ public final class BlockLightTest {
         BlockLightTest.setLevel(current);
         long key = pos.m_121878_();
         int strength = state.getLightEmission((BlockGetter)current, pos);
-        Set members = CHUNKS.computeIfAbsent(ChunkPos.m_151388_((BlockPos)pos), ignored -> new HashSet());
+        Set<Long> members = CHUNKS.computeIfAbsent(ChunkPos.m_151388_((BlockPos)pos), ignored -> new HashSet());
         if (strength <= 0) {
             SOURCES.remove(key);
             members.remove(key);

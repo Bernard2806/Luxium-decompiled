@@ -33,7 +33,7 @@ public final class LuxiumF3Info {
         if (!Minecraft.m_91087_().f_91066_.f_92063_) {
             return;
         }
-        List right = event.getRight();
+        List<String> right = event.getRight();
         int targetIndex = 0;
         int blankLines = 0;
         while (targetIndex < right.size()) {

@@ -166,7 +166,7 @@ implements ChunkRenderListIterable {
             if (this.lists.size() <= maximumRetained) {
                 return;
             }
-            Iterator iterator = this.lists.keySet().iterator();
+            Iterator<RenderRegion> iterator = this.lists.keySet().iterator();
             while (iterator.hasNext()) {
                 if (!(active.containsKey(iterator.next()))) {
                     iterator.remove();
