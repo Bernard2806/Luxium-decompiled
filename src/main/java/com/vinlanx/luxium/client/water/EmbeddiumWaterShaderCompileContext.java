@@ -1,14 +1,10 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.vinlanx.luxium.client.water;
 
 public final class EmbeddiumWaterShaderCompileContext {
     private static final ThreadLocal<Boolean> WATER_PASS = ThreadLocal.withInitial(() -> false);
     private static final ThreadLocal<Boolean> TRANSLUCENT_PASS = ThreadLocal.withInitial(() -> false);
 
-    private EmbeddiumWaterShaderCompileContext() {
-    }
+    private EmbeddiumWaterShaderCompileContext() { }
 
     public static void begin(boolean waterPass, boolean translucentPass) {
         WATER_PASS.set(waterPass);
@@ -28,4 +24,3 @@ public final class EmbeddiumWaterShaderCompileContext {
         TRANSLUCENT_PASS.remove();
     }
 }
-

@@ -1,41 +1,5 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  com.mojang.blaze3d.pipeline.TextureTarget
- *  com.mojang.blaze3d.platform.GlStateManager
- *  com.mojang.blaze3d.platform.TextureUtil
- *  com.mojang.blaze3d.systems.RenderSystem
- *  com.mojang.blaze3d.vertex.BufferBuilder
- *  com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer
- *  com.mojang.blaze3d.vertex.BufferUploader
- *  com.mojang.blaze3d.vertex.DefaultVertexFormat
- *  com.mojang.blaze3d.vertex.PoseStack
- *  com.mojang.blaze3d.vertex.Tesselator
- *  com.mojang.blaze3d.vertex.VertexFormat$Mode
- *  com.mojang.blaze3d.vertex.VertexSorting
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.renderer.ShaderInstance
- *  net.minecraft.core.BlockPos
- *  net.minecraft.util.Mth
- *  net.minecraft.world.phys.Vec3
- *  net.minecraftforge.api.distmarker.Dist
- *  net.minecraftforge.client.event.RenderLevelStageEvent
- *  net.minecraftforge.client.event.RenderLevelStageEvent$Stage
- *  net.minecraftforge.eventbus.api.EventPriority
- *  net.minecraftforge.eventbus.api.SubscribeEvent
- *  net.minecraftforge.fml.common.Mod$EventBusSubscriber
- *  org.joml.Matrix4f
- *  org.joml.Matrix4fc
- *  org.lwjgl.BufferUtils
- *  org.lwjgl.opengl.GL11
- *  org.lwjgl.opengl.GL13
- *  org.lwjgl.opengl.GL20
- *  org.lwjgl.opengl.GL21
- *  org.lwjgl.system.MemoryUtil
- */
 package com.vinlanx.luxium.client.kawase;
+
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -75,69 +39,63 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL21;
 import org.lwjgl.system.MemoryUtil;
-
 @Mod.EventBusSubscriber(modid="luxium", value={Dist.CLIENT})
 public final class KawaseBloomRenderer {
     private static final int MAX_LEVELS = 7;
     private static final int MAX_SOURCE_DISTANCE = 32;
     private static final TextureTarget[] DOWN_TARGETS = new TextureTarget[7];
-    private static final TextureTarget[] UP_TARGETS = new TextureTarget[7];
-    private static TextureTarget sourceTarget;
-    private static int sourceAtlas;
-    private static ByteBuffer sourcePixels;
-    private static int volumeSize;
-    private static int atlasSize;
-    private static int atlasTilesPerRow;
-    private static int volumeMinX;
-    private static int volumeMinY;
-    private static int volumeMinZ;
-    private static int anchorX;
-    private static int anchorY;
-    private static int anchorZ;
-    private static int uploadedRadius;
-    private static long uploadedVersion;
-    private static int previousSourceAtlasBinding;
-    private static boolean sourceAtlasBound;
-    private static final Matrix4f VIEW_ROTATION;
-    private static final Matrix4f INVERSE_VIEW_PROJECTION;
+    private static final TextureTarget[] UP_TARGETS = new TextureTarget[7]; private static TextureTarget sourceTarget; private static int sourceAtlas; private static ByteBuffer sourcePixels; private static int volumeSize; private static int atlasSize; private static int atlasTilesPerRow; private static int volumeMinX; private static int volumeMinY; private static int volumeMinZ; private static int anchorX; private static int anchorY; private static int anchorZ; private static int uploadedRadius; private static long uploadedVersion; private static int previousSourceAtlasBinding; private static boolean sourceAtlasBound; private static final Matrix4f VIEW_ROTATION; private static final Matrix4f INVERSE_VIEW_PROJECTION;
     private static final Matrix4f INVERSE_PROJECTION;
+    static {
+        sourceAtlas = -1;
 
-    private KawaseBloomRenderer() {
-    }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
+
+
+
+
+
+        anchorX = Integer.MIN_VALUE;
+        anchorY = Integer.MIN_VALUE;
+        anchorZ = Integer.MIN_VALUE;
+        uploadedRadius = -1;
+        uploadedVersion = Long.MIN_VALUE;
+
+
+        VIEW_ROTATION = new Matrix4f();
+        INVERSE_VIEW_PROJECTION = new Matrix4f();
+        INVERSE_PROJECTION = new Matrix4f(); }
+
+    private KawaseBloomRenderer() { }
+
     @SubscribeEvent(priority=EventPriority.LOW)
     public static void render(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            return;
-        }
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) { return; }
         if (!Config.isFeatureEnabled(Config.CLIENT.kawaseBloomEnabled)) {
             KawaseBloomRenderer.releaseResources();
             return;
         }
-        if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) {
-            return;
+        if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) { return;
         }
         Minecraft mc = Minecraft.m_91087_();
         RenderTarget main = mc.m_91385_();
         int depthTexture = SharedPostResources.getDepthTextureId();
-        if (mc.f_91073_ == null || mc.f_91074_ == null || main == null || main.f_83917_ <= 0 || main.f_83918_ <= 0 || main.m_83975_() <= 0 || depthTexture <= 0) {
+        if (mc.f_91073_ == null || mc.f_91074_ == null || main == null || main.f_83917_ <= 0 || main.f_83918_ <= 0 || main.m_83975_
+
+                () <= 0 || depthTexture <= 0) {
             return;
         }
+
         ShaderInstance sourceShader = ShaderManager.getKawaseSourceShader();
         ShaderInstance downShader = ShaderManager.getKawaseDownShader();
         ShaderInstance upShader = ShaderManager.getKawaseUpShader();
         ShaderInstance compositeShader = ShaderManager.getKawaseCompositeShader();
-        if (sourceShader == null || downShader == null || upShader == null || compositeShader == null) {
-            return;
+        if (sourceShader == null || downShader == null || upShader == null || compositeShader == null) { return;
         }
         int levels = Mth.m_14045_((int)((Integer)Config.CLIENT.kawaseBloomLevels.get()), (int)2, (int)7);
         KawaseBloomRenderer.ensureTargets(main.f_83917_, main.f_83918_, levels);
         KawaseBloomRenderer.updateSourceVolume(event.getCamera().m_90583_());
-        if (sourceAtlas <= 0 || sourceTarget == null) {
-            return;
+        if (sourceAtlas <= 0 || sourceTarget == null) { return;
         }
         Matrix4f previousProjection = new Matrix4f((Matrix4fc)RenderSystem.getProjectionMatrix());
         VertexSorting previousSorting = RenderSystem.getVertexSorting();
@@ -147,22 +105,30 @@ public final class KawaseBloomRenderer {
         modelViewStack.m_166856_();
         modelViewStack.m_252880_(0.0f, 0.0f, -2000.0f);
         RenderSystem.applyModelViewMatrix();
+
         try {
             Matrix4f viewRotation = VIEW_ROTATION.set((Matrix4fc)event.getPoseStack().m_85850_().m_252922_());
-            Matrix4f inverseViewProjection = NeoSkyFrameCache.copyInverseViewProjection(event.getProjectionMatrix(), viewRotation, INVERSE_VIEW_PROJECTION);
-            Matrix4f inverseProjection = NeoSkyFrameCache.copyInverseProjection(event.getProjectionMatrix(), INVERSE_PROJECTION);
+            Matrix4f inverseViewProjection = NeoSkyFrameCache.copyInverseViewProjection(event.getProjectionMatrix
+                    (), viewRotation, INVERSE_VIEW_PROJECTION);
+            Matrix4f inverseProjection = NeoSkyFrameCache.copyInverseProjection(event.getProjectionMatrix
+                    (), INVERSE_PROJECTION);
             Vec3 camera = event.getCamera().m_90583_();
+
             sourceShader.m_173350_("SceneSampler", (Object)main.m_83975_());
             sourceShader.m_173350_("DepthSampler", (Object)depthTexture);
             KawaseBloomRenderer.setMatrix(sourceShader, "InverseViewProjection", inverseViewProjection);
             KawaseBloomRenderer.setMatrix(sourceShader, "InverseProjection", inverseProjection);
             KawaseBloomRenderer.set3f(sourceShader, "VolumeMinRelative", (float)((double)volumeMinX - camera.f_82479_), (float)((double)volumeMinY - camera.f_82480_), (float)((double)volumeMinZ - camera.f_82481_));
+
+
+
             KawaseBloomRenderer.set1f(sourceShader, "VolumeSize", volumeSize);
             KawaseBloomRenderer.set1f(sourceShader, "SourceAtlasSize", atlasSize);
             KawaseBloomRenderer.set1f(sourceShader, "SourceTilesPerRow", atlasTilesPerRow);
             KawaseBloomRenderer.set1f(sourceShader, "Threshold", ((Double)Config.CLIENT.kawaseBloomThreshold.get()).floatValue());
             sourceTarget.m_83947_(true);
             KawaseBloomRenderer.draw(sourceShader, KawaseBloomRenderer.sourceTarget.f_83917_, KawaseBloomRenderer.sourceTarget.f_83918_, false, () -> KawaseBloomRenderer.bindSourceVolume(sourceShader));
+
             RenderTarget input = sourceTarget;
             float radius = ((Double)Config.CLIENT.kawaseBloomRadius.get()).floatValue();
             for (int level = 0; level < levels; ++level) {
@@ -174,6 +140,7 @@ public final class KawaseBloomRenderer {
                 KawaseBloomRenderer.draw(downShader, output.f_83917_, output.f_83918_, false, null);
                 input = output;
             }
+
             for (int level = levels - 2; level >= 0; --level) {
                 TextureTarget output = UP_TARGETS[level];
                 RenderTarget high = DOWN_TARGETS[level];
@@ -185,6 +152,7 @@ public final class KawaseBloomRenderer {
                 KawaseBloomRenderer.draw(upShader, output.f_83917_, output.f_83918_, false, null);
                 input = output;
             }
+
             compositeShader.m_173350_("GlowSampler", (Object)input.m_83975_());
             compositeShader.m_173350_("DepthSampler", (Object)depthTexture);
             KawaseBloomRenderer.setMatrix(compositeShader, "InverseProjection", inverseProjection);
@@ -193,8 +161,7 @@ public final class KawaseBloomRenderer {
             KawaseBloomRenderer.set1f(compositeShader, "DepthTolerance", ((Double)Config.CLIENT.kawaseBloomDepthTolerance.get()).floatValue());
             KawaseBloomRenderer.set1i(compositeShader, "DepthOcclusion", (Boolean)Config.CLIENT.kawaseBloomDepthOcclusion.get() != false ? 1 : 0);
             main.m_83947_(true);
-            KawaseBloomRenderer.draw(compositeShader, main.f_83917_, main.f_83918_, true, null);
-        }
+            KawaseBloomRenderer.draw(compositeShader, main.f_83917_, main.f_83918_, true, null); }
         finally {
             KawaseBloomRenderer.restoreSourceAtlasBinding();
             modelViewStack.m_85849_();
@@ -271,6 +238,7 @@ public final class KawaseBloomRenderer {
         int previousTexture = GL11.glGetInteger((int)32873);
         GL11.glBindTexture((int)3553, (int)target.m_83975_());
         GL11.glTexImage2D((int)3553, (int)0, (int)34842, (int)target.f_83915_, (int)target.f_83916_, (int)0, (int)6408, (int)5131, (ByteBuffer)null);
+
         GL11.glTexParameteri((int)3553, (int)10241, (int)9729);
         GL11.glTexParameteri((int)3553, (int)10240, (int)9729);
         GL11.glTexParameteri((int)3553, (int)10242, (int)33071);
@@ -280,18 +248,17 @@ public final class KawaseBloomRenderer {
         target.m_83936_(9729);
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     private static void updateSourceVolume(Vec3 camera) {
         KawaseSourceRegistry.Snapshot snapshot = KawaseSourceRegistry.get().snapshot();
         int radius = Mth.m_14045_((int)((Integer)Config.CLIENT.kawaseBloomSourceDistance.get()), (int)8, (int)32);
         int cameraX = Mth.m_14107_((double)camera.f_82479_);
         int cameraY = Mth.m_14107_((double)camera.f_82480_);
         int cameraZ = Mth.m_14107_((double)camera.f_82481_);
-        boolean moved = anchorX == Integer.MIN_VALUE || Math.abs(cameraX - anchorX) >= 8 || Math.abs(cameraY - anchorY) >= 8 || Math.abs(cameraZ - anchorZ) >= 8;
-        if (!moved && uploadedRadius == radius && uploadedVersion == snapshot.version()) {
-            return;
+        boolean moved = anchorX == Integer.MIN_VALUE || Math.abs
+                (cameraX - anchorX) >= 8 || Math.abs
+                (cameraY - anchorY) >= 8 || Math.abs
+                (cameraZ - anchorZ) >= 8;
+        if (!moved && uploadedRadius == radius && uploadedVersion == snapshot.version()) { return;
         }
         if (moved || uploadedRadius != radius) {
             anchorX = cameraX;
@@ -303,6 +270,7 @@ public final class KawaseBloomRenderer {
         volumeMinY = anchorY - radius - 1;
         volumeMinZ = anchorZ - radius - 1;
         KawaseBloomRenderer.ensureSourceVolume(size);
+
         MemoryUtil.memSet((long)MemoryUtil.memAddress((ByteBuffer)sourcePixels), (int)0, (long)sourcePixels.capacity());
         long[] positions = snapshot.positions();
         byte[] emissions = snapshot.emissions();
@@ -316,6 +284,7 @@ public final class KawaseBloomRenderer {
             int index = (tileY * size + y) * atlasSize + tileX * size + x;
             sourcePixels.put(index, (byte)((emissions[i] & 0xFF) * 17));
         }
+
         sourcePixels.position(0).limit(sourcePixels.capacity());
         int previousActiveTexture = GL11.glGetInteger((int)34016);
         GL13.glActiveTexture((int)33984);
@@ -348,12 +317,8 @@ public final class KawaseBloomRenderer {
     }
 
     private static void ensureSourceVolume(int size) {
-        if (sourceAtlas > 0 && volumeSize == size && sourcePixels != null) {
-            return;
-        }
-        if (sourceAtlas > 0) {
-            TextureUtil.releaseTextureId((int)sourceAtlas);
-        }
+        if (sourceAtlas > 0 && volumeSize == size && sourcePixels != null) { return; }
+        if (sourceAtlas > 0) { TextureUtil.releaseTextureId((int)sourceAtlas); }
         sourceAtlas = TextureUtil.generateTextureId();
         volumeSize = size;
         atlasTilesPerRow = Mth.m_14167_((float)((float)Math.sqrt(size)));
@@ -368,6 +333,7 @@ public final class KawaseBloomRenderer {
         GL11.glTexParameteri((int)3553, (int)10242, (int)33071);
         GL11.glTexParameteri((int)3553, (int)10243, (int)33071);
         GL11.glTexImage2D((int)3553, (int)0, (int)33321, (int)atlasSize, (int)atlasSize, (int)0, (int)6403, (int)5121, (ByteBuffer)null);
+
         GL11.glBindTexture((int)3553, (int)previousTexture);
         GL13.glActiveTexture((int)previousActiveTexture);
     }
@@ -379,16 +345,12 @@ public final class KawaseBloomRenderer {
         GL11.glBindTexture((int)3553, (int)sourceAtlas);
         sourceAtlasBound = true;
         int location = GL20.glGetUniformLocation((int)shader.m_108943_(), (CharSequence)"SourceAtlas");
-        if (location >= 0) {
-            GL20.glUniform1i((int)location, (int)7);
-        }
+        if (location >= 0) { GL20.glUniform1i((int)location, (int)7); }
         GL13.glActiveTexture((int)previousActiveTexture);
     }
 
     private static void restoreSourceAtlasBinding() {
-        if (!sourceAtlasBound) {
-            return;
-        }
+        if (!sourceAtlasBound) { return; }
         int previousActiveTexture = GL11.glGetInteger((int)34016);
         GL13.glActiveTexture((int)33991);
         GL11.glBindTexture((int)3553, (int)previousSourceAtlasBinding);
@@ -396,27 +358,19 @@ public final class KawaseBloomRenderer {
         sourceAtlasBound = false;
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     private static void draw(ShaderInstance shader, int width, int height, boolean additive, Runnable afterApply) {
         Matrix4f projection = new Matrix4f().setOrtho(0.0f, (float)width, (float)height, 0.0f, 1000.0f, 3000.0f);
         RenderSystem.setProjectionMatrix((Matrix4f)projection, (VertexSorting)VertexSorting.f_276633_);
         RenderSystem.viewport((int)0, (int)0, (int)width, (int)height);
-        if (shader.f_173308_ != null) {
-            shader.f_173308_.m_5679_(new Matrix4f().translation(0.0f, 0.0f, -2000.0f));
-        }
-        if (shader.f_173309_ != null) {
-            shader.f_173309_.m_5679_(projection);
+        if (shader.f_173308_ != null) { shader.f_173308_.m_5679_(new Matrix4f().translation(0.0f, 0.0f, -2000.0f)); }
+        if (shader.f_173309_ != null) { shader.f_173309_.m_5679_(projection);
         }
         GlStateManager._disableDepthTest();
         GlStateManager._depthMask((boolean)false);
         GlStateManager._colorMask((boolean)true, (boolean)true, (boolean)true, (boolean)true);
         shader.m_173363_();
         try {
-            if (afterApply != null) {
-                afterApply.run();
-            }
+            if (afterApply != null) { afterApply.run(); }
             if (additive) {
                 RenderSystem.enableBlend();
                 GlStateManager._blendFuncSeparate((int)1, (int)1, (int)0, (int)1);
@@ -430,59 +384,33 @@ public final class KawaseBloomRenderer {
             buffer.m_5483_((double)width, (double)height, 0.0).m_7421_(1.0f, 0.0f).m_5752_();
             buffer.m_5483_((double)width, 0.0, 0.0).m_7421_(1.0f, 1.0f).m_5752_();
             buffer.m_5483_(0.0, 0.0, 0.0).m_7421_(0.0f, 1.0f).m_5752_();
-            BufferUploader.m_231209_((BufferBuilder.RenderedBuffer)buffer.m_231175_());
-        }
+            BufferUploader.m_231209_((BufferBuilder.RenderedBuffer)buffer.m_231175_()); }
         finally {
             shader.m_173362_();
         }
     }
 
     private static void set1f(ShaderInstance shader, String name, float value) {
-        if (shader.m_173348_(name) != null) {
-            shader.m_173348_(name).m_5985_(value);
-        }
+        if (shader.m_173348_(name) != null) { shader.m_173348_(name).m_5985_(value); }
     }
 
     private static void set1i(ShaderInstance shader, String name, int value) {
-        if (shader.m_173348_(name) != null) {
-            shader.m_173348_(name).m_142617_(value);
-        }
+        if (shader.m_173348_(name) != null) { shader.m_173348_(name).m_142617_(value); }
     }
 
     private static void set2f(ShaderInstance shader, String name, float x, float y) {
-        if (shader.m_173348_(name) != null) {
-            shader.m_173348_(name).m_7971_(x, y);
-        }
+        if (shader.m_173348_(name) != null) { shader.m_173348_(name).m_7971_(x, y); }
     }
 
     private static void set3f(ShaderInstance shader, String name, float x, float y, float z) {
-        if (shader.m_173348_(name) != null) {
-            shader.m_173348_(name).m_5889_(x, y, z);
-        }
+        if (shader.m_173348_(name) != null) { shader.m_173348_(name).m_5889_(x, y, z); }
     }
 
     private static void setMatrix(ShaderInstance shader, String name, Matrix4f matrix) {
-        if (shader.m_173348_(name) != null) {
-            shader.m_173348_(name).m_5679_(matrix);
-        }
+        if (shader.m_173348_(name) != null) { shader.m_173348_(name).m_5679_(matrix); }
     }
 
     private static void destroyTarget(TextureTarget target) {
-        if (target != null) {
-            target.m_83930_();
-        }
-    }
-
-    static {
-        sourceAtlas = -1;
-        anchorX = Integer.MIN_VALUE;
-        anchorY = Integer.MIN_VALUE;
-        anchorZ = Integer.MIN_VALUE;
-        uploadedRadius = -1;
-        uploadedVersion = Long.MIN_VALUE;
-        VIEW_ROTATION = new Matrix4f();
-        INVERSE_VIEW_PROJECTION = new Matrix4f();
-        INVERSE_PROJECTION = new Matrix4f();
+        if (target != null) { target.m_83930_(); }
     }
 }
-

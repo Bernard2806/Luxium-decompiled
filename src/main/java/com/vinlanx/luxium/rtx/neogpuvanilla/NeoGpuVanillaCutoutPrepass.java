@@ -1,24 +1,22 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.vinlanx.luxium.rtx.neogpuvanilla;
 
 import com.vinlanx.luxium.Config;
 import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla;
 import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanillaFrameState;
-
 public final class NeoGpuVanillaCutoutPrepass {
     private static final int OFF = 0;
     private static final int DEPTH_PREPASS = 1;
     private static final int COLOR_PASS = 2;
     private static int mode = 0;
 
-    private NeoGpuVanillaCutoutPrepass() {
-    }
+    private NeoGpuVanillaCutoutPrepass() { }
 
     public static boolean shouldRun() {
         NeoGpuVanillaFrameState state = NeoGpuVanilla.frameState();
-        return NeoGpuVanilla.isConfiguredEnabled() && Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaCutoutEnabled) && NeoGpuVanilla.isMainPassActive() && state.enabled();
+        return NeoGpuVanilla.isConfiguredEnabled() && Config.isFeatureEnabled
+                (Config.CLIENT.neoGpuVanillaCutoutEnabled) && NeoGpuVanilla.isMainPassActive
+                () && state.enabled
+                ();
     }
 
     public static void beginDepthPrepass() {
@@ -41,4 +39,3 @@ public final class NeoGpuVanillaCutoutPrepass {
         return mode == 2;
     }
 }
-

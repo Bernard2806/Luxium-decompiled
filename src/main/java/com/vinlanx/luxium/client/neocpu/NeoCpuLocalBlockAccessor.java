@@ -1,17 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.core.BlockPos
- *  net.minecraft.core.BlockPos$MutableBlockPos
- *  net.minecraft.world.level.BlockGetter
- *  net.minecraft.world.level.block.Blocks
- *  net.minecraft.world.level.block.state.BlockState
- */
 package com.vinlanx.luxium.client.neocpu;
-
 import com.vinlanx.luxium.client.neocpu.NeoCpuShadowShape;
 import com.vinlanx.luxium.client.neocpu.NeoCpuShadowShapeCache;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -20,16 +7,15 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-
 final class NeoCpuLocalBlockAccessor {
     private final ClientLevel level;
     private final NeoCpuShadowShapeCache shapeCache;
     private final Long2ObjectOpenHashMap<BlockState> states = new Long2ObjectOpenHashMap();
     private final Long2ObjectOpenHashMap<NeoCpuShadowShape> shapes = new Long2ObjectOpenHashMap();
     private final BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+
     private final int minBuildHeight;
     private final int maxBuildHeight;
-
     NeoCpuLocalBlockAccessor(ClientLevel level, NeoCpuShadowShapeCache shapeCache) {
         this.level = level;
         this.shapeCache = shapeCache;
@@ -89,4 +75,3 @@ final class NeoCpuLocalBlockAccessor {
         return state.m_60838_((BlockGetter)this.level, (BlockPos)this.cursor);
     }
 }
-

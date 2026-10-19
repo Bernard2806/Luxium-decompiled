@@ -1,39 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  com.mojang.blaze3d.pipeline.TextureTarget
- *  com.mojang.blaze3d.platform.GlStateManager
- *  com.mojang.blaze3d.shaders.Uniform
- *  com.mojang.blaze3d.systems.RenderSystem
- *  com.mojang.blaze3d.vertex.BufferBuilder
- *  com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer
- *  com.mojang.blaze3d.vertex.BufferUploader
- *  com.mojang.blaze3d.vertex.DefaultVertexFormat
- *  com.mojang.blaze3d.vertex.PoseStack
- *  com.mojang.blaze3d.vertex.Tesselator
- *  com.mojang.blaze3d.vertex.VertexFormat$Mode
- *  com.mojang.blaze3d.vertex.VertexSorting
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.renderer.ShaderInstance
- *  net.minecraft.util.Mth
- *  net.minecraft.world.phys.Vec3
- *  net.minecraftforge.api.distmarker.Dist
- *  net.minecraftforge.client.event.RenderLevelStageEvent
- *  net.minecraftforge.client.event.RenderLevelStageEvent$Stage
- *  net.minecraftforge.eventbus.api.EventPriority
- *  net.minecraftforge.eventbus.api.SubscribeEvent
- *  net.minecraftforge.fml.common.Mod$EventBusSubscriber
- *  org.joml.Matrix4f
- *  org.joml.Matrix4fc
- */
-package com.vinlanx.luxium.client.posteffects;
-
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.shaders.Uniform;
+package com.vinlanx.luxium.client.posteffects; import com.mojang.blaze3d.pipeline.RenderTarget; import com.mojang.blaze3d.pipeline.TextureTarget; import com.mojang.blaze3d.platform.GlStateManager; import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -66,33 +31,30 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
-
 @Mod.EventBusSubscriber(modid="luxium", value={Dist.CLIENT})
 public final class PostEffectPipeline {
+    private static enum BlendMode {
+        OVERWRITE,
+        PREMULTIPLIED,
+        ADDITIVE;
+    }
+
     private static final Matrix4f PREVIOUS_PROJECTION = new Matrix4f();
+
     private static TextureTarget effectsTarget;
     private static boolean deferredTonemap;
     private static boolean deferredTonemapCompositeEffects;
     private static int deferredEffectsTextureId;
+    private PostEffectPipeline() { }
 
-    private PostEffectPipeline() {
-    }
-
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     @SubscribeEvent(priority=EventPriority.LOWEST)
     public static void onRenderLevel(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            return;
-        }
-        if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) {
-            return;
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) { return; }
+        if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) { return;
         }
         PostEffectPipeline.clearDeferredTonemap();
         Minecraft mc = Minecraft.m_91087_();
-        if (mc.f_91073_ == null || mc.f_91074_ == null) {
-            return;
+        if (mc.f_91073_ == null || mc.f_91074_ == null) { return;
         }
         boolean renderFog = fog.isEnabled();
         boolean renderRays = skygodrays.isEnabled() && skygodrays.hasVisibleCelestial();
@@ -100,50 +62,62 @@ public final class PostEffectPipeline {
         boolean renderFlare = lensflare.isEnabled() && skygodrays.hasVisibleCelestial();
         boolean renderEffects = renderFog || renderRays || renderVolumetricRays || renderFlare;
         boolean renderTonemap = tonemap.isEnabled();
-        if (!renderEffects && !renderTonemap) {
-            return;
+        if (!renderEffects && !renderTonemap) { return;
         }
         RenderTarget main = mc.m_91385_();
         int width = main.f_83917_;
         int height = main.f_83918_;
-        if (width <= 0 || height <= 0) {
-            return;
+        if (width <= 0 || height <= 0) { return;
         }
         float renderScale = Mth.m_14036_((float)((Double)Config.CLIENT.postEffectsRenderScale.get()).floatValue(), (float)0.1f, (float)1.0f);
         boolean useEffectsTarget = renderEffects && (renderTonemap || renderScale < 0.999f);
         int effectsWidth = useEffectsTarget ? Math.max(1, Math.round((float)width * renderScale)) : width;
         int effectsHeight = useEffectsTarget ? Math.max(1, Math.round((float)height * renderScale)) : height;
+
         if (useEffectsTarget) {
             PostEffectPipeline.ensureEffectsTarget(effectsWidth, effectsHeight);
         }
-        int effectsDepthTexture = useEffectsTarget ? main.m_83980_() : SharedPostResources.getDepthTextureId();
+
+        int effectsDepthTexture = useEffectsTarget ? main.m_83980_
+                () : SharedPostResources.getDepthTextureId
+                ();
+
         PREVIOUS_PROJECTION.set((Matrix4fc)RenderSystem.getProjectionMatrix());
         VertexSorting previousVertexSorting = RenderSystem.getVertexSorting();
         int[] savedTextures = PostEffectPipeline.saveShaderTextures();
         float[] savedShaderColor = RenderSystem.getShaderColor();
+
         int cloudOcclusionTexture = 0;
         if (renderRays || renderFlare) {
             Vec3 cameraPos = event.getCamera().m_90583_();
-            cloudOcclusionTexture = LuxiumCloudRenderer.get().renderOcclusionMask(event.getPoseStack(), event.getProjectionMatrix(), event.getPartialTick(), cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_, event.getRenderTick(), effectsWidth, effectsHeight);
+            cloudOcclusionTexture = LuxiumCloudRenderer.get().renderOcclusionMask(event.getPoseStack
+                    (), event.getProjectionMatrix(), event.getPartialTick(), cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_, event.getRenderTick
+                    (), effectsWidth, effectsHeight);
         }
+
+
         PoseStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.m_85836_();
         modelViewStack.m_166856_();
         modelViewStack.m_252880_(0.0f, 0.0f, -2000.0f);
         RenderSystem.applyModelViewMatrix();
+
         try {
             if (renderEffects) {
                 RenderTarget destination = main;
-                int activeEffectCount = (renderFog ? 1 : 0) + (renderRays ? 1 : 0) + (renderVolumetricRays ? 1 : 0) + (renderFlare ? 1 : 0);
-                ShaderInstance combinedEffects = renderVolumetricRays || activeEffectCount >= 2 ? ShaderManager.getPostEffectsCombinedShader() : null;
+                int activeEffectCount = (renderFog ? 1 : 0) + (renderRays ? 1 : 0) + (
+                        renderVolumetricRays ? 1 : 0) + (renderFlare ? 1 : 0);
+                ShaderInstance combinedEffects = renderVolumetricRays || activeEffectCount >= 2 ? ShaderManager.getPostEffectsCombinedShader
+                        () : null;
                 boolean useCombinedEffects = combinedEffects != null;
+
                 if (useEffectsTarget) {
                     TextureTarget target = effectsTarget;
-                    if (target == null) {
-                        return;
-                    }
+                    if (target == null) { return; }
                     target.m_83947_(true);
-                    boolean firstPassOverwrites = useCombinedEffects || renderFog && fog.getShader() != null;
+
+                    boolean firstPassOverwrites = useCombinedEffects || renderFog && fog.getShader
+                            () != null;
                     if (!firstPassOverwrites) {
                         target.m_83931_(0.0f, 0.0f, 0.0f, 0.0f);
                         target.m_83954_(Minecraft.f_91002_);
@@ -151,13 +125,16 @@ public final class PostEffectPipeline {
                     }
                     destination = target;
                 }
+
                 if (useCombinedEffects) {
                     combinedEffects.m_173350_("DepthSampler", (Object)effectsDepthTexture);
                     PostEffectPipeline.setUniform1i(combinedEffects, "RenderFogEffect", renderFog ? 1 : 0);
                     PostEffectPipeline.setUniform1i(combinedEffects, "RenderSkyRays", renderRays ? 1 : 0);
                     PostEffectPipeline.setUniform1i(combinedEffects, "RenderSkyVolumetricRays", renderVolumetricRays ? 1 : 0);
                     PostEffectPipeline.setUniform1i(combinedEffects, "RenderLensFlare", renderFlare ? 1 : 0);
-                    PostEffectPipeline.setUniform1i(combinedEffects, "RenderCelestialVisibility", renderRays || renderFlare ? 1 : 0);
+                    PostEffectPipeline.setUniform1i(combinedEffects, "RenderCelestialVisibility", renderRays
+                            || renderFlare ? 1 : 0);
+
                     if (renderFog) {
                         fog.configure(combinedEffects, event, mc, effectsDepthTexture);
                     }
@@ -165,25 +142,30 @@ public final class PostEffectPipeline {
                         skygodrays.configure(combinedEffects, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
                     }
                     if (renderVolumetricRays) {
+
                         skyvolumetrigodrays.configure(combinedEffects, event, renderFog);
                     }
                     if (renderFlare) {
                         if (renderRays) {
+
                             lensflare.configureEffectUniforms(combinedEffects);
                         } else {
                             lensflare.configure(combinedEffects, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
                         }
                     }
+
                     destination.m_83947_(true);
-                    PostEffectPipeline.draw(combinedEffects, effectsWidth, effectsHeight, useEffectsTarget ? BlendMode.OVERWRITE : (renderFog ? BlendMode.PREMULTIPLIED : BlendMode.ADDITIVE));
-                } else {
+                    PostEffectPipeline.draw(combinedEffects, effectsWidth, effectsHeight,
+                            useEffectsTarget ? BlendMode.OVERWRITE : (
+                            renderFog ? BlendMode.PREMULTIPLIED : BlendMode.ADDITIVE)); } else {
                     ShaderInstance shader;
                     if (renderFog) {
                         destination.m_83947_(true);
                         shader = fog.getShader();
                         if (shader != null) {
                             fog.configure(shader, event, mc, effectsDepthTexture);
-                            PostEffectPipeline.draw(shader, effectsWidth, effectsHeight, useEffectsTarget ? BlendMode.OVERWRITE : BlendMode.PREMULTIPLIED);
+                            PostEffectPipeline.draw(shader, effectsWidth, effectsHeight,
+                                    useEffectsTarget ? BlendMode.OVERWRITE : BlendMode.PREMULTIPLIED);
                         }
                     }
                     if (renderRays) {
@@ -204,17 +186,21 @@ public final class PostEffectPipeline {
                     }
                 }
             }
+
             if (renderTonemap) {
                 ShaderInstance shader = tonemap.getShader();
                 if (shader != null) {
                     int sceneTexture = main.m_83975_();
-                    int effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.m_83975_() : 0;
+                    int effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.m_83975_
+                            () : 0;
+
                     if (LsrSystem.shouldDeferTonemap()) {
                         deferredTonemap = true;
                         deferredTonemapCompositeEffects = useEffectsTarget;
                         deferredEffectsTextureId = effectsTexture;
                     } else {
                         tonemap.configure(shader, sceneTexture, effectsTexture, useEffectsTarget);
+
                         int previousSceneFilter = main.f_83922_;
                         if (previousSceneFilter != 9729) {
                             main.m_83936_(9729);
@@ -222,8 +208,7 @@ public final class PostEffectPipeline {
                         try {
                             RenderTarget postTarget = PostProcessSwapChain.begin(main);
                             postTarget.m_83947_(true);
-                            PostEffectPipeline.draw(shader, width, height, BlendMode.OVERWRITE);
-                        }
+                            PostEffectPipeline.draw(shader, width, height, BlendMode.OVERWRITE); }
                         finally {
                             if (main.f_83922_ != previousSceneFilter) {
                                 main.m_83936_(previousSceneFilter);
@@ -237,8 +222,7 @@ public final class PostEffectPipeline {
                 if (shader != null) {
                     shader.m_173350_("EffectsSampler", (Object)effectsTarget.m_83975_());
                     main.m_83947_(true);
-                    PostEffectPipeline.draw(shader, width, height, BlendMode.PREMULTIPLIED);
-                }
+                    PostEffectPipeline.draw(shader, width, height, BlendMode.PREMULTIPLIED); }
             }
         }
         finally {
@@ -258,12 +242,8 @@ public final class PostEffectPipeline {
         return deferredEffectsTextureId;
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     public static boolean flushDeferredTonemapForSceneConsumer() {
-        if (!deferredTonemap) {
-            return false;
+        if (!deferredTonemap) { return false;
         }
         Minecraft mc = Minecraft.m_91087_();
         RenderTarget main = mc.m_91385_();
@@ -271,6 +251,7 @@ public final class PostEffectPipeline {
         if (main == null || shader == null || main.f_83917_ <= 0 || main.f_83918_ <= 0) {
             return false;
         }
+
         Matrix4f previousProjection = new Matrix4f((Matrix4fc)RenderSystem.getProjectionMatrix());
         VertexSorting previousVertexSorting = RenderSystem.getVertexSorting();
         int[] savedTextures = PostEffectPipeline.saveShaderTextures();
@@ -280,23 +261,29 @@ public final class PostEffectPipeline {
         modelViewStack.m_166856_();
         modelViewStack.m_252880_(0.0f, 0.0f, -2000.0f);
         RenderSystem.applyModelViewMatrix();
+
         int previousSceneFilter = main.f_83922_;
+
         try {
             tonemap.configure(shader, main.m_83975_(), deferredEffectsTextureId, deferredTonemapCompositeEffects, false, main.f_83915_, main.f_83916_);
+
+
             if (previousSceneFilter != 9729) {
                 main.m_83936_(9729);
             }
+
             RenderTarget postTarget = PostProcessSwapChain.begin(main);
             postTarget.m_83947_(true);
             PostEffectPipeline.draw(shader, main.f_83917_, main.f_83918_, BlendMode.OVERWRITE);
             PostProcessSwapChain.commit(main);
+
             PostEffectPipeline.clearDeferredTonemap();
-            return true;
-        }
+            return true; }
         finally {
             if (main.f_83922_ != previousSceneFilter) {
                 main.m_83936_(previousSceneFilter);
             }
+
             modelViewStack.m_85849_();
             RenderSystem.applyModelViewMatrix();
             RenderSystem.setProjectionMatrix((Matrix4f)previousProjection, (VertexSorting)previousVertexSorting);
@@ -306,6 +293,7 @@ public final class PostEffectPipeline {
             GlStateManager._enableDepthTest();
             RenderSystem.depthFunc((int)515);
             RenderSystem.setShaderColor((float)savedShaderColor[0], (float)savedShaderColor[1], (float)savedShaderColor[2], (float)savedShaderColor[3]);
+
             for (int i = 0; i < savedTextures.length; ++i) {
                 RenderSystem.setShaderTexture((int)i, (int)savedTextures[i]);
             }
@@ -331,7 +319,9 @@ public final class PostEffectPipeline {
         if (!renderEffects) {
             return false;
         }
-        float renderScale = Mth.m_14036_((float)((Double)Config.CLIENT.postEffectsRenderScale.get()).floatValue(), (float)0.1f, (float)1.0f);
+
+        float renderScale = Mth.m_14036_((float)((Double)Config.CLIENT.postEffectsRenderScale.get
+                ()).floatValue(), (float)0.1f, (float)1.0f);
         boolean useEffectsTarget = tonemap.isEnabled() || renderScale < 0.999f;
         return !useEffectsTarget;
     }
@@ -343,9 +333,6 @@ public final class PostEffectPipeline {
         }
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     private static void draw(ShaderInstance shader, int width, int height, BlendMode blendMode) {
         Matrix4f projection = new Matrix4f().setOrtho(0.0f, (float)width, (float)height, 0.0f, 1000.0f, 3000.0f);
         RenderSystem.setProjectionMatrix((Matrix4f)projection, (VertexSorting)VertexSorting.f_276633_);
@@ -356,14 +343,14 @@ public final class PostEffectPipeline {
         if (shader.f_173309_ != null) {
             shader.f_173309_.m_5679_(projection);
         }
+
         GlStateManager._disableDepthTest();
         GlStateManager._depthMask((boolean)false);
         GlStateManager._colorMask((boolean)true, (boolean)true, (boolean)true, (boolean)true);
         shader.m_173363_();
         try {
             PostEffectPipeline.applyBlendMode(blendMode);
-            PostEffectPipeline.renderFullscreenQuad(width, height);
-        }
+            PostEffectPipeline.renderFullscreenQuad(width, height); }
         finally {
             shader.m_173362_();
         }
@@ -376,6 +363,7 @@ public final class PostEffectPipeline {
             RenderSystem.enableBlend();
             GlStateManager._blendFuncSeparate((int)1, (int)771, (int)1, (int)771);
         } else {
+
             RenderSystem.enableBlend();
             GlStateManager._blendFuncSeparate((int)1, (int)1, (int)0, (int)1);
         }
@@ -400,6 +388,10 @@ public final class PostEffectPipeline {
         return textures;
     }
 
+
+
+
+
     private static void restoreRenderState(PoseStack modelViewStack, VertexSorting previousVertexSorting, int[] savedTextures, float[] savedShaderColor, RenderTarget main) {
         modelViewStack.m_85849_();
         RenderSystem.applyModelViewMatrix();
@@ -410,6 +402,7 @@ public final class PostEffectPipeline {
         GlStateManager._enableDepthTest();
         RenderSystem.depthFunc((int)515);
         RenderSystem.setShaderColor((float)savedShaderColor[0], (float)savedShaderColor[1], (float)savedShaderColor[2], (float)savedShaderColor[3]);
+
         for (int i = 0; i < savedTextures.length; ++i) {
             RenderSystem.setShaderTexture((int)i, (int)savedTextures[i]);
         }
@@ -429,12 +422,4 @@ public final class PostEffectPipeline {
             effectsTarget.m_83936_(9729);
         }
     }
-
-    private static enum BlendMode {
-        OVERWRITE,
-        PREMULTIPLIED,
-        ADDITIVE;
-
-    }
 }
-

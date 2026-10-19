@@ -1,14 +1,7 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  com.mojang.blaze3d.pipeline.TextureTarget
- *  com.mojang.blaze3d.platform.GlStateManager
- *  net.minecraft.client.Minecraft
- *  org.lwjgl.opengl.GL30
- */
 package com.vinlanx.luxium.client.postprocess;
+
+
+
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -16,15 +9,13 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.vinlanx.luxium.mixin.RenderTargetAccessor;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL30;
-
 public final class PostProcessSwapChain {
     private static TextureTarget scratch;
-
-    private PostProcessSwapChain() {
-    }
+    private PostProcessSwapChain() { }
 
     public static RenderTarget begin(RenderTarget main) {
         PostProcessSwapChain.ensure(main);
+
         if (PostProcessSwapChain.scratch.f_83922_ != main.f_83922_) {
             scratch.m_83936_(main.f_83922_);
         }
@@ -37,6 +28,7 @@ public final class PostProcessSwapChain {
             main.m_83947_(true);
             return;
         }
+
         RenderTargetAccessor mainAccess = (RenderTargetAccessor)main;
         RenderTargetAccessor scratchAccess = (RenderTargetAccessor)scratch;
         int oldMain = mainAccess.luxium$getColorTextureIdRaw();
@@ -45,8 +37,10 @@ public final class PostProcessSwapChain {
             main.m_83947_(true);
             return;
         }
+
         mainAccess.luxium$setColorTextureIdRaw(newMain);
         scratchAccess.luxium$setColorTextureIdRaw(oldMain);
+
         PostProcessSwapChain.attachColor(main.f_83920_, newMain);
         PostProcessSwapChain.attachColor(PostProcessSwapChain.scratch.f_83920_, oldMain);
         main.m_83947_(true);
@@ -66,9 +60,10 @@ public final class PostProcessSwapChain {
         }
     }
 
+
     private static void attachColor(int framebuffer, int texture) {
         GlStateManager._glBindFramebuffer((int)36160, (int)framebuffer);
         GL30.glFramebufferTexture2D((int)36160, (int)36064, (int)3553, (int)texture, (int)0);
+
     }
 }
-

@@ -1,21 +1,19 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.core.BlockPos
- */
 package com.vinlanx.luxium.client.reflections;
+
+
+
+
+
+
 
 import com.vinlanx.luxium.client.reflections.RainHeightmap;
 import net.minecraft.core.BlockPos;
-
 public final class RainPuddleSurface {
     private final RainHeightmap heightmap;
     private final int spanBlocks;
     private final int minBlockX;
     private final int minBlockZ;
     private final long[] coveredBlockKeys;
-
     public RainPuddleSurface(RainHeightmap heightmap, int spanBlocks, int minBlockX, int minBlockZ, long[] coveredBlockKeys) {
         if (heightmap == null) {
             throw new IllegalArgumentException("heightmap");
@@ -26,6 +24,7 @@ public final class RainPuddleSurface {
         if (coveredBlockKeys == null) {
             throw new IllegalArgumentException("coveredBlockKeys");
         }
+
         this.heightmap = heightmap;
         this.spanBlocks = spanBlocks;
         this.minBlockX = minBlockX;
@@ -59,4 +58,3 @@ public final class RainPuddleSurface {
         return this.heightmap.sample(globalU, globalV);
     }
 }
-

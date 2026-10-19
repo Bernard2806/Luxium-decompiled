@@ -1,12 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.core.Direction
- *  net.minecraft.util.Mth
- *  net.minecraft.world.phys.AABB
- *  net.minecraft.world.phys.Vec3
- */
 package com.vinlanx.luxium.client.neocpu;
 
 import java.util.List;
@@ -14,7 +5,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
 public final class NeoCpuShadowTypes {
     static final double EPSILON = 1.0E-6;
     static final Direction[] FACES = Direction.values();
@@ -22,20 +12,18 @@ public final class NeoCpuShadowTypes {
     private NeoCpuShadowTypes() {
     }
 
-    private static double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
-    }
 
-    /*
-     * Uses 'sealed' constructs - enablewith --sealed true
-     */
     public static sealed interface Occluder permits Box, QuadOccluder {
         public long blockKey();
-
         public float opacity();
     }
-
     public record Box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ, long blockKey, float opacity) implements Occluder
+
+
+
+
+
+
     {
         public double centerX() {
             return (this.minX + this.maxX) * 0.5;
@@ -56,11 +44,11 @@ public final class NeoCpuShadowTypes {
         private final AABB bounds;
         private final long blockKey;
         private final float opacity;
-
         public QuadOccluder(Vec3[] vertices, long blockKey, float opacity) {
             this.vertices = (Vec3[])vertices.clone();
             this.blockKey = blockKey;
             this.opacity = Mth.m_14036_((float)opacity, (float)0.0f, (float)1.0f);
+
             double minX = Double.POSITIVE_INFINITY;
             double minY = Double.POSITIVE_INFINITY;
             double minZ = Double.POSITIVE_INFINITY;
@@ -105,6 +93,18 @@ public final class NeoCpuShadowTypes {
     }
 
     public record ReceiverSurface(long blockKey, Direction face, double plane, double minU, double maxU, double minV, double maxV, double centerX, double centerY, double centerZ, double normalX, double normalY, double normalZ) {
+
+
+
+
+
+
+
+
+
+
+
+
         public double width() {
             return this.maxU - this.minU;
         }
@@ -149,24 +149,21 @@ public final class NeoCpuShadowTypes {
         }
 
         public double sampleX(double u, double v) {
-            return switch (this.face) {
-                default -> throw new IncompatibleClassChangeError();
+            return switch (this.face) { default -> throw new IncompatibleClassChangeError();
                 case Direction.UP, Direction.DOWN, Direction.NORTH, Direction.SOUTH -> u;
                 case Direction.WEST, Direction.EAST -> this.plane;
             };
         }
 
         public double sampleY(double u, double v) {
-            return switch (this.face) {
-                default -> throw new IncompatibleClassChangeError();
+            return switch (this.face) { default -> throw new IncompatibleClassChangeError();
                 case Direction.UP, Direction.DOWN -> this.plane;
                 case Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST -> v;
             };
         }
 
         public double sampleZ(double u, double v) {
-            return switch (this.face) {
-                default -> throw new IncompatibleClassChangeError();
+            return switch (this.face) { default -> throw new IncompatibleClassChangeError();
                 case Direction.UP, Direction.DOWN -> v;
                 case Direction.NORTH, Direction.SOUTH -> this.plane;
                 case Direction.WEST, Direction.EAST -> u;
@@ -174,8 +171,7 @@ public final class NeoCpuShadowTypes {
         }
 
         public Uv worldToUv(double x, double y, double z) {
-            return switch (this.face) {
-                default -> throw new IncompatibleClassChangeError();
+            return switch (this.face) { default -> throw new IncompatibleClassChangeError();
                 case Direction.UP, Direction.DOWN -> new Uv(x, z);
                 case Direction.NORTH, Direction.SOUTH -> new Uv(x, y);
                 case Direction.WEST, Direction.EAST -> new Uv(z, y);
@@ -184,6 +180,9 @@ public final class NeoCpuShadowTypes {
     }
 
     public record SectionGeometry(long sectionKey, long chunkKey, ReceiverSurface[] receivers, Occluder[][] occluderGrid) {
+
+
+
         static final SectionGeometry EMPTY = new SectionGeometry(0L, 0L, new ReceiverSurface[0], null);
 
         public boolean isEmpty() {
@@ -191,9 +190,7 @@ public final class NeoCpuShadowTypes {
         }
 
         public Occluder[] occludersAt(int localX, int localY, int localZ) {
-            if (this.occluderGrid == null) {
-                return null;
-            }
+            if (this.occluderGrid == null) { return null; }
             return this.occluderGrid[localY << 8 | localZ << 4 | localX];
         }
     }
@@ -203,6 +200,11 @@ public final class NeoCpuShadowTypes {
             return Math.abs(this.u - other.u) <= 1.0E-5 && Math.abs(this.v - other.v) <= 1.0E-5;
         }
     }
+
+
+
+
+
 
     public static final class ShadowPolygon {
         public final double[] vertices;
@@ -214,13 +216,13 @@ public final class NeoCpuShadowTypes {
         public final double normalY;
         public final double normalZ;
         public final float strength;
-
         public ShadowPolygon(double[] vertices, double normalX, double normalY, double normalZ, float strength) {
             this.vertices = vertices;
             this.normalX = normalX;
             this.normalY = normalY;
             this.normalZ = normalZ;
             this.strength = strength;
+
             double minX = Double.POSITIVE_INFINITY;
             double minY = Double.POSITIVE_INFINITY;
             double minZ = Double.POSITIVE_INFINITY;
@@ -263,6 +265,10 @@ public final class NeoCpuShadowTypes {
     public record PerSourceStatic(long sourceKey, int emission, Vec3 source, List<ReceiverGroupEntry> groups, List<ShadowPolygon> blockPolygons) {
     }
 
+
+
+
+
     public record ReceiverGroupEntry(List<ReceiverWithStrength> receivers) {
         public boolean isEmpty() {
             return this.receivers.isEmpty();
@@ -283,5 +289,8 @@ public final class NeoCpuShadowTypes {
             return this.sources.isEmpty();
         }
     }
-}
 
+    private static double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
+    }
+}

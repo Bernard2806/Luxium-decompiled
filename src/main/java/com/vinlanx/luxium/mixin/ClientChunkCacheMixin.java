@@ -1,21 +1,6 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.client.multiplayer.ClientChunkCache
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.nbt.CompoundTag
- *  net.minecraft.network.FriendlyByteBuf
- *  net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData$BlockEntityTagOutput
- *  net.minecraft.world.level.chunk.LevelChunk
- *  org.spongepowered.asm.mixin.Mixin
- *  org.spongepowered.asm.mixin.Shadow
- *  org.spongepowered.asm.mixin.injection.At
- *  org.spongepowered.asm.mixin.injection.Inject
- *  org.spongepowered.asm.mixin.injection.callback.CallbackInfo
- *  org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable
- */
 package com.vinlanx.luxium.mixin;
+
+
 
 import com.vinlanx.luxium.client.BlockLightTest.BlockLightTest;
 import com.vinlanx.luxium.client.kawase.KawaseSourceRegistry;
@@ -36,18 +21,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
 @Mixin(value={ClientChunkCache.class})
 public abstract class ClientChunkCacheMixin {
+
+
+
+
     @Shadow
     ClientLevel f_104411_;
-
     @Inject(method={"replaceWithPacketData"}, at={@At(value="RETURN")})
     private void luxium$onChunkLoad(int x, int z, FriendlyByteBuf buf, CompoundTag tag, Consumer<ClientboundLevelChunkPacketData.BlockEntityTagOutput> consumer, CallbackInfoReturnable<LevelChunk> cir) {
         LevelChunk chunk = (LevelChunk)cir.getReturnValue();
-        if (chunk == null) {
-            return;
-        }
+        if (chunk == null) { return; }
         ClientLevel capturedLevel = this.f_104411_;
         BlockLightTest.onChunk(capturedLevel, chunk);
         ExposedFaceService.get().removeChunk(x, z);
@@ -71,4 +56,3 @@ public abstract class ClientChunkCacheMixin {
         KawaseSourceRegistry.get().reconcileLoadedChunks(this.f_104411_);
     }
 }
-

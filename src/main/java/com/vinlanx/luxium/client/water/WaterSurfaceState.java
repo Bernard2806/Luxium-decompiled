@@ -1,13 +1,6 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.world.phys.Vec3
- *  org.joml.Vector3f
- */
 package com.vinlanx.luxium.client.water;
+
+
 
 import com.vinlanx.luxium.Config;
 import com.vinlanx.luxium.client.NeoShadowsEngine;
@@ -19,7 +12,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
-
 public final class WaterSurfaceState {
     private static boolean materialPassActive;
     private static boolean resolvePassActive;
@@ -28,9 +20,7 @@ public final class WaterSurfaceState {
     private static boolean scaledFrameReady;
     private static boolean lateReflectionReady;
     private static long lastFrameNanos;
-
-    private WaterSurfaceState() {
-    }
+    private WaterSurfaceState() { }
 
     public static boolean enabled() {
         return Config.isFeatureEnabled(Config.CLIENT.waterEnabled);
@@ -41,7 +31,9 @@ public final class WaterSurfaceState {
             return false;
         }
         Minecraft mc = Minecraft.m_91087_();
-        return mc.f_91073_ != null && mc.m_91385_().m_83975_() > 0 && mc.m_91385_().m_83980_() > 0;
+        return mc.f_91073_ != null && mc.m_91385_
+                ().m_83975_() > 0 && mc.m_91385_
+                ().m_83980_() > 0;
     }
 
     public static void beginFrame() {
@@ -100,18 +92,10 @@ public final class WaterSurfaceState {
         if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) {
             return 0;
         }
-        if (materialPassActive) {
-            return 1;
-        }
-        if (resolvePassActive && scaledFrameReady) {
-            return 2;
-        }
-        if (lateReflectionPassActive) {
-            return 3;
-        }
-        if (lateResolvePassActive && lateReflectionReady) {
-            return 4;
-        }
+        if (materialPassActive) { return 1; }
+        if (resolvePassActive && scaledFrameReady) { return 2; }
+        if (lateReflectionPassActive) { return 3; }
+        if (lateResolvePassActive && lateReflectionReady) { return 4; }
         return 0;
     }
 
@@ -133,7 +117,9 @@ public final class WaterSurfaceState {
 
     public static boolean sceneReady() {
         Minecraft mc = Minecraft.m_91087_();
-        return WaterSurfaceState.canRenderMainPass() && mc.m_91385_().m_83975_() > 0 && mc.m_91385_().m_83980_() > 0;
+        return WaterSurfaceState.canRenderMainPass() && mc.m_91385_
+                ().m_83975_() > 0 && mc.m_91385_
+                ().m_83980_() > 0;
     }
 
     public static boolean resolvedReady() {
@@ -158,6 +144,7 @@ public final class WaterSurfaceState {
         if (level == null || !level.m_6042_().f_223549_()) {
             return new Light(new Vector3f(0.0f, 1.0f, 0.0f), new Vector3f(0.0f), 0.0f);
         }
+
         CelestialPath.State path = NeoSkyFrameCache.celestial(level, partialTick);
         Vec3 direction = path.activeDirection();
         float rain = level.m_46722_(partialTick);
@@ -167,23 +154,35 @@ public final class WaterSurfaceState {
         float horizonVisibility = WaterSurfaceState.smoothstep(0.0f, 0.14f, elevation);
         float sunElevation = (float)path.sunDirection().f_82480_;
         float sunColorBlend = WaterSurfaceState.smoothstep(-0.08f, 0.08f, sunElevation);
+
         float sunLow = 1.0f - Math.min(1.0f, Math.max(0.0f, sunElevation) * 2.2f);
         Vector3f moonColor = new Vector3f(0.48f, 0.58f, 0.82f);
         Vector3f sunColor = new Vector3f(1.0f, 0.94f - 0.26f * sunLow, 0.86f - 0.43f * sunLow);
+
+
+
         Vector3f color = WaterSurfaceState.mix(moonColor, sunColor, sunColorBlend);
+
         float strength;
         if (path.usingMoon()) {
             strength = 0.24f * weather * horizonVisibility;
         } else {
             strength = weather * (0.48f + 0.52f * elevation) * horizonVisibility;
         }
-        return new Light(new Vector3f((float)direction.f_82479_, (float)direction.f_82480_, (float)direction.f_82481_).normalize(), color, strength);
+
+        return new Light(new Vector3f((float)direction.f_82479_, (float)direction.f_82480_, (float)direction.f_82481_).normalize
+                (), color, strength);
     }
+
+
 
     private static Vector3f mix(Vector3f a, Vector3f b, float value) {
         float t = Math.max(0.0f, Math.min(1.0f, value));
         return new Vector3f(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
     }
+
+
+
 
     private static float smoothstep(float edge0, float edge1, float value) {
         float denominator = Math.max(edge1 - edge0, 1.0E-5f);
@@ -198,4 +197,3 @@ public final class WaterSurfaceState {
     public record Light(Vector3f direction, Vector3f color, float strength) {
     }
 }
-

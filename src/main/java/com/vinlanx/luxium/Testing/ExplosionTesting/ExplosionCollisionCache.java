@@ -1,29 +1,19 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.core.BlockPos
- *  net.minecraft.core.BlockPos$MutableBlockPos
- *  net.minecraft.util.Mth
- *  net.minecraft.world.phys.Vec3
- */
-package com.vinlanx.luxium.Testing.ExplosionTesting;
-
-import java.util.concurrent.atomic.AtomicReference;
-import net.minecraft.client.multiplayer.ClientLevel;
+package com.vinlanx.luxium.Testing.ExplosionTesting; import java.util.concurrent.atomic.AtomicReference; import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-
 final class ExplosionCollisionCache {
     private static final int SIZE_X = 72;
     private static final int SIZE_Y = 48;
     private static final int SIZE_Z = 72;
-    private final AtomicReference<Snapshot> snapshot = new AtomicReference<Snapshot>(new Snapshot(0, 0, 0, new boolean[248832]));
-
     ExplosionCollisionCache() {
-    }
+
+
+
+
+
+    } private final AtomicReference<Snapshot> snapshot = new AtomicReference<Snapshot>(new Snapshot(0, 0, 0, new boolean[248832]));
+
 
     void rebuild(ClientLevel level, Vec3 center) {
         int minX = Mth.m_14107_((double)center.f_82479_) - 36;
@@ -47,9 +37,7 @@ final class ExplosionCollisionCache {
         int x = Mth.m_14107_((double)worldX) - current.minX;
         int y = Mth.m_14107_((double)worldY) - current.minY;
         int z = Mth.m_14107_((double)worldZ) - current.minZ;
-        if (x < 0 || y < 0 || z < 0 || x >= 72 || y >= 48 || z >= 72) {
-            return false;
-        }
+        if (x < 0 || y < 0 || z < 0 || x >= 72 || y >= 48 || z >= 72) { return false; }
         return current.solid[ExplosionCollisionCache.index(x, y, z)];
     }
 
@@ -60,4 +48,3 @@ final class ExplosionCollisionCache {
     private record Snapshot(int minX, int minY, int minZ, boolean[] solid) {
     }
 }
-

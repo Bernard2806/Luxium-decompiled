@@ -1,9 +1,21 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.vinlanx.luxium.client.shadows;
 
 public record GpuShadowFrameState(boolean enabled, boolean softShadows, boolean replaceBlockLight, int shadowMode, float spreadOcclusionStrength, int lightCount, int atlasTexture, int lightGridTexture, long version, float[] lights, float[] atlasRects) {
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public static final int MODE_FAST_SPREAD = 0;
     public static final int MODE_CUBEMAP_HARD = 1;
     public static final int MODE_CUBEMAP_SOFT = 2;
@@ -14,8 +26,9 @@ public record GpuShadowFrameState(boolean enabled, boolean softShadows, boolean 
         return new GpuShadowFrameState(false, false, false, 0, 0.0f, 0, -1, -1, version, EMPTY_LIGHTS, EMPTY_RECTS);
     }
 
+
+
     public static GpuShadowFrameState bakedHardOnly(long version) {
         return new GpuShadowFrameState(true, false, true, 1, 0.0f, 0, -1, -1, version, EMPTY_LIGHTS, EMPTY_RECTS);
     }
 }
-

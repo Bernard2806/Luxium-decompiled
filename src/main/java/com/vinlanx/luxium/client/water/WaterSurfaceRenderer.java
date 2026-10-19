@@ -1,14 +1,5 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  me.jellysquid.mods.sodium.client.gl.device.RenderDevice
- *  me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderMatrices
- *  me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager
- *  net.minecraft.client.Minecraft
- */
 package com.vinlanx.luxium.client.water;
+
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.vinlanx.luxium.client.SharedPostResources;
@@ -22,7 +13,6 @@ import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
 import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderMatrices;
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.minecraft.client.Minecraft;
-
 public final class WaterSurfaceRenderer {
     private static RenderSectionManager lateManager;
     private static ChunkRenderMatrices lateMatrices;
@@ -30,41 +20,49 @@ public final class WaterSurfaceRenderer {
     private static double lateCameraY;
     private static double lateCameraZ;
     private static boolean lateFrameArmed;
+    private WaterSurfaceRenderer() { }
 
-    private WaterSurfaceRenderer() {
-    }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     public static boolean renderWater(RenderSectionManager manager, ChunkRenderMatrices matrices, double cameraX, double cameraY, double cameraZ) {
         if (manager == null || !WaterSurfaceState.canRenderMainPass()) {
             WaterSurfaceRenderer.disarmLateFrame();
             return false;
         }
+
         Minecraft mc = Minecraft.m_91087_();
         RenderTarget main = mc.m_91385_();
         if (main.f_83915_ <= 0 || main.f_83916_ <= 0) {
             WaterSurfaceRenderer.disarmLateFrame();
             return false;
         }
+
         WaterSurfaceState.beginFrame();
         ScreenSpaceReflectionSystem.invalidateHit(SsrConsumer.WATER);
         SharedPostResources.prepareWaterRenderTarget(main);
-        if (SharedPostResources.getWaterRenderColorTextureId() <= 0 || SharedPostResources.getWaterRenderFramebufferId() <= 0 || SharedPostResources.getWaterRenderWidth() <= 0 || SharedPostResources.getWaterRenderHeight() <= 0) {
+        if (SharedPostResources.getWaterRenderColorTextureId() <= 0 || SharedPostResources.getWaterRenderFramebufferId
+                () <= 0 || SharedPostResources.getWaterRenderWidth
+                () <= 0 || SharedPostResources.getWaterRenderHeight
+                () <= 0) {
             main.m_83947_(true);
             WaterSurfaceRenderer.disarmLateFrame();
             return false;
         }
+
         SsrSettings ssr = ScreenSpaceReflectionSystem.settings(SsrConsumer.WATER);
         boolean hitTraceAttached = false;
         if (ssr.enabled()) {
-            hitTraceAttached = ScreenSpaceReflectionSystem.beginHitTrace(SsrConsumer.WATER, SharedPostResources.getWaterRenderFramebufferId(), SharedPostResources.getWaterRenderWidth(), SharedPostResources.getWaterRenderHeight());
+            hitTraceAttached = ScreenSpaceReflectionSystem.beginHitTrace(SsrConsumer.WATER, SharedPostResources.getWaterRenderFramebufferId
+
+                    (), SharedPostResources.getWaterRenderWidth
+                    (), SharedPostResources.getWaterRenderHeight
+                    ());
         }
+
         int previousSceneFilter = main.f_83922_;
         if (previousSceneFilter != 9729) {
             main.m_83936_(9729);
         }
+
         boolean materialRendered = false;
         boolean resolved = false;
         RenderDevice.enterManagedCode();
@@ -72,30 +70,31 @@ public final class WaterSurfaceRenderer {
             WaterSurfaceState.beginMaterialPass();
             try {
                 manager.renderLayer(matrices, WaterTerrainPass.get(), cameraX, cameraY, cameraZ);
-                materialRendered = true;
-            }
+                materialRendered = true; }
             finally {
                 WaterSurfaceState.finishMaterialPass(materialRendered);
                 if (hitTraceAttached) {
+
                     ScreenSpaceReflectionSystem.endHitTrace(SsrConsumer.WATER, materialRendered);
                 }
             }
+
             if (!materialRendered || !WaterSurfaceState.resolvedReady()) {
                 return false;
             }
+
             main.m_83947_(true);
             WaterSurfaceState.beginResolvePass();
             try {
                 manager.renderLayer(matrices, WaterTerrainPass.get(), cameraX, cameraY, cameraZ);
-                resolved = true;
-            }
+                resolved = true; }
             finally {
                 WaterSurfaceState.finishResolvePass();
             }
-            return true;
-        }
+            return true; }
         finally {
             RenderDevice.exitManagedCode();
+
             if (hitTraceAttached && ScreenSpaceReflectionSystem.isHitTraceActive(SsrConsumer.WATER)) {
                 ScreenSpaceReflectionSystem.endHitTrace(SsrConsumer.WATER, false);
             }
@@ -103,6 +102,7 @@ public final class WaterSurfaceRenderer {
                 main.m_83936_(previousSceneFilter);
             }
             main.m_83947_(true);
+
             if (resolved && ssr.enabled() && ScreenSpaceReflectionSystem.isHitReady(SsrConsumer.WATER)) {
                 lateManager = manager;
                 lateMatrices = matrices;
@@ -116,44 +116,51 @@ public final class WaterSurfaceRenderer {
         }
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     public static boolean renderLateReflections() {
         if (!lateFrameArmed || lateManager == null || lateMatrices == null) {
             return false;
         }
+
         SsrSettings ssr = ScreenSpaceReflectionSystem.settings(SsrConsumer.WATER);
-        if (!(ssr.enabled() && WaterSurfaceState.canRenderMainPass() && ScreenSpaceReflectionSystem.isHitReady(SsrConsumer.WATER))) {
+        if (!(ssr.enabled() && WaterSurfaceState.canRenderMainPass() && ScreenSpaceReflectionSystem.isHitReady
+                (SsrConsumer.WATER))) {
             WaterSurfaceRenderer.disarmLateFrame();
             return false;
         }
+
         Minecraft mc = Minecraft.m_91087_();
+
         PostEffectPipeline.flushDeferredTonemapForSceneConsumer();
+
         RenderTarget main = mc.m_91385_();
         if (main.f_83915_ <= 0 || main.f_83916_ <= 0 || main.m_83975_() <= 0) {
             WaterSurfaceRenderer.disarmLateFrame();
             return false;
         }
+
         SharedPostResources.prepareWaterRenderTarget(main);
+
         int previousSceneFilter = main.f_83922_;
         if (previousSceneFilter != 9729) {
             main.m_83936_(9729);
         }
+
         boolean reflectionRendered = false;
         RenderDevice.enterManagedCode();
         try {
             WaterSurfaceState.beginLateReflectionPass();
             try {
                 lateManager.renderLayer(lateMatrices, WaterTerrainPass.get(), lateCameraX, lateCameraY, lateCameraZ);
-                reflectionRendered = true;
-            }
+
+                reflectionRendered = true; }
             finally {
                 WaterSurfaceState.finishLateReflectionPass(reflectionRendered);
             }
+
             if (!reflectionRendered || !WaterSurfaceState.lateReflectionResolvedReady()) {
                 return false;
             }
+
             main.m_83947_(true);
             WaterSurfaceState.beginLateResolvePass();
             try {
@@ -162,8 +169,7 @@ public final class WaterSurfaceRenderer {
             finally {
                 WaterSurfaceState.finishLateResolvePass();
             }
-            return true;
-        }
+            return true; }
         finally {
             RenderDevice.exitManagedCode();
             if (main.f_83922_ != previousSceneFilter) {
@@ -181,4 +187,3 @@ public final class WaterSurfaceRenderer {
         ScreenSpaceReflectionSystem.invalidateHit(SsrConsumer.WATER);
     }
 }
-

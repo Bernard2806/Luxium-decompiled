@@ -1,20 +1,5 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.client.multiplayer.MultiPlayerGameMode
- *  net.minecraft.client.player.LocalPlayer
- *  net.minecraft.core.BlockPos
- *  net.minecraft.core.Direction
- *  net.minecraft.world.InteractionHand
- *  net.minecraft.world.InteractionResult
- *  net.minecraft.world.phys.BlockHitResult
- *  org.spongepowered.asm.mixin.Mixin
- *  org.spongepowered.asm.mixin.injection.At
- *  org.spongepowered.asm.mixin.injection.Inject
- *  org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable
- */
 package com.vinlanx.luxium.mixin;
+
 
 import com.vinlanx.luxium.rtx.PlayerActionContext;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
@@ -28,9 +13,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
 @Mixin(value={MultiPlayerGameMode.class})
 public class MultiPlayerGameModeMixin {
+
     @Inject(method={"startDestroyBlock"}, at={@At(value="HEAD")})
     private void luxium$beginStartDestroy(BlockPos pos, Direction direction, CallbackInfoReturnable<Boolean> cir) {
         PlayerActionContext.begin();
@@ -61,14 +46,15 @@ public class MultiPlayerGameModeMixin {
         PlayerActionContext.end();
     }
 
+
     @Inject(method={"useItemOn"}, at={@At(value="HEAD")})
     private void luxium$beginUseItemOn(LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
         PlayerActionContext.begin();
     }
+
 
     @Inject(method={"useItemOn"}, at={@At(value="RETURN")})
     private void luxium$endUseItemOn(LocalPlayer player, InteractionHand hand, BlockHitResult hitResult, CallbackInfoReturnable<InteractionResult> cir) {
         PlayerActionContext.end();
     }
 }
-

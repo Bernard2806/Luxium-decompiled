@@ -1,6 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.vinlanx.luxium.client.plantswave;
 
 public enum PlantWaveProfile {
@@ -12,9 +9,9 @@ public enum PlantWaveProfile {
     AQUATIC_ROOTED(3, Anchor.ROOTED),
     AQUATIC_FREE(3, Anchor.FREE);
 
+
     private final int materialCode;
     private final Anchor anchor;
-
     private PlantWaveProfile(int materialCode, Anchor anchor) {
         this.materialCode = materialCode;
         this.anchor = anchor;
@@ -31,8 +28,7 @@ public enum PlantWaveProfile {
         if (this == AQUATIC_FREE) {
             return 15;
         }
-        return switch (this.anchor) {
-            default -> throw new IncompatibleClassChangeError();
+        return switch (this.anchor) { default -> throw new IncompatibleClassChangeError();
             case Anchor.NONE -> 0;
             case Anchor.FREE -> 15;
             case Anchor.ROOTED -> PlantWaveProfile.quantize(PlantWaveProfile.clamp(y));
@@ -57,7 +53,5 @@ public enum PlantWaveProfile {
         ROOTED,
         FREE,
         HANGING;
-
     }
 }
-

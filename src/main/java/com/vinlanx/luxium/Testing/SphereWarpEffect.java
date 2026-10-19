@@ -1,26 +1,5 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  com.mojang.blaze3d.pipeline.TextureTarget
- *  com.mojang.blaze3d.shaders.Uniform
- *  com.mojang.blaze3d.systems.RenderSystem
- *  com.mojang.blaze3d.vertex.BufferBuilder
- *  com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer
- *  com.mojang.blaze3d.vertex.BufferUploader
- *  com.mojang.blaze3d.vertex.DefaultVertexFormat
- *  com.mojang.blaze3d.vertex.Tesselator
- *  com.mojang.blaze3d.vertex.VertexFormat$Mode
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.renderer.ShaderInstance
- *  net.minecraft.util.Mth
- *  net.minecraft.world.phys.Vec3
- *  org.jetbrains.annotations.Nullable
- *  org.joml.Matrix4f
- *  org.joml.Matrix4fc
- */
 package com.vinlanx.luxium.Testing;
+
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -42,7 +21,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
-
 final class SphereWarpEffect {
     private static final int FADE_IN_TICKS = 40;
     private static final int FADE_OUT_TICKS = 40;
@@ -89,6 +67,7 @@ final class SphereWarpEffect {
         if (this.instances.isEmpty()) {
             return;
         }
+
         Iterator<Instance> iterator = this.instances.iterator();
         while (iterator.hasNext()) {
             Instance instance = iterator.next();
@@ -107,25 +86,31 @@ final class SphereWarpEffect {
         if (this.instances.isEmpty()) {
             return;
         }
+
         ShaderInstance shader = this.shaderSupplier.get();
         if (shader == null) {
             return;
         }
+
         Minecraft mc = Minecraft.m_91087_();
         if (mc.f_91073_ == null || mc.f_91074_ == null) {
             return;
         }
+
         RenderTarget mainTarget = mc.m_91385_();
         if (mainTarget == null) {
             return;
         }
+
         this.ensureTarget(mainTarget.f_83915_, mainTarget.f_83916_);
         if (this.distortionTarget == null) {
             return;
         }
+
         this.viewProj.set((Matrix4fc)RenderSystem.getProjectionMatrix());
         this.viewProj.mul((Matrix4fc)viewMatrix);
         this.inverseViewProj.set((Matrix4fc)this.viewProj).invert();
+
         if (this.depthTestEnabled) {
             RenderSystem.enableDepthTest();
         } else {
@@ -134,21 +119,48 @@ final class SphereWarpEffect {
         RenderSystem.depthMask((boolean)false);
         RenderSystem.disableBlend();
         RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+
         int width = mainTarget.f_83915_;
         int height = mainTarget.f_83916_;
         int depthTextureId = mainTarget.m_83980_();
         Vec3 cameraPos = mc.f_91063_.m_109153_().m_90583_();
         float partialTick = mc.m_91296_();
+
         for (Instance instance : this.instances) {
             float intensity = instance.getIntensity(partialTick);
-            if (intensity <= 0.001f) continue;
+            if (intensity <= 0.001f)
+                    continue;
+
+
             this.distortionTarget.m_83947_(true);
             RenderSystem.viewport((int)0, (int)0, (int)this.distortionTarget.f_83915_, (int)this.distortionTarget.f_83916_);
-            this.renderFullscreen(shader, mainTarget.m_83975_(), depthTextureId, width, height, instance, intensity, cameraPos, partialTick);
+            this.renderFullscreen(shader, mainTarget.m_83975_
+
+                    (), depthTextureId, width, height, instance, intensity, cameraPos, partialTick);
+
+
+
+
+
+
+
+
+
             mainTarget.m_83947_(true);
             RenderSystem.viewport((int)0, (int)0, (int)width, (int)height);
-            this.renderFullscreen(shader, this.distortionTarget.m_83975_(), depthTextureId, width, height, instance, 0.0f, cameraPos, partialTick);
+            this.renderFullscreen(shader, this.distortionTarget.m_83975_
+
+                    (), depthTextureId, width, height, instance, 0.0f, cameraPos, partialTick);
+
+
+
+
+
+
+
+
         }
+
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask((boolean)true);
@@ -166,12 +178,24 @@ final class SphereWarpEffect {
         }
     }
 
+
+
+
+
+
+
+
+
+
+
     private void renderFullscreen(ShaderInstance shader, int textureId, int depthTextureId, int width, int height, Instance instance, float intensity, Vec3 cameraPos, float partialTick) {
         RenderSystem.setShader(() -> shader);
         RenderSystem.setShaderTexture((int)0, (int)textureId);
         shader.m_173350_("DiffuseSampler", (Object)textureId);
         shader.m_173350_("DepthSampler", (Object)depthTextureId);
+
         float time = ((float)instance.ageTicks + partialTick) / 20.0f;
+
         SphereWarpEffect.setUniform1f(shader, "Time", time);
         SphereWarpEffect.setUniform1f(shader, "Intensity", Mth.m_14036_((float)intensity, (float)0.0f, (float)1.0f));
         SphereWarpEffect.setUniform3f(shader, "SphereCenter", (float)instance.center.f_82479_, (float)instance.center.f_82480_, (float)instance.center.f_82481_);
@@ -181,6 +205,7 @@ final class SphereWarpEffect {
         SphereWarpEffect.setUniform3f(shader, "CameraPos", (float)cameraPos.f_82479_, (float)cameraPos.f_82480_, (float)cameraPos.f_82481_);
         SphereWarpEffect.setUniform2f(shader, "InSize", width, height);
         SphereWarpEffect.setUniform2f(shader, "OutSize", width, height);
+
         BufferBuilder builder = Tesselator.m_85913_().m_85915_();
         builder.m_166779_(VertexFormat.Mode.QUADS, DefaultVertexFormat.f_85817_);
         builder.m_5483_(-1.0, -1.0, 0.0).m_7421_(0.0f, 1.0f).m_5752_();
@@ -218,6 +243,7 @@ final class SphereWarpEffect {
         }
     }
 
+
     private static final class Instance {
         private final Vec3 center;
         private final float startRadius;
@@ -226,7 +252,6 @@ final class SphereWarpEffect {
         private final float fadeStartProgress;
         private final boolean expandingWave;
         private int ageTicks;
-
         private Instance(Vec3 center, float startRadius, float endRadius, int totalTicks, float fadeStartProgress, boolean expandingWave) {
             this.center = center;
             this.startRadius = startRadius;
@@ -257,6 +282,7 @@ final class SphereWarpEffect {
                 float fadeOut = Mth.m_14036_((float)(((float)(this.totalTicks - this.ageTicks) - partialTick) / 40.0f), (float)0.0f, (float)1.0f);
                 return Math.min(fadeIn, fadeOut);
             }
+
             float progress = this.getLinearProgress(partialTick);
             float fadeIn = this.smoothStep(0.0f, 0.03f, progress);
             float fadeOut = 1.0f - Mth.m_14036_((float)((progress - this.fadeStartProgress) / (1.0f - this.fadeStartProgress)), (float)0.0f, (float)1.0f);
@@ -281,4 +307,3 @@ final class SphereWarpEffect {
         }
     }
 }
-

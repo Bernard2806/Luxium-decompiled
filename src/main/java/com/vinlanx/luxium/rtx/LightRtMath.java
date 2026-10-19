@@ -1,7 +1,5 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.vinlanx.luxium.rtx;
+
 
 public final class LightRtMath {
     private static final int MAX_LIGHT_LEVEL = 15;
@@ -13,18 +11,20 @@ public final class LightRtMath {
     private static final int[][] FALLOFF_LUTS = new int[16][];
     private static final double[] MAX_DISTANCES = new double[16];
 
+    static {
+        LightRtMath.initializeStaticParameters();
+    }
+
     private LightRtMath() {
     }
 
     private static void initializeStaticParameters() {
         for (int level = 1; level <= 15; ++level) {
             double maxDistance = 2.4 + 33.6 * ((double)(level - 1) / 14.0);
-            if (level == 1) {
-                maxDistance = 2.4;
-            }
-            if (level == 15) {
-                maxDistance = 36.0;
-            }
+
+
+            if (level == 1) { maxDistance = 2.4; }
+            if (level == 15) { maxDistance = 36.0; }
             LightRtMath.MAX_DISTANCES[level] = maxDistance;
             LightRtMath.FALLOFF_LUTS[level] = LightRtMath.buildFalloffLut(maxDistance, level);
         }
@@ -68,9 +68,4 @@ public final class LightRtMath {
     private static int clamp(int value, int min, int max) {
         return value < min ? min : (value > max ? max : value);
     }
-
-    static {
-        LightRtMath.initializeStaticParameters();
-    }
 }
-

@@ -1,30 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  com.mojang.blaze3d.pipeline.TextureTarget
- *  com.mojang.blaze3d.platform.GlStateManager
- *  com.mojang.blaze3d.shaders.Uniform
- *  com.mojang.blaze3d.systems.RenderSystem
- *  com.mojang.blaze3d.vertex.BufferBuilder
- *  com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer
- *  com.mojang.blaze3d.vertex.BufferUploader
- *  com.mojang.blaze3d.vertex.DefaultVertexFormat
- *  com.mojang.blaze3d.vertex.PoseStack
- *  com.mojang.blaze3d.vertex.Tesselator
- *  com.mojang.blaze3d.vertex.VertexFormat$Mode
- *  com.mojang.blaze3d.vertex.VertexSorting
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.renderer.ShaderInstance
- *  net.minecraft.util.Mth
- *  org.jetbrains.annotations.Nullable
- *  org.joml.Matrix4f
- *  org.joml.Matrix4fc
- *  org.lwjgl.opengl.GL30
- */
 package com.vinlanx.luxium.client.tfrpluslsr;
-
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -50,16 +24,13 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.lwjgl.opengl.GL30;
-
 public final class LsrSystem {
     @Nullable
     private static TextureTarget lowResWorldTarget;
     @Nullable
     private static RenderTarget nativeMainTarget;
     private static boolean worldPassActive;
-
-    private LsrSystem() {
-    }
+    private LsrSystem() { }
 
     public static boolean isEnabled() {
         return Config.isFeatureEnabled(Config.CLIENT.lsrEnabled);
@@ -86,6 +57,7 @@ public final class LsrSystem {
         worldPassActive = false;
         nativeMainTarget = null;
         PostEffectPipeline.clearDeferredTonemap();
+
         if (!LsrSystem.isEnabled() || mc.f_91073_ == null) {
             if (!LsrSystem.isEnabled() && lowResWorldTarget != null) {
                 lowResWorldTarget.m_83930_();
@@ -93,10 +65,12 @@ public final class LsrSystem {
             }
             return false;
         }
+
         RenderTarget nativeTarget = mc.m_91385_();
         if (nativeTarget == null || nativeTarget.f_83915_ <= 0 || nativeTarget.f_83916_ <= 0) {
             return false;
         }
+
         int width = LsrSystem.expectedWidth(nativeTarget.f_83915_);
         int height = LsrSystem.expectedHeight(nativeTarget.f_83916_);
         LsrSystem.ensureLowResTarget(width, height);
@@ -104,10 +78,13 @@ public final class LsrSystem {
         if (lowRes == null) {
             return false;
         }
+
         nativeMainTarget = nativeTarget;
         worldPassActive = true;
+
         MinecraftAccessor accessor = (MinecraftAccessor)mc;
         accessor.luxium$setMainRenderTargetField((RenderTarget)lowRes);
+
         lowRes.m_83931_(0.0f, 0.0f, 0.0f, 0.0f);
         lowRes.m_83954_(Minecraft.f_91002_);
         lowRes.m_83947_(true);
@@ -116,52 +93,53 @@ public final class LsrSystem {
     }
 
     public static void rebindWorldTarget() {
-        if (!worldPassActive || lowResWorldTarget == null) {
-            return;
-        }
+        if (!worldPassActive || lowResWorldTarget == null) { return; }
         lowResWorldTarget.m_83947_(true);
         RenderSystem.viewport((int)0, (int)0, (int)LsrSystem.lowResWorldTarget.f_83917_, (int)LsrSystem.lowResWorldTarget.f_83918_);
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     public static void finishRealFrame(Minecraft mc) {
         if (!worldPassActive) {
             return;
         }
+
         TextureTarget source = lowResWorldTarget;
         RenderTarget destination = nativeMainTarget;
         if (source == null || destination == null) {
             LsrSystem.restoreNativeTarget(mc);
             return;
         }
+
         MinecraftAccessor accessor = (MinecraftAccessor)mc;
         accessor.luxium$setMainRenderTargetField(destination);
         destination.m_83947_(true);
         RenderSystem.viewport((int)0, (int)0, (int)destination.f_83917_, (int)destination.f_83918_);
+
         int previousFilter = source.f_83922_;
         if (previousFilter != 9729) {
             source.m_83936_(9729);
         }
+
         try {
-            boolean rendered = false;
-            ShaderInstance shader;
+            boolean rendered = false; ShaderInstance shader;
             if (PostEffectPipeline.hasDeferredTonemap()) {
                 shader = tonemap.getShader();
                 if (shader != null) {
                     int effectsTexture = PostEffectPipeline.getDeferredEffectsTextureId();
-                    tonemap.configure(shader, source.m_83975_(), effectsTexture, PostEffectPipeline.deferredTonemapCompositesEffects(), true, source.f_83915_, source.f_83916_);
+                    tonemap.configure(shader, source.m_83975_(), effectsTexture, PostEffectPipeline.deferredTonemapCompositesEffects
+                            (), true, source.f_83915_, source.f_83916_);
+
                     LsrSystem.drawToNative(shader, destination);
                     rendered = true;
                 }
             }
+
             if (!rendered) {
                 rendered = LsrSystem.renderSpatialUpscale((RenderTarget)source, destination);
             }
+
             if (!rendered) {
-                LsrSystem.blitFallback((RenderTarget)source, destination);
-            }
+                LsrSystem.blitFallback((RenderTarget)source, destination); }
         }
         finally {
             if (source.f_83922_ != previousFilter) {
@@ -208,16 +186,16 @@ public final class LsrSystem {
         if (shader == null) {
             return false;
         }
+
         shader.m_173350_("SceneSampler", (Object)source.m_83975_());
-        LsrSystem.setUniform2f(shader, "SourceTexelSize", 1.0f / (float)Math.max(1, source.f_83915_), 1.0f / (float)Math.max(1, source.f_83916_));
+        LsrSystem.setUniform2f(shader, "SourceTexelSize", 1.0f / (float)Math.max(1, source.f_83915_), 1.0f / (float)Math.max
+                (1, source.f_83916_));
         LsrSystem.setUniform1f(shader, "LsrSharpness", LsrSystem.sharpness());
+
         LsrSystem.drawToNative(shader, destination);
         return true;
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     private static void drawToNative(ShaderInstance shader, RenderTarget destination) {
         Matrix4f previousProjection = new Matrix4f((Matrix4fc)RenderSystem.getProjectionMatrix());
         VertexSorting previousSorting = RenderSystem.getVertexSorting();
@@ -225,12 +203,15 @@ public final class LsrSystem {
         int savedTexture1 = RenderSystem.getShaderTexture((int)1);
         int savedTexture2 = RenderSystem.getShaderTexture((int)2);
         float[] savedColor = RenderSystem.getShaderColor();
+
         Matrix4f ortho = new Matrix4f().setOrtho(0.0f, (float)destination.f_83917_, (float)destination.f_83918_, 0.0f, 1000.0f, 3000.0f);
+
         PoseStack modelViewStack = RenderSystem.getModelViewStack();
         modelViewStack.m_85836_();
         modelViewStack.m_166856_();
         modelViewStack.m_252880_(0.0f, 0.0f, -2000.0f);
         RenderSystem.applyModelViewMatrix();
+
         try {
             destination.m_83947_(true);
             RenderSystem.viewport((int)0, (int)0, (int)destination.f_83917_, (int)destination.f_83918_);
@@ -241,12 +222,15 @@ public final class LsrSystem {
             if (shader.f_173309_ != null) {
                 shader.f_173309_.m_5679_(ortho);
             }
+
             GlStateManager._colorMask((boolean)true, (boolean)true, (boolean)true, (boolean)true);
             GlStateManager._disableDepthTest();
             GlStateManager._depthMask((boolean)false);
             RenderSystem.disableBlend();
             RenderSystem.disableCull();
             GlStateManager._blendFuncSeparate((int)1, (int)0, (int)1, (int)0);
+
+
             shader.m_173363_();
             Tesselator tessellator = RenderSystem.renderThreadTesselator();
             BufferBuilder buffer = tessellator.m_85915_();
@@ -255,8 +239,7 @@ public final class LsrSystem {
             buffer.m_5483_((double)destination.f_83917_, (double)destination.f_83918_, 0.0).m_7421_(1.0f, 0.0f).m_5752_();
             buffer.m_5483_((double)destination.f_83917_, 0.0, 0.0).m_7421_(1.0f, 1.0f).m_5752_();
             buffer.m_5483_(0.0, 0.0, 0.0).m_7421_(0.0f, 1.0f).m_5752_();
-            BufferUploader.m_231209_((BufferBuilder.RenderedBuffer)buffer.m_231175_());
-        }
+            BufferUploader.m_231209_((BufferBuilder.RenderedBuffer)buffer.m_231175_()); }
         finally {
             shader.m_173362_();
             modelViewStack.m_85849_();
@@ -281,6 +264,9 @@ public final class LsrSystem {
         GL30.glBindFramebuffer((int)36008, (int)source.f_83920_);
         GL30.glBindFramebuffer((int)36009, (int)destination.f_83920_);
         GL30.glBlitFramebuffer((int)0, (int)0, (int)source.f_83915_, (int)source.f_83916_, (int)0, (int)0, (int)destination.f_83915_, (int)destination.f_83916_, (int)16384, (int)9729);
+
+
+
         destination.m_83947_(true);
     }
 
@@ -291,6 +277,7 @@ public final class LsrSystem {
             lowResWorldTarget.m_83936_(9729);
             return;
         }
+
         if (LsrSystem.lowResWorldTarget.f_83915_ != width || LsrSystem.lowResWorldTarget.f_83916_ != height) {
             lowResWorldTarget.m_83941_(width, height, Minecraft.f_91002_);
             lowResWorldTarget.m_83931_(0.0f, 0.0f, 0.0f, 0.0f);
@@ -300,23 +287,16 @@ public final class LsrSystem {
 
     private static void setUniform1i(ShaderInstance shader, String name, int value) {
         Uniform uniform = shader.m_173348_(name);
-        if (uniform != null) {
-            uniform.m_142617_(value);
-        }
+        if (uniform != null) { uniform.m_142617_(value); }
     }
 
     private static void setUniform1f(ShaderInstance shader, String name, float value) {
         Uniform uniform = shader.m_173348_(name);
-        if (uniform != null) {
-            uniform.m_5985_(value);
-        }
+        if (uniform != null) { uniform.m_5985_(value); }
     }
 
     private static void setUniform2f(ShaderInstance shader, String name, float x, float y) {
         Uniform uniform = shader.m_173348_(name);
-        if (uniform != null) {
-            uniform.m_7971_(x, y);
-        }
+        if (uniform != null) { uniform.m_7971_(x, y); }
     }
 }
-

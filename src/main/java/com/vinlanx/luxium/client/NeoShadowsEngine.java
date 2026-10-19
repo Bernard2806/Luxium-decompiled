@@ -1,49 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  com.mojang.blaze3d.pipeline.TextureTarget
- *  com.mojang.blaze3d.vertex.DefaultVertexFormat
- *  com.mojang.blaze3d.vertex.PoseStack
- *  com.mojang.blaze3d.vertex.VertexConsumer
- *  com.mojang.blaze3d.vertex.VertexFormat
- *  com.mojang.blaze3d.vertex.VertexFormat$Mode
- *  it.unimi.dsi.fastutil.longs.LongOpenHashSet
- *  net.minecraft.client.Camera
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.renderer.GameRenderer
- *  net.minecraft.client.renderer.LevelRenderer
- *  net.minecraft.client.renderer.LightTexture
- *  net.minecraft.client.renderer.RenderStateShard
- *  net.minecraft.client.renderer.RenderStateShard$CullStateShard
- *  net.minecraft.client.renderer.RenderStateShard$DepthTestStateShard
- *  net.minecraft.client.renderer.RenderStateShard$ShaderStateShard
- *  net.minecraft.client.renderer.RenderStateShard$TransparencyStateShard
- *  net.minecraft.client.renderer.RenderStateShard$WriteMaskStateShard
- *  net.minecraft.client.renderer.RenderType
- *  net.minecraft.client.renderer.RenderType$CompositeState
- *  net.minecraft.client.renderer.culling.Frustum
- *  net.minecraft.client.renderer.texture.TextureAtlasSprite
- *  net.minecraft.core.Direction
- *  net.minecraft.world.phys.Vec3
- *  net.minecraftforge.api.distmarker.Dist
- *  net.minecraftforge.client.event.RenderLevelStageEvent
- *  net.minecraftforge.client.event.RenderLevelStageEvent$Stage
- *  net.minecraftforge.eventbus.api.EventPriority
- *  net.minecraftforge.eventbus.api.SubscribeEvent
- *  net.minecraftforge.fml.common.Mod$EventBusSubscriber
- *  org.jetbrains.annotations.Nullable
- *  org.joml.Matrix4f
- */
-package com.vinlanx.luxium.client;
-
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
+package com.vinlanx.luxium.client; import com.mojang.blaze3d.pipeline.RenderTarget; import com.mojang.blaze3d.pipeline.TextureTarget; import com.mojang.blaze3d.vertex.DefaultVertexFormat; import com.mojang.blaze3d.vertex.PoseStack; import com.mojang.blaze3d.vertex.VertexConsumer; import com.mojang.blaze3d.vertex.VertexFormat;
 import com.vinlanx.luxium.Config;
 import com.vinlanx.luxium.client.DynamicShadowMeshCapture;
 import com.vinlanx.luxium.client.NeoShadowsDynamicPipeline;
@@ -84,10 +39,11 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
-
 @Mod.EventBusSubscriber(modid="luxium", value={Dist.CLIENT})
 public final class NeoShadowsEngine {
     private static final NeoShadowsEngine INSTANCE = new NeoShadowsEngine();
+
+
     static final double RENDER_RADIUS = 36.0;
     static final double MAX_RECEIVER_LIGHT_DISTANCE = 30.0;
     static final int MAX_VISIBLE_SOURCES = 256;
@@ -123,17 +79,30 @@ public final class NeoShadowsEngine {
     static volatile ExecutorService shadowWorkerPool;
     static final Direction[] FACES = Direction.values();
     static final int[][] QUAD_EDGE_VERTEX_INDICES = new int[][]{{0, 1}, {1, 2}, {2, 3}, {3, 0}};
-    static final NeoShadowsTypes.UvPoint[] LIGHTING_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(1, true, 0.18f);
-    static final NeoShadowsTypes.UvPoint[] OCCLUSION_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(1, true, 0.18f);
-    static final NeoShadowsTypes.UvPoint[] HORIZONTAL_LIGHTING_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(3, true, 0.18f);
-    static final NeoShadowsTypes.UvPoint[] HORIZONTAL_OCCLUSION_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes(3, true, 0.18f);
-    static final NeoShadowsTypes.PlaneRect[] LIGHTING_FACE_PROBE_RECTS = NeoShadowsOcclusionPipeline.createProbeSupportRects(LIGHTING_FACE_PROBES);
-    static final NeoShadowsTypes.PlaneRect[] HORIZONTAL_LIGHTING_FACE_PROBE_RECTS = NeoShadowsOcclusionPipeline.createProbeSupportRects(HORIZONTAL_LIGHTING_FACE_PROBES);
+
+
+
+
+
+    static final NeoShadowsTypes.UvPoint[] LIGHTING_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes
+
+            (1, true, 0.18f);
+    static final NeoShadowsTypes.UvPoint[] OCCLUSION_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes
+            (1, true, 0.18f);
+    static final NeoShadowsTypes.UvPoint[] HORIZONTAL_LIGHTING_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes
+            (3, true, 0.18f);
+    static final NeoShadowsTypes.UvPoint[] HORIZONTAL_OCCLUSION_FACE_PROBES = NeoShadowsOcclusionPipeline.createFaceProbes
+            (3, true, 0.18f);
+    static final NeoShadowsTypes.PlaneRect[] LIGHTING_FACE_PROBE_RECTS = NeoShadowsOcclusionPipeline.createProbeSupportRects
+            (LIGHTING_FACE_PROBES);
+    static final NeoShadowsTypes.PlaneRect[] HORIZONTAL_LIGHTING_FACE_PROBE_RECTS = NeoShadowsOcclusionPipeline.createProbeSupportRects
+            (HORIZONTAL_LIGHTING_FACE_PROBES);
     static final int[][] RECEIVER_OFFSETS = NeoShadowsProjection.buildReceiverOffsets();
     static final RenderType MASK_PASS = NeoShadowsEngine.buildMaskPass();
     static final ThreadLocal<long[]> CANDIDATE_KEYS_TL = ThreadLocal.withInitial(() -> new long[2048]);
     static final ThreadLocal<double[]> CANDIDATE_DISTANCES_TL = ThreadLocal.withInitial(() -> new double[2048]);
     static final ThreadLocal<byte[]> CANDIDATE_MASKS_TL = ThreadLocal.withInitial(() -> new byte[2048]);
+
     final ConcurrentHashMap<TextureAtlasSprite, NeoShadowsTypes.SpriteOpaqueMask> spriteOpaqueMaskCache = new ConcurrentHashMap();
     final AtomicBoolean staticTaskQueued = new AtomicBoolean(false);
     final AtomicBoolean staticHotPatchTaskQueued = new AtomicBoolean(false);
@@ -157,9 +126,11 @@ public final class NeoShadowsEngine {
         thread.setPriority(5);
         return thread;
     });
+
     volatile boolean enabled;
     volatile boolean framePrepared;
     volatile boolean worldDirty = true;
+
     volatile boolean geometryDirty = true;
     volatile boolean skyCaptureDirty = true;
     volatile boolean skyLightCapturePass;
@@ -182,16 +153,7 @@ public final class NeoShadowsEngine {
     volatile long nextStaticRequestId = 1L;
     volatile long nextStaticHotPatchRequestId = 1L;
     volatile long nextDynamicCaptureRequestId = 1L;
-    volatile long nextDynamicRequestId = 1L;
-    volatile long lastDynamicScheduleMs;
-    volatile long lastDynamicStateScanMs;
-    volatile long lastDynamicMeshCaptureMs;
-    volatile long dynamicCasterFingerprint;
-    volatile long dynamicSnapshotFingerprint;
-    @Nullable
-    volatile NeoShadowsTypes.StaticRequest latestStaticRequest;
-    @Nullable
-    volatile NeoShadowsTypes.StaticResult completedStaticResult;
+    volatile long nextDynamicRequestId = 1L; volatile long lastDynamicScheduleMs; volatile long lastDynamicStateScanMs; volatile long lastDynamicMeshCaptureMs; volatile long dynamicCasterFingerprint; volatile long dynamicSnapshotFingerprint; @Nullable volatile NeoShadowsTypes.StaticRequest latestStaticRequest; @Nullable volatile NeoShadowsTypes.StaticResult completedStaticResult;
     @Nullable
     volatile NeoShadowsTypes.StaticHotPatchRequest latestStaticHotPatchRequest;
     @Nullable
@@ -229,15 +191,18 @@ public final class NeoShadowsEngine {
     float lastSkyCaptureYaw = Float.NaN;
     float lastSkyCapturePitch = Float.NaN;
     final Matrix4f lastSkyCaptureProjection = new Matrix4f();
+
+
     boolean lastSkyCaptureProjectionValid;
     final NeoShadowsRuntime runtime;
     final NeoShadowsRenderPipeline renderPipeline;
-    final NeoShadowsDynamicPipeline dynamicPipeline = new NeoShadowsDynamicPipeline(this);
+    final NeoShadowsDynamicPipeline dynamicPipeline;
     final NeoShadowsVisibility visibility;
-    final NeoShadowsOcclusionPipeline occlusionPipeline = new NeoShadowsOcclusionPipeline(this);
+    final NeoShadowsOcclusionPipeline occlusionPipeline;
     final NeoShadowsStaticPipeline staticPipeline;
-
     private NeoShadowsEngine() {
+        this.dynamicPipeline = new NeoShadowsDynamicPipeline(this);
+        this.occlusionPipeline = new NeoShadowsOcclusionPipeline(this);
         this.visibility = new NeoShadowsVisibility(this);
         this.staticPipeline = new NeoShadowsStaticPipeline(this);
         this.runtime = new NeoShadowsRuntime(this);
@@ -354,8 +319,25 @@ public final class NeoShadowsEngine {
         NeoShadowsEngine.INSTANCE.runtime.prepareFrameInternal(mc, camera, partialTick);
     }
 
+
+
+
+
+
+
+
+
     public static void captureSkyLightScene(LevelRenderer levelRenderer, PoseStack poseStack, float partialTick, long finishNano, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f projectionMatrix) {
         NeoShadowsEngine.INSTANCE.renderPipeline.captureSkyLightSceneInternal(levelRenderer, poseStack, partialTick, finishNano, camera, gameRenderer, lightTexture, projectionMatrix);
+
+
+
+
+
+
+
+
+
     }
 
     public static void forceDisable() {
@@ -372,34 +354,40 @@ public final class NeoShadowsEngine {
             return;
         }
         if (!this.isSelected()) {
-            if (NeoCpuShadowsEngine.isActive() || GpuNeoShadows.isActive()) {
+            if (NeoCpuShadowsEngine.isActive() || GpuNeoShadows.isActive
+                    ()) {
                 return;
             }
             this.forceDisableInternal();
             PostProcessStateGuard.restoreCanonicalMainTargetBinding(Minecraft.m_91087_());
             return;
         }
+
         Minecraft mc = Minecraft.m_91087_();
         if (mc.f_91073_ == null || mc.f_91074_ == null) {
             return;
         }
+
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
             this.renderPipeline.renderAfterParticles(mc, event);
             this.runtime.drainDynamicCaptureQueue();
         }
     }
 
+
     boolean isSelected() {
         if (NeoCpuShadowsEngine.isActive() || GpuNeoShadows.isActive()) {
             return false;
         }
-        return !NeoGpuVanilla.isConfiguredEnabled() && Config.isFeatureEnabled(Config.CLIENT.realisticShadowsEnabled);
+        return !NeoGpuVanilla.isConfiguredEnabled() && Config.isFeatureEnabled
+                (Config.CLIENT.realisticShadowsEnabled);
     }
 
     void setEnabled(boolean enabled) {
         if (this.enabled == enabled) {
             return;
         }
+
         this.enabled = enabled;
         ++this.buildEpoch;
         this.clearRuntimeState();
@@ -476,7 +464,10 @@ public final class NeoShadowsEngine {
     }
 
     boolean hasAnyShadowPolygons() {
-        return this.activeStaticOutput != null && !this.activeStaticOutput.shadowPolygons.isEmpty() || !this.activeStaticHotPatch.polygons.isEmpty() || !this.inFlightStaticPolygons.isEmpty() || !this.activeDynamicPolygons.isEmpty();
+        return this.activeStaticOutput != null && !this.activeStaticOutput.shadowPolygons.isEmpty() || !this.activeStaticHotPatch.polygons.isEmpty
+                () || !this.inFlightStaticPolygons.isEmpty
+                () || !this.activeDynamicPolygons.isEmpty
+                ();
     }
 
     void ensureTargets(int width, int height) {
@@ -487,6 +478,7 @@ public final class NeoShadowsEngine {
             this.shadowMaskTarget.m_83941_(width, height, Minecraft.f_91002_);
             this.shadowMaskTarget.m_83931_(0.0f, 0.0f, 0.0f, 0.0f);
         }
+
         if (this.sceneCopyTarget == null) {
             this.sceneCopyTarget = new RenderTarget(false){};
             this.sceneCopyTarget.m_83950_(width, height, Minecraft.f_91002_);
@@ -494,10 +486,12 @@ public final class NeoShadowsEngine {
         } else if (this.sceneCopyTarget.f_83917_ != width || this.sceneCopyTarget.f_83918_ != height) {
             this.sceneCopyTarget.m_83941_(width, height, Minecraft.f_91002_);
         }
+
         double skyCaptureScaleValue = (Double)Config.CLIENT.realisticShadowsRenderScale.get();
         float skyCaptureScale = (float)Math.max(0.01, Math.min(1.0, skyCaptureScaleValue));
         int skyWidth = Math.max(1, Math.round((float)width * skyCaptureScale));
         int skyHeight = Math.max(1, Math.round((float)height * skyCaptureScale));
+
         if (this.skyCaptureTarget == null) {
             this.skyCaptureTarget = new TextureTarget(skyWidth, skyHeight, true, Minecraft.f_91002_);
             this.skyCaptureTarget.m_83931_(0.0f, 0.0f, 0.0f, 0.0f);
@@ -515,9 +509,6 @@ public final class NeoShadowsEngine {
         mc.m_91269_().m_110109_().m_109928_();
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     static ExecutorService shadowWorkerPool() {
         ExecutorService pool = shadowWorkerPool;
         if (pool != null) {
@@ -544,12 +535,19 @@ public final class NeoShadowsEngine {
         state.shadowPolygonCount += scratch.shadowPolygonCount;
     }
 
+
+
+
+
     boolean shouldCullShadowPolygon(NeoShadowsTypes.ShadowPolygon polygon, double cameraX, double cameraY, double cameraZ, @Nullable Frustum frustum) {
         if (!NeoShadowsEngine.isFaceFacingCamera(polygon, cameraX, cameraY, cameraZ)) {
             return true;
         }
         return frustum != null && !frustum.m_113029_(polygon.bounds);
     }
+
+
+
 
     static boolean isFaceFacingCamera(NeoShadowsTypes.ShadowPolygon polygon, double cameraX, double cameraY, double cameraZ) {
         double toCameraX = cameraX - polygon.faceCenterX;
@@ -558,34 +556,59 @@ public final class NeoShadowsEngine {
         return toCameraX * (double)polygon.faceNormalX + toCameraY * (double)polygon.faceNormalY + toCameraZ * (double)polygon.faceNormalZ > (double)0.02f;
     }
 
+
+
+
+
+
     void emitPolygon(Matrix4f pose, VertexConsumer consumer, Vec3 cameraPos, NeoShadowsTypes.ShadowPolygon polygon) {
         double[] vertices = polygon.triangleVertices;
         if (vertices.length < 9 || polygon.strength <= 0.0f) {
             return;
         }
+
         float value = polygon.strength;
         for (int offset = 0; offset < vertices.length; offset += 3) {
-            consumer.m_252986_(pose, (float)(vertices[offset] - cameraPos.f_82479_), (float)(vertices[offset + 1] - cameraPos.f_82480_), (float)(vertices[offset + 2] - cameraPos.f_82481_)).m_85950_(value, value, value, 1.0f).m_5752_();
+            consumer.m_252986_(pose, (float)(vertices[offset] - cameraPos.f_82479_), (float)(vertices[offset + 1] - cameraPos.f_82480_), (float)(vertices[offset + 2] - cameraPos.f_82481_)).m_85950_
+
+
+
+
+
+                    (value, value, value, 1.0f).m_5752_
+                    ();
         }
     }
 
     private static RenderType buildMaskPass() {
-        RenderType.CompositeState state = RenderType.CompositeState.m_110628_().m_173292_(new RenderStateShard.ShaderStateShard(GameRenderer::m_172811_)).m_110685_(RenderHelper.ADDITIVE_TRANSPARENCY_STATE).m_110663_(RenderHelper.LEQUAL).m_110661_(RenderHelper.NO_CULL).m_110687_(RenderHelper.COLOR_ONLY).m_110691_(false);
+        RenderType.CompositeState state = RenderType.CompositeState.m_110628_().m_173292_
+                (new RenderStateShard.ShaderStateShard(GameRenderer::m_172811_)).m_110685_
+                (RenderHelper.ADDITIVE_TRANSPARENCY_STATE).m_110663_
+                (RenderHelper.LEQUAL).m_110661_
+                (RenderHelper.NO_CULL).m_110687_
+                (RenderHelper.COLOR_ONLY).m_110691_
+                (false);
+
         return RenderType.m_173215_((String)"luxium_neo_shadow_mask", (VertexFormat)DefaultVertexFormat.f_85815_, (VertexFormat.Mode)VertexFormat.Mode.TRIANGLES, (int)262144, (boolean)false, (boolean)true, (RenderType.CompositeState)state);
     }
 
 
+
+
+
+
+
+
     static final class RenderHelper
     extends RenderStateShard {
+        private RenderHelper() {
+            super("luxium_neo_shadow_helper", () -> {}, () -> {});
+        }
+
         static final RenderStateShard.TransparencyStateShard NO_TRANSPARENCY_STATE = f_110134_;
         static final RenderStateShard.TransparencyStateShard ADDITIVE_TRANSPARENCY_STATE = f_110135_;
         static final RenderStateShard.DepthTestStateShard LEQUAL = f_110113_;
         static final RenderStateShard.CullStateShard NO_CULL = RenderStateShard.f_110110_;
         static final RenderStateShard.WriteMaskStateShard COLOR_ONLY = RenderStateShard.f_110115_;
-
-        private RenderHelper() {
-            super("luxium_neo_shadow_helper", () -> {}, () -> {});
-        }
     }
 }
-

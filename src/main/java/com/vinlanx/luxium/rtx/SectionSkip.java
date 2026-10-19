@@ -1,15 +1,11 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.util.Mth
- */
 package com.vinlanx.luxium.rtx;
 
-import net.minecraft.util.Mth;
 
+import net.minecraft.util.Mth;
 public final class SectionSkip {
-    private static final ThreadLocal<TraversalState> TRAVERSAL_STATE_TL = ThreadLocal.withInitial(TraversalState::new);
+    private static final ThreadLocal<TraversalState> TRAVERSAL_STATE_TL = ThreadLocal.withInitial
+
+            (TraversalState::new);
 
     private SectionSkip() {
     }
@@ -38,38 +34,62 @@ public final class SectionSkip {
         state.traveled = nextTraveled;
     }
 
+
+
+
+
+
+
     public static double skipEmptySection(TraversalState state, int chunkX, int chunkZ, int sectionIndex, int minBuildHeight, double maxDistance, double exitPadding) {
         double posX = state.currentX();
         double posY = state.currentY();
         double posZ = state.currentZ();
+
         double minX = (double)chunkX * 16.0;
         double maxX = minX + 16.0;
         double minY = minBuildHeight + (sectionIndex << 4);
         double maxY = minY + 16.0;
         double minZ = (double)chunkZ * 16.0;
         double maxZ = minZ + 16.0;
-        double tx = state.stepX > 0 ? (maxX - posX) / state.dirX : state.stepX < 0 ? (minX - posX) / state.dirX : Double.MAX_VALUE;
-        double ty = state.stepY > 0 ? (maxY - posY) / state.dirY : state.stepY < 0 ? (minY - posY) / state.dirY : Double.MAX_VALUE;
-        double tz = state.stepZ > 0 ? (maxZ - posZ) / state.dirZ : (state.stepZ < 0 ? (minZ - posZ) / state.dirZ : Double.MAX_VALUE);
+
+        double tx = state.stepX > 0 ? (maxX - posX) / state.dirX : state.stepX
+                < 0 ? (minX - posX) / state.dirX : Double.MAX_VALUE;
+        double ty = state.stepY > 0 ? (maxY - posY) / state.dirY : state.stepY
+                < 0 ? (minY - posY) / state.dirY : Double.MAX_VALUE;
+        double tz = state.stepZ > 0 ? (maxZ - posZ) / state.dirZ : (state.stepZ
+                < 0 ? (minZ - posZ) / state.dirZ : Double.MAX_VALUE);
         double skip = Math.max(0.0, Math.min(tx, Math.min(ty, tz)) + exitPadding);
         double nextTraveled = Math.min(maxDistance, state.traveled + skip);
         state.traveled = nextTraveled;
         if (nextTraveled >= maxDistance) {
             return nextTraveled;
         }
+
         double nextX = state.currentX();
         double nextY = state.currentY();
         double nextZ = state.currentZ();
         state.blockX = Mth.m_14107_((double)nextX);
         state.blockY = Mth.m_14107_((double)nextY);
         state.blockZ = Mth.m_14107_((double)nextZ);
-        state.tMaxX = state.stepX > 0 ? ((double)state.blockX + 1.0 - nextX) / state.dirX + nextTraveled : (state.stepX < 0 ? (nextX - (double)state.blockX) / -state.dirX + nextTraveled : Double.POSITIVE_INFINITY);
-        state.tMaxY = state.stepY > 0 ? ((double)state.blockY + 1.0 - nextY) / state.dirY + nextTraveled : (state.stepY < 0 ? (nextY - (double)state.blockY) / -state.dirY + nextTraveled : Double.POSITIVE_INFINITY);
-        state.tMaxZ = state.stepZ > 0 ? ((double)state.blockZ + 1.0 - nextZ) / state.dirZ + nextTraveled : (state.stepZ < 0 ? (nextZ - (double)state.blockZ) / -state.dirZ + nextTraveled : Double.POSITIVE_INFINITY);
+        state.tMaxX = state.stepX > 0 ? ((double)state.blockX + 1.0 - nextX) / state.dirX + nextTraveled : (state.stepX
+                < 0 ? (nextX - (double)state.blockX) / -state.dirX + nextTraveled : Double.POSITIVE_INFINITY);
+        state.tMaxY = state.stepY > 0 ? ((double)state.blockY + 1.0 - nextY) / state.dirY + nextTraveled : (state.stepY
+                < 0 ? (nextY - (double)state.blockY) / -state.dirY + nextTraveled : Double.POSITIVE_INFINITY);
+        state.tMaxZ = state.stepZ > 0 ? ((double)state.blockZ + 1.0 - nextZ) / state.dirZ + nextTraveled : (state.stepZ
+                < 0 ? (nextZ - (double)state.blockZ) / -state.dirZ + nextTraveled : Double.POSITIVE_INFINITY);
         return nextTraveled;
     }
 
     public static final class TraversalState {
+
+
+
+
+
+
+
+
+
         public double originX;
         public double originY;
         public double originZ;
@@ -89,7 +109,6 @@ public final class SectionSkip {
         public double tMaxY;
         public double tMaxZ;
         public double traveled;
-
         public TraversalState reset(double originX, double originY, double originZ, double dirX, double dirY, double dirZ, int blockX, int blockY, int blockZ) {
             this.originX = originX;
             this.originY = originY;
@@ -106,9 +125,12 @@ public final class SectionSkip {
             this.tDeltaX = this.stepX == 0 ? Double.POSITIVE_INFINITY : Math.abs(1.0 / dirX);
             this.tDeltaY = this.stepY == 0 ? Double.POSITIVE_INFINITY : Math.abs(1.0 / dirY);
             this.tDeltaZ = this.stepZ == 0 ? Double.POSITIVE_INFINITY : Math.abs(1.0 / dirZ);
-            this.tMaxX = this.stepX > 0 ? ((double)blockX + 1.0 - originX) / dirX : (this.stepX < 0 ? (originX - (double)blockX) / -dirX : Double.POSITIVE_INFINITY);
-            this.tMaxY = this.stepY > 0 ? ((double)blockY + 1.0 - originY) / dirY : (this.stepY < 0 ? (originY - (double)blockY) / -dirY : Double.POSITIVE_INFINITY);
-            this.tMaxZ = this.stepZ > 0 ? ((double)blockZ + 1.0 - originZ) / dirZ : (this.stepZ < 0 ? (originZ - (double)blockZ) / -dirZ : Double.POSITIVE_INFINITY);
+            this.tMaxX = this.stepX > 0 ? ((double)blockX + 1.0 - originX) / dirX : (this.stepX
+                    < 0 ? (originX - (double)blockX) / -dirX : Double.POSITIVE_INFINITY);
+            this.tMaxY = this.stepY > 0 ? ((double)blockY + 1.0 - originY) / dirY : (this.stepY
+                    < 0 ? (originY - (double)blockY) / -dirY : Double.POSITIVE_INFINITY);
+            this.tMaxZ = this.stepZ > 0 ? ((double)blockZ + 1.0 - originZ) / dirZ : (this.stepZ
+                    < 0 ? (originZ - (double)blockZ) / -dirZ : Double.POSITIVE_INFINITY);
             this.traveled = 0.0;
             return this;
         }

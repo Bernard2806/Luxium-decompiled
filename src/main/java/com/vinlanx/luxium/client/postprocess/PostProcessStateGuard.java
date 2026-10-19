@@ -1,17 +1,9 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.MainTarget
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  com.mojang.blaze3d.platform.GlStateManager
- *  com.mojang.blaze3d.systems.RenderSystem
- *  net.minecraft.client.Minecraft
- *  net.minecraftforge.api.distmarker.Dist
- *  net.minecraftforge.fml.common.Mod$EventBusSubscriber
- *  org.jetbrains.annotations.Nullable
- */
 package com.vinlanx.luxium.client.postprocess;
+
+
+
+
+
 
 import com.mojang.blaze3d.pipeline.MainTarget;
 import com.mojang.blaze3d.pipeline.RenderTarget;
@@ -24,20 +16,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.Nullable;
-
 @Mod.EventBusSubscriber(modid="luxium", value={Dist.CLIENT})
 public final class PostProcessStateGuard {
     @Nullable
     private static RenderTarget canonicalMainTarget;
     private static boolean repairedGuiCompositeStateThisFrame;
     private static boolean unsafeGuiCompositeStateSeenThisSession;
-
     private PostProcessStateGuard() {
     }
 
     public static void captureCanonicalMainTarget(Minecraft mc) {
         repairedGuiCompositeStateThisFrame = false;
         RenderTarget current = ((MinecraftAccessor)mc).luxium$getMainRenderTargetField();
+
         if (current instanceof MainTarget) {
             canonicalMainTarget = current;
         }
@@ -51,6 +42,7 @@ public final class PostProcessStateGuard {
         return unsafeGuiCompositeStateSeenThisSession;
     }
 
+
     public static void restoreCanonicalMainTargetBinding(Minecraft mc) {
         if (TemporalFrameSystem.isWorldPassActive()) {
             TemporalFrameSystem.rebindWorldTarget();
@@ -60,10 +52,12 @@ public final class PostProcessStateGuard {
             LsrSystem.rebindWorldTarget();
             return;
         }
+
         RenderTarget target = canonicalMainTarget;
         MinecraftAccessor accessor = (MinecraftAccessor)mc;
         RenderTarget current = accessor.luxium$getMainRenderTargetField();
         boolean repairedTarget = false;
+
         if (target != null) {
             if (current != target) {
                 accessor.luxium$setMainRenderTargetField(target);
@@ -74,6 +68,7 @@ public final class PostProcessStateGuard {
             mc.m_91385_().m_83947_(true);
             repairedTarget = !(current instanceof MainTarget);
         }
+
         repairedGuiCompositeStateThisFrame |= repairedTarget;
         unsafeGuiCompositeStateSeenThisSession |= repairedTarget;
     }
@@ -84,6 +79,7 @@ public final class PostProcessStateGuard {
 
     public static void restoreGuiCompositeState(Minecraft mc) {
         PostProcessStateGuard.restoreCanonicalMainTargetBinding(mc);
+
         RenderTarget target = mc.m_91385_();
         int viewportWidth = mc.m_91268_().m_85441_();
         int viewportHeight = mc.m_91268_().m_85442_();
@@ -91,6 +87,7 @@ public final class PostProcessStateGuard {
             viewportWidth = target.f_83917_;
             viewportHeight = target.f_83918_;
         }
+
         RenderSystem.viewport((int)0, (int)0, (int)viewportWidth, (int)viewportHeight);
         RenderSystem.activeTexture((int)33984);
         RenderSystem.setShaderTexture((int)0, (int)0);
@@ -106,4 +103,3 @@ public final class PostProcessStateGuard {
         RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
     }
 }
-

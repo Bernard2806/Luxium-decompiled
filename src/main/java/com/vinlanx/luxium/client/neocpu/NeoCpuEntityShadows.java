@@ -1,22 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher
- *  net.minecraft.client.renderer.blockentity.BlockEntityRenderer
- *  net.minecraft.core.BlockPos
- *  net.minecraft.core.Vec3i
- *  net.minecraft.world.entity.Entity
- *  net.minecraft.world.level.block.entity.BlockEntity
- *  net.minecraft.world.level.chunk.LevelChunk
- *  net.minecraft.world.phys.AABB
- *  net.minecraft.world.phys.Vec3
- *  org.jetbrains.annotations.Nullable
- */
 package com.vinlanx.luxium.client.neocpu;
-
 import com.vinlanx.luxium.Config;
 import com.vinlanx.luxium.client.DynamicShadowMeshCapture;
 import com.vinlanx.luxium.client.neocpu.NeoCpuFloodShadowBuilder;
@@ -38,7 +20,6 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-
 public final class NeoCpuEntityShadows {
     private static final int MAX_DYNAMIC_CASTERS = 160;
     private static final int MAX_TOTAL_POLYGONS = 8192;
@@ -48,20 +29,20 @@ public final class NeoCpuEntityShadows {
     private static final double MAX_CASTER_VOLUME = 512.0;
     private static final long FNV_OFFSET_BASIS = 1469598103934665603L;
     private static final long FNV_PRIME = 1099511628211L;
-    private static volatile CaptureState currentState = CaptureState.empty();
-    @Nullable
+    private static volatile CaptureState currentState = CaptureState.empty(); @Nullable
     private static volatile ClientLevel trackedLevel;
     @Nullable
     private static volatile BlockPos lastCenter;
     private static volatile long lastStateScanMs;
     private static volatile long lastCaptureMs;
     private static volatile long lastSceneFingerprint;
-
     private NeoCpuEntityShadows() {
     }
 
     public static boolean isActive() {
-        return !NeoGpuVanilla.isConfiguredEnabled() && Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) && Config.isFeatureEnabled(Config.CLIENT.entityShadowsEnabled);
+        return !NeoGpuVanilla.isConfiguredEnabled() && Config.isFeatureEnabled
+                (Config.CLIENT.neoCpuShadowsEnabled) && Config.isFeatureEnabled
+                (Config.CLIENT.entityShadowsEnabled);
     }
 
     public static void clear() {
@@ -83,6 +64,7 @@ public final class NeoCpuEntityShadows {
             lastSceneFingerprint = 0L;
             return currentState;
         }
+
         long nowMs = System.currentTimeMillis();
         long intervalMs = NeoCpuEntityShadows.getUpdateIntervalMs();
         boolean levelChanged = trackedLevel != level;
@@ -92,6 +74,7 @@ public final class NeoCpuEntityShadows {
         if (!(levelChanged || centerChanged || scanElapsed || captureElapsed)) {
             return currentState;
         }
+
         long sceneFingerprint = lastSceneFingerprint;
         boolean sceneChanged = levelChanged || centerChanged;
         if (sceneChanged || scanElapsed) {
@@ -106,8 +89,16 @@ public final class NeoCpuEntityShadows {
             lastCenter = center.m_7949_();
             return currentState;
         }
+
         double radius = LightRtMath.getEntityShadowRadius(15) + 30.0 + 4.0;
+
+
         DynamicShadowMeshCapture.Snapshot snapshot = DynamicShadowMeshCapture.capture(level, center, radius, 160, partialTick);
+
+
+
+
+
         currentState = NeoCpuEntityShadows.buildState(snapshot);
         trackedLevel = level;
         lastCenter = center.m_7949_();
@@ -118,16 +109,25 @@ public final class NeoCpuEntityShadows {
     private static long scanDynamicSceneFingerprint(ClientLevel level, BlockPos center) {
         Vec3 centerPos = Vec3.m_82512_((Vec3i)center);
         double radius = LightRtMath.getEntityShadowRadius(15) + 30.0 + 4.0;
+
+
         double radiusSq = radius * radius;
         long hash = 1469598103934665603L;
         int casterCount = 0;
+
         for (Entity entity : level.m_104735_()) {
             if (casterCount >= 160) {
                 return NeoCpuEntityShadows.mixFingerprint(hash, casterCount);
             }
-            if (entity == null || entity.m_213877_() || entity.m_20145_()) continue;
+            if (entity == null || entity.m_213877_() || entity.m_20145_())
+                    continue;
+
+
             AABB box = entity.m_20191_();
-            if (box == null || NeoCpuEntityShadows.distanceToAabbSq(centerPos, box) > radiusSq) continue;
+            if (box == null || NeoCpuEntityShadows.distanceToAabbSq(centerPos, box) > radiusSq)
+                    continue;
+
+
             hash = NeoCpuEntityShadows.mixFingerprint(hash, entity.m_19879_());
             hash = NeoCpuEntityShadows.mixFingerprint(hash, entity.f_19797_);
             hash = NeoCpuEntityShadows.mixFingerprint(hash, Float.floatToIntBits(entity.m_146908_()));
@@ -140,6 +140,7 @@ public final class NeoCpuEntityShadows {
             hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(box.f_82293_));
             ++casterCount;
         }
+
         Minecraft minecraft = Minecraft.m_91087_();
         BlockEntityRenderDispatcher dispatcher = minecraft.m_167982_();
         Vec3 cameraPos = minecraft.f_91063_.m_109153_().m_90583_();
@@ -151,20 +152,34 @@ public final class NeoCpuEntityShadows {
                 if (casterCount >= 160) {
                     return NeoCpuEntityShadows.mixFingerprint(hash, casterCount);
                 }
+
                 LevelChunk chunk = level.m_7726_().m_7131_(centerChunkX + dx, centerChunkZ + dz);
-                if (chunk == null) continue;
+                if (chunk == null)
+                        continue;
+
+
                 for (BlockEntity blockEntity : chunk.m_62954_().values()) {
                     if (casterCount >= 160) {
                         return NeoCpuEntityShadows.mixFingerprint(hash, casterCount);
                     }
-                    if (blockEntity == null || blockEntity.m_58901_()) continue;
+                    if (blockEntity == null || blockEntity.m_58901_())
+                            continue;
+
+
+
                     BlockEntityRenderer renderer = dispatcher.m_112265_(blockEntity);
-                    if (renderer == null || !renderer.m_142756_(blockEntity, cameraPos)) continue;
+                    if (renderer == null || !renderer.m_142756_(blockEntity, cameraPos))
+                            continue;
+
+
                     AABB box = blockEntity.getRenderBoundingBox();
                     if (box == null) {
                         box = new AABB(blockEntity.m_58899_());
                     }
-                    if (NeoCpuEntityShadows.distanceToAabbSq(centerPos, box) > radiusSq) continue;
+                    if (NeoCpuEntityShadows.distanceToAabbSq(centerPos, box) > radiusSq)
+                            continue;
+
+
                     hash = NeoCpuEntityShadows.mixFingerprint(hash, blockEntity.m_58899_().m_121878_());
                     hash = NeoCpuEntityShadows.mixFingerprint(hash, blockEntity.m_58903_().hashCode());
                     hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(box.f_82288_));
@@ -177,29 +192,51 @@ public final class NeoCpuEntityShadows {
                 }
             }
         }
+
         return NeoCpuEntityShadows.mixFingerprint(hash, casterCount);
     }
+
+
+
+
+
 
     static void appendEntityShadows(NeoCpuFloodShadowBuilder builder, Vec3 source, int emission, CaptureState state, List<NeoCpuShadowTypes.ReceiverGroupEntry> receiverGroups, ArrayList<NeoCpuShadowTypes.ShadowPolygon> polygons) {
         if (state.isEmpty() || receiverGroups.isEmpty() || polygons.size() >= 8192) {
             return;
         }
+
         double maxCasterDistance = LightRtMath.getEntityShadowRadius(emission);
+
         for (NeoCpuShadowTypes.ReceiverGroupEntry group : receiverGroups) {
             if (group.isEmpty() || polygons.size() >= 8192) {
                 return;
             }
+
             NeoCpuShadowTypes.ReceiverSurface reference = group.referenceReceiver();
-            if (!reference.facesSource(source.f_82479_, source.f_82480_, source.f_82481_)) continue;
+            if (!reference.facesSource(source.f_82479_, source.f_82480_, source.f_82481_))
+                    continue;
+
+
             for (Caster caster : state.casters()) {
                 if (polygons.size() >= 8192) {
                     return;
                 }
-                if (!caster.canAffect(source, maxCasterDistance)) continue;
+                if (!caster.canAffect(source, maxCasterDistance))
+                        continue;
+
+
                 boolean addedQuadShadow = false;
                 for (Vec3[] quad : caster.quads()) {
-                    if (quad == null || quad.length < 4 || !NeoCpuEntityShadows.quadFacesSource(quad, source)) continue;
-                    NeoCpuEntityShadows.appendProjectedOccluderShadow(builder, source, group, new NeoCpuShadowTypes.QuadOccluder(quad, caster.id(), 1.0f), polygons);
+                    if (quad == null || quad.length < 4 || !NeoCpuEntityShadows.quadFacesSource(quad, source))
+                            continue;
+
+                    NeoCpuEntityShadows.appendProjectedOccluderShadow(builder, source, group, new NeoCpuShadowTypes.QuadOccluder(quad, caster.id
+
+
+
+                            (), 1.0f), polygons);
+
                     addedQuadShadow = true;
                     if (polygons.size() >= 8192) {
                         return;
@@ -212,21 +249,45 @@ public final class NeoCpuEntityShadows {
         }
     }
 
+
+
+
+
     private static void appendProjectedOccluderShadow(NeoCpuFloodShadowBuilder builder, Vec3 source, NeoCpuShadowTypes.ReceiverGroupEntry group, NeoCpuShadowTypes.Occluder occluder, ArrayList<NeoCpuShadowTypes.ShadowPolygon> polygons) {
-        builder.appendProjectedOccluderShadowFromStaticGroup(source, group.receivers(), occluder, polygons);
+        builder.appendProjectedOccluderShadowFromStaticGroup(source, group.receivers
+
+                (), occluder, polygons);
+
+
     }
 
     private static CaptureState buildState(DynamicShadowMeshCapture.Snapshot snapshot) {
         if (snapshot.level == null || snapshot.casters.isEmpty()) {
             return CaptureState.empty();
         }
+
         ArrayList<Caster> casters = new ArrayList<Caster>(Math.min(snapshot.casters.size(), 160));
         long hash = 1469598103934665603L;
         for (DynamicShadowMeshCapture.CapturedCaster captured : snapshot.casters) {
-            if (captured == null || captured.bounds == null) continue;
-            if (NeoCpuEntityShadows.isOversizedCaster(captured.bounds)) continue;
-            List<Vec3[]> quads = captured.quads == null || captured.quads.isEmpty() ? Collections.emptyList() : List.copyOf(captured.quads);
+            if (captured == null || captured.bounds == null)
+                    continue;
+
+            if (NeoCpuEntityShadows.isOversizedCaster(captured.bounds))
+                    continue;
+
+
+            List<Vec3[]> quads = captured.quads == null || captured.quads.isEmpty() ? Collections.emptyList
+                    () : List.copyOf
+                    (captured.quads);
             NeoCpuShadowTypes.Box box = new NeoCpuShadowTypes.Box(captured.bounds.f_82288_, captured.bounds.f_82289_, captured.bounds.f_82290_, captured.bounds.f_82291_, captured.bounds.f_82292_, captured.bounds.f_82293_, captured.id, 1.0f);
+
+
+
+
+
+
+
+
             casters.add(new Caster(captured.id, captured.bounds, box, quads));
             hash = NeoCpuEntityShadows.mixFingerprint(hash, captured.id);
             hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(captured.bounds.f_82288_));
@@ -237,7 +298,9 @@ public final class NeoCpuEntityShadows {
             hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(captured.bounds.f_82293_));
             hash = NeoCpuEntityShadows.mixFingerprint(hash, quads.size());
             for (Vec3[] quad : quads) {
-                if (quad == null || quad.length == 0) continue;
+                if (quad == null || quad.length == 0)
+                        continue;
+
                 Vec3 first = quad[0];
                 hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(first.f_82479_));
                 hash = NeoCpuEntityShadows.mixFingerprint(hash, Double.doubleToLongBits(first.f_82480_));
@@ -253,6 +316,7 @@ public final class NeoCpuEntityShadows {
                 break;
             }
         }
+
         return casters.isEmpty() ? CaptureState.empty() : new CaptureState(hash, List.copyOf(casters));
     }
 
@@ -271,7 +335,9 @@ public final class NeoCpuEntityShadows {
         if (previousCenter == null) {
             return true;
         }
-        return Math.abs(center.m_123341_() - previousCenter.m_123341_()) > 4 || Math.abs(center.m_123342_() - previousCenter.m_123342_()) > 4 || Math.abs(center.m_123343_() - previousCenter.m_123343_()) > 4;
+        return Math.abs(center.m_123341_() - previousCenter.m_123341_()) > 4 || Math.abs
+                (center.m_123342_() - previousCenter.m_123342_()) > 4 || Math.abs
+                (center.m_123343_() - previousCenter.m_123343_()) > 4;
     }
 
     private static long getUpdateIntervalMs() {
@@ -296,28 +362,6 @@ public final class NeoCpuEntityShadows {
         return normal.m_82526_(toSource) > 1.0E-6;
     }
 
-    private static double distanceToAabbSq(Vec3 point, AABB box) {
-        double dx = 0.0;
-        if (point.f_82479_ < box.f_82288_) {
-            dx = box.f_82288_ - point.f_82479_;
-        } else if (point.f_82479_ > box.f_82291_) {
-            dx = point.f_82479_ - box.f_82291_;
-        }
-        double dy = 0.0;
-        if (point.f_82480_ < box.f_82289_) {
-            dy = box.f_82289_ - point.f_82480_;
-        } else if (point.f_82480_ > box.f_82292_) {
-            dy = point.f_82480_ - box.f_82292_;
-        }
-        double dz = 0.0;
-        if (point.f_82481_ < box.f_82290_) {
-            dz = box.f_82290_ - point.f_82481_;
-        } else if (point.f_82481_ > box.f_82293_) {
-            dz = point.f_82481_ - box.f_82293_;
-        }
-        return dx * dx + dy * dy + dz * dz;
-    }
-
     public record CaptureState(long fingerprint, List<Caster> casters) {
         private static final CaptureState EMPTY = new CaptureState(0L, Collections.emptyList());
 
@@ -336,5 +380,29 @@ public final class NeoCpuEntityShadows {
             return NeoCpuEntityShadows.distanceToAabbSq(source, this.bounds) <= expanded * expanded;
         }
     }
-}
 
+    private static double distanceToAabbSq(Vec3 point, AABB box) {
+        double dx = 0.0;
+        if (point.f_82479_ < box.f_82288_) {
+            dx = box.f_82288_ - point.f_82479_;
+        } else if (point.f_82479_ > box.f_82291_) {
+            dx = point.f_82479_ - box.f_82291_;
+        }
+
+        double dy = 0.0;
+        if (point.f_82480_ < box.f_82289_) {
+            dy = box.f_82289_ - point.f_82480_;
+        } else if (point.f_82480_ > box.f_82292_) {
+            dy = point.f_82480_ - box.f_82292_;
+        }
+
+        double dz = 0.0;
+        if (point.f_82481_ < box.f_82290_) {
+            dz = box.f_82290_ - point.f_82481_;
+        } else if (point.f_82481_ > box.f_82293_) {
+            dz = point.f_82481_ - box.f_82293_;
+        }
+
+        return dx * dx + dy * dy + dz * dz;
+    }
+}

@@ -1,18 +1,5 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraftforge.api.distmarker.Dist
- *  net.minecraftforge.client.event.RenderLevelStageEvent
- *  net.minecraftforge.client.event.RenderLevelStageEvent$Stage
- *  net.minecraftforge.event.TickEvent$ClientTickEvent
- *  net.minecraftforge.event.TickEvent$Phase
- *  net.minecraftforge.eventbus.api.EventPriority
- *  net.minecraftforge.eventbus.api.SubscribeEvent
- *  net.minecraftforge.fml.common.Mod$EventBusSubscriber
- *  net.minecraftforge.fml.common.Mod$EventBusSubscriber$Bus
- */
 package com.vinlanx.luxium.Testing;
+
 
 import com.vinlanx.luxium.Testing.SphereWarpEffect;
 import com.vinlanx.luxium.client.ShaderManager;
@@ -22,13 +9,11 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
 @Mod.EventBusSubscriber(modid="luxium", value={Dist.CLIENT}, bus=Mod.EventBusSubscriber.Bus.FORGE)
 public final class BlackHole {
     private static final SphereWarpEffect EFFECT = new SphereWarpEffect(ShaderManager::getBlackHoleShader, true);
 
-    private BlackHole() {
-    }
+    private BlackHole() { }
 
     public static void spawnAtPlayer(int radiusBlocks) {
         EFFECT.spawnAtPlayer(radiusBlocks);
@@ -54,4 +39,3 @@ public final class BlackHole {
         EFFECT.onRenderLevel(event.getPoseStack().m_85850_().m_252922_());
     }
 }
-

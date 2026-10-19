@@ -1,28 +1,28 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.client.Minecraft
- *  net.minecraft.util.Mth
- */
 package com.vinlanx.luxium.rtx;
+
 
 import com.vinlanx.luxium.mixin.LightTextureAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
-
 public final class Coloredlight {
     private static volatile boolean worldRenderActive = false;
     private static volatile boolean enabled = false;
     private static volatile int red = 255;
     private static volatile int green = 255;
     private static volatile int blue = 255;
+
     private static volatile AnimationMode mode = AnimationMode.NONE;
     private static volatile int spectreSpeed = 50;
     private static volatile long animationStartTime = 0L;
 
-    private Coloredlight() {
+    private static enum AnimationMode {
+        NONE,
+        SPECTRE,
+        POLICE,
+        POLICE2;
     }
+
+    private Coloredlight() { }
 
     public static void setColor(int newRed, int newGreen, int newBlue) {
         mode = AnimationMode.NONE;
@@ -117,37 +117,49 @@ public final class Coloredlight {
 
     private static void updateSpectreColors() {
         long elapsed = System.currentTimeMillis() - animationStartTime;
+
         double cycleDuration = 10000.0 / (double)spectreSpeed;
         double phase = (double)(elapsed % (long)cycleDuration) / cycleDuration;
+
         float hue = (float)phase;
         float saturation = 1.0f;
         float value = 1.0f;
+
         int rgb = Coloredlight.hsvToRgb(hue, saturation, value);
         red = rgb >> 16 & 0xFF;
         green = rgb >> 8 & 0xFF;
         blue = rgb & 0xFF;
+
         Coloredlight.requestLightTextureRefresh();
     }
 
     private static void updatePoliceColors() {
         long elapsed = System.currentTimeMillis() - animationStartTime;
+
         long cycleTime = elapsed % 400L;
+
         if (cycleTime < 200L) {
+
             red = 255;
             green = 0;
             blue = 0;
         } else {
+
             red = 0;
             green = 0;
             blue = 255;
         }
+
         Coloredlight.requestLightTextureRefresh();
     }
 
     private static void updatePolice2Colors() {
         long elapsed = System.currentTimeMillis() - animationStartTime;
+
         long cycleTime = elapsed % 2480L;
+
         if (cycleTime < 240L) {
+
             long flashTime = cycleTime % 80L;
             if (flashTime < 40L) {
                 red = 255;
@@ -159,10 +171,12 @@ public final class Coloredlight {
                 blue = 1;
             }
         } else if (cycleTime < 1240L) {
+
             red = 1;
             green = 1;
             blue = 1;
         } else if (cycleTime < 1480L) {
+
             long flashTime = (cycleTime - 1240L) % 80L;
             if (flashTime < 40L) {
                 red = 0;
@@ -174,10 +188,12 @@ public final class Coloredlight {
                 blue = 1;
             }
         } else {
+
             red = 1;
             green = 1;
             blue = 1;
         }
+
         Coloredlight.requestLightTextureRefresh();
     }
 
@@ -186,54 +202,23 @@ public final class Coloredlight {
         float f = hue * 6.0f - (float)h;
         float p = value * (1.0f - saturation);
         float q = value * (1.0f - f * saturation);
-        float t = value * (1.0f - (1.0f - f) * saturation);
-        float r;
+        float t = value * (1.0f - (1.0f - f) * saturation); float r;
         float g;
         float b;
-        switch (h % 6) {
-            case 0: {
-                r = value;
-                g = t;
-                b = p;
-                break;
-            }
-            case 1: {
-                r = q;
-                g = value;
-                b = p;
-                break;
-            }
-            case 2: {
-                r = p;
-                g = value;
-                b = t;
-                break;
-            }
-            case 3: {
-                r = p;
-                g = q;
-                b = value;
-                break;
-            }
-            case 4: {
-                r = t;
-                g = p;
-                b = value;
-                break;
-            }
-            case 5: {
-                r = value;
-                g = p;
-                b = q;
-                break;
-            }
-            default: {
+        switch (h % 6) { case 0: {
+                r = value; g = t; b = p; break; } case 1: {
+                r = q; g = value; b = p; break; } case 2: {
+                r = p; g = value; b = t; break; } case 3: {
+                r = p; g = q; b = value; break; } case 4: {
+                r = t; g = p; b = value; break; } case 5: {
+                r = value; g = p; b = q; break; } default: {
                 r = g = b = 0.0f;
             }
         }
         int ri = (int)(r * 255.0f);
         int gi = (int)(g * 255.0f);
         int bi = (int)(b * 255.0f);
+
         return ri << 16 | gi << 8 | bi;
     }
 
@@ -243,13 +228,4 @@ public final class Coloredlight {
             ((LightTextureAccessor)mc.f_91063_.m_109154_()).luxium$setUpdateLightTexture(true);
         }
     }
-
-    private static enum AnimationMode {
-        NONE,
-        SPECTRE,
-        POLICE,
-        POLICE2;
-
-    }
 }
-

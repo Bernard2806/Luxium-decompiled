@@ -1,28 +1,6 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.platform.GlStateManager
- *  me.jellysquid.mods.sodium.client.gl.shader.uniform.GlUniformFloat
- *  me.jellysquid.mods.sodium.client.gl.shader.uniform.GlUniformFloat3v
- *  me.jellysquid.mods.sodium.client.gl.shader.uniform.GlUniformFloat4v
- *  me.jellysquid.mods.sodium.client.gl.shader.uniform.GlUniformInt
- *  me.jellysquid.mods.sodium.client.gl.shader.uniform.GlUniformMatrix4f
- *  me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderInterface
- *  me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderOptions
- *  me.jellysquid.mods.sodium.client.render.chunk.shader.ShaderBindingContext
- *  net.minecraft.client.Minecraft
- *  net.minecraft.world.phys.Vec3
- *  org.joml.Matrix4fc
- *  org.lwjgl.opengl.GL11
- *  org.lwjgl.opengl.GL20
- *  org.spongepowered.asm.mixin.Mixin
- *  org.spongepowered.asm.mixin.Unique
- *  org.spongepowered.asm.mixin.injection.At
- *  org.spongepowered.asm.mixin.injection.Inject
- *  org.spongepowered.asm.mixin.injection.callback.CallbackInfo
- */
 package com.vinlanx.luxium.mixin.sky;
+
+
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.vinlanx.luxium.Config;
@@ -62,106 +40,34 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 @Mixin(value={ChunkShaderInterface.class}, remap=false)
-public abstract class EmbeddiumChunkShaderInterfaceMixin {
-    @Unique
-    private GlUniformInt luxium$blockOnlySampler;
-    @Unique
-    private GlUniformInt luxium$celestialLutSampler;
-    @Unique
-    private GlUniformInt luxium$nearShadowSampler;
-    @Unique
-    private GlUniformInt luxium$farShadowSampler;
-    @Unique
-    private GlUniformInt luxium$entityShadowSampler;
-    @Unique
-    private GlUniformInt luxium$enabled;
-    @Unique
-    private GlUniformInt luxium$entityShadowEnabled;
-    @Unique
-    private GlUniformInt luxium$skyLightEnabled;
-    @Unique
-    private GlUniformInt luxium$filterSamples;
-    @Unique
-    private GlUniformInt luxium$shadowPass;
-    @Unique
-    private GlUniformInt luxium$neoSkyInlineActive;
-    @Unique
-    private GlUniformInt luxium$neoSkyInlineLutSampler;
-    @Unique
-    private GlUniformInt luxium$neoSkyInlineNearSampler;
-    @Unique
-    private GlUniformInt luxium$neoSkyInlineFarSampler;
-    @Unique
-    private GlUniformInt luxium$neoSkyInlineEntitySampler;
-    @Unique
-    private GlUniformInt luxium$neoSkyInlineEnabled;
-    @Unique
-    private GlUniformInt luxium$neoSkyInlineLightEnabled;
-    @Unique
-    private GlUniformInt luxium$neoSkyInlineEntityEnabled;
-    @Unique
-    private GlUniformInt luxium$neoSkyInlineFilterSamples;
-    @Unique
-    private GlUniformFloat4v luxium$neoSkyInlineCascadeData;
-    @Unique
-    private GlUniformFloat4v luxium$neoSkyInlineBiasData;
-    @Unique
-    private GlUniformFloat4v luxium$neoSkyInlineEntityData;
-    @Unique
-    private GlUniformMatrix4f luxium$neoSkyInlineNearWorldMatrix;
-    @Unique
-    private GlUniformMatrix4f luxium$neoSkyInlineFarWorldMatrix;
-    @Unique
-    private GlUniformMatrix4f luxium$neoSkyInlineEntityWorldMatrix;
-    @Unique
-    private GlUniformFloat luxium$directStrength;
-    @Unique
-    private GlUniformFloat luxium$ambientStrength;
-    @Unique
-    private GlUniformFloat luxium$vanillaBlockLightInSunShadows;
-    @Unique
-    private GlUniformFloat3v luxium$lightDirection;
-    @Unique
-    private GlUniformFloat3v luxium$directColor;
-    @Unique
-    private GlUniformFloat3v luxium$skyAmbientColor;
-    @Unique
-    private GlUniformFloat3v luxium$groundAmbientColor;
-    @Unique
-    private GlUniformFloat4v luxium$cascadeData;
-    @Unique
-    private GlUniformFloat4v luxium$biasData;
-    @Unique
-    private GlUniformFloat4v luxium$entityShadowData;
-    @Unique
-    private GlUniformMatrix4f luxium$nearMatrix;
-    @Unique
-    private GlUniformMatrix4f luxium$farMatrix;
-    @Unique
-    private GlUniformMatrix4f luxium$entityMatrix;
-    @Unique
-    private final float[] luxium$cascadeValues = new float[4];
-    @Unique
-    private final float[] luxium$biasValues = new float[4];
-    @Unique
-    private final float[] luxium$neoSkyInlineEntityValues = new float[4];
-    @Unique
-    private boolean luxium$skyOnlyPermutation;
-    @Unique
-    private boolean luxium$neoSkyForwardPermutation;
-    @Unique
-    private GlUniformInt luxium$localAtlasSampler;
-    @Unique
-    private GlUniformInt luxium$localGridSampler;
-    @Unique
-    private GlUniformInt luxium$localEnabled;
-    @Unique
-    private GlUniformInt luxium$localReplaceBlockLight;
-    @Unique
-    private GlUniformInt luxium$localSoft;
-    @Unique
+public abstract class EmbeddiumChunkShaderInterfaceMixin { @Unique private GlUniformInt luxium$blockOnlySampler; @Unique private GlUniformInt luxium$celestialLutSampler; @Unique private GlUniformInt luxium$nearShadowSampler; @Unique private GlUniformInt luxium$farShadowSampler; @Unique private GlUniformInt luxium$entityShadowSampler; @Unique private GlUniformInt luxium$enabled; @Unique private GlUniformInt luxium$entityShadowEnabled; @Unique private GlUniformInt luxium$skyLightEnabled; @Unique private GlUniformInt luxium$filterSamples; @Unique private GlUniformInt luxium$shadowPass; @Unique private GlUniformInt luxium$neoSkyInlineActive; @Unique private GlUniformInt luxium$neoSkyInlineLutSampler; @Unique private GlUniformInt luxium$neoSkyInlineNearSampler; @Unique private GlUniformInt luxium$neoSkyInlineFarSampler; @Unique private GlUniformInt luxium$neoSkyInlineEntitySampler; @Unique private GlUniformInt luxium$neoSkyInlineEnabled; @Unique private GlUniformInt luxium$neoSkyInlineLightEnabled; @Unique private GlUniformInt luxium$neoSkyInlineEntityEnabled; @Unique private GlUniformInt luxium$neoSkyInlineFilterSamples; @Unique private GlUniformFloat4v luxium$neoSkyInlineCascadeData; @Unique private GlUniformFloat4v luxium$neoSkyInlineBiasData; @Unique private GlUniformFloat4v luxium$neoSkyInlineEntityData; @Unique private GlUniformMatrix4f luxium$neoSkyInlineNearWorldMatrix; @Unique private GlUniformMatrix4f luxium$neoSkyInlineFarWorldMatrix; @Unique private GlUniformMatrix4f luxium$neoSkyInlineEntityWorldMatrix; @Unique private GlUniformFloat luxium$directStrength; @Unique private GlUniformFloat luxium$ambientStrength; @Unique private GlUniformFloat luxium$vanillaBlockLightInSunShadows; @Unique private GlUniformFloat3v luxium$lightDirection; @Unique private GlUniformFloat3v luxium$directColor; @Unique private GlUniformFloat3v luxium$skyAmbientColor; @Unique private GlUniformFloat3v luxium$groundAmbientColor; @Unique private GlUniformFloat4v luxium$cascadeData; @Unique private GlUniformFloat4v luxium$biasData; @Unique private GlUniformFloat4v luxium$entityShadowData; @Unique private GlUniformMatrix4f luxium$nearMatrix; @Unique private GlUniformMatrix4f luxium$farMatrix; @Unique private GlUniformMatrix4f luxium$entityMatrix;
+    @Inject(method={"setupState"}, at={@At(value="TAIL")}, require=0)
+    private void luxium$uploadBlockLightTest(CallbackInfo ci) {
+        if (BlockLightTest.enabled()) {
+            BlockLightTest.bind(GL11.glGetInteger((int)35725), false);
+            GlStateManager._activeTexture((int)33984);
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @Unique private final float[] luxium$cascadeValues = new float[4]; @Unique private final float[] luxium$biasValues = new float[4];
+    @Unique private final float[] luxium$neoSkyInlineEntityValues = new float[4]; @Unique private boolean luxium$skyOnlyPermutation; @Unique private boolean luxium$neoSkyForwardPermutation; @Unique private GlUniformInt luxium$localAtlasSampler; @Unique private GlUniformInt luxium$localGridSampler; @Unique private GlUniformInt luxium$localEnabled; @Unique private GlUniformInt luxium$localReplaceBlockLight; @Unique private GlUniformInt luxium$localSoft; @Unique
     private GlUniformInt luxium$localMode;
     @Unique
     private GlUniformInt luxium$localCount;
@@ -169,91 +75,23 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
     private GlUniformFloat luxium$localSpreadOcclusion;
     @Unique
     private GlUniformInt luxium$localBakedHardEnabled;
-    @Unique
-    private final GlUniformInt[] luxium$localBakedHardSamplers = new GlUniformInt[6];
-    @Unique
-    private GlUniformFloat3v luxium$localBakedHardMin;
-    @Unique
+    @Unique private final GlUniformInt[] luxium$localBakedHardSamplers = new GlUniformInt[6]; @Unique private GlUniformFloat3v luxium$localBakedHardMin; @Unique
     private GlUniformFloat3v luxium$localBakedHardSize;
-    @Unique
-    private int luxium$localProgram = -1;
-    @Unique
-    private int luxium$localLightsLocation = -1;
-    @Unique
-    private int luxium$localRectsLocation = -1;
-    @Unique
-    private long luxium$localUploadedVersion = Long.MIN_VALUE;
-    @Unique
-    private GlUniformInt luxium$neoGpuSampler;
-    @Unique
-    private GlUniformInt luxium$neoGpuEnabled;
-    @Unique
-    private GlUniformInt luxium$neoGpuFineScale;
-    @Unique
+    @Unique private int luxium$localProgram = -1; @Unique private int luxium$localLightsLocation = -1;
+    @Unique private int luxium$localRectsLocation = -1;
+    @Unique private long luxium$localUploadedVersion = Long.MIN_VALUE; @Unique private GlUniformInt luxium$neoGpuSampler; @Unique private GlUniformInt luxium$neoGpuEnabled; @Unique private GlUniformInt luxium$neoGpuFineScale; @Unique
     private GlUniformInt luxium$neoGpuDepthPrepass;
     @Unique
     private GlUniformInt luxium$neoGpuFastEnabled;
-    @Unique
-    private final GlUniformInt[] luxium$neoGpuFastSamplers = new GlUniformInt[6];
-    @Unique
-    private GlUniformFloat3v luxium$neoGpuMin;
-    @Unique
-    private GlUniformFloat3v luxium$neoGpuSize;
-    @Unique
-    private GlUniformInt luxium$plantWaveEnabled;
-    @Unique
-    private GlUniformFloat luxium$plantWaveTime;
+    @Unique private final GlUniformInt[] luxium$neoGpuFastSamplers = new GlUniformInt[6]; @Unique private GlUniformFloat3v luxium$neoGpuMin; @Unique private GlUniformFloat3v luxium$neoGpuSize; @Unique private GlUniformInt luxium$plantWaveEnabled; @Unique private GlUniformFloat luxium$plantWaveTime;
     @Unique
     private GlUniformFloat3v luxium$plantWaveCamera;
     @Unique
     private GlUniformFloat4v luxium$plantWaveSettings0;
     @Unique
     private GlUniformFloat4v luxium$plantWaveSettings1;
-    @Unique
-    private final float[] luxium$plantWaveSettings0Values = new float[4];
-    @Unique
-    private final float[] luxium$plantWaveSettings1Values = new float[4];
-    @Unique
-    private GlUniformInt luxium$waterSceneColor;
-    @Unique
-    private GlUniformInt luxium$waterSceneDepth;
-    @Unique
-    private GlUniformInt luxium$waterResolvedColor;
-    @Unique
-    private GlUniformInt luxium$waterDepthAware;
-    @Unique
-    private GlUniformInt luxium$waterRenderMode;
-    @Unique
-    private GlUniformInt luxium$waterMicroNormal;
-    @Unique
-    private GlUniformInt luxium$waterMicroReady;
-    @Unique
-    private GlUniformInt luxium$ssrHitTexture;
-    @Unique
-    private GlUniformInt luxium$waterNearShadowSampler;
-    @Unique
-    private GlUniformInt luxium$waterFarShadowSampler;
-    @Unique
-    private GlUniformInt luxium$waterSkyShadowEnabled;
-    @Unique
-    private GlUniformInt luxium$waterFilterSamples;
-    @Unique
-    private GlUniformFloat4v luxium$waterFrame;
-    @Unique
-    private GlUniformFloat4v luxium$waterWave;
-    @Unique
-    private GlUniformFloat4v luxium$waterOptics;
-    @Unique
-    private GlUniformFloat4v luxium$waterSurface;
-    @Unique
-    private GlUniformFloat4v luxium$waterCascadeData;
-    @Unique
-    private GlUniformFloat4v luxium$waterBiasData;
-    @Unique
-    private GlUniformMatrix4f luxium$waterNearMatrix;
-    @Unique
-    private GlUniformMatrix4f luxium$waterFarMatrix;
-    @Unique
+    @Unique private final float[] luxium$plantWaveSettings0Values = new float[4];
+    @Unique private final float[] luxium$plantWaveSettings1Values = new float[4]; @Unique private GlUniformInt luxium$waterSceneColor; @Unique private GlUniformInt luxium$waterSceneDepth; @Unique private GlUniformInt luxium$waterResolvedColor; @Unique private GlUniformInt luxium$waterDepthAware; @Unique private GlUniformInt luxium$waterRenderMode; @Unique private GlUniformInt luxium$waterMicroNormal; @Unique private GlUniformInt luxium$waterMicroReady; @Unique private GlUniformInt luxium$ssrHitTexture; @Unique private GlUniformInt luxium$waterNearShadowSampler; @Unique private GlUniformInt luxium$waterFarShadowSampler; @Unique private GlUniformInt luxium$waterSkyShadowEnabled; @Unique private GlUniformInt luxium$waterFilterSamples; @Unique private GlUniformFloat4v luxium$waterFrame; @Unique private GlUniformFloat4v luxium$waterWave; @Unique private GlUniformFloat4v luxium$waterOptics; @Unique private GlUniformFloat4v luxium$waterSurface; @Unique private GlUniformFloat4v luxium$waterCascadeData; @Unique private GlUniformFloat4v luxium$waterBiasData; @Unique private GlUniformMatrix4f luxium$waterNearMatrix; @Unique private GlUniformMatrix4f luxium$waterFarMatrix; @Unique
     private GlUniformFloat3v luxium$waterCameraPos;
     @Unique
     private GlUniformFloat3v luxium$waterLightDir;
@@ -265,32 +103,15 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
     private GlUniformFloat4v luxium$ssrTrace;
     @Unique
     private GlUniformFloat4v luxium$ssrResolve;
-    @Unique
-    private final float[] luxium$waterFrameValues = new float[4];
-    @Unique
-    private final float[] luxium$waterWaveValues = new float[4];
-    @Unique
-    private final float[] luxium$waterOpticsValues = new float[4];
-    @Unique
-    private final float[] luxium$waterSurfaceValues = new float[4];
-    @Unique
-    private final float[] luxium$waterCascadeValues = new float[4];
-    @Unique
-    private final float[] luxium$waterBiasValues = new float[4];
-    @Unique
-    private final float[] luxium$ssrTraceValues = new float[4];
-    @Unique
-    private final float[] luxium$ssrResolveValues = new float[4];
-    @Unique
+    @Unique private final float[] luxium$waterFrameValues = new float[4];
+    @Unique private final float[] luxium$waterWaveValues = new float[4];
+    @Unique private final float[] luxium$waterOpticsValues = new float[4];
+    @Unique private final float[] luxium$waterSurfaceValues = new float[4];
+    @Unique private final float[] luxium$waterCascadeValues = new float[4];
+    @Unique private final float[] luxium$waterBiasValues = new float[4];
+    @Unique private final float[] luxium$ssrTraceValues = new float[4];
+    @Unique private final float[] luxium$ssrResolveValues = new float[4]; @Unique
     private static int luxium$maxFragmentTextureUnits = -1;
-
-    @Inject(method={"setupState"}, at={@At(value="TAIL")}, require=0)
-    private void luxium$uploadBlockLightTest(CallbackInfo ci) {
-        if (BlockLightTest.enabled()) {
-            BlockLightTest.bind(GL11.glGetInteger((int)35725), false);
-            GlStateManager._activeTexture((int)33984);
-        }
-    }
 
     @Inject(method={"<init>"}, at={@At(value="TAIL")})
     private void luxium$bindShadowUniforms(ShaderBindingContext context, ChunkShaderOptions options, CallbackInfo ci) {
@@ -304,19 +125,24 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             this.luxium$plantWaveSettings1 = (GlUniformFloat4v)context.bindUniform("u_LuxiumPlantWaveSettings1", GlUniformFloat4v::new);
         }
         if (BlockLightTest.enabled() && !LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled() && !waterPass) {
-            return;
-        }
+            return; }
         boolean receiverShaders = LuxiumGpuShaderFeatures.receiverShadersEnabled();
-        boolean neoSky = LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled() && !LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled() && !LuxiumGpuShaderFeatures.localReceiverEnabled() && !waterPass;
+        boolean neoSky = LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled() && !LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled
+                () && !LuxiumGpuShaderFeatures.localReceiverEnabled
+                () && !waterPass;
+
         boolean neoSkyForward = neoSky && options.pass().isReverseOrder();
         boolean neoSkyInline = neoSky && !neoSkyForward;
         this.luxium$neoSkyForwardPermutation = neoSkyForward;
-        if (!(receiverShaders || waterPass || neoSky)) {
+        if (!(receiverShaders || waterPass || neoSky)) { return;
+        }
+        if (receiverShaders && LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled
+                () && options.pass
+                ().supportsFragmentDiscard() && !Config.isFeatureEnabled
+                (Config.CLIENT.neoGpuVanillaCutoutEnabled)) {
             return;
         }
-        if (receiverShaders && LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled() && options.pass().supportsFragmentDiscard() && !Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaCutoutEnabled)) {
-            return;
-        }
+
         if (waterPass) {
             this.luxium$waterSceneColor = (GlUniformInt)context.bindUniform("u_LuxiumWaterSceneColor", GlUniformInt::new);
             this.luxium$waterSceneDepth = (GlUniformInt)context.bindUniform("u_LuxiumWaterSceneDepth", GlUniformInt::new);
@@ -344,8 +170,10 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             this.luxium$ssrEnabled = (GlUniformInt)context.bindUniform("u_LuxiumSsrEnabled", GlUniformInt::new);
             this.luxium$ssrTrace = (GlUniformFloat4v)context.bindUniform("u_LuxiumSsrTrace", GlUniformFloat4v::new);
             this.luxium$ssrResolve = (GlUniformFloat4v)context.bindUniform("u_LuxiumSsrResolve", GlUniformFloat4v::new);
+
             return;
         }
+
         if (neoSkyInline) {
             this.luxium$neoSkyInlineActive = (GlUniformInt)context.bindUniform("u_LuxiumNeoSkyInlineActive", GlUniformInt::new);
             this.luxium$neoSkyInlineLutSampler = (GlUniformInt)context.bindUniform("u_LuxiumCelestialLut", GlUniformInt::new);
@@ -364,10 +192,11 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             this.luxium$neoSkyInlineEntityWorldMatrix = (GlUniformMatrix4f)context.bindUniform("u_LuxiumEntityLightFromWorldRelative", GlUniformMatrix4f::new);
             return;
         }
-        if (!receiverShaders && !neoSkyForward) {
-            return;
-        }
-        this.luxium$skyOnlyPermutation = neoSkyForward || LuxiumGpuShaderFeatures.skyReceiverEnabled() && !LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled() && !LuxiumGpuShaderFeatures.localReceiverEnabled();
+
+        if (!receiverShaders && !neoSkyForward) { return; }
+        this.luxium$skyOnlyPermutation = neoSkyForward || LuxiumGpuShaderFeatures.skyReceiverEnabled() && !LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled
+                () && !LuxiumGpuShaderFeatures.localReceiverEnabled
+                ();
         if (this.luxium$skyOnlyPermutation) {
             this.luxium$celestialLutSampler = (GlUniformInt)context.bindUniform("u_LuxiumCelestialLut", GlUniformInt::new);
         } else {
@@ -459,6 +288,7 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             this.luxium$neoGpuDepthPrepass.setInt(neoDepthPrepass ? 1 : 0);
         }
         if (neoDepthPrepass) {
+
             this.luxium$shadowPass.setInt(0);
             return;
         }
@@ -466,43 +296,21 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
         boolean casterPass = skySystem.isRebuildingShadowMap() || NeoShadowsEngine.isGpuShadowAtlasCapturePass();
         this.luxium$shadowPass.setInt(casterPass ? 1 : 0);
         if (casterPass) {
-            this.luxium$enabled.setInt(0);
-            this.luxium$skyLightEnabled.setInt(0);
-            if (this.luxium$entityShadowEnabled != null) {
-                this.luxium$entityShadowEnabled.setInt(0);
-            }
-            if (this.luxium$localEnabled != null) {
-                this.luxium$localEnabled.setInt(0);
-            }
-            if (this.luxium$localReplaceBlockLight != null) {
-                this.luxium$localReplaceBlockLight.setInt(0);
-            }
-            if (this.luxium$localCount != null) {
-                this.luxium$localCount.setInt(0);
-            }
-            if (this.luxium$localMode != null) {
-                this.luxium$localMode.setInt(0);
-            }
-            if (this.luxium$localSoft != null) {
-                this.luxium$localSoft.setInt(0);
-            }
-            if (this.luxium$localSpreadOcclusion != null) {
-                this.luxium$localSpreadOcclusion.setFloat(0.0f);
-            }
-            if (this.luxium$localBakedHardEnabled != null) {
-                this.luxium$localBakedHardEnabled.setInt(0);
-            }
-            if (this.luxium$neoGpuEnabled != null) {
-                this.luxium$neoGpuEnabled.setInt(0);
-            }
-            if (this.luxium$neoGpuFastEnabled != null) {
-                this.luxium$neoGpuFastEnabled.setInt(0);
-            }
-            if (this.luxium$neoGpuFineScale != null) {
-                this.luxium$neoGpuFineScale.setInt(1);
-            }
+            this.luxium$enabled.setInt(0); this.luxium$skyLightEnabled.setInt(0);
+            if (this.luxium$entityShadowEnabled != null) { this.luxium$entityShadowEnabled.setInt(0); }
+            if (this.luxium$localEnabled != null) { this.luxium$localEnabled.setInt(0); }
+            if (this.luxium$localReplaceBlockLight != null) { this.luxium$localReplaceBlockLight.setInt(0); }
+            if (this.luxium$localCount != null) { this.luxium$localCount.setInt(0); }
+            if (this.luxium$localMode != null) { this.luxium$localMode.setInt(0); }
+            if (this.luxium$localSoft != null) { this.luxium$localSoft.setInt(0); }
+            if (this.luxium$localSpreadOcclusion != null) { this.luxium$localSpreadOcclusion.setFloat(0.0f); }
+            if (this.luxium$localBakedHardEnabled != null) { this.luxium$localBakedHardEnabled.setInt(0); }
+            if (this.luxium$neoGpuEnabled != null) { this.luxium$neoGpuEnabled.setInt(0); }
+            if (this.luxium$neoGpuFastEnabled != null) { this.luxium$neoGpuFastEnabled.setInt(0); }
+            if (this.luxium$neoGpuFineScale != null) { this.luxium$neoGpuFineScale.setInt(1); }
             return;
         }
+
         NeoSkyCelestiaFrameState sky = skySystem.frameState();
         boolean skyActive = skySystem.isMainPassActive();
         boolean skyShadows = skyActive && sky.enabled();
@@ -533,23 +341,18 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
                 this.luxium$entityShadowSampler.setInt(5);
             }
             this.luxium$filterSamples.setInt(sky.filterSamples());
-            this.luxium$cascadeValues[0] = sky.nearRadius();
-            this.luxium$cascadeValues[1] = sky.farRadius();
-            this.luxium$cascadeValues[2] = sky.nearTexelSize();
-            this.luxium$cascadeValues[3] = sky.farTexelSize();
+            this.luxium$cascadeValues[0] = sky.nearRadius(); this.luxium$cascadeValues[1] = sky.farRadius();
+            this.luxium$cascadeValues[2] = sky.nearTexelSize(); this.luxium$cascadeValues[3] = sky.farTexelSize();
             this.luxium$cascadeData.set(this.luxium$cascadeValues);
-            this.luxium$biasValues[0] = sky.baseBiasNear();
-            this.luxium$biasValues[1] = sky.baseBiasFar();
-            this.luxium$biasValues[2] = sky.slopeBias();
-            this.luxium$biasValues[3] = sky.cascadeBlendStart();
+            this.luxium$biasValues[0] = sky.baseBiasNear(); this.luxium$biasValues[1] = sky.baseBiasFar();
+            this.luxium$biasValues[2] = sky.slopeBias(); this.luxium$biasValues[3] = sky.cascadeBlendStart();
             this.luxium$biasData.set(this.luxium$biasValues);
             this.luxium$nearMatrix.set((Matrix4fc)sky.nearLightFromView());
             this.luxium$farMatrix.set((Matrix4fc)sky.farLightFromView());
-            if (this.luxium$entityMatrix != null) {
-                this.luxium$entityMatrix.set((Matrix4fc)sky.entityLightFromView());
-            }
+            if (this.luxium$entityMatrix != null) { this.luxium$entityMatrix.set((Matrix4fc)sky.entityLightFromView()); }
             if (this.luxium$entityShadowData != null) {
-                this.luxium$entityShadowData.set(new float[]{sky.entityTexelSize(), sky.entityBaseBias(), sky.slopeBias(), sky.entityRadius()});
+                this.luxium$entityShadowData.set(new float[]{sky.entityTexelSize
+                        (), sky.entityBaseBias(), sky.slopeBias(), sky.entityRadius()});
             }
             if (this.luxium$lightDirection != null) {
                 this.luxium$lightDirection.set(sky.lightDirection().x, sky.lightDirection().y, sky.lightDirection().z);
@@ -560,38 +363,29 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
                 this.luxium$groundAmbientColor.set(sky.groundAmbientColor().x, sky.groundAmbientColor().y, sky.groundAmbientColor().z);
                 this.luxium$directStrength.setFloat(sky.directStrength());
                 this.luxium$ambientStrength.setFloat(sky.ambientStrength());
-                this.luxium$vanillaBlockLightInSunShadows.setFloat(sky.moonLight() ? 0.0f : ((Double)Config.CLIENT.vanillaBlockLightInSunShadows.get()).floatValue() * 0.01f);
+                this.luxium$vanillaBlockLightInSunShadows.setFloat(sky.moonLight() ?
+                        0.0f : ((Double)Config.CLIENT.vanillaBlockLightInSunShadows.get
+                        ()).floatValue() * 0.01f);
             }
         }
+
         NeoGpuVanillaFrameState neoGpu = NeoGpuVanilla.frameState();
         boolean neoGpuActive = NeoGpuVanilla.isMainPassActive() && neoGpu.enabled();
         boolean neoGpuFastActive = neoGpuActive && neoGpu.fastShadowsEnabled();
-        if (this.luxium$neoGpuEnabled != null) {
-            this.luxium$neoGpuEnabled.setInt(neoGpuActive ? 1 : 0);
-        }
-        if (this.luxium$neoGpuFastEnabled != null) {
-            this.luxium$neoGpuFastEnabled.setInt(neoGpuFastActive ? 1 : 0);
-        }
-        if (this.luxium$neoGpuFineScale != null) {
-            this.luxium$neoGpuFineScale.setInt(neoGpuActive ? neoGpu.fineScale() : 1);
-        }
+        if (this.luxium$neoGpuEnabled != null) { this.luxium$neoGpuEnabled.setInt(neoGpuActive ? 1 : 0); }
+        if (this.luxium$neoGpuFastEnabled != null) { this.luxium$neoGpuFastEnabled.setInt(neoGpuFastActive ? 1 : 0); }
+        if (this.luxium$neoGpuFineScale != null) { this.luxium$neoGpuFineScale.setInt(neoGpuActive ? neoGpu.fineScale() : 1); }
         if (neoGpuActive) {
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(9, neoGpu.volumeTexture());
-            if (this.luxium$neoGpuSampler != null) {
-                this.luxium$neoGpuSampler.setInt(9);
-            }
-            if (this.luxium$neoGpuMin != null) {
-                this.luxium$neoGpuMin.set(neoGpu.minX(), neoGpu.minY(), neoGpu.minZ());
-            }
-            if (this.luxium$neoGpuSize != null) {
-                this.luxium$neoGpuSize.set(neoGpu.sizeX(), neoGpu.sizeY(), neoGpu.sizeZ());
-            }
+            if (this.luxium$neoGpuSampler != null) { this.luxium$neoGpuSampler.setInt(9); }
+            if (this.luxium$neoGpuMin != null) { this.luxium$neoGpuMin.set(neoGpu.minX(), neoGpu.minY(), neoGpu.minZ()); }
+            if (this.luxium$neoGpuSize != null) { this.luxium$neoGpuSize.set(neoGpu.sizeX(), neoGpu.sizeY(), neoGpu.sizeZ()); }
             if (neoGpuFastActive) {
-                int[] textures = new int[]{neoGpu.fastLightPX(), neoGpu.fastLightNX(), neoGpu.fastLightPY(), neoGpu.fastLightNY(), neoGpu.fastLightPZ(), neoGpu.fastLightNZ()};
+                int[] textures = new int[]{neoGpu.fastLightPX(), neoGpu.fastLightNX(), neoGpu.fastLightPY(), neoGpu.fastLightNY
+                        (), neoGpu.fastLightPZ(), neoGpu.fastLightNZ()};
                 for (int i = 0; i < 6; ++i) {
                     EmbeddiumChunkShaderInterfaceMixin.bindTexture3D(10 + i, textures[i]);
-                    if (this.luxium$neoGpuFastSamplers[i] != null) {
-                        this.luxium$neoGpuFastSamplers[i].setInt(10 + i);
+                    if (this.luxium$neoGpuFastSamplers[i] != null) { this.luxium$neoGpuFastSamplers[i].setInt(10 + i);
                     }
                 }
             }
@@ -600,37 +394,30 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             GlStateManager._activeTexture((int)33984);
             return;
         }
+
         GpuShadowFrameState local = GpuNeoShadows.frameState();
         boolean localActive = GpuNeoShadows.isMainPassActive() && local.enabled();
         boolean bakedHardActive = localActive && GpuNeoShadows.isBakedHardReceiverReady();
         this.luxium$localEnabled.setInt(localActive ? 1 : 0);
         this.luxium$localReplaceBlockLight.setInt(localActive && local.replaceBlockLight() ? 1 : 0);
+
         this.luxium$localCount.setInt(localActive && !bakedHardActive ? local.lightCount() : 0);
-        if (this.luxium$localSoft != null) {
-            this.luxium$localSoft.setInt(!bakedHardActive && local.softShadows() ? 1 : 0);
-        }
-        if (this.luxium$localMode != null) {
-            this.luxium$localMode.setInt(local.shadowMode());
-        }
+        if (this.luxium$localSoft != null) { this.luxium$localSoft.setInt(!bakedHardActive && local.softShadows() ? 1 : 0); }
+        if (this.luxium$localMode != null) { this.luxium$localMode.setInt(local.shadowMode()); }
         this.luxium$localSpreadOcclusion.setFloat(local.spreadOcclusionStrength());
-        if (this.luxium$localBakedHardEnabled != null) {
-            this.luxium$localBakedHardEnabled.setInt(bakedHardActive ? 1 : 0);
-        }
+        if (this.luxium$localBakedHardEnabled != null) { this.luxium$localBakedHardEnabled.setInt(bakedHardActive ? 1 : 0); }
         if (bakedHardActive) {
             for (int i = 0; i < 6; ++i) {
                 EmbeddiumChunkShaderInterfaceMixin.bindTexture3D(8 + i, GpuNeoShadows.bakedHardTexture(i));
-                if (this.luxium$localBakedHardSamplers[i] != null) {
-                    this.luxium$localBakedHardSamplers[i].setInt(8 + i);
-                }
+                if (this.luxium$localBakedHardSamplers[i] != null) { this.luxium$localBakedHardSamplers[i].setInt(8 + i); }
             }
-            if (this.luxium$localBakedHardMin != null) {
-                this.luxium$localBakedHardMin.set(GpuNeoShadows.bakedHardMinX(), GpuNeoShadows.bakedHardMinY(), GpuNeoShadows.bakedHardMinZ());
-            }
-            if (this.luxium$localBakedHardSize != null) {
-                this.luxium$localBakedHardSize.set(GpuNeoShadows.bakedHardSizeX(), GpuNeoShadows.bakedHardSizeY(), GpuNeoShadows.bakedHardSizeZ());
-            }
+            if (this.luxium$localBakedHardMin != null) { this.luxium$localBakedHardMin.set(GpuNeoShadows.bakedHardMinX
+                        (), GpuNeoShadows.bakedHardMinY(), GpuNeoShadows.bakedHardMinZ()); }
+            if (this.luxium$localBakedHardSize != null) { this.luxium$localBakedHardSize.set(GpuNeoShadows.bakedHardSizeX
+                        (), GpuNeoShadows.bakedHardSizeY(), GpuNeoShadows.bakedHardSizeZ()); }
         }
         if (localActive && !bakedHardActive) {
+
             if (this.luxium$localAtlasSampler != null) {
                 EmbeddiumChunkShaderInterfaceMixin.bindTexture(6, local.atlasTexture());
                 this.luxium$localAtlasSampler.setInt(6);
@@ -645,12 +432,8 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
                 this.luxium$localUploadedVersion = Long.MIN_VALUE;
             }
             if (this.luxium$localUploadedVersion != local.version()) {
-                if (this.luxium$localLightsLocation >= 0) {
-                    GL20.glUniform4fv((int)this.luxium$localLightsLocation, (float[])local.lights());
-                }
-                if (this.luxium$localRectsLocation >= 0) {
-                    GL20.glUniform4fv((int)this.luxium$localRectsLocation, (float[])local.atlasRects());
-                }
+                if (this.luxium$localLightsLocation >= 0) { GL20.glUniform4fv((int)this.luxium$localLightsLocation, (float[])local.lights()); }
+                if (this.luxium$localRectsLocation >= 0) { GL20.glUniform4fv((int)this.luxium$localRectsLocation, (float[])local.atlasRects()); }
                 this.luxium$localUploadedVersion = local.version();
             }
         }
@@ -686,34 +469,42 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             this.luxium$neoSkyInlineEntityEnabled.setInt(0);
             return;
         }
+
         NeoSkyCelestiaFrameState sky = system.frameState();
         boolean shadows = sky.enabled();
         boolean lighting = sky.skyLightEnabled();
         boolean entity = shadows && sky.entityShadowEnabled();
+
         this.luxium$neoSkyInlineEnabled.setInt(shadows ? 1 : 0);
         this.luxium$neoSkyInlineLightEnabled.setInt(lighting ? 1 : 0);
         this.luxium$neoSkyInlineEntityEnabled.setInt(entity ? 1 : 0);
         this.luxium$neoSkyInlineFilterSamples.setInt(sky.filterSamples());
+
         EmbeddiumChunkShaderInterfaceMixin.bindTexture(2, sky.celestialLightLutTexture());
         this.luxium$neoSkyInlineLutSampler.setInt(2);
+
         if (shadows) {
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(3, sky.nearDepthTexture());
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(4, sky.farDepthTexture());
             this.luxium$neoSkyInlineNearSampler.setInt(3);
             this.luxium$neoSkyInlineFarSampler.setInt(4);
+
             this.luxium$cascadeValues[0] = sky.nearRadius();
             this.luxium$cascadeValues[1] = sky.farRadius();
             this.luxium$cascadeValues[2] = sky.nearTexelSize();
             this.luxium$cascadeValues[3] = sky.farTexelSize();
             this.luxium$neoSkyInlineCascadeData.set(this.luxium$cascadeValues);
+
             this.luxium$biasValues[0] = sky.baseBiasNear();
             this.luxium$biasValues[1] = sky.baseBiasFar();
             this.luxium$biasValues[2] = sky.slopeBias();
             this.luxium$biasValues[3] = sky.cascadeBlendStart();
             this.luxium$neoSkyInlineBiasData.set(this.luxium$biasValues);
+
             this.luxium$neoSkyInlineNearWorldMatrix.set((Matrix4fc)system.nearLightFromWorldRelative());
             this.luxium$neoSkyInlineFarWorldMatrix.set((Matrix4fc)system.farLightFromWorldRelative());
         }
+
         if (entity) {
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(5, sky.entityDepthTexture());
             this.luxium$neoSkyInlineEntitySampler.setInt(5);
@@ -730,30 +521,42 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
     private void luxium$setupWaterState() {
         Minecraft mc = Minecraft.m_91087_();
         int requestedMode = WaterSurfaceState.renderMode();
+
         int colorUnit = 2;
         int depthOrHitUnit = 3;
         int microUnit = 4;
         int nearShadowUnit = 5;
         int farShadowUnit = 6;
+
         int maxTextureUnits = EmbeddiumChunkShaderInterfaceMixin.luxium$getMaxFragmentTextureUnits();
-        boolean baseSceneReady = requestedMode == 1 && WaterSurfaceState.sceneReady() && maxTextureUnits > depthOrHitUnit;
-        boolean lateSceneReady = requestedMode == 3 && mc.m_91385_().m_83975_() > 0 && ScreenSpaceReflectionSystem.isHitReady(SsrConsumer.WATER) && maxTextureUnits > depthOrHitUnit;
-        boolean baseResolvedReady = requestedMode == 2 && WaterSurfaceState.resolvedReady() && maxTextureUnits > colorUnit;
-        boolean lateResolvedReady = requestedMode == 4 && WaterSurfaceState.lateReflectionResolvedReady() && maxTextureUnits > colorUnit;
+        boolean baseSceneReady = requestedMode == 1 && WaterSurfaceState.sceneReady
+                () && maxTextureUnits > depthOrHitUnit;
+
+        boolean lateSceneReady = requestedMode == 3 && mc.m_91385_
+                ().m_83975_() > 0 && ScreenSpaceReflectionSystem.isHitReady
+                (SsrConsumer.WATER) && maxTextureUnits > depthOrHitUnit;
+
+        boolean baseResolvedReady = requestedMode == 2 && WaterSurfaceState.resolvedReady
+                () && maxTextureUnits > colorUnit;
+
+        boolean lateResolvedReady = requestedMode == 4 && WaterSurfaceState.lateReflectionResolvedReady
+                () && maxTextureUnits > colorUnit;
+
+
         int renderMode = requestedMode;
-        if (requestedMode == 2 && !baseResolvedReady) {
-            renderMode = 0;
-        }
-        if (requestedMode == 3 && !lateSceneReady) {
-            renderMode = -1;
-        }
-        if (requestedMode == 4 && !lateResolvedReady) {
-            renderMode = -1;
-        }
+        if (requestedMode == 2 && !baseResolvedReady) { renderMode = 0; }
+        if (requestedMode == 3 && !lateSceneReady) { renderMode = -1; }
+        if (requestedMode == 4 && !lateResolvedReady) { renderMode = -1; }
         this.luxium$waterRenderMode.setInt(renderMode);
+
         boolean scaledPass = renderMode == 1 || renderMode == 3;
-        int width = scaledPass ? Math.max(SharedPostResources.getWaterRenderWidth(), 1) : Math.max(mc.m_91385_().f_83915_, 1);
-        int height = scaledPass ? Math.max(SharedPostResources.getWaterRenderHeight(), 1) : Math.max(mc.m_91385_().f_83916_, 1);
+        int width = scaledPass ? Math.max
+                (SharedPostResources.getWaterRenderWidth(), 1) : Math.max
+                (mc.m_91385_().f_83915_, 1);
+        int height = scaledPass ? Math.max
+                (SharedPostResources.getWaterRenderHeight(), 1) : Math.max
+                (mc.m_91385_().f_83916_, 1);
+
         if (renderMode == 2 || renderMode == 4) {
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(colorUnit, SharedPostResources.getWaterRenderColorTextureId());
             this.luxium$waterResolvedColor.setInt(colorUnit);
@@ -763,11 +566,13 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             this.luxium$waterSceneColor.setInt(colorUnit);
             this.luxium$waterSceneDepth.setInt(depthOrHitUnit);
         } else if (renderMode == 3 && lateSceneReady) {
+
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(colorUnit, mc.m_91385_().m_83975_());
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(depthOrHitUnit, ScreenSpaceReflectionSystem.hitTexture(SsrConsumer.WATER));
             this.luxium$waterSceneColor.setInt(colorUnit);
             this.luxium$ssrHitTexture.setInt(depthOrHitUnit);
         }
+
         int microTexture = 0;
         boolean microReady = renderMode == 1 && maxTextureUnits > microUnit;
         if (microReady) {
@@ -779,29 +584,38 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             this.luxium$waterMicroNormal.setInt(microUnit);
         }
         this.luxium$waterMicroReady.setInt(microReady ? 1 : 0);
+
         this.luxium$waterFrameValues[0] = width;
         this.luxium$waterFrameValues[1] = height;
         this.luxium$waterFrameValues[2] = WaterSurfaceState.timeSeconds();
         this.luxium$waterFrameValues[3] = baseSceneReady || lateSceneReady ? 1.0f : 0.0f;
         this.luxium$waterFrame.set(this.luxium$waterFrameValues);
+
         this.luxium$waterWaveValues[0] = ((Double)Config.CLIENT.waterWaveStrength.get()).floatValue();
         this.luxium$waterWaveValues[1] = ((Double)Config.CLIENT.waterWaveScale.get()).floatValue();
         this.luxium$waterWaveValues[2] = ((Double)Config.CLIENT.waterWaveSpeed.get()).floatValue();
-        this.luxium$waterWaveValues[3] = Config.isFeatureEnabled(Config.CLIENT.waterDetailWaves) ? ((Double)Config.CLIENT.waterDetailStrength.get()).floatValue() : 0.0f;
+        this.luxium$waterWaveValues[3] = Config.isFeatureEnabled(Config.CLIENT.waterDetailWaves) ? ((Double)Config.CLIENT.waterDetailStrength.get
+                ()).floatValue() : 0.0f;
         this.luxium$waterWave.set(this.luxium$waterWaveValues);
+
         this.luxium$waterOpticsValues[0] = ((Double)Config.CLIENT.waterRefractionStrength.get()).floatValue();
         this.luxium$waterOpticsValues[1] = ((Double)Config.CLIENT.waterAbsorptionStrength.get()).floatValue();
         this.luxium$waterOpticsValues[2] = ((Double)Config.CLIENT.waterVisibilityDepth.get()).floatValue();
         this.luxium$waterOpticsValues[3] = ((Double)Config.CLIENT.waterSurfaceOpacity.get()).floatValue();
         this.luxium$waterOptics.set(this.luxium$waterOpticsValues);
+
         this.luxium$waterSurfaceValues[0] = ((Double)Config.CLIENT.waterFresnelStrength.get()).floatValue();
         this.luxium$waterSurfaceValues[1] = ((Double)Config.CLIENT.waterFresnelPower.get()).floatValue();
         this.luxium$waterSurfaceValues[2] = ((Double)Config.CLIENT.waterSpecularStrength.get()).floatValue();
         this.luxium$waterSurfaceValues[3] = ((Double)Config.CLIENT.waterSpecularSharpness.get()).floatValue();
         this.luxium$waterSurface.set(this.luxium$waterSurfaceValues);
+
         NeoSkyCelestia waterSkySystem = NeoSkyCelestia.get();
         NeoSkyCelestiaFrameState waterSky = waterSkySystem.frameState();
-        boolean waterSkyShadows = renderMode == 1 && waterSkySystem.isMainPassActive() && waterSky.enabled() && maxTextureUnits > farShadowUnit;
+        boolean waterSkyShadows = renderMode == 1 && waterSkySystem.isMainPassActive
+                () && waterSky.enabled
+                () && maxTextureUnits > farShadowUnit;
+
         this.luxium$waterSkyShadowEnabled.setInt(waterSkyShadows ? 1 : 0);
         if (waterSkyShadows) {
             EmbeddiumChunkShaderInterfaceMixin.bindTexture(nearShadowUnit, waterSky.nearDepthTexture());
@@ -822,27 +636,37 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
             this.luxium$waterNearMatrix.set((Matrix4fc)waterSky.nearLightFromView());
             this.luxium$waterFarMatrix.set((Matrix4fc)waterSky.farLightFromView());
         }
+
         Vec3 camera = WaterSurfaceState.cameraPosition();
         this.luxium$waterCameraPos.set((float)camera.f_82479_, (float)camera.f_82480_, (float)camera.f_82481_);
         WaterSurfaceState.Light light = WaterSurfaceState.light(mc.m_91296_());
         this.luxium$waterLightDir.set(light.direction().x, light.direction().y, light.direction().z);
         float lightStrength = light.strength();
-        this.luxium$waterLightColor.set(light.color().x * lightStrength, light.color().y * lightStrength, light.color().z * lightStrength);
+        this.luxium$waterLightColor.set(light.color
+                ().x * lightStrength, light.color
+                ().y * lightStrength, light.color
+                ().z * lightStrength);
         this.luxium$waterDepthAware.setInt(Config.isFeatureEnabled(Config.CLIENT.waterDepthAwareRefraction) ? 1 : 0);
+
         SsrSettings ssr = ScreenSpaceReflectionSystem.settings(SsrConsumer.WATER);
-        boolean traceActive = renderMode == 1 && ScreenSpaceReflectionSystem.isHitTraceActive(SsrConsumer.WATER);
-        boolean colorResolveActive = renderMode == 3 && ScreenSpaceReflectionSystem.isHitReady(SsrConsumer.WATER);
+        boolean traceActive = renderMode == 1 && ScreenSpaceReflectionSystem.isHitTraceActive
+                (SsrConsumer.WATER);
+        boolean colorResolveActive = renderMode == 3 && ScreenSpaceReflectionSystem.isHitReady
+                (SsrConsumer.WATER);
         this.luxium$ssrEnabled.setInt(ssr.enabled() && (traceActive || colorResolveActive) ? 1 : 0);
+
         this.luxium$ssrTraceValues[0] = ssr.coarseSteps();
         this.luxium$ssrTraceValues[1] = ssr.refinementSteps();
         this.luxium$ssrTraceValues[2] = ssr.maxDistance();
         this.luxium$ssrTraceValues[3] = ssr.thickness();
         this.luxium$ssrTrace.set(this.luxium$ssrTraceValues);
+
         this.luxium$ssrResolveValues[0] = ssr.strength();
         this.luxium$ssrResolveValues[1] = ssr.edgeFade();
         this.luxium$ssrResolveValues[2] = 0.0f;
         this.luxium$ssrResolveValues[3] = 0.0f;
         this.luxium$ssrResolve.set(this.luxium$ssrResolveValues);
+
         GlStateManager._activeTexture((int)33984);
     }
 
@@ -853,24 +677,18 @@ public abstract class EmbeddiumChunkShaderInterfaceMixin {
         }
         return luxium$maxFragmentTextureUnits;
     }
-
     @Unique
     private static int uniformLocation(int program, String name) {
         int location = GL20.glGetUniformLocation((int)program, (CharSequence)(name + "[0]"));
-        return location >= 0 ? location : GL20.glGetUniformLocation((int)program, (CharSequence)name);
-    }
-
+        return location >= 0 ? location : GL20.glGetUniformLocation((int)program, (CharSequence)name); }
     @Unique
     private static void bindTexture(int unit, int textureId) {
         GlStateManager._activeTexture((int)(33984 + unit));
         GlStateManager._bindTexture((int)Math.max(textureId, 0));
-    }
-
-    @Unique
+    } @Unique
     private static void bindTexture3D(int unit, int textureId) {
         GlStateManager._activeTexture((int)(33984 + unit));
         GL11.glBindTexture((int)32879, (int)Math.max(textureId, 0));
         GlStateManager._activeTexture((int)33984);
     }
 }
-

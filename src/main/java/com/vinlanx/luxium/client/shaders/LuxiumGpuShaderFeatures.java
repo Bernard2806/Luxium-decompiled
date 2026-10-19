@@ -1,11 +1,9 @@
-/*
- * Decompiled with CFR 0.152.
- */
 package com.vinlanx.luxium.client.shaders;
+
+
 
 import com.vinlanx.luxium.Config;
 import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla;
-
 public final class LuxiumGpuShaderFeatures {
     private static final int MASK_NEO_GPU_VANILLA = 1;
     private static final int MASK_LOCAL_RECEIVER = 2;
@@ -14,9 +12,7 @@ public final class LuxiumGpuShaderFeatures {
     private static final int MASK_RECEIVER_BINDING = 16;
     private static volatile int featureMask;
     private static volatile boolean initialized;
-
-    private LuxiumGpuShaderFeatures() {
-    }
+    private LuxiumGpuShaderFeatures() { }
 
     public static void beginFrame() {
         LuxiumGpuShaderFeatures.refreshNow();
@@ -24,24 +20,18 @@ public final class LuxiumGpuShaderFeatures {
 
     public static void refreshNow() {
         boolean neoGpuVanilla = NeoGpuVanilla.isConfiguredEnabled();
-        boolean localReceiver = !neoGpuVanilla && Config.isFeatureEnabled(Config.CLIENT.gpuShadowsEnabled) && !Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) && Config.CLIENT.gpuLocalLightingMode.get() != Config.GpuLocalLightingMode.NEOFLOOD_ONLY;
+        boolean localReceiver = !neoGpuVanilla && Config.isFeatureEnabled
+                (Config.CLIENT.gpuShadowsEnabled) && !Config.isFeatureEnabled
+                (Config.CLIENT.neoCpuShadowsEnabled) && Config.CLIENT.gpuLocalLightingMode.get
+                () != Config.GpuLocalLightingMode.NEOFLOOD_ONLY;
         boolean neoSky = Config.isFeatureEnabled(Config.CLIENT.skyLightEnabled);
+
         int mask = 0;
-        if (neoGpuVanilla) {
-            mask |= 1;
-        }
-        if (localReceiver) {
-            mask |= 2;
-        }
-        if (neoSky) {
-            mask |= 4;
-        }
-        if (neoGpuVanilla || localReceiver) {
-            mask |= 8;
-        }
-        if (neoGpuVanilla || localReceiver || neoSky) {
-            mask |= 0x10;
-        }
+        if (neoGpuVanilla) { mask |= 1; }
+        if (localReceiver) { mask |= 2; }
+        if (neoSky) { mask |= 4; }
+        if (neoGpuVanilla || localReceiver) { mask |= 8; }
+        if (neoGpuVanilla || localReceiver || neoSky) { mask |= 0x10; }
         featureMask = mask;
         initialized = true;
     }
@@ -77,4 +67,3 @@ public final class LuxiumGpuShaderFeatures {
         return featureMask;
     }
 }
-

@@ -1,16 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer
- *  net.minecraft.client.Camera
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.core.BlockPos
- *  net.minecraft.util.RandomSource
- *  net.minecraft.world.phys.Vec3
- *  org.joml.Vector3f
- */
 package com.vinlanx.luxium.rtx.neogpuvanilla;
 
 import com.vinlanx.luxium.Config;
@@ -29,7 +16,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
-
 public final class NeoGpuVanilla {
     public static final int MAX_SOURCES = 40;
     private static final NeoGpuVanillaVolume VOLUME = new NeoGpuVanillaVolume();
@@ -38,26 +24,26 @@ public final class NeoGpuVanilla {
     private static final float[] SOURCE_COLORS = new float[160];
     private static final float[] ATLAS_RECTS = new float[960];
     private static final long[] VISIBLE_KEYS = new long[40];
-    private static final int[] VISIBLE_EMISSIONS = new int[40];
-    private static ClientLevel trackedLevel;
-    private static long[] stagedSources;
-    private static int[] stagedEmissions;
-    private static long stagedSignature;
-    private static long stagedSourceSignature;
-    private static long bakedSignature;
-    private static long observedContentGeneration;
-    private static long requestedVanillaGeneration;
-    private static long bakedVanillaGeneration;
-    private static boolean mainPassActive;
-    private static int pendingVanillaSettleFrames;
-    private static boolean sourceSetChangePending;
-    private static int sourceSetQuietFrames;
-    private static int sourceSetChangeAgeFrames;
-    private static long frameVersion;
+    private static final int[] VISIBLE_EMISSIONS = new int[40]; private static ClientLevel trackedLevel; private static long[] stagedSources; private static int[] stagedEmissions; private static long stagedSignature; private static long stagedSourceSignature; private static long bakedSignature; private static long observedContentGeneration; private static long requestedVanillaGeneration; private static long bakedVanillaGeneration; private static boolean mainPassActive; private static int pendingVanillaSettleFrames; private static boolean sourceSetChangePending; private static int sourceSetQuietFrames; private static int sourceSetChangeAgeFrames; private static long frameVersion;
     private static NeoGpuVanillaFrameState frameState;
+    static {
+        stagedSources = new long[0];
+        stagedEmissions = new int[0];
 
-    private NeoGpuVanilla() {
-    }
+
+        bakedSignature = Long.MIN_VALUE;
+        observedContentGeneration = Long.MIN_VALUE;
+
+        bakedVanillaGeneration = Long.MIN_VALUE;
+
+
+
+
+
+
+        frameState = NeoGpuVanillaFrameState.disabled(0L); }
+
+    private NeoGpuVanilla() { }
 
     public static boolean isConfiguredEnabled() {
         return Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaEnabled);
@@ -78,9 +64,7 @@ public final class NeoGpuVanilla {
 
     public static void prepareShadowAtlas(Minecraft mc, Camera camera) {
         if (!NeoGpuVanilla.isConfiguredEnabled()) {
-            if (trackedLevel != null || VOLUME.hasResources()) {
-                NeoGpuVanilla.releaseResources();
-            }
+            if (trackedLevel != null || VOLUME.hasResources()) { NeoGpuVanilla.releaseResources(); }
             NeoGpuVanilla.clearFrame();
             return;
         }
@@ -88,6 +72,7 @@ public final class NeoGpuVanilla {
             NeoGpuVanilla.clearFrame();
             return;
         }
+
         if (trackedLevel != mc.f_91073_) {
             trackedLevel = mc.f_91073_;
             stagedSources = new long[0];
@@ -104,32 +89,41 @@ public final class NeoGpuVanilla {
             VOLUME.release();
             GpuShadowCache.get().release();
         }
+
         Vec3 cameraPos = camera.m_90583_();
         if (VOLUME.updateAnchor(cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_)) {
             bakedSignature = Long.MIN_VALUE;
         }
+
         GpuShadowCache cache = GpuShadowCache.get();
-        int configuredLimit = Math.max(1, Math.min(40, (Integer)Config.CLIENT.neoGpuVanillaMaxSources.get()));
+        int configuredLimit = Math.max(1, Math.min(40,
+                (Integer)Config.CLIENT.neoGpuVanillaMaxSources.get()));
         int limit = Math.min(configuredLimit, cache.getSourceCapacity());
         double distance = ((Integer)Config.CLIENT.neoGpuVanillaDistance.get()).intValue();
         TorchRtxState registry = TorchRtxState.get();
-        Vec3 selectionOrigin = new Vec3((double)VOLUME.buildAnchorX() + 24.0, (double)VOLUME.buildAnchorY() + 16.0, (double)VOLUME.buildAnchorZ() + 24.0);
+
+        Vec3 selectionOrigin = new Vec3((double)VOLUME.buildAnchorX
+                () + 24.0, (double)VOLUME.buildAnchorY
+                () + 16.0, (double)VOLUME.buildAnchorZ
+                () + 24.0);
         stagedSources = registry.getClosestSources(selectionOrigin, distance * distance, limit);
         stagedEmissions = new int[stagedSources.length];
         for (int i = 0; i < stagedSources.length; ++i) {
             NeoGpuVanilla.stagedEmissions[i] = registry.getSourceEmission(stagedSources[i]);
         }
-        long nextSourceSignature = NeoGpuVanilla.signature(stagedSources, stagedEmissions, 0, 0, 0, (Integer)Config.CLIENT.neoGpuVanillaCaptureResolution.get());
+        long nextSourceSignature = NeoGpuVanilla.signature(stagedSources, stagedEmissions, 0, 0, 0,
+                (Integer)Config.CLIENT.neoGpuVanillaCaptureResolution.get());
         if (nextSourceSignature != stagedSourceSignature) {
             stagedSourceSignature = nextSourceSignature;
-            if (!sourceSetChangePending) {
-                sourceSetChangeAgeFrames = 0;
+            if (!sourceSetChangePending) { sourceSetChangeAgeFrames = 0;
             }
             sourceSetChangePending = false;
             sourceSetQuietFrames = 0;
             sourceSetChangeAgeFrames = 0;
         }
-        stagedSignature = NeoGpuVanilla.signature(stagedSources, stagedEmissions, VOLUME.buildAnchorX(), VOLUME.buildAnchorY(), VOLUME.buildAnchorZ(), (Integer)Config.CLIENT.neoGpuVanillaCaptureResolution.get());
+        stagedSignature = NeoGpuVanilla.signature(stagedSources, stagedEmissions, VOLUME.buildAnchorX
+                (), VOLUME.buildAnchorY(), VOLUME.buildAnchorZ(),
+                (Integer)Config.CLIENT.neoGpuVanillaCaptureResolution.get());
         cache.stageVisibleEntries(mc.f_91073_, stagedSources, stagedEmissions, limit);
     }
 
@@ -143,7 +137,9 @@ public final class NeoGpuVanilla {
             NeoGpuVanilla.publishCurrentFrame(camera);
             return;
         }
+
         GpuShadowCache cache = GpuShadowCache.get();
+
         pendingVanillaSettleFrames = 0;
         sourceSetChangePending = false;
         sourceSetQuietFrames = 0;
@@ -154,27 +150,39 @@ public final class NeoGpuVanilla {
         Arrays.fill(ATLAS_RECTS, 0.0f);
         Arrays.fill(VISIBLE_KEYS, 0L);
         Arrays.fill(VISIBLE_EMISSIONS, 0);
-        int count = cache.collectNeoGpuVanillaEntries(stagedSources, stagedEmissions, stagedSources.length, VOLUME.buildAnchorX(), VOLUME.buildAnchorY(), VOLUME.buildAnchorZ(), SOURCE_DATA, ATLAS_RECTS, VISIBLE_KEYS, VISIBLE_EMISSIONS, SOURCE_GEOMETRY);
+
+        int count = cache.collectNeoGpuVanillaEntries(stagedSources, stagedEmissions, stagedSources.length, VOLUME.buildAnchorX
+
+                (), VOLUME.buildAnchorY(), VOLUME.buildAnchorZ(), SOURCE_DATA, ATLAS_RECTS, VISIBLE_KEYS, VISIBLE_EMISSIONS, SOURCE_GEOMETRY);
+
+
         boolean capturePending = false;
         for (int i = 0; i < count; ++i) {
             NeoGpuVanilla.SOURCE_DATA[i * 4 + 3] = VISIBLE_EMISSIONS[i];
             GpuLocalLightResolver.resolve(mc.f_91073_, VISIBLE_KEYS[i], VISIBLE_EMISSIONS[i], SOURCE_COLORS, i * 4);
             int flags = Math.round(SOURCE_GEOMETRY[i * 4 + 3]);
-            if ((flags & 0x80) != 0) {
-                capturePending = true;
+            if ((flags & 0x80) != 0) { capturePending = true;
             }
         }
         long contentGeneration = cache.getNeoGpuVanillaContentGeneration(stagedSources, stagedSources.length);
-        boolean wantsBake = stagedSignature != bakedSignature || contentGeneration != observedContentGeneration || requestedVanillaGeneration != bakedVanillaGeneration || !VOLUME.isReady();
+
+        boolean wantsBake = stagedSignature != bakedSignature || contentGeneration != observedContentGeneration || requestedVanillaGeneration != bakedVanillaGeneration || !VOLUME.isReady
+
+
+                ();
+
         if (wantsBake) {
             int atlasTexture = count > 0 ? cache.getAtlasTextureId() : 0;
             if (VOLUME.bake(mc.f_91073_, atlasTexture, count, SOURCE_DATA, SOURCE_GEOMETRY, SOURCE_COLORS, ATLAS_RECTS)) {
+
                 bakedSignature = stagedSignature;
                 observedContentGeneration = contentGeneration;
                 bakedVanillaGeneration = requestedVanillaGeneration;
             }
         }
-        NeoGpuVanillaGpuDebug.tick(stagedSources.length, cache.countPendingNeoGpuVanillaFaces(stagedSources, stagedSources.length), (Integer)Config.CLIENT.neoGpuVanillaCaptureResolution.get());
+        NeoGpuVanillaGpuDebug.tick(stagedSources.length, cache.countPendingNeoGpuVanillaFaces
+                (stagedSources, stagedSources.length),
+                (Integer)Config.CLIENT.neoGpuVanillaCaptureResolution.get());
         NeoGpuVanilla.publishCurrentFrame(camera);
     }
 
@@ -191,12 +199,12 @@ public final class NeoGpuVanilla {
     }
 
     public static void onGeometryChanged(BlockPos pos, boolean vanillaLightMayChange) {
-        if (!NeoGpuVanilla.isConfiguredEnabled() || !Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaGeometryUpdates) || pos == null) {
-            return;
-        }
+        if (!NeoGpuVanilla.isConfiguredEnabled() || !Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaGeometryUpdates) || pos == null) { return; }
         GpuShadowCache cache = GpuShadowCache.get();
+
         if (cache.usesDirectEmbeddiumCapture()) {
             cache.expectRenderedSectionChange(pos);
+
             SodiumWorldRenderer worldRenderer = SodiumWorldRenderer.instanceNullable();
             if (worldRenderer != null) {
                 worldRenderer.scheduleRebuildForChunk(pos.m_123341_() >> 4, pos.m_123342_() >> 4, pos.m_123343_() >> 4, true);
@@ -204,6 +212,7 @@ public final class NeoGpuVanilla {
         } else {
             cache.onGeometryChanged(pos);
         }
+
         if (NeoGpuVanilla.isInsideBuildVolume(pos)) {
             ++requestedVanillaGeneration;
             pendingVanillaSettleFrames = 0;
@@ -211,29 +220,25 @@ public final class NeoGpuVanilla {
     }
 
     public static void onRenderedSectionChanged(int originX, int originY, int originZ) {
-        if (!NeoGpuVanilla.isConfiguredEnabled()) {
-            return;
+        if (!NeoGpuVanilla.isConfiguredEnabled()) { return;
         }
         GpuShadowCache.get().onRenderedSectionChanged(originX, originY, originZ);
     }
 
     public static void onChunkSourceRegistryChanged() {
-        if (!NeoGpuVanilla.isConfiguredEnabled()) {
-            return;
+        if (!NeoGpuVanilla.isConfiguredEnabled()) { return;
         }
     }
 
     public static void onSourceRegistryChanged() {
-        if (!NeoGpuVanilla.isConfiguredEnabled()) {
-            return;
+        if (!NeoGpuVanilla.isConfiguredEnabled()) { return;
         }
         ++requestedVanillaGeneration;
         pendingVanillaSettleFrames = 0;
     }
 
     public static void requestRebake() {
-        if (!NeoGpuVanilla.isConfiguredEnabled()) {
-            return;
+        if (!NeoGpuVanilla.isConfiguredEnabled()) { return;
         }
         stagedSignature = Long.MIN_VALUE;
     }
@@ -243,16 +248,14 @@ public final class NeoGpuVanilla {
             NeoGpuVanilla.releaseResources();
             return;
         }
+
         bakedSignature = Long.MIN_VALUE;
         pendingVanillaSettleFrames = 0;
     }
 
     public static void onConfigChanged() {
-        if (NeoGpuVanilla.isConfiguredEnabled()) {
-            NeoGpuVanilla.requestRebuild();
-        } else {
-            NeoGpuVanilla.releaseResources();
-        }
+        if (NeoGpuVanilla.isConfiguredEnabled()) { NeoGpuVanilla.requestRebuild(); } else {
+            NeoGpuVanilla.releaseResources(); }
     }
 
     public static void releaseResources() {
@@ -295,6 +298,8 @@ public final class NeoGpuVanilla {
         return out.set(48.0f, 32.0f, 48.0f);
     }
 
+
+
     public static float sampleLightFactor(double worldX, double worldY, double worldZ) {
         return VOLUME.sampleLightFactor(worldX, worldY, worldZ);
     }
@@ -310,7 +315,9 @@ public final class NeoGpuVanilla {
         if (minX == Integer.MIN_VALUE || minY == Integer.MIN_VALUE || minZ == Integer.MIN_VALUE) {
             return false;
         }
-        return pos.m_123341_() >= minX && pos.m_123341_() < minX + 48 && pos.m_123342_() >= minY && pos.m_123342_() < minY + 32 && pos.m_123343_() >= minZ && pos.m_123343_() < minZ + 48;
+        return pos.m_123341_() >= minX && pos.m_123341_() < minX + 48 && pos.m_123342_
+                () >= minY && pos.m_123342_() < minY + 32 && pos.m_123343_
+                () >= minZ && pos.m_123343_() < minZ + 48;
     }
 
     private static void publishCurrentFrame(Camera camera) {
@@ -320,13 +327,26 @@ public final class NeoGpuVanilla {
         }
         Vec3 cameraPos = camera.m_90583_();
         boolean fast = Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaFastShadowsEnabled) && VOLUME.fastShadowsReady();
-        frameState = new NeoGpuVanillaFrameState(true, VOLUME.receiverTextureId(), VOLUME.receiverScale(), fast, VOLUME.fastLightTextureId(0), VOLUME.fastLightTextureId(1), VOLUME.fastLightTextureId(2), VOLUME.fastLightTextureId(3), VOLUME.fastLightTextureId(4), VOLUME.fastLightTextureId(5), (float)((double)VOLUME.anchorX() - cameraPos.f_82479_), (float)((double)VOLUME.anchorY() - cameraPos.f_82480_), (float)((double)VOLUME.anchorZ() - cameraPos.f_82481_), 48.0f, 32.0f, 48.0f, ++frameVersion);
+        frameState = new NeoGpuVanillaFrameState(true, VOLUME.receiverTextureId(), VOLUME.receiverScale
+                (), fast, VOLUME.fastLightTextureId
+                (0), VOLUME.fastLightTextureId(1), VOLUME.fastLightTextureId
+                (2), VOLUME.fastLightTextureId(3), VOLUME.fastLightTextureId
+                (4), VOLUME.fastLightTextureId(5), (float)((double)VOLUME.anchorX
+                () - cameraPos.f_82479_), (float)((double)VOLUME.anchorY
+                () - cameraPos.f_82480_), (float)((double)VOLUME.anchorZ
+                () - cameraPos.f_82481_), 48.0f, 32.0f, 48.0f, ++frameVersion);
+
+
+
+
     }
 
     private static void clearFrame() {
         mainPassActive = false;
         frameState = NeoGpuVanillaFrameState.disabled(++frameVersion);
     }
+
+
 
     private static long signature(long[] keys, int[] emissions, int anchorX, int anchorY, int anchorZ, int captureResolution) {
         long h = -7046029254386353131L;
@@ -338,6 +358,7 @@ public final class NeoGpuVanilla {
         h = NeoGpuVanilla.mix(h, Double.doubleToLongBits((Double)Config.CLIENT.neoGpuVanillaFastShadowStrength.get()));
         h = NeoGpuVanilla.mix(h, Double.doubleToLongBits((Double)Config.CLIENT.neoGpuVanillaFastDiffuseWrap.get()));
         int count = Math.min(keys.length, emissions.length);
+
         long xor = 0L;
         long sum = 0L;
         for (int i = 0; i < count; ++i) {
@@ -363,14 +384,4 @@ public final class NeoGpuVanilla {
         hash *= 1609587929392839161L;
         return hash ^ hash >>> 32;
     }
-
-    static {
-        stagedSources = new long[0];
-        stagedEmissions = new int[0];
-        bakedSignature = Long.MIN_VALUE;
-        observedContentGeneration = Long.MIN_VALUE;
-        bakedVanillaGeneration = Long.MIN_VALUE;
-        frameState = NeoGpuVanillaFrameState.disabled(0L);
-    }
 }
-

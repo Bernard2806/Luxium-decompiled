@@ -1,20 +1,6 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.util.Mth
- *  net.minecraft.world.phys.Vec3
- *  net.minecraftforge.api.distmarker.Dist
- *  net.minecraftforge.client.event.RenderLevelStageEvent
- *  net.minecraftforge.client.event.RenderLevelStageEvent$Stage
- *  net.minecraftforge.event.TickEvent$ClientTickEvent
- *  net.minecraftforge.event.TickEvent$Phase
- *  net.minecraftforge.eventbus.api.EventPriority
- *  net.minecraftforge.eventbus.api.SubscribeEvent
- *  net.minecraftforge.fml.common.Mod$EventBusSubscriber
- *  net.minecraftforge.fml.common.Mod$EventBusSubscriber$Bus
- */
 package com.vinlanx.luxium.Testing;
+
+
 
 import com.vinlanx.luxium.Testing.SphereWarpEffect;
 import com.vinlanx.luxium.client.ShaderManager;
@@ -26,7 +12,6 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-
 @Mod.EventBusSubscriber(modid="luxium", value={Dist.CLIENT}, bus=Mod.EventBusSubscriber.Bus.FORGE)
 public final class ShockWaveTest {
     private static final float START_RADIUS_BLOCKS = 0.25f;
@@ -36,8 +21,7 @@ public final class ShockWaveTest {
     private static final int MAX_SPEED_BLOCKS_PER_SECOND = 300;
     private static final SphereWarpEffect EFFECT = new SphereWarpEffect(ShaderManager::getAirDistortionShader, false);
 
-    private ShockWaveTest() {
-    }
+    private ShockWaveTest() { }
 
     public static void spawnExplosion(Vec3 center, int power, int speed) {
         int clampedPower = Mth.m_14045_((int)power, (int)1, (int)40);
@@ -68,4 +52,3 @@ public final class ShockWaveTest {
         EFFECT.onRenderLevel(event.getPoseStack().m_85850_().m_252922_());
     }
 }
-

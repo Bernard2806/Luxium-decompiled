@@ -1,20 +1,7 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  com.mojang.blaze3d.pipeline.TextureTarget
- *  com.mojang.blaze3d.platform.GlStateManager
- *  net.minecraft.client.Minecraft
- *  net.minecraftforge.api.distmarker.Dist
- *  net.minecraftforge.client.event.RenderLevelStageEvent
- *  net.minecraftforge.client.event.RenderLevelStageEvent$Stage
- *  net.minecraftforge.eventbus.api.EventPriority
- *  net.minecraftforge.eventbus.api.SubscribeEvent
- *  net.minecraftforge.fml.common.Mod$EventBusSubscriber
- *  org.lwjgl.opengl.GL30
- */
 package com.vinlanx.luxium.client;
+
+
+
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -30,30 +17,29 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.opengl.GL30;
-
 @Mod.EventBusSubscriber(modid="luxium", value={Dist.CLIENT})
 public final class SharedPostResources {
     private static TextureTarget sharedDepthTarget;
     private static TextureTarget sharedColorTarget;
     private static TextureTarget waterRenderTarget;
-
-    private SharedPostResources() {
-    }
+    private SharedPostResources() { }
 
     @SubscribeEvent(priority=EventPriority.HIGHEST)
     public static void captureSharedBuffers(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-            return;
-        }
-        if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) {
-            return;
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) { return; }
+        if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) { return;
         }
         Minecraft mc = Minecraft.m_91087_();
         RenderTarget main = mc.m_91385_();
-        boolean needsDepth = PostEffectPipeline.needsSharedDepthSnapshot() || Config.isFeatureEnabled(Config.CLIENT.kawaseBloomEnabled) || Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) || Config.isFeatureEnabled(Config.CLIENT.realisticShadowsEnabled);
+
+        boolean needsDepth = PostEffectPipeline.needsSharedDepthSnapshot() || Config.isFeatureEnabled
+                (Config.CLIENT.kawaseBloomEnabled) || Config.isFeatureEnabled
+                (Config.CLIENT.neoCpuShadowsEnabled) || Config.isFeatureEnabled
+                (Config.CLIENT.realisticShadowsEnabled);
         if (needsDepth) {
             SharedPostResources.captureDepth(main);
         }
+
         if (needsDepth) {
             main.m_83947_(true);
         }
@@ -107,6 +93,8 @@ public final class SharedPostResources {
         GL30.glBindFramebuffer((int)36008, (int)main.f_83920_);
         GL30.glBindFramebuffer((int)36009, (int)SharedPostResources.sharedColorTarget.f_83920_);
         GL30.glBlitFramebuffer((int)0, (int)0, (int)main.f_83915_, (int)main.f_83916_, (int)0, (int)0, (int)SharedPostResources.sharedColorTarget.f_83915_, (int)SharedPostResources.sharedColorTarget.f_83916_, (int)16384, (int)9728);
+
+
         main.m_83947_(true);
     }
 
@@ -146,4 +134,3 @@ public final class SharedPostResources {
         return waterRenderTarget != null ? SharedPostResources.waterRenderTarget.f_83916_ : 0;
     }
 }
-

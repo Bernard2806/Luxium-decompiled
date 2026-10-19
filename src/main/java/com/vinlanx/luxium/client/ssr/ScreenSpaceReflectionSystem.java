@@ -1,27 +1,16 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  org.jetbrains.annotations.Nullable
- */
-package com.vinlanx.luxium.client.ssr;
-
-import com.vinlanx.luxium.Config;
+package com.vinlanx.luxium.client.ssr; import com.vinlanx.luxium.Config;
 import com.vinlanx.luxium.client.ssr.SsrConsumer;
 import com.vinlanx.luxium.client.ssr.SsrHitBuffer;
 import com.vinlanx.luxium.client.ssr.SsrSettings;
 import com.vinlanx.luxium.client.water.WaterSurfaceRenderer;
 import org.jetbrains.annotations.Nullable;
-
 public final class ScreenSpaceReflectionSystem {
     private static final SsrHitBuffer WATER_HITS = new SsrHitBuffer();
 
-    private ScreenSpaceReflectionSystem() {
-    }
+    private ScreenSpaceReflectionSystem() { }
 
     public static SsrSettings settings(SsrConsumer consumer) {
-        return switch (consumer) {
-            default -> throw new IncompatibleClassChangeError();
+        return switch (consumer) { default -> throw new IncompatibleClassChangeError();
             case SsrConsumer.WATER -> ScreenSpaceReflectionSystem.waterSettings();
             case SsrConsumer.PUDDLE -> ScreenSpaceReflectionSystem.puddleSettings();
             case SsrConsumer.WET -> ScreenSpaceReflectionSystem.wetSettings();
@@ -75,24 +64,48 @@ public final class ScreenSpaceReflectionSystem {
         if (!Config.isFeatureEnabled(Config.CLIENT.waterEnabled) || !Config.isFeatureEnabled(Config.CLIENT.waterSsrEnabled)) {
             return SsrSettings.disabled();
         }
+
         int[] budget = ScreenSpaceReflectionSystem.qualityBudget();
-        return new SsrSettings(true, budget[0], budget[1], ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.waterSsrMaxDistance.get()).floatValue(), 4.0f, 128.0f), ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.waterSsrThickness.get()).floatValue(), 0.02f, 2.0f), ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.waterSsrEdgeFade.get()).floatValue(), 0.01f, 0.4f), ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.waterSsrStrength.get()).floatValue(), 0.0f, 2.0f));
+        return new SsrSettings(true, budget[0], budget[1], ScreenSpaceReflectionSystem.clamp
+
+
+
+                (((Double)Config.CLIENT.waterSsrMaxDistance.get()).floatValue(), 4.0f, 128.0f), ScreenSpaceReflectionSystem.clamp
+                (((Double)Config.CLIENT.waterSsrThickness.get()).floatValue(), 0.02f, 2.0f), ScreenSpaceReflectionSystem.clamp
+                (((Double)Config.CLIENT.waterSsrEdgeFade.get()).floatValue(), 0.01f, 0.4f), ScreenSpaceReflectionSystem.clamp
+                (((Double)Config.CLIENT.waterSsrStrength.get()).floatValue(), 0.0f, 2.0f));
     }
 
     private static SsrSettings puddleSettings() {
         if (!Config.isFeatureEnabled(Config.CLIENT.puddleSsrEnabled)) {
             return SsrSettings.disabled();
         }
+
         int[] budget = ScreenSpaceReflectionSystem.qualityBudget();
-        return new SsrSettings(true, budget[0], budget[1], ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.puddleSsrMaxDistance.get()).floatValue(), 4.0f, 96.0f), ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.puddleSsrThickness.get()).floatValue(), 0.02f, 2.0f), ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.puddleSsrEdgeFade.get()).floatValue(), 0.01f, 0.4f), ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.puddleSsrStrength.get()).floatValue(), 0.0f, 2.0f));
+        return new SsrSettings(true, budget[0], budget[1], ScreenSpaceReflectionSystem.clamp
+
+
+
+                (((Double)Config.CLIENT.puddleSsrMaxDistance.get()).floatValue(), 4.0f, 96.0f), ScreenSpaceReflectionSystem.clamp
+                (((Double)Config.CLIENT.puddleSsrThickness.get()).floatValue(), 0.02f, 2.0f), ScreenSpaceReflectionSystem.clamp
+                (((Double)Config.CLIENT.puddleSsrEdgeFade.get()).floatValue(), 0.01f, 0.4f), ScreenSpaceReflectionSystem.clamp
+                (((Double)Config.CLIENT.puddleSsrStrength.get()).floatValue(), 0.0f, 2.0f));
     }
 
     private static SsrSettings wetSettings() {
         if (!Config.isFeatureEnabled(Config.CLIENT.wetEnabled) || !Config.isFeatureEnabled(Config.CLIENT.wetSsrEnabled)) {
             return SsrSettings.disabled();
         }
+
         int[] budget = ScreenSpaceReflectionSystem.qualityBudget();
-        return new SsrSettings(true, budget[0], budget[1], ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.wetSsrMaxDistance.get()).floatValue(), 4.0f, 96.0f), ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.wetSsrThickness.get()).floatValue(), 0.02f, 2.0f), ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.wetSsrEdgeFade.get()).floatValue(), 0.01f, 0.4f), ScreenSpaceReflectionSystem.clamp(((Double)Config.CLIENT.wetSsrStrength.get()).floatValue(), 0.0f, 2.0f));
+        return new SsrSettings(true, budget[0], budget[1], ScreenSpaceReflectionSystem.clamp
+
+
+
+                (((Double)Config.CLIENT.wetSsrMaxDistance.get()).floatValue(), 4.0f, 96.0f), ScreenSpaceReflectionSystem.clamp
+                (((Double)Config.CLIENT.wetSsrThickness.get()).floatValue(), 0.02f, 2.0f), ScreenSpaceReflectionSystem.clamp
+                (((Double)Config.CLIENT.wetSsrEdgeFade.get()).floatValue(), 0.01f, 0.4f), ScreenSpaceReflectionSystem.clamp
+                (((Double)Config.CLIENT.wetSsrStrength.get()).floatValue(), 0.0f, 2.0f));
     }
 
     private static int[] qualityBudget() {
@@ -106,4 +119,3 @@ public final class ScreenSpaceReflectionSystem {
         return Math.max(min, Math.min(max, value));
     }
 }
-

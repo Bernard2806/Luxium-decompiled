@@ -1,21 +1,11 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.vertex.PoseStack
- *  com.mojang.math.Axis
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.util.Mth
- *  net.minecraft.world.phys.Vec3
- */
 package com.vinlanx.luxium.client.sunmoonapi;
+
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-
 public final class CelestialPath {
     public static final float ORBIT_TILT_DEGREES = -40.0f;
     private static final float ORBIT_TILT_RADIANS = -0.6981317f;
@@ -30,13 +20,21 @@ public final class CelestialPath {
         Vec3 sunDirection = CelestialPath.sunDirection(sunAngle);
         Vec3 moonDirection = sunDirection.m_82490_(-1.0);
         boolean usingMoon = sunDirection.f_82480_ < 0.0;
-        return new State(sunAngle, sunDirection, moonDirection, usingMoon ? moonDirection : sunDirection, usingMoon);
+        return new State(sunAngle, sunDirection, moonDirection,
+
+
+
+                usingMoon ? moonDirection : sunDirection, usingMoon);
     }
+
 
     public static Vec3 sunDirection(float sunAngle) {
         double cosine = Mth.m_14089_((float)sunAngle);
-        return new Vec3((double)(-Mth.m_14031_((float)sunAngle)), cosine * TILT_COS, -cosine * TILT_SIN);
+        return new Vec3((double)(-Mth.m_14031_
+                ((float)sunAngle)), cosine * TILT_COS, -cosine * TILT_SIN);
     }
+
+
 
     public static void applyOrbitTilt(PoseStack poseStack) {
         poseStack.m_252781_(Axis.f_252529_.m_252977_(40.0f));
@@ -49,6 +47,12 @@ public final class CelestialPath {
     }
 
     public record State(float sunAngle, Vec3 sunDirection, Vec3 moonDirection, Vec3 activeDirection, boolean usingMoon) {
+
+
+
+
+
+
         public Vec3 direction(boolean moon) {
             return moon ? this.moonDirection : this.sunDirection;
         }
@@ -58,4 +62,3 @@ public final class CelestialPath {
         }
     }
 }
-

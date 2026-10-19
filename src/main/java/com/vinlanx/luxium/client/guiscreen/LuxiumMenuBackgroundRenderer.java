@@ -1,20 +1,6 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.systems.RenderSystem
- *  com.mojang.blaze3d.vertex.BufferBuilder
- *  com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer
- *  com.mojang.blaze3d.vertex.BufferUploader
- *  com.mojang.blaze3d.vertex.DefaultVertexFormat
- *  com.mojang.blaze3d.vertex.Tesselator
- *  com.mojang.blaze3d.vertex.VertexFormat$Mode
- *  net.minecraft.client.gui.GuiGraphics
- *  net.minecraft.client.renderer.GameRenderer
- *  net.minecraft.resources.ResourceLocation
- *  net.minecraft.util.Mth
- */
 package com.vinlanx.luxium.client.guiscreen;
+
+
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -26,9 +12,13 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-
 public final class LuxiumMenuBackgroundRenderer {
-    private static final ResourceLocation[] BACKGROUNDS = new ResourceLocation[]{LuxiumMenuBackgroundRenderer.image("1.png"), LuxiumMenuBackgroundRenderer.image("2.png"), LuxiumMenuBackgroundRenderer.image("3.png"), LuxiumMenuBackgroundRenderer.image("4.png"), LuxiumMenuBackgroundRenderer.image("5.png"), LuxiumMenuBackgroundRenderer.image("6.png")};
+    private static final ResourceLocation[] BACKGROUNDS = new ResourceLocation[]{LuxiumMenuBackgroundRenderer.image
+            ("1.png"), LuxiumMenuBackgroundRenderer.image("2.png"), LuxiumMenuBackgroundRenderer.image("3.png"), LuxiumMenuBackgroundRenderer.image
+            ("4.png"), LuxiumMenuBackgroundRenderer.image("5.png"), LuxiumMenuBackgroundRenderer.image("6.png")};
+
+
+
     private static final int TEXTURE_WIDTH = 1920;
     private static final int TEXTURE_HEIGHT = 1080;
     private static final float SLIDE_DURATION_TICKS = 100.0f;
@@ -41,13 +31,14 @@ public final class LuxiumMenuBackgroundRenderer {
     private int ticks;
     private float parallaxX;
     private float parallaxY;
-
     public void tick() {
         ++this.ticks;
     }
 
+
     public void render(GuiGraphics graphics, int width, int height, int mouseX, int mouseY, float partialTick) {
         this.updateParallax(width, height, mouseX, mouseY);
+
         float time = (float)this.ticks + partialTick;
         int slideIndex = Mth.m_14143_((float)(time / 100.0f));
         float localTicks = time - (float)slideIndex * 100.0f;
@@ -57,6 +48,7 @@ public final class LuxiumMenuBackgroundRenderer {
         float currentAgeTicks = slideIndex == 0 ? localTicks : localTicks + 20.0f;
         float currentLifetime = slideIndex == 0 ? 100.0f : 120.0f;
         float currentProgress = Mth.m_14036_((float)(currentAgeTicks / currentLifetime), (float)0.0f, (float)1.0f);
+
         graphics.m_280509_(0, 0, width, height, -16381942);
         if (localTicks < fadeStart) {
             this.drawSlide(current, 1.0f, currentProgress, width, height);
@@ -67,6 +59,7 @@ public final class LuxiumMenuBackgroundRenderer {
             this.drawSlide(current, 1.0f - blend, currentProgress, width, height);
             this.drawSlide(next, blend, nextProgress, width, height);
         }
+
         RenderSystem.disableBlend();
         graphics.m_280024_(0, 0, width, height, 1543833354, 2114587664);
         graphics.m_280509_(0, 0, width, height, 0x29000000);
@@ -80,9 +73,9 @@ public final class LuxiumMenuBackgroundRenderer {
         this.parallaxY = Mth.m_14179_((float)0.08f, (float)this.parallaxY, (float)targetY);
     }
 
+
     private void drawSlide(ResourceLocation texture, float alpha, float progress, int width, int height) {
-        if (alpha <= 0.001f) {
-            return;
+        if (alpha <= 0.001f) { return;
         }
         float zoom = Mth.m_14179_((float)Mth.m_14036_((float)progress, (float)0.0f, (float)1.0f), (float)1.05f, (float)1.07f);
         float coverScale = Math.max((float)width / 1920.0f, (float)height / 1080.0f);
@@ -90,11 +83,13 @@ public final class LuxiumMenuBackgroundRenderer {
         float drawHeight = 1080.0f * coverScale * zoom;
         float drawX = ((float)width - drawWidth) * 0.5f - this.parallaxX;
         float drawY = ((float)height - drawHeight) * 0.5f - this.parallaxY;
+
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::m_172817_);
         RenderSystem.setShaderTexture((int)0, (ResourceLocation)texture);
         RenderSystem.setShaderColor((float)1.0f, (float)1.0f, (float)1.0f, (float)alpha);
+
         BufferBuilder buffer = Tesselator.m_85913_().m_85915_();
         buffer.m_166779_(VertexFormat.Mode.QUADS, DefaultVertexFormat.f_85817_);
         buffer.m_5483_((double)drawX, (double)(drawY + drawHeight), 0.0).m_7421_(0.0f, 1.0f).m_5752_();
@@ -114,4 +109,3 @@ public final class LuxiumMenuBackgroundRenderer {
         return ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)("ekrannn/" + name));
     }
 }
-

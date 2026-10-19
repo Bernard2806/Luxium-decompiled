@@ -1,29 +1,5 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.platform.GlStateManager
- *  com.mojang.blaze3d.systems.RenderSystem
- *  it.unimi.dsi.fastutil.longs.Long2ReferenceMap
- *  it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap
- *  me.jellysquid.mods.sodium.client.gl.device.CommandList
- *  me.jellysquid.mods.sodium.client.gl.device.RenderDevice
- *  me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer
- *  me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderMatrices
- *  me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderer
- *  me.jellysquid.mods.sodium.client.render.chunk.RenderSection
- *  me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager
- *  me.jellysquid.mods.sodium.client.render.chunk.lists.ChunkRenderList
- *  me.jellysquid.mods.sodium.client.render.chunk.lists.ChunkRenderListIterable
- *  me.jellysquid.mods.sodium.client.render.chunk.region.RenderRegion
- *  me.jellysquid.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses
- *  me.jellysquid.mods.sodium.client.render.viewport.CameraTransform
- *  net.minecraft.core.SectionPos
- *  net.minecraft.util.Mth
- *  org.joml.Matrix4f
- *  org.joml.Matrix4fc
- */
 package com.vinlanx.luxium.client.shadows.embeddium;
+
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -54,30 +30,28 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
-
 public final class EmbeddiumLocalShadowBridge {
+
+
     private static final int GEOMETRY_MASK = 1;
     private static final double SECTION_MARGIN = 18.0;
     private int frameId;
-
     public boolean isAvailable() {
         return SodiumWorldRenderer.instanceNullable() != null;
     }
 
     public PreparedCapture prepare(double lightX, double lightY, double lightZ, float radius) {
         SodiumWorldRenderer worldRenderer = SodiumWorldRenderer.instanceNullable();
-        if (worldRenderer == null) {
-            return null;
+        if (worldRenderer == null) { return null;
         }
-        RenderSectionManager manager = ((SodiumWorldRendererAccessor)worldRenderer).luxium$getRenderSectionManager();
-        if (manager == null) {
-            return null;
+        RenderSectionManager manager = ((SodiumWorldRendererAccessor)worldRenderer).luxium$getRenderSectionManager
+                ();
+        if (manager == null) { return null;
         }
         RenderSectionManagerAccessor accessor = (RenderSectionManagerAccessor)manager;
         ChunkRenderer renderer = accessor.luxium$getChunkRenderer();
         Long2ReferenceMap<RenderSection> sections = accessor.luxium$getSectionByPosition();
-        if (renderer == null || sections == null || sections.isEmpty()) {
-            return null;
+        if (renderer == null || sections == null || sections.isEmpty()) { return null;
         }
         double reach = Math.max(1.0, (double)radius) + 18.0;
         int minSectionX = SectionPos.m_123171_((int)Mth.m_14107_((double)(lightX - reach)));
@@ -86,19 +60,27 @@ public final class EmbeddiumLocalShadowBridge {
         int maxSectionX = SectionPos.m_123171_((int)Mth.m_14107_((double)(lightX + reach)));
         int maxSectionY = SectionPos.m_123171_((int)Mth.m_14107_((double)(lightY + reach)));
         int maxSectionZ = SectionPos.m_123171_((int)Mth.m_14107_((double)(lightZ + reach)));
+
         int currentFrame = ++this.frameId;
         Reference2ObjectLinkedOpenHashMap<RenderRegion, ChunkRenderList> byRegion = new Reference2ObjectLinkedOpenHashMap();
+
+
         double maxDistance = reach + 14.0;
         double maxDistanceSq = maxDistance * maxDistance;
         for (int sx = minSectionX; sx <= maxSectionX; ++sx) {
             for (int sz = minSectionZ; sz <= maxSectionZ; ++sz) {
                 for (int sy = minSectionY; sy <= maxSectionY; ++sy) {
                     RenderSection section = (RenderSection)sections.get(SectionPos.m_123209_((int)sx, (int)sy, (int)sz));
-                    if (section == null || !section.isBuilt() || section.isDisposed() || (section.getFlags() & 1) == 0) continue;
+                    if (section == null || !section.isBuilt() || section.isDisposed() || (section.getFlags
+                            () & 1) == 0)
+                            continue;
+
+
                     double dx = (double)section.getCenterX() - lightX;
                     double dy = (double)section.getCenterY() - lightY;
                     double dz = (double)section.getCenterZ() - lightZ;
                     if (dx * dx + dy * dy + dz * dz > maxDistanceSq) continue;
+
                     RenderRegion region = section.getRegion();
                     if (region == null) continue;
                     ChunkRenderList list = (ChunkRenderList)byRegion.get((Object)region);
@@ -111,22 +93,18 @@ public final class EmbeddiumLocalShadowBridge {
                 }
             }
         }
+
         LocalRenderLists lists = new LocalRenderLists(new ArrayList<ChunkRenderList>((Collection<ChunkRenderList>)byRegion.values()));
         return new PreparedCapture(renderer, lists, lightX, lightY, lightZ);
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     public boolean renderFace(PreparedCapture capture, Matrix4f projection, Matrix4f viewRotation) {
-        if (capture == null || capture.renderer == null || capture.lists == null) {
-            return false;
-        }
-        if (capture.lists.regionCount() == 0) {
-            return false;
+        if (capture == null || capture.renderer == null || capture.lists == null) { return false; }
+        if (capture.lists.regionCount() == 0) { return false;
         }
         ChunkRenderMatrices matrices = new ChunkRenderMatrices((Matrix4fc)projection, (Matrix4fc)viewRotation);
         CameraTransform camera = new CameraTransform(capture.lightX, capture.lightY, capture.lightZ);
+
         RenderDevice.enterManagedCode();
         CommandList commandList = null;
         try {
@@ -136,18 +114,20 @@ public final class EmbeddiumLocalShadowBridge {
             GlStateManager._depthMask((boolean)true);
             RenderSystem.depthFunc((int)513);
             RenderSystem.disableBlend();
+
             RenderSystem.disableCull();
+
             capture.renderer.render(matrices, commandList, (ChunkRenderListIterable)capture.lists, DefaultTerrainRenderPasses.SOLID, camera);
+
+
             if (!NeoGpuVanilla.isConfiguredEnabled() || Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaCutoutEnabled)) {
                 capture.renderer.render(matrices, commandList, (ChunkRenderListIterable)capture.lists, DefaultTerrainRenderPasses.CUTOUT, camera);
             }
-            return true;
-        }
+
+            return true; }
         finally {
             GlStateManager._colorMask((boolean)true, (boolean)true, (boolean)true, (boolean)true);
-            if (commandList != null) {
-                commandList.close();
-            }
+            if (commandList != null) { commandList.close(); }
             RenderDevice.exitManagedCode();
         }
     }
@@ -155,21 +135,23 @@ public final class EmbeddiumLocalShadowBridge {
     public record PreparedCapture(ChunkRenderer renderer, LocalRenderLists lists, double lightX, double lightY, double lightZ) {
     }
 
+
+
+
+
+
     public static final class LocalRenderLists
     implements ChunkRenderListIterable {
         private final List<ChunkRenderList> lists;
-
         private LocalRenderLists(List<ChunkRenderList> lists) {
             this.lists = lists;
         }
 
+
         public Iterator<ChunkRenderList> iterator(boolean reverse) {
-            if (!reverse) {
-                return this.lists.iterator();
-            }
+            if (!reverse) { return this.lists.iterator(); }
             final ListIterator<ChunkRenderList> iterator = this.lists.listIterator(this.lists.size());
             return new Iterator<>(){
-
                 @Override
                 public boolean hasNext() {
                     return iterator.hasPrevious();
@@ -187,4 +169,3 @@ public final class EmbeddiumLocalShadowBridge {
         }
     }
 }
-

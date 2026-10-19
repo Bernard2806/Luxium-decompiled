@@ -1,38 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.vertex.PoseStack
- *  com.mojang.blaze3d.vertex.PoseStack$Pose
- *  com.mojang.blaze3d.vertex.VertexConsumer
- *  com.mojang.blaze3d.vertex.VertexFormat$Mode
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.client.renderer.LevelRenderer
- *  net.minecraft.client.renderer.MultiBufferSource
- *  net.minecraft.client.renderer.RenderType
- *  net.minecraft.client.renderer.block.model.BakedQuad
- *  net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher
- *  net.minecraft.client.renderer.blockentity.BlockEntityRenderer
- *  net.minecraft.client.renderer.entity.EntityRenderDispatcher
- *  net.minecraft.client.renderer.entity.EntityRenderer
- *  net.minecraft.client.renderer.texture.OverlayTexture
- *  net.minecraft.core.BlockPos
- *  net.minecraft.core.Vec3i
- *  net.minecraft.util.Mth
- *  net.minecraft.world.entity.Entity
- *  net.minecraft.world.level.BlockAndTintGetter
- *  net.minecraft.world.level.Level
- *  net.minecraft.world.level.block.entity.BlockEntity
- *  net.minecraft.world.level.chunk.LevelChunk
- *  net.minecraft.world.phys.AABB
- *  net.minecraft.world.phys.Vec3
- *  org.jetbrains.annotations.Nullable
- *  org.joml.Matrix4f
- *  org.joml.Vector4f
- */
 package com.vinlanx.luxium.client;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -65,13 +31,15 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
-
 public final class DynamicShadowMeshCapture {
     private static final int MAX_QUADS_PER_CASTER = 192;
     private static final int MAX_CAPTURED_VERTICES = 768;
-
     private DynamicShadowMeshCapture() {
     }
+
+
+
+
 
     public static Snapshot capture(ClientLevel level, BlockPos center, double radius, int maxCasters, float partialTick) {
         Minecraft mc = Minecraft.m_91087_();
@@ -79,25 +47,32 @@ public final class DynamicShadowMeshCapture {
         BlockEntityRenderDispatcher blockEntityDispatcher = mc.m_167982_();
         entityDispatcher.m_114408_((Level)level, mc.f_91063_.m_109153_(), mc.m_91288_());
         blockEntityDispatcher.m_173564_((Level)level, mc.f_91063_.m_109153_(), mc.f_91077_);
+
         Vec3 centerPos = Vec3.m_82512_((Vec3i)center);
         double radiusSq = radius * radius;
         Vec3 cameraPos = mc.f_91063_.m_109153_().m_90583_();
         List<CapturedCaster> casters = new ArrayList<CapturedCaster>(Math.min(maxCasters, 64));
         long nextId = 1L;
-        for (Entity entity : level.m_104735_()) {
-            AABB box;
+
+        for (Entity entity : level.m_104735_()) { AABB box;
             if (casters.size() >= maxCasters) {
-                return new Snapshot(level, List.copyOf(casters));
-            }
+                return new Snapshot(level, List.copyOf(casters)); }
             CapturedCaster captured;
-            if (entity == null || entity.m_213877_() || entity.m_20145_()) continue;
+            if (entity == null || entity.m_213877_() || entity.m_20145_())
+                    continue;
+
+
             box = entity.m_20191_();
-            if (box == null || DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) > radiusSq) continue;
+            if (box == null || DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) > radiusSq)
+                    continue;
+
+
             captured = DynamicShadowMeshCapture.captureEntity(entityDispatcher, entity, nextId++, partialTick, box.m_82400_(0.03));
             if (captured != null) {
                 casters.add(captured);
             }
         }
+
         int chunkRadius = Math.max(1, (int)Math.ceil(radius / 16.0));
         int centerChunkX = center.m_123341_() >> 4;
         int centerChunkZ = center.m_123343_() >> 4;
@@ -106,20 +81,34 @@ public final class DynamicShadowMeshCapture {
                 if (casters.size() >= maxCasters) {
                     return new Snapshot(level, List.copyOf(casters));
                 }
+
                 LevelChunk chunk = level.m_7726_().m_7131_(centerChunkX + dx, centerChunkZ + dz);
-                if (chunk == null) continue;
+                if (chunk == null)
+                        continue;
+
+
                 for (BlockEntity blockEntity : chunk.m_62954_().values()) {
                     if (casters.size() >= maxCasters) {
                         return new Snapshot(level, List.copyOf(casters));
                     }
-                    if (blockEntity == null || blockEntity.m_58901_()) continue;
+                    if (blockEntity == null || blockEntity.m_58901_())
+                            continue;
+
+
+
                     BlockEntityRenderer renderer = blockEntityDispatcher.m_112265_(blockEntity);
-                    if (renderer == null || !renderer.m_142756_(blockEntity, cameraPos)) continue;
+                    if (renderer == null || !renderer.m_142756_(blockEntity, cameraPos))
+                            continue;
+
+
                     AABB box = blockEntity.getRenderBoundingBox();
                     if (box == null) {
                         box = new AABB(blockEntity.m_58899_());
                     }
-                    if (DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) > radiusSq) continue;
+                    if (DynamicShadowMeshCapture.distanceToAabbSq(centerPos, box) > radiusSq)
+                            continue;
+
+
                     CapturedCaster captured = DynamicShadowMeshCapture.captureBlockEntity(renderer, blockEntity, nextId++, partialTick, box.m_82400_(0.02));
                     if (captured != null) {
                         casters.add(captured);
@@ -127,8 +116,12 @@ public final class DynamicShadowMeshCapture {
                 }
             }
         }
+
         return new Snapshot(level, List.copyOf(casters));
     }
+
+
+
 
     @Nullable
     private static <E extends Entity> CapturedCaster captureEntity(EntityRenderDispatcher dispatcher, E entity, long id, float partialTick, AABB fallbackBounds) {
@@ -136,6 +129,7 @@ public final class DynamicShadowMeshCapture {
         if (renderer == null) {
             return null;
         }
+
         QuadCaptureBufferSource capture = new QuadCaptureBufferSource();
         PoseStack poseStack = new PoseStack();
         Vec3 renderOffset = renderer.m_7860_(entity, partialTick);
@@ -149,13 +143,19 @@ public final class DynamicShadowMeshCapture {
         return capture.buildCaster(id, fallbackBounds);
     }
 
+
+
+
+
     @Nullable
     private static CapturedCaster captureBlockEntity(BlockEntityRenderer renderer, BlockEntity blockEntity, long id, float partialTick, AABB fallbackBounds) {
         QuadCaptureBufferSource capture = new QuadCaptureBufferSource();
         PoseStack poseStack = new PoseStack();
         BlockPos pos = blockEntity.m_58899_();
         poseStack.m_252880_((float)pos.m_123341_(), (float)pos.m_123342_(), (float)pos.m_123343_());
-        int packedLight = blockEntity.m_58904_() != null ? LevelRenderer.m_109541_((BlockAndTintGetter)blockEntity.m_58904_(), (BlockPos)pos) : 0xF000F0;
+        int packedLight = blockEntity.m_58904_() != null ? LevelRenderer.m_109541_
+                ((BlockAndTintGetter)blockEntity.m_58904_(), (BlockPos)pos) :
+                0xF000F0;
         renderer.m_6922_(blockEntity, partialTick, poseStack, (MultiBufferSource)capture, packedLight, OverlayTexture.f_118083_);
         return capture.buildCaster(id, fallbackBounds);
     }
@@ -167,27 +167,30 @@ public final class DynamicShadowMeshCapture {
         } else if (point.f_82479_ > box.f_82291_) {
             dx = point.f_82479_ - box.f_82291_;
         }
+
         double dy = 0.0;
         if (point.f_82480_ < box.f_82289_) {
             dy = box.f_82289_ - point.f_82480_;
         } else if (point.f_82480_ > box.f_82292_) {
             dy = point.f_82480_ - box.f_82292_;
         }
+
         double dz = 0.0;
         if (point.f_82481_ < box.f_82290_) {
             dz = box.f_82290_ - point.f_82481_;
         } else if (point.f_82481_ > box.f_82293_) {
             dz = point.f_82481_ - box.f_82293_;
         }
+
         return dx * dx + dy * dy + dz * dz;
     }
 
     public static final class Snapshot {
         private static final Snapshot EMPTY = new Snapshot(null, Collections.emptyList());
+
         @Nullable
         public final ClientLevel level;
         public final List<CapturedCaster> casters;
-
         Snapshot(@Nullable ClientLevel level, List<CapturedCaster> casters) {
             this.level = level;
             this.casters = casters;
@@ -198,24 +201,21 @@ public final class DynamicShadowMeshCapture {
         }
     }
 
+
     public static final class CapturedCaster {
         public final long id;
         public final AABB bounds;
         public final List<Vec3[]> quads;
-
         CapturedCaster(long id, AABB bounds, List<Vec3[]> quads) {
             this.id = id;
             this.bounds = bounds;
             this.quads = quads;
-        }
-    }
-
+        } }
     private static final class QuadCaptureBufferSource
     implements MultiBufferSource {
-        private final Map<RenderType, CapturingVertexConsumer> consumers = new HashMap<RenderType, CapturingVertexConsumer>();
-
         private QuadCaptureBufferSource() {
-        }
+        } private final Map<RenderType, CapturingVertexConsumer> consumers = new HashMap<RenderType, CapturingVertexConsumer>();
+
 
         public VertexConsumer m_6299_(RenderType renderType) {
             return this.consumers.computeIfAbsent(renderType, CapturingVertexConsumer::new);
@@ -270,6 +270,7 @@ public final class DynamicShadowMeshCapture {
         private int defaultG = 255;
         private int defaultB = 255;
         private int defaultA = 255;
+
         private boolean useDefaultColor;
         private double x;
         private double y;
@@ -281,6 +282,7 @@ public final class DynamicShadowMeshCapture {
             this.mode = renderType.m_173186_();
         }
 
+
         public VertexConsumer m_5483_(double x, double y, double z) {
             this.x = x;
             this.y = y;
@@ -288,53 +290,77 @@ public final class DynamicShadowMeshCapture {
             return this;
         }
 
+
         public VertexConsumer m_6122_(int red, int green, int blue, int alpha) {
             this.a = alpha;
             return this;
         }
 
+
         public VertexConsumer m_7421_(float u, float v) {
             return this;
         }
+
 
         public VertexConsumer m_7122_(int u, int v) {
             return this;
         }
 
+
         public VertexConsumer m_7120_(int u, int v) {
             return this;
         }
 
+
         public VertexConsumer m_5601_(float x, float y, float z) {
             return this;
         }
+
 
         public void m_5752_() {
             if (!this.capture || this.mode != VertexFormat.Mode.QUADS || this.quads.size() >= 192 || this.capturedVertexCount >= 768) {
                 this.pendingCount = this.mode == VertexFormat.Mode.QUADS && this.pendingCount >= 4 ? 0 : this.pendingCount;
                 return;
             }
+
             int alpha = this.useDefaultColor ? this.defaultA : this.a;
             this.pending[this.pendingCount++] = new VertexRecord(this.x, this.y, this.z, alpha);
             ++this.capturedVertexCount;
             if (this.pendingCount == 4) {
                 int averageAlpha = (this.pending[0].alpha + this.pending[1].alpha + this.pending[2].alpha + this.pending[3].alpha) / 4;
                 if (averageAlpha >= 16) {
-                    this.quads.add(new Vec3[]{this.pending[0].position(), this.pending[1].position(), this.pending[2].position(), this.pending[3].position()});
+                    this.quads.add(new Vec3[]{this.pending[0].position
+                            (), this.pending[1].position
+                            (), this.pending[2].position
+                            (), this.pending[3].position
+                            ()});
                 }
+
                 this.pendingCount = 0;
             }
         }
+
+
+
+
+
+
+
+
+
+
 
         public void putBulkData(PoseStack.Pose pose, BakedQuad bakedQuad, float[] brightness, float red, float green, float blue, float alpha, int[] lightmap, int overlay, boolean readExistingColor) {
             if (!this.capture || this.mode != VertexFormat.Mode.QUADS || this.quads.size() >= 192 || this.capturedVertexCount + 4 > 768) {
                 return;
             }
+
             int[] vertices = bakedQuad.m_111303_();
             if (vertices.length < 32) {
                 VertexConsumer.super.putBulkData(pose, bakedQuad, brightness, red, green, blue, alpha, lightmap, overlay, readExistingColor);
                 return;
             }
+
             Matrix4f matrix = pose.m_252922_();
             Vec3[] quad = new Vec3[4];
             int alphaByte = Mth.m_14045_((int)((int)(alpha * 255.0f)), (int)0, (int)255);
@@ -345,16 +371,19 @@ public final class DynamicShadowMeshCapture {
                 float z = Float.intBitsToFloat(vertices[vertexBase + 2]);
                 Vector4f transformed = matrix.transform(new Vector4f(x, y, z, 1.0f));
                 quad[index] = new Vec3((double)transformed.x(), (double)transformed.y(), (double)transformed.z());
+
                 int bakedAlpha = vertices[vertexBase + 3] >>> 24;
                 if (bakedAlpha > alphaByte) {
                     alphaByte = bakedAlpha;
                 }
             }
+
             if (alphaByte >= 16) {
                 this.quads.add(quad);
                 this.capturedVertexCount += 4;
             }
         }
+
 
         public void m_7404_(int red, int green, int blue, int alpha) {
             this.defaultR = red;
@@ -363,6 +392,7 @@ public final class DynamicShadowMeshCapture {
             this.defaultA = alpha;
             this.useDefaultColor = true;
         }
+
 
         public void m_141991_() {
             this.useDefaultColor = false;

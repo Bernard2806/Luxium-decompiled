@@ -1,19 +1,5 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue
- *  it.unimi.dsi.fastutil.longs.LongIterator
- *  it.unimi.dsi.fastutil.longs.LongOpenHashSet
- *  net.minecraft.world.level.lighting.LayerLightSectionStorage
- *  net.minecraft.world.level.lighting.LightEngine
- *  net.minecraft.world.level.lighting.LightEngine$QueueEntry
- *  org.spongepowered.asm.mixin.Final
- *  org.spongepowered.asm.mixin.Mixin
- *  org.spongepowered.asm.mixin.Shadow
- *  org.spongepowered.asm.mixin.gen.Invoker
- */
 package com.vinlanx.luxium.mixin;
+
 
 import com.vinlanx.luxium.rtx.LuxiumLayerLightStorageExtension;
 import com.vinlanx.luxium.rtx.LuxiumLightEngineExtension;
@@ -26,9 +12,11 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Invoker;
-
 @Mixin(value={LightEngine.class})
 public abstract class LightEngineMixin
+
+
+
 implements LuxiumLightEngineExtension {
     @Shadow
     @Final
@@ -42,23 +30,19 @@ implements LuxiumLightEngineExtension {
     @Shadow
     @Final
     protected LayerLightSectionStorage<?> f_283849_;
-
     @Shadow
     protected abstract void m_75858_(long var1);
-
     @Shadow
     protected abstract void m_284316_(long var1, long var3, int var5);
-
     @Shadow
     protected abstract void m_284321_(long var1, long var3);
-
     @Invoker(value="clearChunkCache")
     protected abstract void luxium$invokeClearChunkCache();
-
     @Override
     public int luxium$runLightUpdatesBudgeted(int maxOperations) {
         int budget = Math.max(1, maxOperations);
         int processed = 0;
+
         LongIterator nodes = this.f_283863_.iterator();
         while (processed < budget && nodes.hasNext()) {
             long posKey = nodes.nextLong();
@@ -69,13 +53,16 @@ implements LuxiumLightEngineExtension {
         if (this.f_283863_.isEmpty()) {
             this.f_283863_.trim(512);
         }
+
         while (processed < budget && !this.f_283823_.isEmpty()) {
             long posKey = this.f_283823_.dequeueLong();
             long entry = this.f_283823_.dequeueLong();
             this.m_284321_(posKey, entry);
             ++processed;
         }
+
         LuxiumLayerLightStorageExtension storageAccess = (LuxiumLayerLightStorageExtension)this.f_283849_;
+
         while (processed < budget && this.f_283823_.isEmpty() && !this.f_283934_.isEmpty()) {
             long posKey = this.f_283934_.dequeueLong();
             long entry = this.f_283934_.dequeueLong();
@@ -90,12 +77,16 @@ implements LuxiumLightEngineExtension {
             }
             ++processed;
         }
+
         this.luxium$invokeClearChunkCache();
-        if (this.f_283863_.isEmpty() && this.f_283823_.isEmpty() && this.f_283934_.isEmpty()) {
+
+        if (this.f_283863_.isEmpty() && this.f_283823_.isEmpty
+                () && this.f_283934_.isEmpty
+                ()) {
             storageAccess.luxium$markNewInconsistencies((LightEngine)this);
         }
+
         storageAccess.luxium$swapSectionMap();
         return processed;
     }
 }
-

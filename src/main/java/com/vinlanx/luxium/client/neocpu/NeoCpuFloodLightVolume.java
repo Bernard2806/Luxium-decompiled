@@ -1,16 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  it.unimi.dsi.fastutil.longs.LongOpenHashSet
- *  net.minecraft.core.BlockPos
- *  net.minecraft.core.Direction
- */
-package com.vinlanx.luxium.client.neocpu;
-
-import com.vinlanx.luxium.client.neocpu.NeoCpuFloodBoundaryFace;
-import com.vinlanx.luxium.client.neocpu.NeoCpuLocalBlockAccessor;
-import com.vinlanx.luxium.client.neocpu.NeoCpuReceiverFaceSet;
+package com.vinlanx.luxium.client.neocpu; import com.vinlanx.luxium.client.neocpu.NeoCpuFloodBoundaryFace; import com.vinlanx.luxium.client.neocpu.NeoCpuLocalBlockAccessor; import com.vinlanx.luxium.client.neocpu.NeoCpuReceiverFaceSet;
 import com.vinlanx.luxium.client.neocpu.NeoCpuShadowShape;
 import com.vinlanx.luxium.client.neocpu.NeoCpuShadowTypes;
 import com.vinlanx.luxium.rtx.LightRtMath;
@@ -20,14 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-
 final class NeoCpuFloodLightVolume {
     private static final int MIN_VISITED_CELLS = 16384;
     private static final int MAX_VISITED_CELLS = 262144;
     private static final Direction[] ALL_FACES = Direction.values();
+
+
+
     private final LongOpenHashSet visitedCells;
     private final List<NeoCpuFloodBoundaryFace> boundaryFaces;
-
     private NeoCpuFloodLightVolume(LongOpenHashSet visitedCells, List<NeoCpuFloodBoundaryFace> boundaryFaces) {
         this.visitedCells = visitedCells;
         this.boundaryFaces = boundaryFaces;
@@ -37,12 +26,14 @@ final class NeoCpuFloodLightVolume {
         double radius = LightRtMath.getBlockShadowRadius(emission);
         double radiusSq = radius * radius;
         int maxVisitedCells = NeoCpuFloodLightVolume.getVisitedCellLimit(radius);
+
         LongOpenHashSet visited = new LongOpenHashSet();
         NeoCpuReceiverFaceSet receiverFaces = new NeoCpuReceiverFaceSet();
         ArrayDeque<Long> queue = new ArrayDeque<Long>();
         ArrayList<NeoCpuShadowTypes.ReceiverSurface> scratchReceivers = new ArrayList<NeoCpuShadowTypes.ReceiverSurface>(8);
         visited.add(sourceKey);
         queue.add(sourceKey);
+
         double sourceX = (double)BlockPos.m_121983_((long)sourceKey) + 0.5;
         double sourceY = (double)BlockPos.m_122008_((long)sourceKey) + 0.5;
         double sourceZ = (double)BlockPos.m_122015_((long)sourceKey) + 0.5;
@@ -59,9 +50,16 @@ final class NeoCpuFloodLightVolume {
                 double dx = (double)nx + 0.5 - sourceX;
                 double dy = (double)ny + 0.5 - sourceY;
                 double dz = (double)nz + 0.5 - sourceZ;
-                if (dx * dx + dy * dy + dz * dz > radiusSq) continue;
-                if (!accessor.isInsideBuildHeight(ny)) continue;
-                if (!accessor.isLoaded(nx, nz)) continue;
+                if (dx * dx + dy * dy + dz * dz > radiusSq)
+                        continue;
+
+                if (!accessor.isInsideBuildHeight(ny))
+                        continue;
+
+                if (!accessor.isLoaded(nx, nz))
+                        continue;
+
+
                 NeoCpuShadowShape shape = accessor.shapeAt(neighborKey);
                 boolean passable = neighborKey == sourceKey || shape.isEmpty() || !shape.blocksFlood();
                 if (!shape.isEmpty()) {
@@ -79,6 +77,7 @@ final class NeoCpuFloodLightVolume {
                 }
             }
         }
+
         return new NeoCpuFloodLightVolume(visited, receiverFaces.faces());
     }
 
@@ -96,4 +95,3 @@ final class NeoCpuFloodLightVolume {
         return this.boundaryFaces;
     }
 }
-
