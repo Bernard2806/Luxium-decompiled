@@ -2,27 +2,30 @@ name: Publicar release
 
 on:
   push:
+    # One release tag per version: this branch only publishes v2.8.0-pre-alpha.
     tags:
-      - 'v*'
+      - 'v2.8.0-pre-alpha'
 
 permissions:
   contents: write
 
 jobs:
   build-and-release:
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moves to Ubuntu 26 from 2026-10-19.
+    runs-on: ubuntu-24.04
     steps:
       - name: Obtener fuentes
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Configurar Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17.0.13'
 
       - name: Preparar Gradle
-        uses: gradle/actions/setup-gradle@v4
+        # v5 is the last MIT-licensed major; v6 bundles a proprietary caching component.
+        uses: gradle/actions/setup-gradle@v5
 
       - name: Compilar JAR de release
         run: ./gradlew --no-daemon clean build -PmodVersion="${GITHUB_REF_NAME#v}"
@@ -38,7 +41,7 @@ jobs:
           rsvg-convert --zoom 2 --output build/decompilation-map.png build/decompilation-map.svg
 
       - name: Crear GitHub Release y adjuntar JAR
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: ${{ github.ref_name }}
           generate_release_notes: false
@@ -54,6 +57,10 @@ jobs:
             **${{ steps.decompilation-match.outputs.bytecode_percentage }}%** — ${{ steps.decompilation-match.outputs.bytecode_identical }} of ${{ steps.decompilation-match.outputs.bytecode_total }} methods of the original JAR compile to identical bytecode in this release.
 
             *Bytecode is compared instruction by instruction, ignoring constant pool indices, branch offsets and lambda numbering. Methods that differ may still behave the same.*
+
+            ## Source
+
+            Built from the [`2.8.0-pre-alpha`](https://github.com/${{ github.repository }}/tree/2.8.0-pre-alpha) branch at commit `${{ github.sha }}`.
 
             ## Credits
 
