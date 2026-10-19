@@ -1,28 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.Util
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.gui.GuiGraphics
- *  net.minecraft.client.gui.components.Button
- *  net.minecraft.client.gui.components.events.GuiEventListener
- *  net.minecraft.client.gui.screens.ConfirmLinkScreen
- *  net.minecraft.client.gui.screens.Screen
- *  net.minecraft.network.chat.Component
- *  net.minecraft.network.chat.FormattedText
- *  net.minecraft.network.chat.MutableComponent
- *  net.minecraft.resources.ResourceLocation
- *  net.minecraft.util.FormattedCharSequence
- *  net.minecraft.util.Mth
- *  net.minecraftforge.api.distmarker.Dist
- *  net.minecraftforge.api.distmarker.OnlyIn
- */
-package com.vinlanx.luxium.client.guiscreen;
-
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.client.guiscreen.LuxiumMenuBackgroundRenderer;
-import java.util.List;
+package com.vinlanx.luxium.client.guiscreen; import com.vinlanx.luxium.Config; import com.vinlanx.luxium.client.guiscreen.LuxiumMenuBackgroundRenderer; import java.util.List;
 import java.util.Objects;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
@@ -39,7 +15,6 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
 @OnlyIn(value=Dist.CLIENT)
 public class AlphaWarningScreen
 extends Screen {
@@ -48,13 +23,16 @@ extends Screen {
     private static final int LOGO_SIZE = 84;
     private static final int SCREEN_MARGIN = 8;
     private static final float MIN_CONTENT_SCALE = 0.4f;
-    private static final ResourceLocation LOGO = ResourceLocation.fromNamespaceAndPath((String)"luxium", (String)"textures/logow.png");
+    private static final ResourceLocation LOGO = ResourceLocation.fromNamespaceAndPath
+            ((String)"luxium", (String)"textures/logow.png");
+
     private int ticksOpen = 0;
     private final LuxiumMenuBackgroundRenderer backgroundRenderer = new LuxiumMenuBackgroundRenderer();
+
+
     private Button continueButton;
     private Button youtubeButton;
     private int controlsTop;
-
     public AlphaWarningScreen() {
         super((Component)Component.m_237115_((String)"screen.luxium.alpha_warning.title"));
     }
@@ -63,14 +41,26 @@ extends Screen {
         return (Boolean)Config.CLIENT.alphaWarningShown.get() == false;
     }
 
+
     protected void m_7856_() {
-        this.continueButton = Button.m_253074_((Component)Component.m_237115_((String)"screen.luxium.alpha_warning.continue"), btn -> this.acknowledge()).m_252987_(0, 0, 136, 20).m_253136_();
+        this.continueButton = Button.m_253074_((Component)Component.m_237115_
+                ((String)"screen.luxium.alpha_warning.continue"), btn ->
+                this.acknowledge()).m_252987_
+                (0, 0, 136, 20).m_253136_
+                ();
         this.continueButton.f_93623_ = false;
         this.m_142416_((GuiEventListener)this.continueButton);
-        this.youtubeButton = Button.m_253074_((Component)Component.m_237115_((String)"screen.luxium.alpha_warning.youtube"), btn -> this.openYoutube()).m_252987_(0, 0, 62, 20).m_253136_();
+
+        this.youtubeButton = Button.m_253074_((Component)Component.m_237115_
+                ((String)"screen.luxium.alpha_warning.youtube"), btn ->
+                this.openYoutube()).m_252987_
+                (0, 0, 62, 20).m_253136_
+                ();
         this.m_142416_((GuiEventListener)this.youtubeButton);
+
         this.layoutControls();
     }
+
 
     public void m_86600_() {
         ++this.ticksOpen;
@@ -84,18 +74,26 @@ extends Screen {
         }
     }
 
+
     public void m_88315_(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
         int h = this.f_96544_;
+
         this.backgroundRenderer.render(gfx, this.f_96543_, h, mouseX, mouseY, partialTick);
+
         float contentScale = this.calculateContentScale();
         int virtualWidth = Math.max(1, Mth.m_14143_((float)((float)this.f_96543_ / contentScale)));
         int cx = virtualWidth / 2;
-        int textWidth = Math.min(480, Math.max(120, Mth.m_14143_((float)((float)(this.f_96543_ - 16) / contentScale))));
+        int textWidth = Math.min(480, Math.max
+                (120, Mth.m_14143_((float)((float)(this.f_96543_ - 16) / contentScale))));
         int textY = Mth.m_14167_((float)(8.0f / contentScale));
+
         gfx.m_280168_().m_85836_();
         gfx.m_280168_().m_85841_(contentScale, contentScale, 1.0f);
+
         gfx.m_280398_(LOGO, cx - 42, textY, 0, 0.0f, 0.0f, 84, 84, 84, 84);
+
         textY += 92;
+
         Component titleComp = Component.m_237115_((String)"screen.luxium.alpha_warning.mod_title");
         int titleW = this.f_96547_.m_92852_((FormattedText)titleComp);
         gfx.m_280168_().m_85836_();
@@ -103,11 +101,14 @@ extends Screen {
         gfx.m_280614_(this.f_96547_, (Component)titleComp, cx / 2 - titleW / 2, textY / 2, -462632, true);
         gfx.m_280168_().m_85849_();
         textY += this.f_96547_.f_92710_ * 2 + 14;
+
         int dividerHalfWidth = Math.min(160, textWidth / 2);
         gfx.m_280509_(cx - dividerHalfWidth, textY, cx + dividerHalfWidth, textY + 1, 1442829419);
         textY += 9;
+
         for (Component line : AlphaWarningScreen.bodyText()) {
-            List<FormattedCharSequence> wrapped = this.f_96547_.m_92923_((FormattedText)line, textWidth);
+            List<FormattedCharSequence> wrapped = this.f_96547_.m_92923_
+                    ((FormattedText)line, textWidth);
             for (FormattedCharSequence seq : wrapped) {
                 int lineW = this.f_96547_.m_92724_(seq);
                 gfx.m_280649_(this.f_96547_, seq, cx - lineW / 2, textY, -1317421, false);
@@ -115,13 +116,16 @@ extends Screen {
             }
             textY += 2;
         }
+
         Component ytHint = Component.m_237115_((String)"screen.luxium.alpha_warning.youtube_hint");
         for (FormattedCharSequence seq : this.f_96547_.m_92923_((FormattedText)ytHint, textWidth)) {
             int lineW = this.f_96547_.m_92724_(seq);
             gfx.m_280649_(this.f_96547_, seq, cx - lineW / 2, textY, -6303489, false);
             textY += this.f_96547_.f_92710_ + 1;
         }
+
         gfx.m_280168_().m_85849_();
+
         super.m_88315_(gfx, mouseX, mouseY, partialTick);
     }
 
@@ -142,6 +146,7 @@ extends Screen {
             this.youtubeButton.m_93674_(youtubeWidth);
             return;
         }
+
         int buttonWidth = Math.max(80, this.f_96543_ - 16);
         this.controlsTop = Math.max(8, this.f_96544_ - buttonHeight * 2 - gap - 8);
         this.continueButton.m_252865_((this.f_96543_ - buttonWidth) / 2);
@@ -155,10 +160,15 @@ extends Screen {
     private float calculateContentScale() {
         float availableHeight = Math.max(1.0f, (float)this.controlsTop - 16.0f);
         float scale = Mth.m_14036_((float)Math.min((float)this.f_96543_ / 560.0f, availableHeight / 300.0f), (float)0.4f, (float)1.0f);
+
+
         for (int i = 0; i < 2; ++i) {
-            int textWidth = Math.min(480, Math.max(120, Mth.m_14143_((float)((float)(this.f_96543_ - 16) / scale))));
+            int textWidth = Math.min(480, Math.max
+                    (120, Mth.m_14143_((float)((float)(this.f_96543_ - 16) / scale))));
             float requiredHeight = this.contentHeight(textWidth, scale);
-            if (requiredHeight * scale <= availableHeight) break;
+            if (requiredHeight * scale <= availableHeight)
+                    break;
+
             scale = Math.max(0.4f, scale * availableHeight / (requiredHeight * scale));
         }
         return scale;
@@ -175,8 +185,14 @@ extends Screen {
     }
 
     private static List<Component> bodyText() {
-        return List.of(Component.m_237115_((String)"screen.luxium.alpha_warning.line1"), Component.m_237115_((String)"screen.luxium.alpha_warning.line2"), Component.m_237115_((String)"screen.luxium.alpha_warning.line3"), Component.m_237115_((String)"screen.luxium.alpha_warning.line4"), Component.m_237115_((String)"screen.luxium.alpha_warning.line5"));
+        return List.of(Component.m_237115_
+                ((String)"screen.luxium.alpha_warning.line1"), Component.m_237115_
+                ((String)"screen.luxium.alpha_warning.line2"), Component.m_237115_
+                ((String)"screen.luxium.alpha_warning.line3"), Component.m_237115_
+                ((String)"screen.luxium.alpha_warning.line4"), Component.m_237115_
+                ((String)"screen.luxium.alpha_warning.line5"));
     }
+
 
     private void acknowledge() {
         Config.CLIENT.alphaWarningShown.set((Object)true);
@@ -189,13 +205,16 @@ extends Screen {
             if (confirmed) {
                 Util.m_137581_().m_137646_("https://www.youtube.com/@Vinlanx");
             }
+
             Minecraft.m_91087_().m_91152_((Screen)this);
         }, "https://www.youtube.com/@Vinlanx", false));
     }
 
+
     public void m_7379_() {
         Minecraft.m_91087_().m_91152_(null);
     }
+
 
     public boolean m_7043_() {
         return false;

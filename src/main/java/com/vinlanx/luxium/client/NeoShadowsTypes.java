@@ -1,37 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap
- *  it.unimi.dsi.fastutil.longs.Long2FloatOpenHashMap
- *  it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap
- *  it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap
- *  it.unimi.dsi.fastutil.longs.Long2ObjectMap$Entry
- *  it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
- *  it.unimi.dsi.fastutil.longs.LongOpenHashSet
- *  it.unimi.dsi.fastutil.objects.ObjectIterator
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.client.renderer.block.model.BakedQuad
- *  net.minecraft.core.BlockPos
- *  net.minecraft.core.Direction
- *  net.minecraft.util.Mth
- *  net.minecraft.world.phys.AABB
- *  net.minecraft.world.phys.Vec3
- *  org.jetbrains.annotations.Nullable
- */
-package com.vinlanx.luxium.client;
-
-import com.vinlanx.luxium.client.DynamicShadowMeshCapture;
-import com.vinlanx.luxium.client.NeoShadowsEngine;
-import com.vinlanx.luxium.client.NeoShadowsOcclusionPipeline;
-import com.vinlanx.luxium.client.NeoShadowsProjection;
-import com.vinlanx.luxium.rtx.LightRtMath;
-import com.vinlanx.luxium.rtx.NeoFloodEngine;
-import com.vinlanx.luxium.rtx.soasnottointerfere.ExposedFaceService;
-import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2FloatOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+package com.vinlanx.luxium.client; import com.vinlanx.luxium.client.DynamicShadowMeshCapture; import com.vinlanx.luxium.client.NeoShadowsEngine; import com.vinlanx.luxium.client.NeoShadowsOcclusionPipeline; import com.vinlanx.luxium.client.NeoShadowsProjection; import com.vinlanx.luxium.rtx.LightRtMath; import com.vinlanx.luxium.rtx.NeoFloodEngine; import com.vinlanx.luxium.rtx.soasnottointerfere.ExposedFaceService; import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap; import it.unimi.dsi.fastutil.longs.Long2FloatOpenHashMap; import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap; import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -50,32 +17,29 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-
 final class NeoShadowsTypes {
     private NeoShadowsTypes() {
     }
 
     static final class ContributorList {
         static final ContributorList EMPTY = new ContributorList(new long[0], new int[0], 0);
+
+
         final long[] sourceKeys;
         final int[] packed;
         final int count;
-
         ContributorList(long[] sourceKeys, int[] packed, int count) {
             this.sourceKeys = sourceKeys;
             this.packed = packed;
+
             this.count = count;
-        }
-    }
-
-    static final class ContributorCollector
-    implements NeoFloodEngine.ContributorVisitor {
-        long[] sourceKeys = new long[16];
-        int[] packed = new int[16];
+        } } static final class ContributorCollector implements NeoFloodEngine.ContributorVisitor { long[] sourceKeys;
+        int[] packed;
         int count;
-
         ContributorCollector() {
-        }
+            this.sourceKeys = new long[16];
+            this.packed = new int[16]; }
+
 
         void reset() {
             this.count = 0;
@@ -105,17 +69,15 @@ final class NeoShadowsTypes {
             int[] pack = new int[this.count];
             System.arraycopy(this.sourceKeys, 0, keys, 0, this.count);
             System.arraycopy(this.packed, 0, pack, 0, this.count);
-            return new ContributorList(keys, pack, this.count);
-        }
-    }
-
+            return new ContributorList(keys, pack, this.count); } }
     static final class FaceLightingScratch {
-        final Long2ObjectOpenHashMap<SourceScore> scores = new Long2ObjectOpenHashMap();
-        final ContributorScoringVisitor visitor = new ContributorScoringVisitor();
-
+        final Long2ObjectOpenHashMap<SourceScore> scores;
+        final ContributorScoringVisitor visitor;
         FaceLightingScratch() {
-        }
+            this.scores = new Long2ObjectOpenHashMap();
+            this.visitor = new ContributorScoringVisitor(); }
     }
+
 
     static final class GeometryBuildState {
         final ClientLevel level;
@@ -124,27 +86,36 @@ final class NeoShadowsTypes {
         final boolean includeDynamicCasters;
         final List<DynamicCaster> dynamicCasters;
         final EnumMap<Direction, Long2ObjectOpenHashMap<FaceLightingInfo>> faceLightingCache = new EnumMap(Direction.class);
+
         final List<ShadowPolygon> shadowPolygons = new ArrayList<ShadowPolygon>();
         final Long2LongOpenHashMap[] litSampleCache = new Long2LongOpenHashMap[6];
+
         final Long2ObjectOpenHashMap<ContributorList> contributorCache = new Long2ObjectOpenHashMap();
+
         final Long2ObjectOpenHashMap<Long2ObjectOpenHashMap<NeoShadowsOcclusionPipeline.ProbeFirstHitCache>> firstHitScalarCache = new Long2ObjectOpenHashMap();
+
+
+
+
+
+
+
         int receiverFaceCount;
         int sourceCount;
         int occluderHitCount;
         int shadowPolygonCount;
-
         GeometryBuildState(NeoShadowsEngine engine, ClientLevel level, BlockPos center, ExposedFaceService exposedFaceService, boolean includeDynamicCasters, DynamicShadowMeshCapture.Snapshot dynamicSnapshot) {
             this.level = level;
             this.center = center;
             this.exposedFaceService = exposedFaceService;
             this.includeDynamicCasters = includeDynamicCasters;
-            this.dynamicCasters = includeDynamicCasters ? engine.dynamicPipeline.collectDynamicCasters(level, center, dynamicSnapshot) : Collections.emptyList();
+            this.dynamicCasters = includeDynamicCasters ? engine.dynamicPipeline.collectDynamicCasters
+                    (level, center, dynamicSnapshot) : Collections.emptyList
+                    ();
+
             this.contributorCache.defaultReturnValue(null);
         }
 
-        /*
-         * WARNING - Removed try catching itself - possible behaviour change.
-         */
         NeoShadowsOcclusionPipeline.ProbeFirstHitCache firstHitScalarCache(long sourceKey, long receiverKey, int probeCount) {
             Long2ObjectOpenHashMap<NeoShadowsOcclusionPipeline.ProbeFirstHitCache> inner;
             synchronized (this.firstHitScalarCache) {
@@ -161,29 +132,27 @@ final class NeoShadowsTypes {
                     inner.put(receiverKey, (Object)cache);
                 }
                 return cache;
-            }
-        }
-    }
-
-    static final class BuildScratch {
-        final List<ShadowPolygon> shadowPolygons = new ArrayList<ShadowPolygon>();
-        final Long2ObjectLinkedOpenHashMap<NeoShadowsOcclusionPipeline.OccluderHit> reusableGroupHits = new Long2ObjectLinkedOpenHashMap();
-        final List<UvPoint> projectedPointBuf = new ArrayList<UvPoint>(64);
-        final List<UvPoint> clipBufA = new ArrayList<UvPoint>(32);
-        final List<UvPoint> clipBufB = new ArrayList<UvPoint>(32);
-        final List<UvPoint> hullSortBuf = new ArrayList<UvPoint>(64);
-        final List<UvPoint> hullUniqueBuf = new ArrayList<UvPoint>(64);
-        final List<UvPoint> hullLowerBuf = new ArrayList<UvPoint>(64);
-        final List<UvPoint> hullUpperBuf = new ArrayList<UvPoint>(64);
-        final List<UvPoint> hullOutputBuf = new ArrayList<UvPoint>(64);
-        final List<UvPoint> polyLocalBuf = new ArrayList<UvPoint>(32);
-        final List<UvPoint> polyDilateBuf = new ArrayList<UvPoint>(32);
-        final List<UvPoint> polySnapBuf = new ArrayList<UvPoint>(32);
+            } } } static final class BuildScratch { final List<ShadowPolygon> shadowPolygons; final Long2ObjectLinkedOpenHashMap<NeoShadowsOcclusionPipeline.OccluderHit> reusableGroupHits; final List<UvPoint> projectedPointBuf; final List<UvPoint> clipBufA; final List<UvPoint> clipBufB; final List<UvPoint> hullSortBuf; final List<UvPoint> hullUniqueBuf; final List<UvPoint> hullLowerBuf; final List<UvPoint> hullUpperBuf; final List<UvPoint> hullOutputBuf; final List<UvPoint> polyLocalBuf; final List<UvPoint> polyDilateBuf;
+        final List<UvPoint> polySnapBuf;
         int occluderHitCount;
         int shadowPolygonCount;
-
         BuildScratch() {
-        }
+            this.shadowPolygons = new ArrayList<ShadowPolygon>();
+            this.reusableGroupHits = new Long2ObjectLinkedOpenHashMap();
+
+            this.projectedPointBuf = new ArrayList<UvPoint>(64);
+            this.clipBufA = new ArrayList<UvPoint>(32);
+            this.clipBufB = new ArrayList<UvPoint>(32);
+            this.hullSortBuf = new ArrayList<UvPoint>(64);
+            this.hullUniqueBuf = new ArrayList<UvPoint>(64);
+            this.hullLowerBuf = new ArrayList<UvPoint>(64);
+            this.hullUpperBuf = new ArrayList<UvPoint>(64);
+            this.hullOutputBuf = new ArrayList<UvPoint>(64);
+            this.polyLocalBuf = new ArrayList<UvPoint>(32);
+            this.polyDilateBuf = new ArrayList<UvPoint>(32);
+            this.polySnapBuf = new ArrayList<UvPoint>(32); }
+
+
 
         void reset() {
             this.shadowPolygons.clear();
@@ -204,12 +173,12 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class DynamicCaster {
         final long id;
         final Box box;
         final Vec3[] boxCorners;
         final List<Vec3[]> quads;
-
         DynamicCaster(long id, Box box, List<Vec3[]> quads) {
             this.id = id;
             this.box = box;
@@ -221,13 +190,16 @@ final class NeoShadowsTypes {
             if (this.box.contains(source.f_82479_, source.f_82480_, source.f_82481_)) {
                 return false;
             }
+
             double sourceDistanceSq = this.box.distanceToPointSq(source.f_82479_, source.f_82480_, source.f_82481_);
             if (sourceDistanceSq > (maxDist + 2.0) * (maxDist + 2.0)) {
                 return false;
             }
+
             double centerDistanceSq = this.box.distanceToPointSq((double)center.m_123341_() + 0.5, (double)center.m_123342_() + 0.5, (double)center.m_123343_() + 0.5);
             return centerDistanceSq <= 1521.0;
         }
+
 
         boolean intersectsSegment(double startX, double startY, double startZ, double endX, double endY, double endZ) {
             if (!this.box.intersectsSegment(startX, startY, startZ, endX, endY, endZ)) {
@@ -236,6 +208,7 @@ final class NeoShadowsTypes {
             if (this.quads.isEmpty() || this.hasThinMesh()) {
                 return true;
             }
+
             for (Vec3[] quad : this.quads) {
                 if (DynamicCaster.segmentIntersectsQuad(startX, startY, startZ, endX, endY, endZ, quad)) {
                     return true;
@@ -248,9 +221,18 @@ final class NeoShadowsTypes {
             return !this.quads.isEmpty() && (this.box.maxX - this.box.minX <= 0.1875 || this.box.maxY - this.box.minY <= 0.1875 || this.box.maxZ - this.box.minZ <= 0.1875);
         }
 
+
+
+
+
         private static boolean segmentIntersectsQuad(double startX, double startY, double startZ, double endX, double endY, double endZ, Vec3[] quad) {
-            return DynamicCaster.segmentIntersectsTriangle(startX, startY, startZ, endX, endY, endZ, quad[0], quad[1], quad[2]) || DynamicCaster.segmentIntersectsTriangle(startX, startY, startZ, endX, endY, endZ, quad[0], quad[2], quad[3]);
+            return DynamicCaster.segmentIntersectsTriangle(startX, startY, startZ, endX, endY, endZ, quad[0], quad[1], quad[2]) || DynamicCaster.segmentIntersectsTriangle
+                    (startX, startY, startZ, endX, endY, endZ, quad[0], quad[2], quad[3]);
         }
+
+
+
+
 
         private static boolean segmentIntersectsTriangle(double startX, double startY, double startZ, double endX, double endY, double endZ, Vec3 a, Vec3 b, Vec3 c) {
             double dirX = endX - startX;
@@ -262,6 +244,7 @@ final class NeoShadowsTypes {
             double edge2X = c.f_82479_ - a.f_82479_;
             double edge2Y = c.f_82480_ - a.f_82480_;
             double edge2Z = c.f_82481_ - a.f_82481_;
+
             double pvecX = dirY * edge2Z - dirZ * edge2Y;
             double pvecY = dirZ * edge2X - dirX * edge2Z;
             double pvecZ = dirX * edge2Y - dirY * edge2X;
@@ -269,6 +252,7 @@ final class NeoShadowsTypes {
             if (Math.abs(determinant) <= 1.0E-9) {
                 return false;
             }
+
             double invDet = 1.0 / determinant;
             double tvecX = startX - a.f_82479_;
             double tvecY = startY - a.f_82480_;
@@ -277,6 +261,7 @@ final class NeoShadowsTypes {
             if (u < -1.0E-6 || u > 1.000001) {
                 return false;
             }
+
             double qvecX = tvecY * edge1Z - tvecZ * edge1Y;
             double qvecY = tvecZ * edge1X - tvecX * edge1Z;
             double qvecZ = tvecX * edge1Y - tvecY * edge1X;
@@ -284,10 +269,12 @@ final class NeoShadowsTypes {
             if (v < -1.0E-6 || u + v > 1.000001) {
                 return false;
             }
+
             double t = (edge2X * qvecX + edge2Y * qvecY + edge2Z * qvecZ) * invDet;
             return t >= -1.0E-6 && t <= 1.000001;
         }
     }
+
 
     static final class ShadowPolygon {
         final BlockPos blockPos;
@@ -302,7 +289,6 @@ final class NeoShadowsTypes {
         final int faceNormalY;
         final int faceNormalZ;
         final float strength;
-
         ShadowPolygon(BlockPos blockPos, Direction face, double[] vertices, float strength) {
             this.blockPos = blockPos;
             this.face = face;
@@ -322,6 +308,7 @@ final class NeoShadowsTypes {
             if (vertices.length < 3) {
                 return new AABB(0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
             }
+
             double minX = vertices[0];
             double minY = vertices[1];
             double minZ = vertices[2];
@@ -350,6 +337,7 @@ final class NeoShadowsTypes {
             if (vertexCount == 3) {
                 return vertices;
             }
+
             double[] triangulated = new double[(vertexCount - 2) * 9];
             int writeIndex = 0;
             double x0 = vertices[0];
@@ -372,6 +360,13 @@ final class NeoShadowsTypes {
         }
     }
 
+
+
+
+
+
+
+
     static final class RealtimeStaticShadowOutput {
         final BlockPos center;
         final List<ShadowPolygon> shadowPolygons;
@@ -380,7 +375,6 @@ final class NeoShadowsTypes {
         final int sourceCount;
         final int occluderHitCount;
         final int shadowPolygonCount;
-
         RealtimeStaticShadowOutput(BlockPos center, List<ShadowPolygon> shadowPolygons, List<ReceiverPlaneGroup> receiverPlaneGroups, int receiverFaceCount, int sourceCount, int occluderHitCount, int shadowPolygonCount) {
             this.center = center;
             this.shadowPolygons = shadowPolygons;
@@ -394,9 +388,10 @@ final class NeoShadowsTypes {
 
     static final class StaticHotPatchOutput {
         static final StaticHotPatchOutput EMPTY = new StaticHotPatchOutput(new Long2ByteOpenHashMap(0), Collections.emptyList());
+
+
         final Long2ByteOpenHashMap affectedFacesByBlock;
         final List<ShadowPolygon> shadowPolygons;
-
         StaticHotPatchOutput(Long2ByteOpenHashMap affectedFacesByBlock, List<ShadowPolygon> shadowPolygons) {
             affectedFacesByBlock.defaultReturnValue((byte)0);
             this.affectedFacesByBlock = affectedFacesByBlock;
@@ -409,11 +404,18 @@ final class NeoShadowsTypes {
     }
 
     static final class StaticHotPatchOverlay {
-        static final StaticHotPatchOverlay EMPTY = new StaticHotPatchOverlay(new Long2ByteOpenHashMap(0), (Long2ObjectOpenHashMap<List<ShadowPolygon>[]>)new Long2ObjectOpenHashMap(0), Collections.emptyList());
+        static final StaticHotPatchOverlay EMPTY = new StaticHotPatchOverlay(new Long2ByteOpenHashMap(0), (Long2ObjectOpenHashMap<List<ShadowPolygon>[]>)new Long2ObjectOpenHashMap(0), Collections.emptyList
+
+
+                ());
+
+
+
+
+
         final Long2ByteOpenHashMap replacedFacesByBlock;
         final Long2ObjectOpenHashMap<List<ShadowPolygon>[]> polygonsByBlock;
         final List<ShadowPolygon> polygons;
-
         StaticHotPatchOverlay(Long2ByteOpenHashMap replacedFacesByBlock, Long2ObjectOpenHashMap<List<ShadowPolygon>[]> polygonsByBlock, List<ShadowPolygon> polygons) {
             replacedFacesByBlock.defaultReturnValue((byte)0);
             this.replacedFacesByBlock = replacedFacesByBlock;
@@ -434,17 +436,23 @@ final class NeoShadowsTypes {
             if (output == null || output.affectedFacesByBlock.isEmpty()) {
                 return this;
             }
+
             Long2ByteOpenHashMap mergedMasks = new Long2ByteOpenHashMap(Math.max(16, this.replacedFacesByBlock.size() + output.affectedFacesByBlock.size()));
             mergedMasks.defaultReturnValue((byte)0);
             mergedMasks.putAll((Map)this.replacedFacesByBlock);
+
             Long2ObjectOpenHashMap<List<ShadowPolygon>[]> mergedByBlock = new Long2ObjectOpenHashMap<>(Math.max(16, this.polygonsByBlock.size() + output.affectedFacesByBlock.size()));
             for (Long2ObjectMap.Entry<List<ShadowPolygon>[]> entry : this.polygonsByBlock.long2ObjectEntrySet()) {
                 mergedByBlock.put(entry.getLongKey(), StaticHotPatchOverlay.copyFaceBuckets(entry.getValue()));
             }
+
             for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry : output.affectedFacesByBlock.long2ByteEntrySet()) {
                 long blockKey = entry.getLongKey();
                 byte faceMask = entry.getByteValue();
-                if (faceMask == 0) continue;
+                if (faceMask == 0)
+                        continue;
+
+
                 mergedMasks.put(blockKey, (byte)(mergedMasks.get(blockKey) | faceMask));
                 List<ShadowPolygon>[] buckets = mergedByBlock.get(blockKey);
                 if (buckets == null) {
@@ -457,12 +465,14 @@ final class NeoShadowsTypes {
                     mergedByBlock.remove(blockKey);
                 }
             }
+
             for (ShadowPolygon polygon : output.shadowPolygons) {
                 long blockKey = polygon.blockPos.m_121878_();
                 List<ShadowPolygon>[] buckets = mergedByBlock.get(blockKey);
                 if (buckets == null) {
                     buckets = StaticHotPatchOverlay.newFaceBuckets();
                 }
+
                 int faceIndex = polygon.face.ordinal();
                 List<ShadowPolygon> facePolygons = buckets[faceIndex];
                 if (facePolygons == null) {
@@ -472,12 +482,14 @@ final class NeoShadowsTypes {
                 facePolygons.add(polygon);
                 mergedByBlock.put(blockKey, (Object)buckets);
             }
+
             return new StaticHotPatchOverlay(mergedMasks, mergedByBlock, StaticHotPatchOverlay.flattenPolygons(mergedByBlock));
         }
 
         private static byte faceMask(Direction face) {
             return (byte)(1 << face.ordinal());
         }
+
 
         private static List<ShadowPolygon>[] newFaceBuckets() {
             return new List[NeoShadowsEngine.FACES.length];
@@ -519,13 +531,16 @@ final class NeoShadowsTypes {
         }
     }
 
+
+
+
+
     static final class VisibleCandidateBlockSnapshot {
         final BlockPos center;
         final long frontierSignature;
         final long[] frontierPositions;
         final FaceCandidate[] candidates;
         final List<FaceCandidate> candidateView;
-
         VisibleCandidateBlockSnapshot(BlockPos center, long frontierSignature, long[] frontierPositions, FaceCandidate[] candidates) {
             this.center = center;
             this.frontierSignature = frontierSignature;
@@ -535,7 +550,9 @@ final class NeoShadowsTypes {
         }
 
         boolean matches(BlockPos otherCenter, long otherFrontierSignature, long[] otherFrontierPositions) {
-            if (this.center.m_123341_() != otherCenter.m_123341_() || this.center.m_123342_() != otherCenter.m_123342_() || this.center.m_123343_() != otherCenter.m_123343_()) {
+            if (this.center.m_123341_() != otherCenter.m_123341_() || this.center.m_123342_
+                    () != otherCenter.m_123342_() || this.center.m_123343_
+                    () != otherCenter.m_123343_()) {
                 return false;
             }
             if (this.frontierPositions.length != otherFrontierPositions.length) {
@@ -544,6 +561,7 @@ final class NeoShadowsTypes {
             if (this.frontierSignature == otherFrontierSignature) {
                 return true;
             }
+
             boolean exactMatch = true;
             for (int index = 0; index < this.frontierPositions.length; ++index) {
                 if (this.frontierPositions[index] != otherFrontierPositions[index]) {
@@ -554,6 +572,7 @@ final class NeoShadowsTypes {
             if (exactMatch) {
                 return true;
             }
+
             LongOpenHashSet frontierSet = new LongOpenHashSet(this.frontierPositions.length);
             for (long frontierPosition : this.frontierPositions) {
                 frontierSet.add(frontierPosition);
@@ -571,9 +590,20 @@ final class NeoShadowsTypes {
         }
 
         static VisibleCandidateBlockSnapshot empty(BlockPos center, long frontierSignature, long[] frontierPositions) {
-            return new VisibleCandidateBlockSnapshot(center.m_7949_(), frontierSignature, Arrays.copyOf(frontierPositions, frontierPositions.length), new FaceCandidate[0]);
+            return new VisibleCandidateBlockSnapshot(center.m_7949_
+                    (), frontierSignature, Arrays.copyOf
+
+                    (frontierPositions, frontierPositions.length), new FaceCandidate[0]);
         }
     }
+
+
+
+
+
+
+
+
 
     static final class FaceCandidate {
         final BlockPos pos;
@@ -582,7 +612,6 @@ final class NeoShadowsTypes {
         final double planeCoordinate;
         final PlaneRect localBounds;
         final long receiverKey;
-
         FaceCandidate(BlockPos pos, Direction face, double distanceSq, double planeCoordinate, PlaneRect localBounds, long receiverKey) {
             this.pos = pos;
             this.face = face;
@@ -593,12 +622,12 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class FaceLightingInfo {
         final long lightSamplePosKey;
         final long sourceKey;
         final int sourceEmission;
         final List<SourceContribution> contributions;
-
         FaceLightingInfo(long lightSamplePosKey, long sourceKey, int sourceEmission, List<SourceContribution> contributions) {
             this.lightSamplePosKey = lightSamplePosKey;
             this.sourceKey = sourceKey;
@@ -611,13 +640,13 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class SourceContribution {
         final long sourceKey;
         final long lightSamplePosKey;
         final int sourceEmission;
         final float weight;
         final PlaneRect localFaceBounds;
-
         SourceContribution(long sourceKey, long lightSamplePosKey, int sourceEmission, float weight, PlaneRect localFaceBounds) {
             this.sourceKey = sourceKey;
             this.lightSamplePosKey = lightSamplePosKey;
@@ -653,30 +682,28 @@ final class NeoShadowsTypes {
         }
 
         PlaneRect contributionBounds() {
-            if (!(Double.isFinite(this.minProbeU) && Double.isFinite(this.minProbeV) && Double.isFinite(this.maxProbeU) && Double.isFinite(this.maxProbeV))) {
+            if (!(Double.isFinite(this.minProbeU) && Double.isFinite(this.minProbeV) && Double.isFinite
+                    (this.maxProbeU) && Double.isFinite(this.maxProbeV))) {
                 return NeoShadowsProjection.fullFaceRect();
             }
-            return new PlaneRect(this.minProbeU, this.maxProbeU, this.minProbeV, this.maxProbeV);
-        }
-    }
-
-    static final class ContributorScoringVisitor
-    implements NeoFloodEngine.ContributorVisitor {
-        private Long2ObjectOpenHashMap<SourceScore> scoresBySource;
-        private long ownPosKey;
-        private double sampleX;
-        private double sampleY;
+            return new PlaneRect(this.minProbeU, this.maxProbeU, this.minProbeV, this.maxProbeV); } } static final class ContributorScoringVisitor implements NeoFloodEngine.ContributorVisitor { private Long2ObjectOpenHashMap<SourceScore> scoresBySource; private long ownPosKey; private double sampleX; private double sampleY;
         private double sampleZ;
         private long lightSamplePosKey;
         private PlaneRect probeRect;
+        ContributorScoringVisitor() { }
 
-        ContributorScoringVisitor() {
-        }
+
+
+
+
+
+
 
         void bind(Long2ObjectOpenHashMap<SourceScore> scoresBySource, long ownPosKey) {
             this.scoresBySource = scoresBySource;
             this.ownPosKey = ownPosKey;
         }
+
 
         void setProbe(double sampleX, double sampleY, double sampleZ, long lightSamplePosKey, PlaneRect probeRect) {
             this.sampleX = sampleX;
@@ -691,10 +718,12 @@ final class NeoShadowsTypes {
             if (sourceKey == this.ownPosKey || sourceEmission <= 0 || light <= 0) {
                 return;
             }
+
             double dx = (double)BlockPos.m_121983_((long)sourceKey) + 0.5 - this.sampleX;
             double dy = (double)BlockPos.m_122008_((long)sourceKey) + 0.5 - this.sampleY;
             double dz = (double)BlockPos.m_122015_((long)sourceKey) + 0.5 - this.sampleZ;
             double distanceSq = dx * dx + dy * dy + dz * dz;
+
             SourceScore score = (SourceScore)this.scoresBySource.get(sourceKey);
             if (score == null) {
                 score = new SourceScore(sourceKey, this.lightSamplePosKey, sourceEmission);
@@ -709,6 +738,7 @@ final class NeoShadowsTypes {
                 score.representativeSamplePosKey = this.lightSamplePosKey;
             }
             score.includeProbeBounds(this.probeRect);
+
             double coverageFactor = (double)coverage / 255.0;
             if (coverageFactor < 0.15) {
                 coverageFactor = 0.15;
@@ -721,11 +751,11 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class ReceiverPlaneKey {
         final Direction face;
         final double planeCoordinate;
         final long sourceKey;
-
         private ReceiverPlaneKey(Direction face, double planeCoordinate, long sourceKey) {
             this.face = face;
             this.planeCoordinate = planeCoordinate;
@@ -736,6 +766,7 @@ final class NeoShadowsTypes {
             return new ReceiverPlaneKey(candidate.face, candidate.planeCoordinate, sourceKey);
         }
 
+
         public boolean equals(Object other) {
             if (this == other) {
                 return true;
@@ -743,8 +774,11 @@ final class NeoShadowsTypes {
             if (!(other instanceof ReceiverPlaneKey key)) {
                 return false;
             }
-            return this.face == key.face && Double.compare(this.planeCoordinate, key.planeCoordinate) == 0 && this.sourceKey == key.sourceKey;
+            return this.face == key.face && Double.compare
+                    (this.planeCoordinate, key.planeCoordinate) == 0 && this.sourceKey == key.sourceKey;
         }
+
+
 
         public int hashCode() {
             int result = this.face.hashCode();
@@ -771,7 +805,6 @@ final class NeoShadowsTypes {
         int maxReceiverCellV = Integer.MIN_VALUE;
         @Nullable
         List<ReceiverContributionRect> mergedReceiverRects;
-
         ReceiverPlaneGroup(ReceiverPlaneKey key, Vec3 source, int sourceEmission) {
             this.key = key;
             this.plane = new GlobalReceiverPlane(key.face, key.planeCoordinate);
@@ -793,6 +826,11 @@ final class NeoShadowsTypes {
             if (existingBounds == null) {
                 this.faceContributionBounds.put(receiverKey, (Object)new PlaneRect(localFaceBounds.minU, localFaceBounds.maxU, localFaceBounds.minV, localFaceBounds.maxV));
             } else {
+
+
+
+
+
                 existingBounds.include(localFaceBounds);
             }
             this.nearestReceiverDistanceSq = Math.min(this.nearestReceiverDistanceSq, candidate.distanceSq);
@@ -836,20 +874,28 @@ final class NeoShadowsTypes {
             double minV = Double.POSITIVE_INFINITY;
             double maxV = Double.NEGATIVE_INFINITY;
             int validCount = 0;
+
             for (Vec3 corner : caster.boxCorners) {
                 ProjectionPoint projection = this.plane.projectPoint(source, corner);
-                if (projection.uv == null) continue;
+                if (projection.uv == null)
+                        continue;
+
                 ++validCount;
                 minU = Math.min(minU, projection.uv.u);
                 maxU = Math.max(maxU, projection.uv.u);
                 minV = Math.min(minV, projection.uv.v);
                 maxV = Math.max(maxV, projection.uv.v);
             }
+
             if (validCount == 0) {
                 return true;
             }
+
             return maxU > (double)this.minReceiverCellU && minU < (double)this.maxReceiverCellU + 1.0 && maxV > (double)this.minReceiverCellV && minV < (double)this.maxReceiverCellV + 1.0;
         }
+
+
+
 
         List<ReceiverContributionRect> receiverRects() {
             if (this.mergedReceiverRects == null) {
@@ -862,41 +908,64 @@ final class NeoShadowsTypes {
             if (this.receiverFacesByKey.isEmpty()) {
                 return Collections.emptyList();
             }
-            Long2LongOpenHashMap fullFacePosByCell = new Long2LongOpenHashMap(this.receiverFacesByKey.size());
+
+            Long2LongOpenHashMap fullFacePosByCell = new Long2LongOpenHashMap(this.receiverFacesByKey.size
+                    ());
             LongOpenHashSet visitedCells = new LongOpenHashSet(this.receiverFacesByKey.size());
             ArrayList<ReceiverContributionRect> rects = new ArrayList<ReceiverContributionRect>(this.receiverFacesByKey.size());
             fullFacePosByCell.defaultReturnValue(Long.MIN_VALUE);
+
             for (Long2ObjectMap.Entry<FaceCandidate> entry : this.receiverFacesByKey.long2ObjectEntrySet()) {
                 long receiverKey = entry.getLongKey();
                 FaceCandidate candidate = (FaceCandidate)entry.getValue();
+
                 PlaneRect localBounds = this.localContributionBoundsForReceiverPosKey(receiverKey);
                 float strength = this.faceWeights.get(receiverKey);
-                if (strength <= 0.0f) continue;
+                if (strength <= 0.0f)
+                        continue;
+
+
                 BlockPos pos = candidate.pos;
                 int cellU = NeoShadowsProjection.blockPosToPlaneCellU(this.key.face, pos);
                 int cellV = NeoShadowsProjection.blockPosToPlaneCellV(this.key.face, pos);
                 long cellKey = NeoShadowsProjection.receiverCellKey(cellU, cellV);
-                if (!NeoShadowsProjection.isMergeableReceiverBounds(localBounds) || !NeoShadowsProjection.isMergeablePlaneCoordinate(this.key.planeCoordinate)) {
-                    rects.add(new ReceiverContributionRect(pos, NeoShadowsProjection.faceContributionPlaneRect(this.key.face, pos, localBounds), strength));
+                if (!NeoShadowsProjection.isMergeableReceiverBounds(localBounds) || !NeoShadowsProjection.isMergeablePlaneCoordinate
+                        (this.key.planeCoordinate)) {
+                    rects.add(new ReceiverContributionRect(pos, NeoShadowsProjection.faceContributionPlaneRect
+
+                            (this.key.face, pos, localBounds), strength));
+
+
                     visitedCells.add(cellKey);
                     continue;
                 }
+
                 fullFacePosByCell.put(cellKey, receiverKey);
             }
+
             for (it.unimi.dsi.fastutil.longs.Long2LongMap.Entry entry : fullFacePosByCell.long2LongEntrySet()) {
                 long startCellKey = entry.getLongKey();
-                if (!visitedCells.add(startCellKey)) continue;
+                if (!visitedCells.add(startCellKey))
+                        continue;
+
+
                 long startPosKey = entry.getLongValue();
                 float strength = this.faceWeights.get(startPosKey);
                 int startCellU = NeoShadowsProjection.unpackReceiverCellU(startCellKey);
                 int startCellV = NeoShadowsProjection.unpackReceiverCellV(startCellKey);
+
                 int width = 1;
                 while (true) {
                     long nextCellKey = NeoShadowsProjection.receiverCellKey(startCellU + width, startCellV);
                     long nextPosKey = fullFacePosByCell.get(nextCellKey);
-                    if (nextPosKey == Long.MIN_VALUE || visitedCells.contains(nextCellKey) || !NeoShadowsProjection.sameReceiverStrength(strength, this.faceWeights.get(nextPosKey))) break;
+                    if (nextPosKey == Long.MIN_VALUE || visitedCells.contains
+                            (nextCellKey) || !NeoShadowsProjection.sameReceiverStrength
+                            (strength, this.faceWeights.get(nextPosKey)))
+                            break;
+
                     ++width;
                 }
+
                 int height = 1;
                 while (true) {
                     int nextV = startCellV + height;
@@ -904,22 +973,33 @@ final class NeoShadowsTypes {
                     for (int offsetU = 0; offsetU < width; ++offsetU) {
                         long nextCellKey = NeoShadowsProjection.receiverCellKey(startCellU + offsetU, nextV);
                         long nextPosKey = fullFacePosByCell.get(nextCellKey);
-                        if (nextPosKey == Long.MIN_VALUE || visitedCells.contains(nextCellKey) || !(NeoShadowsProjection.sameReceiverStrength(strength, this.faceWeights.get(nextPosKey)))) {
+                        if (nextPosKey == Long.MIN_VALUE || visitedCells.contains
+                                (nextCellKey) || !(NeoShadowsProjection.sameReceiverStrength
+                                (strength, this.faceWeights.get(nextPosKey)))) {
                             rowMatches = false;
                             break;
                         }
                     }
-                    if (!rowMatches) break;
+                    if (!rowMatches)
+                            break;
+
                     ++height;
                 }
+
                 for (int offsetV = 0; offsetV < height; ++offsetV) {
                     for (int offsetU = 0; offsetU < width; ++offsetU) {
                         visitedCells.add(NeoShadowsProjection.receiverCellKey(startCellU + offsetU, startCellV + offsetV));
                     }
                 }
+
                 BlockPos anchorPos = NeoShadowsProjection.planeCellToBlockPos(this.key, startCellU, startCellV);
                 rects.add(new ReceiverContributionRect(anchorPos, new PlaneRect(startCellU, startCellU + width, startCellV, startCellV + height), strength));
+
+
+
+
             }
+
             return rects;
         }
 
@@ -931,12 +1011,15 @@ final class NeoShadowsTypes {
                 this.receiverSamples = NeoShadowsProjection.EMPTY_DOUBLE_ARRAY;
                 return;
             }
+
             double[] scratch = NeoShadowsProjection.SCRATCH_RECEIVER_SAMPLES.get();
             int writeIndex = 0;
+
             double sx0 = this.source.f_82479_;
             double sy0 = this.source.f_82480_;
             double sz0 = this.source.f_82481_;
             int emission = this.sourceEmission;
+
             for (FaceCandidate candidate : this.faces) {
                 ReceiverPlane facePlane = new ReceiverPlane(candidate.pos, candidate.face, candidate.planeCoordinate);
                 PlaneRect localBounds = this.localContributionBoundsForReceiverPosKey(candidate.receiverKey);
@@ -948,37 +1031,49 @@ final class NeoShadowsTypes {
                     NeoShadowsProjection.SCRATCH_RECEIVER_SAMPLES.set(scratch);
                 }
                 for (UvPoint probe : probes) {
-                    if (!NeoShadowsProjection.isProbeInsideRect(probe, localBounds)) continue;
+                    if (!NeoShadowsProjection.isProbeInsideRect(probe, localBounds))
+                            continue;
+
+
                     double sx = facePlane.sampleX(probe.u, probe.v);
                     double sy = facePlane.sampleY(probe.u, probe.v);
                     double sz = facePlane.sampleZ(probe.u, probe.v);
+
                     double dx = sx - sx0;
                     double dy = sy - sy0;
                     double dz = sz - sz0;
                     double distanceSq = dx * dx + dy * dy + dz * dz;
-                    if (distanceSq > maxDistanceSq) continue;
+                    if (distanceSq > maxDistanceSq)
+                            continue;
+
+
                     double distance = Math.sqrt(distanceSq);
-                    if (LightRtMath.getFalloff(emission, distance) <= 0) continue;
+                    if (LightRtMath.getFalloff(emission, distance) <= 0)
+                            continue;
+
+
                     scratch[writeIndex++] = sx;
                     scratch[writeIndex++] = sy;
                     scratch[writeIndex++] = sz;
                 }
             }
+
             if (writeIndex == 0) {
                 this.receiverSamples = NeoShadowsProjection.EMPTY_DOUBLE_ARRAY;
                 return;
             }
+
             double[] result = new double[writeIndex];
             System.arraycopy(scratch, 0, result, 0, writeIndex);
             this.receiverSamples = result;
         }
     }
 
+
     static final class ReceiverContributionRect {
         final BlockPos anchorPos;
         final PlaneRect planeRect;
         final float strength;
-
         ReceiverContributionRect(BlockPos anchorPos, PlaneRect planeRect, float strength) {
             this.anchorPos = anchorPos;
             this.planeRect = planeRect;
@@ -986,12 +1081,12 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class PlaneRect {
         double minU;
         double maxU;
         double minV;
         double maxV;
-
         PlaneRect(double minU, double maxU, double minV, double maxV) {
             this.minU = minU;
             this.maxU = maxU;
@@ -1007,54 +1102,50 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class ReceiverPlane {
         final Vec3 origin;
         final Vec3 axisU;
         final Vec3 axisV;
         final Vec3 normal;
-
         ReceiverPlane(BlockPos pos, Direction face, double planeCoordinate) {
             double minX = pos.m_123341_();
             double maxX = minX + 1.0;
             double minY = pos.m_123342_();
             double minZ = pos.m_123343_();
             double epsilon = 0.0015f;
+
             switch (face) {
                 case UP: {
                     this.origin = new Vec3(minX, planeCoordinate + epsilon, minZ);
                     this.axisU = new Vec3(1.0, 0.0, 0.0);
                     this.axisV = new Vec3(0.0, 0.0, 1.0);
                     this.normal = new Vec3(0.0, 1.0, 0.0);
-                    break;
-                }
+                    break; }
                 case DOWN: {
                     this.origin = new Vec3(minX, planeCoordinate - epsilon, minZ + 1.0);
                     this.axisU = new Vec3(1.0, 0.0, 0.0);
                     this.axisV = new Vec3(0.0, 0.0, -1.0);
                     this.normal = new Vec3(0.0, -1.0, 0.0);
-                    break;
-                }
+                    break; }
                 case NORTH: {
                     this.origin = new Vec3(maxX, minY, planeCoordinate - epsilon);
                     this.axisU = new Vec3(-1.0, 0.0, 0.0);
                     this.axisV = new Vec3(0.0, 1.0, 0.0);
                     this.normal = new Vec3(0.0, 0.0, -1.0);
-                    break;
-                }
+                    break; }
                 case SOUTH: {
                     this.origin = new Vec3(minX, minY, planeCoordinate + epsilon);
                     this.axisU = new Vec3(1.0, 0.0, 0.0);
                     this.axisV = new Vec3(0.0, 1.0, 0.0);
                     this.normal = new Vec3(0.0, 0.0, 1.0);
-                    break;
-                }
+                    break; }
                 case WEST: {
                     this.origin = new Vec3(planeCoordinate - epsilon, minY, minZ + 1.0);
                     this.axisU = new Vec3(0.0, 0.0, -1.0);
                     this.axisV = new Vec3(0.0, 1.0, 0.0);
                     this.normal = new Vec3(-1.0, 0.0, 0.0);
-                    break;
-                }
+                    break; }
                 default: {
                     this.origin = new Vec3(planeCoordinate + epsilon, minY, minZ);
                     this.axisU = new Vec3(0.0, 0.0, 1.0);
@@ -1077,13 +1168,13 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class GlobalReceiverPlane {
         final Direction face;
         final Vec3 origin;
         final Vec3 axisU;
         final Vec3 axisV;
         final Vec3 normal;
-
         GlobalReceiverPlane(Direction face, double planeCoordinate) {
             this.face = face;
             double epsilon = 0.0015f;
@@ -1093,36 +1184,31 @@ final class NeoShadowsTypes {
                     this.axisU = new Vec3(1.0, 0.0, 0.0);
                     this.axisV = new Vec3(0.0, 0.0, 1.0);
                     this.normal = new Vec3(0.0, 1.0, 0.0);
-                    break;
-                }
+                    break; }
                 case DOWN: {
                     this.origin = new Vec3(0.0, planeCoordinate - epsilon, 0.0);
                     this.axisU = new Vec3(1.0, 0.0, 0.0);
                     this.axisV = new Vec3(0.0, 0.0, 1.0);
                     this.normal = new Vec3(0.0, -1.0, 0.0);
-                    break;
-                }
+                    break; }
                 case NORTH: {
                     this.origin = new Vec3(0.0, 0.0, planeCoordinate - epsilon);
                     this.axisU = new Vec3(1.0, 0.0, 0.0);
                     this.axisV = new Vec3(0.0, 1.0, 0.0);
                     this.normal = new Vec3(0.0, 0.0, -1.0);
-                    break;
-                }
+                    break; }
                 case SOUTH: {
                     this.origin = new Vec3(0.0, 0.0, planeCoordinate + epsilon);
                     this.axisU = new Vec3(1.0, 0.0, 0.0);
                     this.axisV = new Vec3(0.0, 1.0, 0.0);
                     this.normal = new Vec3(0.0, 0.0, 1.0);
-                    break;
-                }
+                    break; }
                 case WEST: {
                     this.origin = new Vec3(planeCoordinate - epsilon, 0.0, 0.0);
                     this.axisU = new Vec3(0.0, 0.0, 1.0);
                     this.axisV = new Vec3(0.0, 1.0, 0.0);
                     this.normal = new Vec3(-1.0, 0.0, 0.0);
-                    break;
-                }
+                    break; }
                 default: {
                     this.origin = new Vec3(planeCoordinate + epsilon, 0.0, 0.0);
                     this.axisU = new Vec3(0.0, 0.0, 1.0);
@@ -1165,6 +1251,7 @@ final class NeoShadowsTypes {
             if (Math.abs(denominator) <= 1.0E-9) {
                 return new ProjectionPoint(denominator, Double.NaN, null);
             }
+
             double odX = this.origin.f_82479_ - source.f_82479_;
             double odY = this.origin.f_82480_ - source.f_82480_;
             double odZ = this.origin.f_82481_ - source.f_82481_;
@@ -1173,6 +1260,7 @@ final class NeoShadowsTypes {
             if (!Double.isFinite(t) || t <= minProjectionT) {
                 return new ProjectionPoint(denominator, t, null);
             }
+
             double px = source.f_82479_ + dirX * t;
             double py = source.f_82480_ + dirY * t;
             double pz = source.f_82481_ + dirZ * t;
@@ -1185,6 +1273,9 @@ final class NeoShadowsTypes {
             return new ProjectionPoint(denominator, t, new UvPoint(lx * this.axisU.f_82479_ + ly * this.axisU.f_82480_ + lz * this.axisU.f_82481_, lx * this.axisV.f_82479_ + ly * this.axisV.f_82480_ + lz * this.axisV.f_82481_));
         }
 
+
+
+
         private static boolean isHorizontalFace(Direction face) {
             return face == Direction.UP || face == Direction.DOWN;
         }
@@ -1195,7 +1286,6 @@ final class NeoShadowsTypes {
         final double t;
         @Nullable
         final UvPoint uv;
-
         ProjectionPoint(double denominator, double t, @Nullable UvPoint uv) {
             this.denominator = denominator;
             this.t = t;
@@ -1203,36 +1293,37 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class UvPoint {
         final double u;
         final double v;
-
         UvPoint(double u, double v) {
             this.u = u;
             this.v = v;
         }
 
         boolean equalsApprox(UvPoint other) {
-            return Math.abs(this.u - other.u) <= 1.0E-6 && Math.abs(this.v - other.v) <= 1.0E-6;
+            return Math.abs(this.u - other.u) <= 1.0E-6 && Math.abs
+                    (this.v - other.v) <= 1.0E-6;
         }
     }
+
 
     static final class AtlasUv {
         final double u;
         final double v;
-
         AtlasUv(double u, double v) {
             this.u = u;
             this.v = v;
         }
     }
 
+
     static final class SpriteRect {
         final int minX;
         final int maxX;
         final int minY;
         final int maxY;
-
         SpriteRect(int minX, int maxX, int minY, int maxY) {
             this.minX = minX;
             this.maxX = maxX;
@@ -1244,10 +1335,11 @@ final class NeoShadowsTypes {
     static final class SpriteOpaqueMask {
         static final SpriteOpaqueMask FULLY_OPAQUE = new SpriteOpaqueMask(new SpriteRect[0], true, false);
         static final SpriteOpaqueMask FULLY_TRANSPARENT = new SpriteOpaqueMask(new SpriteRect[0], false, true);
+
+
         final SpriteRect[] rectangles;
         final boolean fullyOpaque;
         final boolean fullyTransparent;
-
         SpriteOpaqueMask(SpriteRect[] rectangles, boolean fullyOpaque, boolean fullyTransparent) {
             this.rectangles = rectangles;
             this.fullyOpaque = fullyOpaque;
@@ -1263,12 +1355,12 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class SpritePixelBounds {
         final double minX;
         final double maxX;
         final double minY;
         final double maxY;
-
         SpritePixelBounds(double minX, double maxX, double minY, double maxY) {
             this.minX = minX;
             this.maxX = maxX;
@@ -1277,23 +1369,23 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class TexturedQuad {
         final Vec3[] worldVertices;
         final AtlasUv[] atlasUvs;
         final Vec3 normal;
-
         TexturedQuad(Vec3[] worldVertices, AtlasUv[] atlasUvs, Vec3 normal) {
             this.worldVertices = worldVertices;
             this.atlasUvs = atlasUvs;
             this.normal = normal;
         }
-
         @Nullable
         static TexturedQuad from(BakedQuad quad, BlockPos blockPos) {
             int[] vertices = quad.m_111303_();
             if (vertices.length < 32) {
                 return null;
             }
+
             Vec3[] worldVertices = new Vec3[4];
             AtlasUv[] atlasUvs = new AtlasUv[4];
             for (int vertexIndex = 0; vertexIndex < 4; ++vertexIndex) {
@@ -1306,10 +1398,12 @@ final class NeoShadowsTypes {
                 worldVertices[vertexIndex] = new Vec3(x, y, z);
                 atlasUvs[vertexIndex] = new AtlasUv(u, v);
             }
+
             Vec3 normal = worldVertices[1].m_82546_(worldVertices[0]).m_82537_(worldVertices[2].m_82546_(worldVertices[0]));
             if (normal.m_82556_() <= 1.0E-12) {
                 return null;
             }
+
             return new TexturedQuad(worldVertices, atlasUvs, normal);
         }
 
@@ -1319,6 +1413,7 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class Box {
         final double minX;
         final double minY;
@@ -1326,7 +1421,6 @@ final class NeoShadowsTypes {
         final double maxX;
         final double maxY;
         final double maxZ;
-
         Box(double minX, double minY, double minZ, double maxX, double maxY, double maxZ) {
             this.minX = minX;
             this.minY = minY;
@@ -1348,6 +1442,8 @@ final class NeoShadowsTypes {
             return x >= this.minX && x <= this.maxX && y >= this.minY && y <= this.maxY && z >= this.minZ && z <= this.maxZ;
         }
 
+
+
         double distanceToPointSq(double x, double y, double z) {
             double dx = 0.0;
             if (x < this.minX) {
@@ -1355,18 +1451,21 @@ final class NeoShadowsTypes {
             } else if (x > this.maxX) {
                 dx = x - this.maxX;
             }
+
             double dy = 0.0;
             if (y < this.minY) {
                 dy = this.minY - y;
             } else if (y > this.maxY) {
                 dy = y - this.maxY;
             }
+
             double dz = 0.0;
             if (z < this.minZ) {
                 dz = this.minZ - z;
             } else if (z > this.maxZ) {
                 dz = z - this.maxZ;
             }
+
             return dx * dx + dy * dy + dz * dz;
         }
 
@@ -1380,9 +1479,21 @@ final class NeoShadowsTypes {
             return new Vec3[]{new Vec3(ax, ay, az), new Vec3(ax, ay, bz), new Vec3(ax, by, az), new Vec3(ax, by, bz), new Vec3(bx, ay, az), new Vec3(bx, ay, bz), new Vec3(bx, by, az), new Vec3(bx, by, bz)};
         }
 
+
+
+
+
+
+
+
+
+
+
         boolean intersectsSegment(double startX, double startY, double startZ, double endX, double endY, double endZ) {
             return this.intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, 0, 0, 0);
         }
+
+
 
         boolean intersectsSegmentWithOffset(double startX, double startY, double startZ, double endX, double endY, double endZ, int offsetX, int offsetY, int offsetZ) {
             double oMinX = this.minX + (double)offsetX;
@@ -1391,11 +1502,13 @@ final class NeoShadowsTypes {
             double oMaxY = this.maxY + (double)offsetY;
             double oMinZ = this.minZ + (double)offsetZ;
             double oMaxZ = this.maxZ + (double)offsetZ;
+
             double dirX = endX - startX;
             double dirY = endY - startY;
             double dirZ = endZ - startZ;
             double tMin = 0.0;
             double tMax = 1.0;
+
             tMin = Box.clipAxis(startX, dirX, oMinX, oMaxX, tMin, true);
             if (Double.isNaN(tMin)) {
                 return false;
@@ -1404,6 +1517,7 @@ final class NeoShadowsTypes {
             if (Double.isNaN(tMax) || tMax < tMin) {
                 return false;
             }
+
             tMin = Box.clipAxis(startY, dirY, oMinY, oMaxY, tMin, true);
             if (Double.isNaN(tMin)) {
                 return false;
@@ -1412,6 +1526,7 @@ final class NeoShadowsTypes {
             if (Double.isNaN(tMax) || tMax < tMin) {
                 return false;
             }
+
             tMin = Box.clipAxis(startZ, dirZ, oMinZ, oMaxZ, tMin, true);
             if (Double.isNaN(tMin)) {
                 return false;
@@ -1427,6 +1542,7 @@ final class NeoShadowsTypes {
                 }
                 return current;
             }
+
             double inverse = 1.0 / dir;
             double t1 = (min - start) * inverse;
             double t2 = (max - start) * inverse;
@@ -1436,12 +1552,12 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class StaticRequest {
         final long id;
         final long epoch;
         final ClientLevel level;
         final BlockPos center;
-
         StaticRequest(long id, long epoch, ClientLevel level, BlockPos center) {
             this.id = id;
             this.epoch = epoch;
@@ -1450,17 +1566,23 @@ final class NeoShadowsTypes {
         }
     }
 
+
     static final class StaticResult {
         final long id;
         final long epoch;
         final RealtimeStaticShadowOutput output;
-
         StaticResult(long id, long epoch, RealtimeStaticShadowOutput output) {
             this.id = id;
             this.epoch = epoch;
             this.output = output;
         }
     }
+
+
+
+
+
+
 
     static final class StaticHotPatchRequest {
         final long id;
@@ -1469,7 +1591,6 @@ final class NeoShadowsTypes {
         final ClientLevel level;
         final LongOpenHashSet changedBlocks;
         final int localRadius;
-
         StaticHotPatchRequest(long id, long epoch, long baseStaticResultId, ClientLevel level, LongOpenHashSet changedBlocks, int localRadius) {
             this.id = id;
             this.epoch = epoch;
@@ -1480,12 +1601,15 @@ final class NeoShadowsTypes {
         }
     }
 
+
+
+
+
     static final class StaticHotPatchResult {
         final long id;
         final long epoch;
         final long baseStaticResultId;
         final StaticHotPatchOutput output;
-
         StaticHotPatchResult(long id, long epoch, long baseStaticResultId, StaticHotPatchOutput output) {
             this.id = id;
             this.epoch = epoch;
@@ -1494,6 +1618,12 @@ final class NeoShadowsTypes {
         }
     }
 
+
+
+
+
+
+
     static final class DynamicCaptureRequest {
         final long id;
         final long epoch;
@@ -1501,7 +1631,6 @@ final class NeoShadowsTypes {
         final BlockPos center;
         final float partialTick;
         final long fingerprint;
-
         DynamicCaptureRequest(long id, long epoch, ClientLevel level, BlockPos center, float partialTick, long fingerprint) {
             this.id = id;
             this.epoch = epoch;
@@ -1512,6 +1641,13 @@ final class NeoShadowsTypes {
         }
     }
 
+
+
+
+
+
+
+
     static final class DynamicRequest {
         final long id;
         final long epoch;
@@ -1520,7 +1656,6 @@ final class NeoShadowsTypes {
         final BlockPos center;
         final RealtimeStaticShadowOutput staticOutput;
         final DynamicShadowMeshCapture.Snapshot dynamicSnapshot;
-
         DynamicRequest(long id, long epoch, long staticResultId, ClientLevel level, BlockPos center, RealtimeStaticShadowOutput staticOutput, DynamicShadowMeshCapture.Snapshot dynamicSnapshot) {
             this.id = id;
             this.epoch = epoch;
@@ -1532,13 +1667,17 @@ final class NeoShadowsTypes {
         }
     }
 
+
+
+
+
+
     static final class DynamicResult {
         final long id;
         final long epoch;
         final long staticResultId;
         final BlockPos center;
         final List<ShadowPolygon> polygons;
-
         DynamicResult(long id, long epoch, long staticResultId, BlockPos center, List<ShadowPolygon> polygons) {
             this.id = id;
             this.epoch = epoch;

@@ -1,34 +1,21 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  net.minecraft.util.Mth
- *  net.minecraft.world.phys.Vec3
- */
-package com.vinlanx.luxium.Testing.ExplosionTesting;
-
-import com.vinlanx.luxium.Testing.ExplosionTesting.ExplosionCollisionCache;
-import com.vinlanx.luxium.Testing.ExplosionTesting.ExplosionFluidGrid;
-import com.vinlanx.luxium.Testing.ExplosionTesting.ExplosionProfile;
-import com.vinlanx.luxium.Testing.ExplosionTesting.ExplosionRenderSnapshot;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Random;
-import net.minecraft.util.Mth;
-import net.minecraft.world.phys.Vec3;
-
-final class ExplosionParticleSystem {
-    static final int MAX_PARTICLES = 70000;
+package com.vinlanx.luxium.Testing.ExplosionTesting; import com.vinlanx.luxium.Testing.ExplosionTesting.ExplosionCollisionCache; import com.vinlanx.luxium.Testing.ExplosionTesting.ExplosionFluidGrid; import com.vinlanx.luxium.Testing.ExplosionTesting.ExplosionProfile; import com.vinlanx.luxium.Testing.ExplosionTesting.ExplosionRenderSnapshot; import java.util.ArrayList; import java.util.Iterator; import java.util.Random; import net.minecraft.util.Mth; import net.minecraft.world.phys.Vec3; final class ExplosionParticleSystem { static final int MAX_PARTICLES = 70000;
     static final byte FIRE = 0;
     static final byte SMOKE = 1;
     static final byte SPARK = 2;
     static final byte DUST = 3;
     private static final float AMBIENT_K = 293.15f;
-    private final Random random = new Random(7L);
-    private final ArrayList<Particle> particles = new ArrayList(70000);
-
+    private final Random random;
+    private final ArrayList<Particle> particles;
     ExplosionParticleSystem() {
-    }
+
+
+
+
+
+
+
+        this.random = new Random(7L);
+        this.particles = new ArrayList(70000); }
 
     void clear() {
         this.particles.clear();
@@ -40,11 +27,7 @@ final class ExplosionParticleSystem {
 
     void writeSnapshot(ExplosionRenderSnapshot snapshot) {
         int smoke = 0;
-        for (Particle particle : this.particles) {
-            if (!particle.emissive()) {
-                ++smoke;
-            }
-        }
+        for (Particle particle : this.particles) { if (!particle.emissive()) {++smoke; } }
         int smokeIndex = 0;
         int hotIndex = smoke;
         for (Particle particle : this.particles) {
@@ -65,21 +48,19 @@ final class ExplosionParticleSystem {
 
     void trigger(Vec3 center, ExplosionProfile profile, boolean nearGround) {
         int requested = (int)(12400.0f * profile.particleMultiplier());
-        if (70000 - this.particles.size() < Math.max(2000, requested)) {
-            this.compact(true);
-        }
+        if (70000 - this.particles.size() < Math.max(2000, requested)) { this.compact(true); }
         int available = 70000 - this.particles.size();
-        if (available <= 0) {
-            return;
+        if (available <= 0) { return;
         }
         double multiplier = profile.particleMultiplier();
-        double[] target = new double[]{4300.0 * multiplier, 5900.0 * multiplier, 720.0 * Math.pow(multiplier, 0.84), nearGround ? 1450.0 * multiplier * (double)profile.dustMultiplier() : 0.0};
+        double[] target = new double[]{4300.0 * multiplier, 5900.0 * multiplier, 720.0 * Math.pow
+
+
+                (multiplier, 0.84),
+                nearGround ? 1450.0 * multiplier * (double)profile.dustMultiplier() : 0.0};
+
         double total = target[0] + target[1] + target[2] + target[3];
-        if (total > (double)available) {
-            for (int i = 0; i < target.length; ++i) {
-                target[i] *= (double)available / total;
-            }
-        }
+        if (total > (double)available) { for (int i = 0; i < target.length; ++i) { target[i] *= (double)available / total; } }
         this.spawnKind(center, profile, (byte)0, (int)target[0], nearGround);
         this.spawnKind(center, profile, (byte)1, (int)target[1], nearGround);
         this.spawnKind(center, profile, (byte)2, (int)target[2], nearGround);
@@ -97,7 +78,8 @@ final class ExplosionParticleSystem {
             Vec3 velocity = direction.m_82490_(speed).m_82520_(0.0, (double)this.randomRange(0.2f, 1.1f) * Math.pow(profile.scale(), 0.14), 0.0);
             float temp = (kind == 0 ? this.randomRange(1900.0f, 4300.0f) : this.randomRange(700.0f, 1900.0f)) * profile.heatMultiplier();
             float life = (kind == 0 ? this.randomRange(0.8f, 1.8f) : this.randomRange(3.6f, 7.0f)) * profile.durationScale();
-            this.add(position, velocity, temp, this.randomRange(0.38f, 1.05f), life, this.randomRange(0.3f, 0.9f) * profile.particleSizeScale(), kind);
+            this.add(position, velocity, temp, this.randomRange(0.38f, 1.05f), life, this.randomRange
+                    (0.3f, 0.9f) * profile.particleSizeScale(), kind);
         }
     }
 
@@ -142,13 +124,9 @@ final class ExplosionParticleSystem {
                 size = this.randomRange(0.36f, 1.02f) * profile.particleSizeScale();
             }
             Vec3 position = center.m_82549_(direction.m_82490_((double)radius));
-            if (kind == 3) {
-                position = new Vec3(position.f_82479_, Math.max(position.f_82480_, center.f_82480_ + 0.02), position.f_82481_);
-            }
+            if (kind == 3) { position = new Vec3(position.f_82479_, Math.max(position.f_82480_, center.f_82480_ + 0.02), position.f_82481_); }
             Vec3 velocity = direction.m_82490_((double)speed);
-            if (kind == 0 || kind == 1) {
-                velocity = velocity.m_82520_(0.0, (double)this.randomRange(0.25f, 1.8f) * Math.pow(profile.scale(), 0.17), 0.0);
-            }
+            if (kind == 0 || kind == 1) { velocity = velocity.m_82520_(0.0, (double)this.randomRange(0.25f, 1.8f) * Math.pow(profile.scale(), 0.17), 0.0); }
             this.add(position, velocity, temperature, density, life, size, kind);
         }
     }
@@ -163,6 +141,7 @@ final class ExplosionParticleSystem {
             p.vx += (gridVelocity.f_82479_ - (double)p.vx) * (double)blend;
             p.vy += (gridVelocity.f_82480_ - (double)p.vy) * (double)blend;
             p.vz += (gridVelocity.f_82481_ - (double)p.vz) * (double)blend;
+
             float qx = p.x * 0.72f + p.seed * 0.017f;
             float qy = p.y * 0.93f + p.seed * 0.011f;
             float qz = p.z * 0.72f + p.seed * 0.019f;
@@ -173,6 +152,7 @@ final class ExplosionParticleSystem {
             p.vx += curlX * dt * turbulenceWeight;
             p.vy += curlY * dt * turbulenceWeight;
             p.vz += curlZ * dt * turbulenceWeight;
+
             float hotness = Mth.m_14036_((float)((p.temperature - 293.15f) / 2600.0f), (float)0.0f, (float)2.0f);
             p.vy += (hotness * 4.1f - p.density * (p.kind == 3 ? 0.72f : 0.16f)) * dt;
             p.vy -= (p.kind == 2 ? 9.81f : (p.kind == 3 ? 2.2f : 0.08f)) * dt;
@@ -188,9 +168,7 @@ final class ExplosionParticleSystem {
             }
             float drag = p.kind == 2 ? 0.22f : (p.kind == 3 ? 0.55f : 0.34f);
             float dragFactor = (float)Math.exp(-drag * dt);
-            p.vx *= dragFactor;
-            p.vy *= dragFactor;
-            p.vz *= dragFactor;
+            p.vx *= dragFactor; p.vy *= dragFactor; p.vz *= dragFactor;
             ExplosionParticleSystem.moveWithCollision(p, dt, collision);
             this.updateVisuals(p, hotness);
         }
@@ -198,27 +176,16 @@ final class ExplosionParticleSystem {
     }
 
     private static void moveWithCollision(Particle p, float dt, ExplosionCollisionCache collision) {
-        float oldX = p.x;
-        float oldY = p.y;
-        float oldZ = p.z;
+        float oldX = p.x; float oldY = p.y; float oldZ = p.z;
         float nextX = oldX + p.vx * dt;
-        if (!collision.isSolid(nextX, oldY, oldZ)) {
-            p.x = nextX;
-        } else {
-            p.vx *= -0.16f;
-        }
+        if (!collision.isSolid(nextX, oldY, oldZ)) { p.x = nextX; } else {
+            p.vx *= -0.16f; }
         float nextY = oldY + p.vy * dt;
-        if (!collision.isSolid(p.x, nextY, oldZ)) {
-            p.y = nextY;
-        } else {
-            p.vy *= p.kind == 2 ? -0.42f : -0.08f;
-        }
+        if (!collision.isSolid(p.x, nextY, oldZ)) { p.y = nextY; } else {
+            p.vy *= p.kind == 2 ? -0.42f : -0.08f; }
         float nextZ = oldZ + p.vz * dt;
-        if (!collision.isSolid(p.x, p.y, nextZ)) {
-            p.z = nextZ;
-        } else {
-            p.vz *= -0.16f;
-        }
+        if (!collision.isSolid(p.x, p.y, nextZ)) { p.z = nextZ; } else {
+            p.vz *= -0.16f; }
     }
 
     private void updateVisuals(Particle p, float hotness) {
@@ -247,41 +214,24 @@ final class ExplosionParticleSystem {
         while (it.hasNext()) {
             Particle p = it.next();
             boolean alive = p.age < p.life && p.alpha > 0.003f && (double)p.y > -64.0;
-            if (forceDrop && (double)this.particles.size() > 50400.0 && p.kind != 0 && p.kind != 2 && p.age >= p.life * 0.72f) {
-                alive = false;
-            }
-            if (!alive) {
-                it.remove();
-            }
+            if (forceDrop && (double)this.particles.size() > 50400.0 && p.kind != 0 && p.kind != 2 && p.age >= p.life * 0.72f) { alive = false; }
+            if (!alive) { it.remove(); }
         }
     }
 
     private void add(Vec3 position, Vec3 velocity, float temperature, float density, float life, float size, byte kind) {
         Particle p = new Particle();
-        p.x = (float)position.f_82479_;
-        p.y = (float)position.f_82480_;
-        p.z = (float)position.f_82481_;
-        p.vx = (float)velocity.f_82479_;
-        p.vy = (float)velocity.f_82480_;
-        p.vz = (float)velocity.f_82481_;
-        p.temperature = temperature;
-        p.density = density;
-        p.life = life;
-        p.baseSize = size;
-        p.size = size;
-        p.kind = kind;
-        p.seed = this.random.nextFloat() * 100.0f;
+        p.x = (float)position.f_82479_; p.y = (float)position.f_82480_; p.z = (float)position.f_82481_;
+        p.vx = (float)velocity.f_82479_; p.vy = (float)velocity.f_82480_; p.vz = (float)velocity.f_82481_;
+        p.temperature = temperature; p.density = density; p.life = life;
+        p.baseSize = size; p.size = size; p.kind = kind; p.seed = this.random.nextFloat() * 100.0f;
         p.alpha = 1.0f;
         this.particles.add(p);
     }
 
     private Vec3 randomDirection(boolean upward) {
-        double x = this.random.nextGaussian();
-        double y = this.random.nextGaussian();
-        double z = this.random.nextGaussian();
-        if (upward) {
-            y = Math.abs(y) * 0.82 + 0.08;
-        }
+        double x = this.random.nextGaussian(); double y = this.random.nextGaussian(); double z = this.random.nextGaussian();
+        if (upward) { y = Math.abs(y) * 0.82 + 0.08; }
         return new Vec3(x, y, z).m_82541_();
     }
 
@@ -300,43 +250,20 @@ final class ExplosionParticleSystem {
         float r = t <= 66.0f ? 255.0f : 329.69873f * (float)Math.pow(safeHot, -0.1332047592);
         float g = t <= 66.0f ? 99.4708f * (float)Math.log(Math.max(t, 1.0E-4f)) - 161.11957f : 288.12216f * (float)Math.pow(safeHot, -0.0755148492);
         float b = t >= 66.0f ? 255.0f : (t <= 19.0f ? 0.0f : 138.51773f * (float)Math.log(Math.max(t - 10.0f, 1.0E-4f)) - 305.0448f);
-        return new float[]{Mth.m_14036_((float)(r / 255.0f), (float)0.0f, (float)1.0f), Mth.m_14036_((float)(g / 255.0f), (float)0.0f, (float)1.0f), Mth.m_14036_((float)(b / 255.0f), (float)0.0f, (float)1.0f)};
-    }
-
-    static final class Particle {
-        float x;
-        float y;
-        float z;
-        float vx;
-        float vy;
-        float vz;
-        float temperature;
-        float density;
-        float age;
-        float life;
-        float baseSize;
-        float size;
-        float seed;
-        float r;
-        float g;
-        float b;
-        float alpha;
+        return new float[]{Mth.m_14036_((float)(r / 255.0f), (float)0.0f, (float)1.0f), Mth.m_14036_((float)(g / 255.0f), (float)0.0f, (float)1.0f), Mth.m_14036_((float)(b / 255.0f), (float)0.0f, (float)1.0f)}; } static final class Particle { float x; float y; float z; float vx; float vy; float vz; float temperature; float density; float age; float life; float baseSize; float size; float seed; float r; float g; float b; float alpha;
         int frame;
         byte kind;
+        Particle() { }
 
-        Particle() {
-        }
+
+
+
 
         boolean emissive() {
-            return this.kind == 0 || this.kind == 2 || this.temperature > 1450.0f;
-        }
-
+            return this.kind == 0 || this.kind == 2 || this.temperature > 1450.0f; }
         double distanceToSqr(Vec3 camera) {
-            double dx = (double)this.x - camera.f_82479_;
-            double dy = (double)this.y - camera.f_82480_;
-            double dz = (double)this.z - camera.f_82481_;
+            double dx = (double)this.x - camera.f_82479_; double dy = (double)this.y - camera.f_82480_; double dz = (double)this.z - camera.f_82481_;
             return dx * dx + dy * dy + dz * dz;
         }
     }
 }
-

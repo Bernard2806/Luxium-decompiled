@@ -1,43 +1,32 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.platform.TextureUtil
- *  com.mojang.blaze3d.systems.RenderSystem
- *  org.joml.Matrix4f
- *  org.joml.Matrix4fc
- *  org.joml.Vector4f
- *  org.lwjgl.BufferUtils
- *  org.lwjgl.opengl.GL11
- */
-package com.vinlanx.luxium.client.shadows;
-
-import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fc;
-import org.joml.Vector4f;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-
+package com.vinlanx.luxium.client.shadows; import com.mojang.blaze3d.platform.TextureUtil; import com.mojang.blaze3d.systems.RenderSystem; import java.nio.ByteBuffer; import java.util.Arrays; import org.joml.Matrix4f; import org.joml.Matrix4fc; import org.joml.Vector4f; import org.lwjgl.BufferUtils; import org.lwjgl.opengl.GL11;
 final class GpuShadowLightGrid {
     static final int TILE_SIZE = 16;
     private static final int LIGHTS_PER_TEXEL = 4;
     private static final int TEXELS_PER_TILE = 8;
     private static final int UPLOAD_GUARD_BYTES = 128;
-    private int textureId = -1;
+    private int textureId;
     private int textureWidth;
     private int textureHeight;
     private ByteBuffer pixels;
-    private int[] tileCounts = new int[0];
-    private final Matrix4f viewProjection = new Matrix4f();
-    private final Vector4f viewPosition = new Vector4f();
-    private final Vector4f clipPosition = new Vector4f();
-
+    private int[] tileCounts;
+    private final Matrix4f viewProjection;
+    private final Vector4f viewPosition;
+    private final Vector4f clipPosition;
     GpuShadowLightGrid() {
-    }
+
+
+
+
+
+
+        this.textureId = -1;
+
+
+
+        this.tileCounts = new int[0];
+        this.viewProjection = new Matrix4f();
+        this.viewPosition = new Vector4f();
+        this.clipPosition = new Vector4f(); }
 
     int getTextureId() {
         return this.textureId;
@@ -54,24 +43,29 @@ final class GpuShadowLightGrid {
         this.tileCounts = new int[0];
     }
 
+
+
+
+
+
     void update(int screenWidth, int screenHeight, int lightCount, float[] lights, Matrix4f projection, Matrix4f view) {
         int tilesX = (screenWidth + 16 - 1) / 16;
         int tilesY = (screenHeight + 16 - 1) / 16;
         this.ensureTexture(tilesX * 8, tilesY);
+
         int byteCount = this.textureWidth * this.textureHeight * 4;
         if (this.pixels == null || this.pixels.capacity() < byteCount + 128) {
             this.pixels = BufferUtils.createByteBuffer((int)(byteCount + 128));
         }
         this.pixels.clear();
-        for (int i = 0; i < byteCount; ++i) {
-            this.pixels.put((byte)0);
+        for (int i = 0; i < byteCount; ++i) { this.pixels.put((byte)0);
         }
         projection.mul((Matrix4fc)view, this.viewProjection);
+
         int tileCount = tilesX * tilesY;
-        if (this.tileCounts.length < tileCount) {
-            this.tileCounts = new int[tileCount];
-        }
+        if (this.tileCounts.length < tileCount) { this.tileCounts = new int[tileCount]; }
         Arrays.fill(this.tileCounts, 0, tileCount, 0);
+
         for (int light = 0; light < lightCount; ++light) {
             int base = light * 4;
             double dx = lights[base];
@@ -80,16 +74,20 @@ final class GpuShadowLightGrid {
             float radius = lights[base + 3];
             this.viewPosition.set((float)dx, (float)dy, (float)dz, 1.0f).mul((Matrix4fc)view);
             float viewDepth = -this.viewPosition.z;
+
             if (viewDepth <= -radius) continue;
+
             int minTileX = 0;
             int maxTileX = tilesX - 1;
             int minTileY = 0;
             int maxTileY = tilesY - 1;
+
             if (viewDepth > radius + 0.1f) {
                 float minNdcX = Float.POSITIVE_INFINITY;
                 float maxNdcX = Float.NEGATIVE_INFINITY;
                 float minNdcY = Float.POSITIVE_INFINITY;
                 float maxNdcY = Float.NEGATIVE_INFINITY;
+
                 for (int corner = 0; corner < 8; ++corner) {
                     double wx = dx + (double)((corner & 1) == 0 ? -radius : radius);
                     double wy = dy + (double)((corner & 2) == 0 ? -radius : radius);
@@ -102,13 +100,16 @@ final class GpuShadowLightGrid {
                     minNdcY = Math.min(minNdcY, this.clipPosition.y * invW);
                     maxNdcY = Math.max(maxNdcY, this.clipPosition.y * invW);
                 }
+
                 if (!Float.isFinite(minNdcX)) continue;
                 if (maxNdcX < -1.0f || minNdcX > 1.0f || maxNdcY < -1.0f || minNdcY > 1.0f) continue;
+
                 minTileX = GpuShadowLightGrid.clampTile((int)Math.floor((minNdcX * 0.5f + 0.5f) * (float)screenWidth / 16.0f) - 1, tilesX);
                 maxTileX = GpuShadowLightGrid.clampTile((int)Math.floor((maxNdcX * 0.5f + 0.5f) * (float)screenWidth / 16.0f) + 1, tilesX);
                 minTileY = GpuShadowLightGrid.clampTile((int)Math.floor((minNdcY * 0.5f + 0.5f) * (float)screenHeight / 16.0f) - 1, tilesY);
                 maxTileY = GpuShadowLightGrid.clampTile((int)Math.floor((maxNdcY * 0.5f + 0.5f) * (float)screenHeight / 16.0f) + 1, tilesY);
             }
+
             for (int tileY = minTileY; tileY <= maxTileY; ++tileY) {
                 for (int tileX = minTileX; tileX <= maxTileX; ++tileX) {
                     int tile = tileY * tilesX + tileX;
@@ -121,6 +122,7 @@ final class GpuShadowLightGrid {
                 }
             }
         }
+
         this.pixels.position(0).limit(byteCount);
         RenderSystem.activeTexture((int)33984);
         GL11.glBindTexture((int)3553, (int)this.textureId);
@@ -132,11 +134,8 @@ final class GpuShadowLightGrid {
     }
 
     private void ensureTexture(int width, int height) {
-        if (this.textureId == -1) {
-            this.textureId = TextureUtil.generateTextureId();
-        }
-        if (this.textureWidth == width && this.textureHeight == height) {
-            return;
+        if (this.textureId == -1) { this.textureId = TextureUtil.generateTextureId(); }
+        if (this.textureWidth == width && this.textureHeight == height) { return;
         }
         this.textureWidth = width;
         this.textureHeight = height;

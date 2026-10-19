@@ -1,58 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  com.mojang.blaze3d.pipeline.RenderTarget
- *  com.mojang.blaze3d.pipeline.TextureTarget
- *  com.mojang.blaze3d.platform.GlStateManager
- *  com.mojang.blaze3d.platform.TextureUtil
- *  com.mojang.blaze3d.systems.RenderSystem
- *  com.mojang.blaze3d.vertex.BufferBuilder
- *  com.mojang.blaze3d.vertex.BufferBuilder$RenderedBuffer
- *  com.mojang.blaze3d.vertex.BufferUploader
- *  com.mojang.blaze3d.vertex.DefaultVertexFormat
- *  com.mojang.blaze3d.vertex.PoseStack
- *  com.mojang.blaze3d.vertex.Tesselator
- *  com.mojang.blaze3d.vertex.VertexFormat$Mode
- *  com.mojang.blaze3d.vertex.VertexSorting
- *  com.mojang.math.Axis
- *  it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
- *  it.unimi.dsi.fastutil.longs.LongCollection
- *  it.unimi.dsi.fastutil.longs.LongIterator
- *  it.unimi.dsi.fastutil.longs.LongOpenHashSet
- *  net.minecraft.client.Camera
- *  net.minecraft.client.Minecraft
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.client.renderer.GameRenderer
- *  net.minecraft.client.renderer.LevelRenderer
- *  net.minecraft.client.renderer.LightTexture
- *  net.minecraft.client.renderer.ShaderInstance
- *  net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher
- *  net.minecraft.client.renderer.blockentity.BlockEntityRenderer
- *  net.minecraft.core.BlockPos
- *  net.minecraft.core.Vec3i
- *  net.minecraft.world.entity.Entity
- *  net.minecraft.world.level.BlockGetter
- *  net.minecraft.world.level.block.entity.BlockEntity
- *  net.minecraft.world.level.chunk.LevelChunk
- *  net.minecraft.world.phys.AABB
- *  net.minecraft.world.phys.Vec3
- *  org.jetbrains.annotations.Nullable
- *  org.joml.Matrix4f
- *  org.joml.Matrix4fc
- *  org.lwjgl.opengl.GL11
- *  org.lwjgl.opengl.GL30
- */
-package com.vinlanx.luxium.client.shadows;
-
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+package com.vinlanx.luxium.client.shadows; import com.mojang.blaze3d.pipeline.RenderTarget; import com.mojang.blaze3d.pipeline.TextureTarget; import com.mojang.blaze3d.platform.GlStateManager; import com.mojang.blaze3d.platform.TextureUtil; import com.mojang.blaze3d.systems.RenderSystem; import com.mojang.blaze3d.vertex.BufferBuilder; import com.mojang.blaze3d.vertex.BufferUploader; import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -97,7 +43,6 @@ import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
-
 public final class GpuShadowCache {
     private static final int DEFAULT_TILE_SIZE = 256;
     private static final int FACE_COUNT = 6;
@@ -108,8 +53,11 @@ public final class GpuShadowCache {
     private static final double DYNAMIC_CASTER_SCAN_RADIUS_PADDING = 6.0;
     private static final float SHADOW_NEAR_PLANE = 0.55f;
     private static final float SHADOW_FACE_FOV = (float)Math.toRadians(92.0);
+
     private static final GpuShadowCache INSTANCE = new GpuShadowCache();
+
     private final EmbeddiumLocalShadowBridge embeddiumLocalShadowBridge = new EmbeddiumLocalShadowBridge();
+
     private final Long2ObjectOpenHashMap<Entry> entries = new Long2ObjectOpenHashMap();
     private final LongOpenHashSet removedSources = new LongOpenHashSet();
     private final LongOpenHashSet pendingRenderedSections = new LongOpenHashSet();
@@ -122,19 +70,18 @@ public final class GpuShadowCache {
     private int tileGrid = 16;
     private int maxTiles = this.tileGrid * this.tileGrid;
     private int[] freeTiles = new int[this.maxTiles];
+
     private int freeTileCount;
     private long visibilityFrame;
     private long revision;
     private int atlasTextureId = -1;
     private int fboId = -1;
     private RenderTarget shadowTileTarget;
-    private final Camera shadowCamera = new Camera();
-    @Nullable
+    private final Camera shadowCamera = new Camera(); @Nullable
     private ClientLevel trackedDynamicLevel;
     @Nullable
     private BlockPos trackedDynamicCenter;
     private long lastDynamicScanMs;
-
     private GpuShadowCache() {
         this.resetFreeTiles();
     }
@@ -186,9 +133,7 @@ public final class GpuShadowCache {
     }
 
     public void onSourceRemoved(long sourceKey) {
-        if (!GpuShadowCache.captureConsumerActive()) {
-            return;
-        }
+        if (!GpuShadowCache.captureConsumerActive()) { return; }
         this.removedSources.add(sourceKey);
     }
 
@@ -200,16 +145,12 @@ public final class GpuShadowCache {
     }
 
     public void onSourcesRemoved(LongOpenHashSet sourceKeys) {
-        if (!GpuShadowCache.captureConsumerActive() || sourceKeys == null || sourceKeys.isEmpty()) {
-            return;
-        }
+        if (!GpuShadowCache.captureConsumerActive() || sourceKeys == null || sourceKeys.isEmpty()) { return; }
         this.removedSources.addAll((LongCollection)sourceKeys);
     }
 
     public void onGeometryChanged(BlockPos pos) {
-        if (!GpuShadowCache.captureConsumerActive() || pos == null || this.entries.isEmpty()) {
-            return;
-        }
+        if (!GpuShadowCache.captureConsumerActive() || pos == null || this.entries.isEmpty()) { return; }
         double px = (double)pos.m_123341_() + 0.5;
         double py = (double)pos.m_123342_() + 0.5;
         double pz = (double)pos.m_123343_() + 0.5;
@@ -224,15 +165,11 @@ public final class GpuShadowCache {
                 changed = true;
             }
         }
-        if (changed) {
-            ++this.revision;
-        }
+        if (changed) {++this.revision; }
     }
 
     public void expectRenderedSectionChange(BlockPos pos) {
-        if (!NeoGpuVanilla.isConfiguredEnabled() || pos == null) {
-            return;
-        }
+        if (!NeoGpuVanilla.isConfiguredEnabled() || pos == null) { return; }
         int originX = pos.m_123341_() >> 4 << 4;
         int originY = pos.m_123342_() >> 4 << 4;
         int originZ = pos.m_123343_() >> 4 << 4;
@@ -240,28 +177,24 @@ public final class GpuShadowCache {
         if (this.expectedRenderedSections.add(BlockPos.m_121882_((int)originX, (int)originY, (int)originZ)) && wasEmpty) {
             this.expectedRenderedSectionWaitFrames = 0;
         }
+
         AABB editedBlock = new AABB(pos);
         this.markUrgentStaticEntriesAffectedByBounds(editedBlock);
     }
 
     public boolean onRenderedSectionChanged(int originX, int originY, int originZ) {
-        if (!GpuShadowCache.captureConsumerActive()) {
-            return false;
+        if (!GpuShadowCache.captureConsumerActive()) { return false;
         }
         long sectionKey = BlockPos.m_121882_((int)originX, (int)originY, (int)originZ);
-        if (!this.expectedRenderedSections.remove(sectionKey)) {
-            return false;
+
+        if (!this.expectedRenderedSections.remove(sectionKey)) { return false; }
+        if (this.expectedRenderedSections.isEmpty()) { this.expectedRenderedSectionWaitFrames = 0;
         }
-        if (this.expectedRenderedSections.isEmpty()) {
-            this.expectedRenderedSectionWaitFrames = 0;
-        }
-        if (this.entries.isEmpty()) {
-            return false;
+        if (this.entries.isEmpty()) { return false;
         }
         boolean wasEmpty = this.pendingRenderedSections.isEmpty();
         boolean added = this.pendingRenderedSections.add(sectionKey);
-        if (wasEmpty && added) {
-            this.renderedSectionDeferralFrames = 0;
+        if (wasEmpty && added) { this.renderedSectionDeferralFrames = 0;
         }
         this.renderedSectionQuietFrames = 0;
         return added;
@@ -272,13 +205,13 @@ public final class GpuShadowCache {
     }
 
     public void refreshDynamicCasters(ClientLevel level, BlockPos center, Vec3 cameraPos) {
-        if (level == null || center == null || cameraPos == null) {
-            return;
-        }
-        if (!Config.isFeatureEnabled(Config.CLIENT.gpuShadowsEnabled) || !GpuNeoShadows.entityShadowCastersEnabled() || Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) || !GpuNeoShadows.usesCubemapShadows()) {
+        if (level == null || center == null || cameraPos == null) { return; }
+        if (!Config.isFeatureEnabled(Config.CLIENT.gpuShadowsEnabled) || !GpuNeoShadows.entityShadowCastersEnabled() || Config.isFeatureEnabled
+                (Config.CLIENT.neoCpuShadowsEnabled) || !GpuNeoShadows.usesCubemapShadows()) {
             this.clearDynamicTracking(level != this.trackedDynamicLevel || this.trackedDynamicCenter != null);
             return;
         }
+
         long nowMs = System.currentTimeMillis();
         long intervalMs = this.getDynamicUpdateIntervalMs();
         boolean levelChanged = this.trackedDynamicLevel != level;
@@ -286,11 +219,13 @@ public final class GpuShadowCache {
         if (!levelChanged && !centerChanged && nowMs - this.lastDynamicScanMs < intervalMs) {
             return;
         }
+
         double scanRadius = GpuNeoShadows.getLightSearchRadius() + LightRtMath.getEntityShadowRadius(15) + 6.0;
         double scanRadiusSq = scanRadius * scanRadius;
         Long2ObjectOpenHashMap<AABB> nextCasters = new Long2ObjectOpenHashMap<>();
         this.scanDynamicCasters(level, center, cameraPos, scanRadiusSq, (Long2ObjectOpenHashMap<AABB>)nextCasters);
         this.lastDynamicScanMs = nowMs;
+
         if (levelChanged) {
             for (Entry entry : this.entries.values()) {
                 GpuShadowCache.markAllFacesDirty(entry, false);
@@ -298,9 +233,11 @@ public final class GpuShadowCache {
         } else {
             this.markDynamicCasterDiff((Long2ObjectOpenHashMap<AABB>)nextCasters);
         }
+
         for (AABB bounds : nextCasters.values()) {
             this.markEntriesAffectedByCasterBounds(bounds);
         }
+
         this.trackedDynamicCasters.clear();
         this.trackedDynamicCasters.putAll((Map)nextCasters);
         this.trackedDynamicLevel = level;
@@ -308,37 +245,31 @@ public final class GpuShadowCache {
     }
 
     public void stageVisibleEntries(ClientLevel level, long[] sourceKeys, int[] emissions, int limit) {
-        if (sourceKeys == null || emissions == null || limit <= 0) {
-            return;
+        if (sourceKeys == null || emissions == null || limit <= 0) { return;
         }
         int max = Math.min(limit, Math.min(sourceKeys.length, emissions.length));
-        if (max <= 0) {
-            return;
-        }
+        if (max <= 0) { return; }
         this.ensureAtlasAndTargets();
         this.flushRemovedSources();
+
         long frame = ++this.visibilityFrame;
         if (NeoGpuVanilla.isConfiguredEnabled()) {
-            for (Entry existing : this.entries.values()) {
-                existing.stagedPriority = Integer.MAX_VALUE;
-            }
+            for (Entry existing : this.entries.values()) { existing.stagedPriority = Integer.MAX_VALUE; }
         }
         LongOpenHashSet visibleKeys = new LongOpenHashSet(max);
         for (int i = 0; i < max; ++i) {
-            if (emissions[i] > 0) {
-                visibleKeys.add(sourceKeys[i]);
-            }
+            if (emissions[i] > 0) { visibleKeys.add(sourceKeys[i]); }
         }
         for (int i = 0; i < max; ++i) {
             long sourceKey = sourceKeys[i];
             int emission = emissions[i];
             if (emission <= 0) continue;
-            GpuLocalLightResolver.SourceGeometry geometry = GpuLocalLightResolver.resolveGeometry(level, sourceKey);
+
+            GpuLocalLightResolver.SourceGeometry geometry = GpuLocalLightResolver.resolveGeometry
+                    (level, sourceKey);
             Entry entry = (Entry)this.entries.get(sourceKey);
             if (entry == null) {
-                if (this.freeTileCount < 6) {
-                    this.evictLeastRecentlyVisible(visibleKeys);
-                }
+                if (this.freeTileCount < 6) { this.evictLeastRecentlyVisible(visibleKeys); }
                 entry = this.createEntry(geometry, emission);
                 if (entry == null) continue;
                 this.entries.put(sourceKey, (Object)entry);
@@ -353,12 +284,15 @@ public final class GpuShadowCache {
                     GpuShadowCache.markAllFacesDirty(entry, true);
                 }
             }
+
             entry.lastVisibleFrame = frame;
             entry.stagedPriority = i;
             ++entry.framesAlive;
             if (!NeoGpuVanilla.isConfiguredEnabled() && !GpuNeoShadows.isHardShadowBakeEnabled()) {
                 if (entry.refreshCount < 8) {
                     if (entry.framesAlive == 10 || entry.framesAlive == 30 || entry.framesAlive == 60 || entry.framesAlive == 120 || entry.framesAlive == 240 || entry.framesAlive == 480 || entry.framesAlive == 900) {
+
+
                         GpuShadowCache.markAllFacesDirty(entry, true);
                         ++entry.refreshCount;
                     }
@@ -369,31 +303,42 @@ public final class GpuShadowCache {
         }
     }
 
+
+
+
     public int collectVisibleEntries(long[] sourceKeys, int[] emissions, int limit, double cameraX, double cameraY, double cameraZ, float[] lightPosRadiusOut, float[] atlasRectOut, long[] visibleSourceKeysOut, int[] visibleEmissionsOut) {
         return this.collectVisibleEntries(sourceKeys, emissions, limit, cameraX, cameraY, cameraZ, lightPosRadiusOut, atlasRectOut, visibleSourceKeysOut, visibleEmissionsOut, null);
     }
 
+
+
+
+
+
+
     public int collectVisibleEntries(long[] sourceKeys, int[] emissions, int limit, double cameraX, double cameraY, double cameraZ, float[] lightPosRadiusOut, float[] atlasRectOut, long[] visibleSourceKeysOut, int[] visibleEmissionsOut, float[] geometryOut) {
-        if (sourceKeys == null || emissions == null || limit <= 0) {
-            return 0;
-        }
+        if (sourceKeys == null || emissions == null || limit <= 0) { return 0; }
         int count = 0;
         int max = Math.min(limit, Math.min(sourceKeys.length, emissions.length));
         for (int i = 0; i < max; ++i) {
             if (emissions[i] <= 0) continue;
             Entry entry = (Entry)this.entries.get(sourceKeys[i]);
             if (entry == null || !entry.ready || GpuShadowCache.hasDirtyFaces(entry)) continue;
+
             int posBase = count * 4;
+
             lightPosRadiusOut[posBase] = (float)(entry.worldX - cameraX);
             lightPosRadiusOut[posBase + 1] = (float)(entry.worldY - cameraY);
             lightPosRadiusOut[posBase + 2] = (float)(entry.worldZ - cameraZ);
             lightPosRadiusOut[posBase + 3] = entry.radius;
+
             if (geometryOut != null && posBase + 3 < geometryOut.length) {
                 geometryOut[posBase] = (float)(entry.blockCenterX - cameraX);
                 geometryOut[posBase + 1] = (float)(entry.blockCenterY - cameraY);
                 geometryOut[posBase + 2] = (float)(entry.blockCenterZ - cameraZ);
                 geometryOut[posBase + 3] = (float)entry.blockedFaceMask + (entry.boxEmitter ? 64.0f : 0.0f);
             }
+
             int rectBase = count * 24;
             for (int face = 0; face < 6; ++face) {
                 atlasRectOut[rectBase + face * 4] = entry.u0[face];
@@ -412,36 +357,38 @@ public final class GpuShadowCache {
         return count;
     }
 
+
+
+
+
     public int collectNeoGpuVanillaEntries(long[] sourceKeys, int[] emissions, int limit, double referenceX, double referenceY, double referenceZ, float[] lightPosRadiusOut, float[] atlasRectOut, long[] visibleSourceKeysOut, int[] visibleEmissionsOut, float[] geometryOut) {
-        if (sourceKeys == null || emissions == null || limit <= 0) {
-            return 0;
-        }
+        if (sourceKeys == null || emissions == null || limit <= 0) { return 0; }
         int count = 0;
         int max = Math.min(limit, Math.min(sourceKeys.length, emissions.length));
         for (int i = 0; i < max; ++i) {
             int emission = emissions[i];
             if (emission <= 0) continue;
             Entry entry = (Entry)this.entries.get(sourceKeys[i]);
+
             if (entry == null) continue;
+
             boolean capturePending = !entry.ready || GpuShadowCache.hasDirtyFaces(entry);
             int posBase = count * 4;
             lightPosRadiusOut[posBase] = (float)(entry.worldX - referenceX);
             lightPosRadiusOut[posBase + 1] = (float)(entry.worldY - referenceY);
             lightPosRadiusOut[posBase + 2] = (float)(entry.worldZ - referenceZ);
             lightPosRadiusOut[posBase + 3] = entry.radius;
+
             if (geometryOut != null && posBase + 3 < geometryOut.length) {
                 geometryOut[posBase] = (float)(entry.blockCenterX - referenceX);
                 geometryOut[posBase + 1] = (float)(entry.blockCenterY - referenceY);
                 geometryOut[posBase + 2] = (float)(entry.blockCenterZ - referenceZ);
                 int flags = entry.blockedFaceMask & 0x3F;
-                if (entry.boxEmitter) {
-                    flags |= 0x40;
-                }
-                if (capturePending) {
-                    flags |= 0x80;
-                }
+                if (entry.boxEmitter) { flags |= 0x40; }
+                if (capturePending) { flags |= 0x80; }
                 geometryOut[posBase + 3] = flags;
             }
+
             int rectBase = count * 24;
             for (int face = 0; face < 6; ++face) {
                 atlasRectOut[rectBase + face * 4] = entry.u0[face];
@@ -461,9 +408,7 @@ public final class GpuShadowCache {
     }
 
     public long getNeoGpuVanillaContentGeneration(long[] sourceKeys, int limit) {
-        if (sourceKeys == null || limit <= 0) {
-            return 0L;
-        }
+        if (sourceKeys == null || limit <= 0) { return 0L; }
         int max = Math.min(limit, sourceKeys.length);
         long xor = 0L;
         long sum = 0L;
@@ -484,26 +429,18 @@ public final class GpuShadowCache {
     }
 
     public boolean hasPendingNeoGpuVanillaCaptures(long[] sourceKeys, int limit) {
-        if (!this.expectedRenderedSections.isEmpty() || !this.pendingRenderedSections.isEmpty()) {
-            return true;
-        }
-        if (sourceKeys == null || limit <= 0) {
-            return false;
-        }
+        if (!this.expectedRenderedSections.isEmpty() || !this.pendingRenderedSections.isEmpty()) { return true; }
+        if (sourceKeys == null || limit <= 0) { return false; }
         int max = Math.min(limit, sourceKeys.length);
         for (int i = 0; i < max; ++i) {
             Entry entry = (Entry)this.entries.get(sourceKeys[i]);
-            if (entry == null || !entry.ready || GpuShadowCache.hasDirtyFaces(entry)) {
-                return true;
-            }
+            if (entry == null || !entry.ready || GpuShadowCache.hasDirtyFaces(entry)) { return true; }
         }
         return false;
     }
 
     public int countDirtyFacesForSources(long[] sourceKeys, int limit) {
-        if (sourceKeys == null || limit <= 0) {
-            return 0;
-        }
+        if (sourceKeys == null || limit <= 0) { return 0; }
         int count = 0;
         int max = Math.min(limit, sourceKeys.length);
         for (int i = 0; i < max; ++i) {
@@ -518,9 +455,7 @@ public final class GpuShadowCache {
     }
 
     public int countPendingNeoGpuVanillaFaces(long[] sourceKeys, int limit) {
-        if (sourceKeys == null || limit <= 0) {
-            return 0;
-        }
+        if (sourceKeys == null || limit <= 0) { return 0; }
         int count = 0;
         int max = Math.min(limit, sourceKeys.length);
         for (int i = 0; i < max; ++i) {
@@ -534,49 +469,47 @@ public final class GpuShadowCache {
         return count;
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     public void buildPendingShadows(LevelRenderer levelRenderer, float partialTick, long finishNano, GameRenderer gameRenderer, LightTexture lightTexture) {
-        if (!GpuShadowCache.captureConsumerActive() || this.entries.isEmpty()) {
-            return;
+        if (!GpuShadowCache.captureConsumerActive() || this.entries.isEmpty()) { return;
         }
         this.flushExpectedRenderedSectionsIfTimedOut();
         this.flushRenderedSectionInvalidationsIfReady();
+
         boolean urgentMeshUploadPending = !this.expectedRenderedSections.isEmpty();
         boolean hasDirty = false;
-        for (Entry e : this.entries.values()) {
-            if (GpuShadowCache.hasDirtyFaces(e)) {
-                hasDirty = true;
-                break;
-            }
-        }
-        if (!hasDirty) {
-            return;
+        for (Entry e : this.entries.values()) { if (GpuShadowCache.hasDirtyFaces(e)) { hasDirty = true; break; } }
+        if (!hasDirty) { return;
         }
         Minecraft mc = Minecraft.m_91087_();
         ClientLevel level = mc.f_91073_;
-        if (level == null) {
-            return;
-        }
+        if (level == null) { return; }
         RenderTarget oldMainTarget = mc.m_91385_();
         Matrix4f oldProj = new Matrix4f((Matrix4fc)RenderSystem.getProjectionMatrix());
         VertexSorting oldSorting = RenderSystem.getVertexSorting();
+
         this.ensureAtlasAndTargets();
+
         this.shadowCamera.m_90575_((BlockGetter)level, (Entity)(mc.m_91288_() != null ? mc.m_91288_() : mc.f_91074_), true, false, partialTick);
+
         ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(this.shadowTileTarget);
         NeoGpuVanillaGpuDebug.beginCapture();
         try {
             int staticBuildsThisFrame = 0;
             int dynamicFacesThisFrame = 0;
+
             if (NeoGpuVanilla.isConfiguredEnabled()) {
+
                 int faceBudget = this.neoGpuFaceRebuildBudget();
                 while (staticBuildsThisFrame < faceBudget) {
                     Entry nearestDirty = null;
                     for (Entry entry : this.entries.values()) {
-                        if (entry.lastVisibleFrame != this.visibilityFrame || !GpuShadowCache.hasDirtyFaces(entry) || !entry.staticDirty) continue;
+                        if (entry.lastVisibleFrame != this.visibilityFrame || !GpuShadowCache.hasDirtyFaces
+                                (entry) || !entry.staticDirty) continue;
                         if (urgentMeshUploadPending && entry.urgentStaticDirty) continue;
                         if (nearestDirty == null || entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty || entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority) {
+
+
+
                             nearestDirty = entry;
                         }
                     }
@@ -584,15 +517,21 @@ public final class GpuShadowCache {
                     int face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 0x3F);
                     if (face < 0 || face >= 6) break;
                     this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
+
                     ++staticBuildsThisFrame;
                 }
             } else if (GpuNeoShadows.isHardShadowBakeEnabled()) {
+
                 int faceBudget = Math.max(1, (Integer)Config.CLIENT.gpuHardShadowCaptureBudget.get());
                 while (staticBuildsThisFrame < faceBudget) {
                     Entry nearestDirty = null;
                     for (Entry entry : this.entries.values()) {
-                        if (entry.lastVisibleFrame != this.visibilityFrame || !GpuShadowCache.hasDirtyFaces(entry) || !entry.staticDirty) continue;
+                        if (entry.lastVisibleFrame != this.visibilityFrame || !GpuShadowCache.hasDirtyFaces
+                                (entry) || !entry.staticDirty) continue;
                         if (nearestDirty == null || entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty || entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority) {
+
+
+
                             nearestDirty = entry;
                         }
                     }
@@ -600,6 +539,7 @@ public final class GpuShadowCache {
                     int face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 0x3F);
                     if (face < 0 || face >= 6) break;
                     this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
+
                     ++staticBuildsThisFrame;
                 }
             } else {
@@ -610,10 +550,12 @@ public final class GpuShadowCache {
                     ++staticBuildsThisFrame;
                 }
             }
+
             if (dynamicFacesThisFrame < 24) {
                 for (Entry entry : this.entries.values()) {
                     if (dynamicFacesThisFrame >= 24) break;
                     if (!GpuShadowCache.hasDirtyFaces(entry) || entry.staticDirty) continue;
+
                     int mask = entry.dirtyFaceMask;
                     while (mask != 0 && dynamicFacesThisFrame < 24) {
                         int face = Integer.numberOfTrailingZeros(mask);
@@ -622,8 +564,7 @@ public final class GpuShadowCache {
                         mask &= ~singleFaceMask;
                         ++dynamicFacesThisFrame;
                     }
-                }
-            }
+                } }
         }
         finally {
             NeoGpuVanillaGpuDebug.endCapture();
@@ -643,55 +584,66 @@ public final class GpuShadowCache {
         }
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     private void rebuildFaces(LevelRenderer levelRenderer, float partialTick, long finishNano, GameRenderer gameRenderer, LightTexture lightTexture, Entry entry, int faceMask) {
         int mask = faceMask & 0x3F;
-        if (mask == 0) {
-            return;
+        if (mask == 0) { return;
         }
-        boolean directEmbeddium = NeoGpuVanilla.isConfiguredEnabled() && this.embeddiumLocalShadowBridge.isAvailable();
-        EmbeddiumLocalShadowBridge.PreparedCapture directCapture = directEmbeddium ? this.embeddiumLocalShadowBridge.prepare(entry.worldX, entry.worldY, entry.worldZ, entry.radius) : null;
+        boolean directEmbeddium = NeoGpuVanilla.isConfiguredEnabled() && this.embeddiumLocalShadowBridge.isAvailable
+                ();
+        EmbeddiumLocalShadowBridge.PreparedCapture directCapture = directEmbeddium ? this.embeddiumLocalShadowBridge.prepare
+                (entry.worldX, entry.worldY, entry.worldZ, entry.radius) :
+                null;
+
         if (directEmbeddium && (directCapture == null || directCapture.lists().regionCount() == 0)) {
             return;
         }
+
         while (mask != 0) {
             int face = Integer.numberOfTrailingZeros(mask);
             int singleFaceMask = 1 << face;
+
             this.shadowTileTarget.m_83954_(Minecraft.f_91002_);
             this.shadowTileTarget.m_83947_(true);
+
             ((CameraAccessor)this.shadowCamera).luxium$setPosition(entry.worldX, entry.worldY, entry.worldZ);
             ((CameraAccessor)this.shadowCamera).luxium$setRotation(GpuShadowCache.getYawForFace(face), GpuShadowCache.getPitchForFace(face));
+
             Matrix4f proj = new Matrix4f().setPerspective(SHADOW_FACE_FOV, 1.0f, 0.55f, entry.radius);
             RenderSystem.setProjectionMatrix((Matrix4f)proj, (VertexSorting)VertexSorting.f_276450_);
             NeoShadowsEngine.beginGpuShadowAtlasCapture(entry.worldX, entry.worldY, entry.worldZ, entry.radius, face, GpuNeoShadows.entityShadowCastersEnabled() && GpuNeoShadows.isActive());
+
             try {
                 PoseStack shadowPose = new PoseStack();
                 shadowPose.m_252781_(Axis.f_252529_.m_252977_(this.shadowCamera.m_90589_()));
                 shadowPose.m_252781_(Axis.f_252436_.m_252977_(this.shadowCamera.m_90590_() + 180.0f));
                 Matrix4f lightViewRotation = new Matrix4f((Matrix4fc)shadowPose.m_85850_().m_252922_());
-                boolean renderedDirect = directEmbeddium && this.embeddiumLocalShadowBridge.renderFace(directCapture, proj, lightViewRotation);
+
+                boolean renderedDirect = directEmbeddium && this.embeddiumLocalShadowBridge.renderFace
+                        (directCapture, proj, lightViewRotation);
                 if (directEmbeddium && !renderedDirect) {
+
                     return;
                 }
                 if (!directEmbeddium) {
+
                     levelRenderer.m_109599_(shadowPose, partialTick, finishNano, false, this.shadowCamera, gameRenderer, lightTexture, proj);
                 }
+
                 if (!this.copyDepthToAtlas(entry, face, proj)) {
                     mask &= ~singleFaceMask;
-                    continue;
-                }
+                    continue; }
             }
             finally {
                 NeoShadowsEngine.endGpuShadowAtlasCapture();
             }
+
             entry.validFaceMask |= singleFaceMask;
             entry.dirtyFaceMask &= ~singleFaceMask;
             ++entry.neoGpuContentGeneration;
             NeoGpuVanillaGpuDebug.recordCapturedFace();
             mask &= ~singleFaceMask;
         }
+
         entry.ready = entry.validFaceMask == 63;
         ++this.revision;
         if (entry.dirtyFaceMask == 0) {
@@ -701,19 +653,16 @@ public final class GpuShadowCache {
         }
     }
 
-    /*
-     * WARNING - Removed try catching itself - possible behaviour change.
-     */
     private boolean copyDepthToAtlas(Entry entry, int face, Matrix4f proj) {
         ShaderInstance shader = ShaderManager.getDepthToDistanceShader();
-        if (shader == null) {
-            return false;
+        if (shader == null) { return false;
         }
         GL30.glBindFramebuffer((int)36160, (int)this.fboId);
         int tileX = entry.tileIndices[face] % this.tileGrid;
         int tileY = entry.tileIndices[face] / this.tileGrid;
         int vx = tileX * this.tileSize;
         int vy = tileY * this.tileSize;
+
         GL11.glViewport((int)vx, (int)vy, (int)this.tileSize, (int)this.tileSize);
         GL11.glEnable((int)3089);
         GL11.glScissor((int)vx, (int)vy, (int)this.tileSize, (int)this.tileSize);
@@ -722,8 +671,7 @@ public final class GpuShadowCache {
         try {
             shader.m_173350_("DepthSampler", (Object)this.shadowTileTarget.m_83980_());
             if (shader.m_173348_("InverseProj") != null) {
-                shader.m_173348_("InverseProj").m_5679_(new Matrix4f((Matrix4fc)proj).invert());
-            }
+                shader.m_173348_("InverseProj").m_5679_(new Matrix4f((Matrix4fc)proj).invert()); }
             if (shader.m_173348_("LightRadius") != null) {
                 shader.m_173348_("LightRadius").m_5985_(entry.radius);
             }
@@ -732,6 +680,7 @@ public final class GpuShadowCache {
             shader.f_173308_.m_5679_(new Matrix4f());
             shader.f_173309_.m_5679_(ortho);
             shader.m_173363_();
+
             Tesselator tess = RenderSystem.renderThreadTesselator();
             BufferBuilder buf = tess.m_85915_();
             buf.m_166779_(VertexFormat.Mode.QUADS, DefaultVertexFormat.f_85817_);
@@ -740,8 +689,7 @@ public final class GpuShadowCache {
             buf.m_5483_((double)this.tileSize, 0.0, 0.0).m_7421_(1.0f, 1.0f).m_5752_();
             buf.m_5483_(0.0, 0.0, 0.0).m_7421_(0.0f, 1.0f).m_5752_();
             BufferUploader.m_231209_((BufferBuilder.RenderedBuffer)buf.m_231175_());
-            return true;
-        }
+            return true; }
         finally {
             shader.m_173362_();
             GL11.glDisable((int)3089);
@@ -779,12 +727,14 @@ public final class GpuShadowCache {
             GL11.glTexParameteri((int)3553, (int)10242, (int)33071);
             GL11.glTexParameteri((int)3553, (int)10243, (int)33071);
             GL11.glTexImage2D((int)3553, (int)0, (int)33326, (int)4096, (int)4096, (int)0, (int)6403, (int)5126, (ByteBuffer)null);
+
             this.fboId = GL30.glGenFramebuffers();
             GL30.glBindFramebuffer((int)36160, (int)this.fboId);
             GL30.glFramebufferTexture2D((int)36160, (int)36064, (int)3553, (int)this.atlasTextureId, (int)0);
             GL30.glBindFramebuffer((int)36160, (int)0);
             RenderSystem.activeTexture((int)33984);
         }
+
         if (this.shadowTileTarget == null) {
             this.shadowTileTarget = new TextureTarget(this.tileSize, this.tileSize, true, Minecraft.f_91002_);
             this.shadowTileTarget.m_83931_(1.0f, 1.0f, 1.0f, 1.0f);
@@ -792,9 +742,7 @@ public final class GpuShadowCache {
     }
 
     private void flushRemovedSources() {
-        if (this.removedSources.isEmpty()) {
-            return;
-        }
+        if (this.removedSources.isEmpty()) { return; }
         LongIterator it = this.removedSources.iterator();
         while (it.hasNext()) {
             long sourceKey = it.nextLong();
@@ -823,24 +771,21 @@ public final class GpuShadowCache {
     }
 
     private void releaseEntryTiles(@Nullable Entry entry) {
-        if (entry == null) {
-            return;
-        }
+        if (entry == null) { return; }
         for (int face = 0; face < 6; ++face) {
             if (this.freeTileCount < this.freeTiles.length) {
                 this.freeTiles[this.freeTileCount++] = entry.tileIndices[face];
             }
         }
     }
-
     @Nullable
     private Entry createEntry(GpuLocalLightResolver.SourceGeometry geometry, int emission) {
-        if (this.freeTileCount < 6) {
-            return null;
+        if (this.freeTileCount < 6) { return null;
         }
         Entry entry = new Entry();
         entry.emission = emission;
         entry.radius = (float)LightRtMath.getBlockShadowRadius(emission);
+
         for (int f = 0; f < 6; ++f) {
             int tileIndex = this.freeTiles[--this.freeTileCount];
             entry.tileIndices[f] = tileIndex;
@@ -849,8 +794,10 @@ public final class GpuShadowCache {
             entry.u0[f] = ((float)(tileX * this.tileSize) + 0.5f) / 4096.0f;
             entry.v0[f] = ((float)(tileY * this.tileSize) + 0.5f) / 4096.0f;
         }
+
         entry.us = ((float)this.tileSize - 1.0f) / 4096.0f;
         entry.vs = ((float)this.tileSize - 1.0f) / 4096.0f;
+
         GpuShadowCache.applyGeometry(entry, geometry);
         entry.dirtyFaceMask = 63;
         entry.staticDirty = true;
@@ -858,7 +805,14 @@ public final class GpuShadowCache {
     }
 
     private static boolean applyGeometry(Entry entry, GpuLocalLightResolver.SourceGeometry geometry) {
-        boolean changed = Double.compare(entry.worldX, geometry.sourceX) != 0 || Double.compare(entry.worldY, geometry.sourceY) != 0 || Double.compare(entry.worldZ, geometry.sourceZ) != 0 || Double.compare(entry.blockCenterX, geometry.centerX) != 0 || Double.compare(entry.blockCenterY, geometry.centerY) != 0 || Double.compare(entry.blockCenterZ, geometry.centerZ) != 0 || entry.boxEmitter != geometry.boxEmitter || entry.blockedFaceMask != geometry.blockedFaceMask;
+        boolean changed = Double.compare(entry.worldX, geometry.sourceX) != 0 || Double.compare
+                (entry.worldY, geometry.sourceY) != 0 || Double.compare
+                (entry.worldZ, geometry.sourceZ) != 0 || Double.compare
+                (entry.blockCenterX, geometry.centerX) != 0 || Double.compare
+                (entry.blockCenterY, geometry.centerY) != 0 || Double.compare
+                (entry.blockCenterZ, geometry.centerZ) != 0 || entry.boxEmitter != geometry.boxEmitter || entry.blockedFaceMask != geometry.blockedFaceMask;
+
+
         entry.worldX = geometry.sourceX;
         entry.worldY = geometry.sourceY;
         entry.worldZ = geometry.sourceZ;
@@ -875,9 +829,7 @@ public final class GpuShadowCache {
     }
 
     private static void markAllFacesDirty(Entry entry, boolean staticDirty) {
-        if (entry == null) {
-            return;
-        }
+        if (entry == null) { return; }
         entry.dirtyFaceMask |= 0x3F;
         if (staticDirty) {
             entry.staticDirty = true;
@@ -896,6 +848,7 @@ public final class GpuShadowCache {
                 this.markEntriesAffectedByCasterBounds(GpuShadowCache.union(oldBox, newBox));
             }
         }
+
         for (long key : nextCasters.keySet()) {
             if (!this.trackedDynamicCasters.containsKey(key)) {
                 this.markEntriesAffectedByCasterBounds((AABB)nextCasters.get(key));
@@ -904,12 +857,13 @@ public final class GpuShadowCache {
     }
 
     private void markEntriesAffectedByCasterBounds(@Nullable AABB bounds) {
-        if (bounds == null || this.entries.isEmpty()) {
-            return;
-        }
+        if (bounds == null || this.entries.isEmpty()) { return; }
         for (Entry entry : this.entries.values()) {
             double influence = Math.max((double)entry.radius, LightRtMath.getEntityShadowRadius(entry.emission)) + 1.25;
-            if (!GpuShadowCache.isBoundsNearLight(bounds, entry.worldX, entry.worldY, entry.worldZ, influence)) continue;
+            if (!GpuShadowCache.isBoundsNearLight(bounds, entry.worldX, entry.worldY, entry.worldZ, influence))
+                    continue;
+
+
             int faceMask = GpuShadowCache.computeAffectedFaceMask(entry, bounds);
             if (faceMask == 0) {
                 faceMask = 63;
@@ -920,28 +874,20 @@ public final class GpuShadowCache {
     }
 
     private void markUrgentStaticEntriesAffectedByBounds(@Nullable AABB bounds) {
-        if (bounds == null || this.entries.isEmpty()) {
-            return;
-        }
+        if (bounds == null || this.entries.isEmpty()) { return; }
         boolean changed = false;
         for (Entry entry : this.entries.values()) {
             double influence = (double)entry.radius + 1.25;
             if (!GpuShadowCache.isBoundsNearLight(bounds, entry.worldX, entry.worldY, entry.worldZ, influence)) continue;
             int faceMask = GpuShadowCache.computeAffectedFaceMask(entry, bounds);
-            if (faceMask == 0) {
-                faceMask = 63;
-            }
+            if (faceMask == 0) { faceMask = 63; }
             int newlyDirty = faceMask & ~entry.dirtyFaceMask;
             entry.dirtyFaceMask |= faceMask;
             entry.staticDirty = true;
             entry.urgentStaticDirty = true;
-            if (newlyDirty != 0) {
-                changed = true;
-            }
+            if (newlyDirty != 0) { changed = true; }
         }
-        if (changed) {
-            ++this.revision;
-        }
+        if (changed) {++this.revision; }
     }
 
     private static boolean isBoundsNearLight(AABB bounds, double lightX, double lightY, double lightZ, double influence) {
@@ -974,17 +920,12 @@ public final class GpuShadowCache {
         if (maxAxis <= 1.0E-6) {
             return 63;
         }
+
         int mask = 0;
         double epsilon = maxAxis * 0.12;
-        if (absX + epsilon >= maxAxis) {
-            mask |= dx >= 0.0 ? 1 : 2;
-        }
-        if (absY + epsilon >= maxAxis) {
-            mask |= dy >= 0.0 ? 4 : 8;
-        }
-        if (absZ + epsilon >= maxAxis) {
-            mask |= dz >= 0.0 ? 16 : 32;
-        }
+        if (absX + epsilon >= maxAxis) { mask |= dx >= 0.0 ? 1 : 2; }
+        if (absY + epsilon >= maxAxis) { mask |= dy >= 0.0 ? 4 : 8; }
+        if (absZ + epsilon >= maxAxis) { mask |= dz >= 0.0 ? 16 : 32; }
         return mask == 0 ? 63 : mask;
     }
 
@@ -1009,12 +950,15 @@ public final class GpuShadowCache {
 
     private void scanDynamicCasters(ClientLevel level, BlockPos center, Vec3 cameraPos, double radiusSq, Long2ObjectOpenHashMap<AABB> out) {
         Vec3 centerPos = Vec3.m_82512_((Vec3i)center);
+
         for (Entity entity : level.m_104735_()) {
+
             if (entity == null || entity.m_213877_() || entity.m_20145_()) continue;
             AABB box = entity.m_20191_();
             if (box == null || GpuShadowCache.distanceToAabbSq(centerPos, box) > radiusSq) continue;
             out.put((long)entity.m_19879_(), (Object)box);
         }
+
         BlockEntityRenderDispatcher dispatcher = Minecraft.m_91087_().m_167982_();
         int chunkRadius = Math.max(1, (int)Math.ceil(Math.sqrt(radiusSq) / 16.0));
         int centerChunkX = center.m_123341_() >> 4;
@@ -1023,14 +967,15 @@ public final class GpuShadowCache {
             for (int dx = -chunkRadius; dx <= chunkRadius; ++dx) {
                 LevelChunk chunk = level.m_7726_().m_7131_(centerChunkX + dx, centerChunkZ + dz);
                 if (chunk == null) continue;
+
                 for (BlockEntity blockEntity : chunk.m_62954_().values()) {
                     if (blockEntity == null || blockEntity.m_58901_()) continue;
+
                     BlockEntityRenderer renderer = dispatcher.m_112265_(blockEntity);
                     if (renderer == null || !renderer.m_142756_(blockEntity, cameraPos)) continue;
+
                     AABB box = blockEntity.getRenderBoundingBox();
-                    if (box == null) {
-                        box = new AABB(blockEntity.m_58899_());
-                    }
+                    if (box == null) { box = new AABB(blockEntity.m_58899_()); }
                     if (GpuShadowCache.distanceToAabbSq(centerPos, box) > radiusSq) continue;
                     out.put(GpuShadowCache.blockEntityKey(blockEntity.m_58899_().m_121878_()), (Object)box);
                 }
@@ -1039,18 +984,26 @@ public final class GpuShadowCache {
     }
 
     private static boolean sameBounds(@Nullable AABB a, @Nullable AABB b) {
-        if (a == b) {
-            return true;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-        return Double.compare(a.f_82288_, b.f_82288_) == 0 && Double.compare(a.f_82289_, b.f_82289_) == 0 && Double.compare(a.f_82290_, b.f_82290_) == 0 && Double.compare(a.f_82291_, b.f_82291_) == 0 && Double.compare(a.f_82292_, b.f_82292_) == 0 && Double.compare(a.f_82293_, b.f_82293_) == 0;
+        if (a == b) { return true; }
+        if (a == null || b == null) { return false; }
+        return Double.compare(a.f_82288_, b.f_82288_) == 0 && Double.compare
+                (a.f_82289_, b.f_82289_) == 0 && Double.compare
+                (a.f_82290_, b.f_82290_) == 0 && Double.compare
+                (a.f_82291_, b.f_82291_) == 0 && Double.compare
+                (a.f_82292_, b.f_82292_) == 0 && Double.compare
+                (a.f_82293_, b.f_82293_) == 0;
     }
 
     private static AABB union(AABB a, AABB b) {
-        return new AABB(Math.min(a.f_82288_, b.f_82288_), Math.min(a.f_82289_, b.f_82289_), Math.min(a.f_82290_, b.f_82290_), Math.max(a.f_82291_, b.f_82291_), Math.max(a.f_82292_, b.f_82292_), Math.max(a.f_82293_, b.f_82293_));
+        return new AABB(Math.min
+                (a.f_82288_, b.f_82288_), Math.min
+                (a.f_82289_, b.f_82289_), Math.min
+                (a.f_82290_, b.f_82290_), Math.max
+                (a.f_82291_, b.f_82291_), Math.max
+                (a.f_82292_, b.f_82292_), Math.max
+                (a.f_82293_, b.f_82293_));
     }
+
 
     private static double distanceToAabbSq(Vec3 point, AABB box) {
         double dx = point.f_82479_ < box.f_82288_ ? box.f_82288_ - point.f_82479_ : Math.max(0.0, point.f_82479_ - box.f_82291_);
@@ -1068,33 +1021,24 @@ public final class GpuShadowCache {
     }
 
     private void flushExpectedRenderedSectionsIfTimedOut() {
-        if (this.expectedRenderedSections.isEmpty()) {
-            return;
-        }
+        if (this.expectedRenderedSections.isEmpty()) { return; }
         ++this.expectedRenderedSectionWaitFrames;
-        if (this.expectedRenderedSectionWaitFrames < 20) {
-            return;
-        }
+
+        if (this.expectedRenderedSectionWaitFrames < 20) { return; }
         boolean wasEmpty = this.pendingRenderedSections.isEmpty();
         this.pendingRenderedSections.addAll((LongCollection)this.expectedRenderedSections);
         this.expectedRenderedSections.clear();
         this.expectedRenderedSectionWaitFrames = 0;
-        if (wasEmpty && !this.pendingRenderedSections.isEmpty()) {
-            this.renderedSectionDeferralFrames = 0;
-        }
+        if (wasEmpty && !this.pendingRenderedSections.isEmpty()) { this.renderedSectionDeferralFrames = 0; }
         this.renderedSectionQuietFrames = 0;
     }
 
     private void flushRenderedSectionInvalidationsIfReady() {
-        if (this.pendingRenderedSections.isEmpty()) {
-            return;
-        }
+        if (this.pendingRenderedSections.isEmpty()) { return; }
         ++this.renderedSectionDeferralFrames;
-        if (this.renderedSectionQuietFrames > 0) {
-            --this.renderedSectionQuietFrames;
+        if (this.renderedSectionQuietFrames > 0) {--this.renderedSectionQuietFrames;
         }
-        if (this.renderedSectionQuietFrames > 0) {
-            return;
+        if (this.renderedSectionQuietFrames > 0) { return;
         }
         boolean changed = false;
         for (long sectionKey : this.pendingRenderedSections) {
@@ -1102,32 +1046,28 @@ public final class GpuShadowCache {
             int originY = BlockPos.m_122008_((long)sectionKey);
             int originZ = BlockPos.m_122015_((long)sectionKey);
             AABB bounds = new AABB((double)originX, (double)originY, (double)originZ, (double)originX + 16.0, (double)originY + 16.0, (double)originZ + 16.0);
+
             for (Entry entry : this.entries.values()) {
                 double influence = (double)entry.radius + 1.25;
                 if (!GpuShadowCache.isBoundsNearLight(bounds, entry.worldX, entry.worldY, entry.worldZ, influence)) continue;
                 int faceMask = GpuShadowCache.computeAffectedFaceMask(entry, bounds);
-                if (faceMask == 0) {
-                    faceMask = 63;
-                }
+                if (faceMask == 0) { faceMask = 63; }
                 int newlyDirty = faceMask & ~entry.dirtyFaceMask;
                 entry.dirtyFaceMask |= faceMask;
                 entry.staticDirty = true;
                 entry.urgentStaticDirty = true;
-                if (newlyDirty != 0) {
-                    changed = true;
-                }
+                if (newlyDirty != 0) { changed = true; }
             }
         }
         this.pendingRenderedSections.clear();
         this.renderedSectionQuietFrames = 0;
         this.renderedSectionDeferralFrames = 0;
-        if (changed) {
-            ++this.revision;
-        }
+        if (changed) {++this.revision; }
     }
 
     private static boolean captureConsumerActive() {
-        return GpuNeoShadows.isActive() && GpuNeoShadows.usesCubemapShadows() || NeoGpuVanilla.isConfiguredEnabled();
+        return GpuNeoShadows.isActive() && GpuNeoShadows.usesCubemapShadows() || NeoGpuVanilla.isConfiguredEnabled
+                ();
     }
 
     private int neoGpuFaceRebuildBudget() {
@@ -1135,10 +1075,14 @@ public final class GpuShadowCache {
     }
 
     private void syncLayout() {
-        int requested = NeoGpuVanilla.isConfiguredEnabled() ? GpuShadowCache.neoGpuVanillaCapturePixels((Integer)Config.CLIENT.neoGpuVanillaCaptureResolution.get(), Math.max(1, Math.min(40, (Integer)Config.CLIENT.neoGpuVanillaMaxSources.get()))) : 256;
+        int requested = NeoGpuVanilla.isConfiguredEnabled() ? GpuShadowCache.neoGpuVanillaCapturePixels
+                (
+                (Integer)Config.CLIENT.neoGpuVanillaCaptureResolution.get(), Math.max
+                (1, Math.min(40,
+                (Integer)Config.CLIENT.neoGpuVanillaMaxSources.get()))) :
+                256;
         requested = GpuShadowCache.nearestPowerOfTwo(Math.max(16, Math.min(512, requested)));
-        if (requested == this.tileSize) {
-            return;
+        if (requested == this.tileSize) { return;
         }
         if (this.fboId != -1) {
             GL30.glDeleteFramebuffers((int)this.fboId);
@@ -1169,8 +1113,10 @@ public final class GpuShadowCache {
 
     private static int neoGpuVanillaCapturePixels(int pixelsPerBlock, int requestedSources) {
         int p = Math.max(1, pixelsPerBlock);
+
         int capturePixels = p >= 32 ? 512 : 16 * p;
         capturePixels = GpuShadowCache.nearestPowerOfTwo(Math.max(16, Math.min(512, capturePixels)));
+
         int wanted = Math.max(1, Math.min(40, requestedSources));
         while (capturePixels > 16) {
             int grid = Math.max(1, 4096 / capturePixels);
@@ -1197,43 +1143,29 @@ public final class GpuShadowCache {
 
     private void resetFreeTiles() {
         this.freeTileCount = this.maxTiles;
-        if (this.freeTiles.length != this.maxTiles) {
-            this.freeTiles = new int[this.maxTiles];
-        }
-        for (int i = 0; i < this.maxTiles; ++i) {
-            this.freeTiles[i] = this.maxTiles - 1 - i;
-        }
-    }
-
-    private static final class Entry {
-        final int[] tileIndices = new int[6];
-        final float[] u0 = new float[6];
-        final float[] v0 = new float[6];
-        float us;
-        float vs;
-        float radius;
-        int emission;
-        int dirtyFaceMask;
-        int validFaceMask;
-        boolean ready;
-        boolean staticDirty;
-        boolean dynamicDirty;
-        boolean urgentStaticDirty;
-        boolean boxEmitter;
-        int blockedFaceMask;
-        double worldX;
-        double worldY;
-        double worldZ;
-        double blockCenterX;
-        double blockCenterY;
-        double blockCenterZ;
-        int framesAlive = 0;
-        int refreshCount = 0;
-        int stagedPriority = Integer.MAX_VALUE;
-        long lastVisibleFrame;
+        if (this.freeTiles.length != this.maxTiles) { this.freeTiles = new int[this.maxTiles]; }
+        for (int i = 0; i < this.maxTiles; ++i) { this.freeTiles[i] = this.maxTiles - 1 - i; }
+    } private static final class Entry { final int[] tileIndices; final float[] u0; final float[] v0; float us; float vs; float radius; int emission; int dirtyFaceMask; int validFaceMask; boolean ready; boolean staticDirty; boolean dynamicDirty; boolean urgentStaticDirty; boolean boxEmitter; int blockedFaceMask; double worldX; double worldY; double worldZ; double blockCenterX; double blockCenterY; double blockCenterZ; int framesAlive; int refreshCount; int stagedPriority; long lastVisibleFrame;
         long neoGpuContentGeneration;
-
         private Entry() {
-        }
+            this.tileIndices = new int[6];
+            this.u0 = new float[6];
+            this.v0 = new float[6];
+
+
+
+
+
+
+
+
+
+
+
+
+
+            this.framesAlive = 0;
+            this.refreshCount = 0;
+            this.stagedPriority = Integer.MAX_VALUE; }
     }
 }

@@ -1362,9 +1362,10 @@ public final class NeoFloodEngine {
     }
 
     private static final class ChangedCells {
-        final Long2ObjectOpenHashMap<long[]> sections = new Long2ObjectOpenHashMap();
+        final Long2ObjectOpenHashMap<long[]> sections;
 
         private ChangedCells() {
+            this.sections = new Long2ObjectOpenHashMap();
         }
 
         long[] wordsFor(long sectionKey) {
@@ -1408,12 +1409,15 @@ public final class NeoFloodEngine {
     }
 
     private static final class SectionBuildScratch {
-        final byte[] light = new byte[4096];
-        final byte[] coverage = new byte[4096];
-        long[] sourceKeys = new long[16];
+        final byte[] light;
+        final byte[] coverage;
+        long[] sourceKeys;
         int sourceCount;
 
         private SectionBuildScratch() {
+            this.light = new byte[4096];
+            this.coverage = new byte[4096];
+            this.sourceKeys = new long[16];
         }
 
         void reset(int sourceCapacity) {

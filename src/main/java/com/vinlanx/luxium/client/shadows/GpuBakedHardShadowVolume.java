@@ -58,25 +58,35 @@ final class GpuBakedHardShadowVolume {
     private static final int SNAP_Y = 4;
     private static final int META_TEXELS_PER_SOURCE = 9;
     private static final int TOTAL_LAYERS = GpuBakedHardShadowVolume.depthForDirection(0) + GpuBakedHardShadowVolume.depthForDirection(1) + GpuBakedHardShadowVolume.depthForDirection(2) + GpuBakedHardShadowVolume.depthForDirection(3) + GpuBakedHardShadowVolume.depthForDirection(4) + GpuBakedHardShadowVolume.depthForDirection(5);
-    private final int[] textures = new int[]{-1, -1, -1, -1, -1, -1};
+    private final int[] textures;
     private boolean ready;
-    private int buildTexture = -1;
-    private final FloatBuffer metadataPixels = ByteBuffer.allocateDirect(4608).order(ByteOrder.nativeOrder()).asFloatBuffer();
-    private int fbo = -1;
-    private int metadataTexture = -1;
+    private int buildTexture;
+    private final FloatBuffer metadataPixels;
+    private int fbo;
+    private int metadataTexture;
     private int buildDirection;
     private int buildLayerCursor;
     private boolean building;
-    private long buildingSignature = Long.MIN_VALUE;
-    private long activeSignature = Long.MIN_VALUE;
-    private int activeAnchorX = Integer.MIN_VALUE;
-    private int activeAnchorY = Integer.MIN_VALUE;
-    private int activeAnchorZ = Integer.MIN_VALUE;
+    private long buildingSignature;
+    private long activeSignature;
+    private int activeAnchorX;
+    private int activeAnchorY;
+    private int activeAnchorZ;
     private int buildAnchorX;
     private int buildAnchorY;
     private int buildAnchorZ;
 
     GpuBakedHardShadowVolume() {
+        this.textures = new int[]{-1, -1, -1, -1, -1, -1};
+        this.buildTexture = -1;
+        this.metadataPixels = ByteBuffer.allocateDirect(4608).order(ByteOrder.nativeOrder()).asFloatBuffer();
+        this.fbo = -1;
+        this.metadataTexture = -1;
+        this.buildingSignature = Long.MIN_VALUE;
+        this.activeSignature = Long.MIN_VALUE;
+        this.activeAnchorX = Integer.MIN_VALUE;
+        this.activeAnchorY = Integer.MIN_VALUE;
+        this.activeAnchorZ = Integer.MIN_VALUE;
     }
 
     boolean isReady() {

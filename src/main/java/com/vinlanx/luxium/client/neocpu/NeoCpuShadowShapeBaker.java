@@ -54,9 +54,10 @@ final class NeoCpuShadowShapeBaker {
     private static final NeoCpuShadowTypes.Box[] EMPTY_BOXES = new NeoCpuShadowTypes.Box[0];
     private static final NeoCpuShadowShape.LocalQuadTemplate[] EMPTY_QUADS = new NeoCpuShadowShape.LocalQuadTemplate[0];
     private static final ThreadLocal<RandomSource> RANDOM_SOURCE_TL = ThreadLocal.withInitial(RandomSource::m_216327_);
-    private final ConcurrentHashMap<TextureAtlasSprite, SpriteAlphaMask> spriteMaskCache = new ConcurrentHashMap();
+    private final ConcurrentHashMap<TextureAtlasSprite, SpriteAlphaMask> spriteMaskCache;
 
     NeoCpuShadowShapeBaker() {
+        this.spriteMaskCache = new ConcurrentHashMap();
     }
 
     NeoCpuShadowShape bake(BlockState state, ClientLevel level, BlockPos pos) {

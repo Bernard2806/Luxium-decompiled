@@ -1,32 +1,4 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap
- *  it.unimi.dsi.fastutil.longs.Long2ObjectMap$Entry
- *  it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
- *  net.minecraft.client.multiplayer.ClientChunkCache
- *  net.minecraft.client.multiplayer.ClientLevel
- *  net.minecraft.core.BlockPos
- *  net.minecraft.core.BlockPos$MutableBlockPos
- *  net.minecraft.core.Direction
- *  net.minecraft.util.Mth
- *  net.minecraft.world.level.BlockGetter
- *  net.minecraft.world.level.block.state.BlockState
- *  net.minecraft.world.level.chunk.LevelChunk
- *  net.minecraft.world.level.chunk.LevelChunkSection
- *  net.minecraft.world.phys.Vec3
- *  net.minecraft.world.phys.shapes.VoxelShape
- *  org.jetbrains.annotations.Nullable
- */
-package com.vinlanx.luxium.client;
-
-import com.vinlanx.luxium.client.NeoShadowsEngine;
-import com.vinlanx.luxium.client.NeoShadowsProjection;
-import com.vinlanx.luxium.client.NeoShadowsTypes;
-import com.vinlanx.luxium.rtx.LightRtMath;
-import com.vinlanx.luxium.rtx.SectionSkip;
-import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
+package com.vinlanx.luxium.client; import com.vinlanx.luxium.client.NeoShadowsEngine; import com.vinlanx.luxium.client.NeoShadowsProjection; import com.vinlanx.luxium.client.NeoShadowsTypes; import com.vinlanx.luxium.rtx.LightRtMath; import com.vinlanx.luxium.rtx.SectionSkip; import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.ArrayList;
@@ -46,11 +18,14 @@ import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-
 final class NeoShadowsOcclusionPipeline {
     private static final double DDA_TIE_EPSILON = 1.0E-9;
-    private static final ThreadLocal<FaceOcclusionScratch> FACE_OCCLUSION_SCRATCH_TL = ThreadLocal.withInitial(FaceOcclusionScratch::new);
-    private static final ThreadLocal<OccluderHit> SCRATCH_HIT = ThreadLocal.withInitial(() -> new OccluderHit(BlockPos.f_121853_, new NeoShadowsTypes.Box[0]));
+    private static final ThreadLocal<FaceOcclusionScratch> FACE_OCCLUSION_SCRATCH_TL = ThreadLocal.withInitial
+
+            (FaceOcclusionScratch::new);
+    private static final ThreadLocal<OccluderHit> SCRATCH_HIT = ThreadLocal.withInitial
+            (() -> new OccluderHit(BlockPos.f_121853_, new NeoShadowsTypes.Box[0]));
+
     private final NeoShadowsEngine engine;
     private final ConcurrentHashMap<OcclusionCacheKey, CachedFaceOcclusion> occlusionCache = new ConcurrentHashMap();
 
@@ -62,9 +37,19 @@ final class NeoShadowsOcclusionPipeline {
         this.occlusionCache.clear();
     }
 
+
+
+
+
+
+
+
+
     void findFaceOccludersInto(ClientLevel level, NeoShadowsTypes.ReceiverPlane plane, NeoShadowsTypes.FaceCandidate candidate, NeoShadowsTypes.ReceiverPlaneGroup group, NeoShadowsTypes.GeometryBuildState state, Vec3 source, long sourceKey, int sourceEmission, Long2ObjectLinkedOpenHashMap<OccluderHit> hitsByBlock) {
         double maxDist = Math.min(LightRtMath.getMaxDistance(sourceEmission), 30.0);
+
         NeoShadowsTypes.PlaneRect localBounds = group.localContributionBoundsForReceiverPosKey(candidate.receiverKey);
+
         long candidateKey = candidate.receiverKey;
         OcclusionCacheKey cacheKey = new OcclusionCacheKey(candidateKey, candidate.face.ordinal(), sourceKey);
         CachedFaceOcclusion cached = this.occlusionCache.get(cacheKey);
@@ -89,22 +74,33 @@ final class NeoShadowsOcclusionPipeline {
             }
             return;
         }
+
         FaceOcclusionScratch faceScratch = FACE_OCCLUSION_SCRATCH_TL.get();
         faceScratch.reset();
         NeoShadowsTypes.UvPoint[] occlusionProbes = NeoShadowsOcclusionPipeline.buildOcclusionFaceProbes(candidate.face);
         ProbeFirstHitCache firstHitCache = state.firstHitScalarCache(sourceKey, candidateKey, occlusionProbes.length);
+
         for (int probeIndex = 0; probeIndex < occlusionProbes.length; ++probeIndex) {
             NeoShadowsTypes.UvPoint probe = occlusionProbes[probeIndex];
-            if (!NeoShadowsProjection.isProbeInsideRect(probe, localBounds)) continue;
+            if (!NeoShadowsProjection.isProbeInsideRect(probe, localBounds))
+                    continue;
+
+
             double sx = plane.sampleX(probe.u, probe.v);
             double sy = plane.sampleY(probe.u, probe.v);
             double sz = plane.sampleZ(probe.u, probe.v);
+
             double ddx = sx - source.f_82479_;
             double ddy = sy - source.f_82480_;
             double ddz = sz - source.f_82481_;
             double distance = Math.sqrt(ddx * ddx + ddy * ddy + ddz * ddz);
-            if (distance > maxDist) continue;
-            if (LightRtMath.getFalloff(sourceEmission, distance) <= 0) continue;
+            if (distance > maxDist)
+                    continue;
+
+            if (LightRtMath.getFalloff(sourceEmission, distance) <= 0)
+                    continue;
+
+
             CachedFirstScalarHit cachedHit = firstHitCache.get(probeIndex);
             if (cachedHit == null) {
                 cachedHit = firstHitCache.findReusableHit(source.f_82479_, source.f_82480_, source.f_82481_, sx, sy, sz);
@@ -112,11 +108,16 @@ final class NeoShadowsOcclusionPipeline {
             if (cachedHit == null) {
                 OccluderHit hit = SCRATCH_HIT.get();
                 hit.reset();
-                cachedHit = SolidOccluderCache.firstHitScalar(level, source, sx, sy, sz, sourceKey, candidateKey, hit) ? CachedFirstScalarHit.hit(hit.blockKey, hit.boxes) : CachedFirstScalarHit.MISS;
+                cachedHit = SolidOccluderCache.firstHitScalar(level, source, sx, sy, sz, sourceKey, candidateKey, hit) ? CachedFirstScalarHit.hit
+                        (hit.blockKey, hit.boxes) : CachedFirstScalarHit
+                        .MISS;
                 cachedHit = firstHitCache.storeIfAbsent(probeIndex, cachedHit);
             }
-            if (!cachedHit.hit) continue;
+            if (!cachedHit.hit)
+                    continue;
+
             firstHitCache.remember(cachedHit);
+
             long hitKey = cachedHit.blockKey;
             OccluderHit mergedHit = (OccluderHit)hitsByBlock.get(hitKey);
             if (mergedHit == null) {
@@ -126,6 +127,7 @@ final class NeoShadowsOcclusionPipeline {
             } else {
                 mergedHit.addReceiverSample(probe);
             }
+
             List<NeoShadowsTypes.UvPoint> probesForHit = (List<NeoShadowsTypes.UvPoint>)faceScratch.probesByHit.get(hitKey);
             if (probesForHit == null) {
                 probesForHit = faceScratch.rentList();
@@ -134,6 +136,7 @@ final class NeoShadowsOcclusionPipeline {
             }
             probesForHit.add(probe);
         }
+
         int n = faceScratch.probesByHit.size();
         if (n == 0) {
             this.occlusionCache.put(cacheKey, CachedFaceOcclusion.EMPTY);
@@ -142,7 +145,8 @@ final class NeoShadowsOcclusionPipeline {
             NeoShadowsTypes.Box[][] hitBoxes = new NeoShadowsTypes.Box[n][];
             NeoShadowsTypes.UvPoint[][] probesPerHit = new NeoShadowsTypes.UvPoint[n][];
             int i = 0;
-            for (Long2ObjectMap.Entry<List<NeoShadowsTypes.UvPoint>> entry : faceScratch.probesByHit.long2ObjectEntrySet()) {
+            for (Long2ObjectMap.Entry<List<NeoShadowsTypes.UvPoint>> entry : faceScratch.probesByHit.long2ObjectEntrySet
+                    ()) {
                 long key = entry.getLongKey();
                 hitKeys[i] = key;
                 hitBoxes[i] = (NeoShadowsTypes.Box[])faceScratch.boxesByHit.get(key);
@@ -162,14 +166,19 @@ final class NeoShadowsOcclusionPipeline {
         if (includeCenterFirst) {
             probes.add(new NeoShadowsTypes.UvPoint(0.5, 0.5));
         }
+
         for (int vIndex = 0; vIndex < gridSize; ++vIndex) {
             double v = gridSize <= 1 ? 0.5 : min + step * (double)vIndex;
             for (int uIndex = 0; uIndex < gridSize; ++uIndex) {
                 double u = gridSize <= 1 ? 0.5 : min + step * (double)uIndex;
-                if (includeCenterFirst && Math.abs(u - 0.5) <= 1.0E-6 && Math.abs(v - 0.5) <= 1.0E-6) continue;
+                if (includeCenterFirst && Math.abs(u - 0.5) <= 1.0E-6 && Math.abs
+                        (v - 0.5) <= 1.0E-6)
+                        continue;
+
                 probes.add(new NeoShadowsTypes.UvPoint(u, v));
             }
         }
+
         return probes.toArray(new NeoShadowsTypes.UvPoint[0]);
     }
 
@@ -177,6 +186,7 @@ final class NeoShadowsOcclusionPipeline {
         List<Double> uniqueU = NeoShadowsOcclusionPipeline.collectUniqueProbeCoordinates(probes, true);
         List<Double> uniqueV = NeoShadowsOcclusionPipeline.collectUniqueProbeCoordinates(probes, false);
         NeoShadowsTypes.PlaneRect[] rects = new NeoShadowsTypes.PlaneRect[probes.length];
+
         for (int index = 0; index < probes.length; ++index) {
             NeoShadowsTypes.UvPoint probe = probes[index];
             int uIndex = NeoShadowsOcclusionPipeline.findProbeCoordinateIndex(uniqueU, probe.u);
@@ -187,6 +197,7 @@ final class NeoShadowsOcclusionPipeline {
             double maxV = vIndex >= uniqueV.size() - 1 ? 1.0 : (probe.v + uniqueV.get(vIndex + 1)) * 0.5;
             rects[index] = new NeoShadowsTypes.PlaneRect(minU, maxU, minV, maxV);
         }
+
         return rects;
     }
 
@@ -219,17 +230,17 @@ final class NeoShadowsOcclusionPipeline {
     }
 
     static NeoShadowsTypes.UvPoint[] buildOcclusionFaceProbes(Direction face) {
-        return NeoShadowsProjection.isHorizontalReceiverFace(face) ? NeoShadowsEngine.HORIZONTAL_OCCLUSION_FACE_PROBES : NeoShadowsEngine.OCCLUSION_FACE_PROBES;
-    }
-
-    private static final class FaceOcclusionScratch {
-        final Long2ObjectLinkedOpenHashMap<List<NeoShadowsTypes.UvPoint>> probesByHit = new Long2ObjectLinkedOpenHashMap(8);
-        final Long2ObjectOpenHashMap<NeoShadowsTypes.Box[]> boxesByHit = new Long2ObjectOpenHashMap(8);
-        final List<List<NeoShadowsTypes.UvPoint>> listPool = new ArrayList<List<NeoShadowsTypes.UvPoint>>();
+        return NeoShadowsProjection.isHorizontalReceiverFace(face) ? NeoShadowsEngine
+                .HORIZONTAL_OCCLUSION_FACE_PROBES : NeoShadowsEngine
+                .OCCLUSION_FACE_PROBES; } private static final class FaceOcclusionScratch { final Long2ObjectLinkedOpenHashMap<List<NeoShadowsTypes.UvPoint>> probesByHit; final Long2ObjectOpenHashMap<NeoShadowsTypes.Box[]> boxesByHit;
+        final List<List<NeoShadowsTypes.UvPoint>> listPool;
         int listPoolUsed;
-
         private FaceOcclusionScratch() {
-        }
+            this.probesByHit = new Long2ObjectLinkedOpenHashMap(8);
+
+            this.boxesByHit = new Long2ObjectOpenHashMap(8);
+            this.listPool = new ArrayList<List<NeoShadowsTypes.UvPoint>>(); }
+
 
         List<NeoShadowsTypes.UvPoint> rentList() {
             List<NeoShadowsTypes.UvPoint> list;
@@ -253,13 +264,13 @@ final class NeoShadowsOcclusionPipeline {
 
     static final class CachedFirstScalarHit {
         static final CachedFirstScalarHit MISS = new CachedFirstScalarHit(false, Long.MIN_VALUE, null);
+
         final boolean hit;
         final long blockKey;
         final int blockX;
         final int blockY;
         final int blockZ;
         final NeoShadowsTypes.Box[] boxes;
-
         private CachedFirstScalarHit(boolean hit, long blockKey, @Nullable NeoShadowsTypes.Box[] boxes) {
             this.hit = hit;
             this.blockKey = blockKey;
@@ -273,6 +284,7 @@ final class NeoShadowsOcclusionPipeline {
             return new CachedFirstScalarHit(true, blockKey, boxes);
         }
 
+
         boolean intersectsSegment(double startX, double startY, double startZ, double endX, double endY, double endZ) {
             if (!this.hit || this.boxes == null || this.boxes.length == 0) {
                 return false;
@@ -280,6 +292,7 @@ final class NeoShadowsOcclusionPipeline {
             if (this.boxes.length == 1) {
                 return this.boxes[0].intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, this.blockX, this.blockY, this.blockZ);
             }
+
             for (NeoShadowsTypes.Box box : this.boxes) {
                 if (box.intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, this.blockX, this.blockY, this.blockZ)) {
                     return true;
@@ -293,7 +306,6 @@ final class NeoShadowsOcclusionPipeline {
         private final AtomicReferenceArray<CachedFirstScalarHit> cachedHits;
         @Nullable
         private volatile CachedFirstScalarHit lastResolvedHit;
-
         ProbeFirstHitCache(int probeCount) {
             this.cachedHits = new AtomicReferenceArray(probeCount);
         }
@@ -309,6 +321,7 @@ final class NeoShadowsOcclusionPipeline {
             CachedFirstScalarHit existing = this.cachedHits.get(probeIndex);
             return existing != null ? existing : hit;
         }
+
 
         @Nullable
         CachedFirstScalarHit findReusableHit(double startX, double startY, double startZ, double endX, double endY, double endZ) {
@@ -331,10 +344,12 @@ final class NeoShadowsOcclusionPipeline {
 
     private static final class CachedFaceOcclusion {
         static final CachedFaceOcclusion EMPTY = new CachedFaceOcclusion(new long[0], new NeoShadowsTypes.Box[0][], new NeoShadowsTypes.UvPoint[0][]);
+
+
+
         final long[] hitKeys;
         final NeoShadowsTypes.Box[][] hitBoxes;
         final NeoShadowsTypes.UvPoint[][] probesPerHit;
-
         CachedFaceOcclusion(long[] hitKeys, NeoShadowsTypes.Box[][] hitBoxes, NeoShadowsTypes.UvPoint[][] probesPerHit) {
             this.hitKeys = hitKeys;
             this.hitBoxes = hitBoxes;
@@ -369,10 +384,17 @@ final class NeoShadowsOcclusionPipeline {
         private static final ConcurrentHashMap<BlockState, NeoShadowsTypes.Box[]> BOX_CACHE = new ConcurrentHashMap();
         private static final NeoShadowsTypes.Box[] NO_BOXES = new NeoShadowsTypes.Box[0];
         private static final NeoShadowsTypes.Box[] FULL_BLOCK_BOXES = new NeoShadowsTypes.Box[]{new NeoShadowsTypes.Box(0.0, 0.0, 0.0, 1.0, 1.0, 1.0)};
-        private static final ThreadLocal<BlockPos.MutableBlockPos> CURSOR_TL = ThreadLocal.withInitial(BlockPos.MutableBlockPos::new);
+
+
+        private static final ThreadLocal<BlockPos.MutableBlockPos> CURSOR_TL = ThreadLocal.withInitial
+                (BlockPos.MutableBlockPos::new);
 
         private SolidOccluderCache() {
         }
+
+
+
+
 
         static boolean firstHitScalar(ClientLevel level, Vec3 start, double endX, double endY, double endZ, long ignoredSource, long ignoredReceiver, OccluderHit out) {
             double deltaX = endX - start.f_82479_;
@@ -382,10 +404,22 @@ final class NeoShadowsOcclusionPipeline {
             if (maxDistance <= 1.0E-6) {
                 return false;
             }
+
             double dx = deltaX / maxDistance;
             double dy = deltaY / maxDistance;
             double dz = deltaZ / maxDistance;
-            SectionSkip.TraversalState traversal = SectionSkip.rentState().reset(start.f_82479_, start.f_82480_, start.f_82481_, dx, dy, dz, Mth.m_14107_((double)start.f_82479_), Mth.m_14107_((double)start.f_82480_), Mth.m_14107_((double)start.f_82481_));
+
+            SectionSkip.TraversalState traversal = SectionSkip.rentState().reset(start.f_82479_, start.f_82480_, start.f_82481_, dx, dy, dz, Mth.m_14107_
+
+
+
+
+
+
+                    ((double)start.f_82479_), Mth.m_14107_
+                    ((double)start.f_82480_), Mth.m_14107_
+                    ((double)start.f_82481_));
+
             int minBuildHeight = level.m_141937_();
             ClientChunkCache chunkSource = level.m_7726_();
             int cachedChunkX = Integer.MIN_VALUE;
@@ -400,11 +434,13 @@ final class NeoShadowsOcclusionPipeline {
                 double posX = traversal.currentX();
                 double posY = traversal.currentY();
                 double posZ = traversal.currentZ();
+
                 long currentBlockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
                 if (currentBlockKey != ignoredSource && currentBlockKey != ignoredReceiver) {
                     int chunkX = traversal.blockX >> 4;
                     int chunkZ = traversal.blockZ >> 4;
                     int sectionIndex = traversal.blockY - minBuildHeight >> 4;
+
                     if (chunkX != cachedChunkX || chunkZ != cachedChunkZ) {
                         cachedChunk = chunkSource.m_7131_(chunkX, chunkZ);
                         cachedSections = cachedChunk != null ? cachedChunk.m_7103_() : null;
@@ -412,6 +448,7 @@ final class NeoShadowsOcclusionPipeline {
                         cachedChunkZ = chunkZ;
                         cachedSectionIndex = Integer.MIN_VALUE;
                     }
+
                     if (cachedChunk != null) {
                         if (sectionIndex != cachedSectionIndex) {
                             if (cachedSections == null || sectionIndex < 0 || sectionIndex >= cachedSections.length) {
@@ -423,16 +460,27 @@ final class NeoShadowsOcclusionPipeline {
                             }
                             cachedSectionIndex = sectionIndex;
                         }
+
                         if (sectionIsAir) {
                             double nextTraveled = SectionSkip.skipEmptySection(traversal, chunkX, chunkZ, sectionIndex, minBuildHeight, maxDistance, 0.01);
+
+
+
+
+
+
+
                             if (nextTraveled >= maxDistance) {
                                 break;
                             }
+
                             continue;
                         }
                         if (!sectionIsAir && cachedSection != null) {
                             BlockState state = cachedSection.m_62982_(traversal.blockX & 0xF, traversal.blockY & 0xF, traversal.blockZ & 0xF);
+
                             if (!state.m_60795_()) {
+
                                 NeoShadowsTypes.Box[] boxes = BOX_CACHE.get(state);
                                 if (boxes == null) {
                                     cursor.m_122178_(traversal.blockX, traversal.blockY, traversal.blockZ);
@@ -442,19 +490,24 @@ final class NeoShadowsOcclusionPipeline {
                                 }
                                 if (boxes == FULL_BLOCK_BOXES) {
                                     out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
+
                                     out.boxes = boxes;
                                     return true;
                                 }
                                 if (boxes.length == 1) {
                                     if (boxes[0].intersectsSegmentWithOffset(start.f_82479_, start.f_82480_, start.f_82481_, endX, endY, endZ, traversal.blockX, traversal.blockY, traversal.blockZ)) {
+
                                         out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
+
                                         out.boxes = boxes;
                                         return true;
                                     }
                                 } else if (boxes.length > 1) {
                                     for (NeoShadowsTypes.Box box : boxes) {
                                         if (box.intersectsSegmentWithOffset(start.f_82479_, start.f_82480_, start.f_82481_, endX, endY, endZ, traversal.blockX, traversal.blockY, traversal.blockZ)) {
+
                                             out.blockKey = BlockPos.m_121882_((int)traversal.blockX, (int)traversal.blockY, (int)traversal.blockZ);
+
                                             out.boxes = boxes;
                                             return true;
                                         }
@@ -464,9 +517,11 @@ final class NeoShadowsOcclusionPipeline {
                         }
                     }
                 }
+
                 double nextTraveled = SectionSkip.nextBoundaryDistance(traversal);
                 SectionSkip.advanceTo(traversal, nextTraveled, 1.0E-9);
             }
+
             return false;
         }
 
@@ -478,9 +533,12 @@ final class NeoShadowsOcclusionPipeline {
             if (state.m_60838_((BlockGetter)level, pos)) {
                 return FULL_BLOCK_BOXES;
             }
+
             List<NeoShadowsTypes.Box> boxes = new ArrayList<>();
             shape.m_83286_((minX, minY, minZ, maxX, maxY, maxZ) -> {
                 if (maxX - minX > 1.0E-6 && maxY - minY > 1.0E-6 && maxZ - minZ > 1.0E-6) {
+
+
                     boxes.add(new NeoShadowsTypes.Box(minX, minY, minZ, maxX, maxY, maxZ));
                 }
             });
