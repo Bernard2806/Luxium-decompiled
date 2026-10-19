@@ -221,11 +221,8 @@ public final class Sky {
                 bakeShader.m_173348_("CacheFaceSize").m_142617_(1024);
             }
             int workThisFrame = Math.min(bakeWorkPerFrame, totalWork - bakeWorkIndex);
-            int i = 0;
-            while (i < workThisFrame) {
+            for (int i = 0; i < workThisFrame; ++i, ++bakeWorkIndex) {
                 Sky.renderBakeUnit(bakeShader, bakeWorkIndex);
-                ++i;
-                ++bakeWorkIndex;
             }
         }
         finally {

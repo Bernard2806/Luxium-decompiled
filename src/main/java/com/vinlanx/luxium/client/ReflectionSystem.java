@@ -402,9 +402,9 @@ public final class ReflectionSystem {
             return;
         }
         int planeCount = Math.min(this.activePlanes.size(), this.planeRenderCaches.size());
-        for (int i2 = 0; i2 < planeCount; ++i2) {
-            MirrorPlane plane = this.activePlanes.get(i2);
-            PlaneRenderCache cache = this.planeRenderCaches.get(i2);
+        for (int i = 0; i < planeCount; ++i) {
+            MirrorPlane plane = this.activePlanes.get(i);
+            PlaneRenderCache cache = this.planeRenderCaches.get(i);
             long planeIdentity = ReflectionSystem.computePlaneIdentity(plane);
             if (cache.lastPlaneIdentity != planeIdentity) {
                 cache.exactValid = false;
@@ -457,17 +457,17 @@ public final class ReflectionSystem {
                 PlaneRenderCache cache = this.planeRenderCaches.get(i);
                 Vec3 feedViewer = null;
                 int feedConsumer = -1;
-                for (int consumer2 = 0; consumer2 < planeCount; ++consumer2) {
-                    if (ReflectionSystem.computePlaneIdentity(this.activePlanes.get(consumer2)) != cache.feedConsumerIdentity || (!this.feedDemand[consumer2][i]) || exactCamOf[consumer2] == null) continue;
-                    feedViewer = exactCamOf[consumer2];
-                    feedConsumer = consumer2;
+                for (int consumer = 0; consumer < planeCount; ++consumer) {
+                    if (ReflectionSystem.computePlaneIdentity(this.activePlanes.get(consumer)) != cache.feedConsumerIdentity || (!this.feedDemand[consumer][i]) || exactCamOf[consumer] == null) continue;
+                    feedViewer = exactCamOf[consumer];
+                    feedConsumer = consumer;
                     break;
                 }
-                for (int consumer2 = 0; consumer2 < planeCount; ++consumer2) {
+                for (int consumer = 0; consumer < planeCount; ++consumer) {
                     if (feedViewer != null) break;
-                    if ((!this.feedDemand[consumer2][i]) || exactCamOf[consumer2] == null) continue;
-                    feedViewer = exactCamOf[consumer2];
-                    feedConsumer = consumer2;
+                    if ((!this.feedDemand[consumer][i]) || exactCamOf[consumer] == null) continue;
+                    feedViewer = exactCamOf[consumer];
+                    feedConsumer = consumer;
                 }
                 if (feedViewer == null || !this.computeFeedMatrices(plane, feedViewer, mainCameraPos, this.feedScratchMirrorLinear, this.feedScratchProj, this.feedScratchVirtCam)) {
                     cache.feedValid = false;
@@ -1443,22 +1443,17 @@ public final class ReflectionSystem {
             float signU = k == 0 || k == 3 ? -1.0f : 1.0f;
             float signV = k <= 1 ? -1.0f : 1.0f;
             switch (this.face) {
-                case UP: 
-                case DOWN: {
+                case UP, DOWN -> {
                     float centerU = (float)Mth.m_14008_((double)cameraPos.f_82479_, (double)this.minAlongU, (double)this.maxAlongU);
                     float centerV = (float)Mth.m_14008_((double)cameraPos.f_82481_, (double)this.minAlongV, (double)this.maxAlongV);
                     out.set(centerU + signU * halfExtent, (float)this.planePoint.f_82480_, centerV + signV * halfExtent);
-                    break;
                 }
-                case SOUTH: 
-                case NORTH: {
+                case SOUTH, NORTH -> {
                     float centerU = (float)Mth.m_14008_((double)cameraPos.f_82479_, (double)this.minAlongU, (double)this.maxAlongU);
                     float centerV = (float)Mth.m_14008_((double)cameraPos.f_82480_, (double)this.minAlongV, (double)this.maxAlongV);
                     out.set(centerU + signU * halfExtent, centerV + signV * halfExtent, (float)this.planePoint.f_82481_);
-                    break;
                 }
-                case WEST: 
-                case EAST: {
+                case WEST, EAST -> {
                     float centerU = (float)Mth.m_14008_((double)cameraPos.f_82481_, (double)this.minAlongU, (double)this.maxAlongU);
                     float centerV = (float)Mth.m_14008_((double)cameraPos.f_82480_, (double)this.minAlongV, (double)this.maxAlongV);
                     out.set((float)this.planePoint.f_82479_, centerV + signV * halfExtent, centerU + signU * halfExtent);
@@ -1556,8 +1551,8 @@ public final class ReflectionSystem {
         @Nullable
         private static VertexBuffer buildBuffer(MirrorPlane plane, int category) {
             int count = 0;
-            for (MirrorFace mirrorFace : plane.faces) {
-                if (CachedPlaneMesh.categoryOf(mirrorFace) == category) {
+            for (MirrorFace face : plane.faces) {
+                if (CachedPlaneMesh.categoryOf(face) == category) {
                     ++count;
                 }
             }
@@ -1571,11 +1566,11 @@ public final class ReflectionSystem {
                     CachedPlaneMesh.emitFace(builder, plane, face);
                 }
             }
-            VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-            vertexBuffer.m_85921_();
-            vertexBuffer.m_231221_(builder.m_231175_());
+            VertexBuffer buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+            buffer.m_85921_();
+            buffer.m_231221_(builder.m_231175_());
             VertexBuffer.m_85931_();
-            return vertexBuffer;
+            return buffer;
         }
 
         private static void emitFace(BufferBuilder builder, MirrorPlane plane, MirrorFace face) {

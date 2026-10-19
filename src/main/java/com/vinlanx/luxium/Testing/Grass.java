@@ -381,9 +381,11 @@ public final class Grass {
     private static float halton2(int idx) {
         float r = 0.0f;
         float f = 1.0f;
-        for (int i = idx + 1; i > 0; i >>= 1) {
+        int i = idx + 1;
+        while (i > 0) {
             f *= 0.5f;
             r += f * (float)(i & 1);
+            i >>= 1;
         }
         return r;
     }
@@ -391,9 +393,11 @@ public final class Grass {
     private static float halton3(int idx) {
         float r = 0.0f;
         float f = 1.0f;
-        for (int i = idx + 1; i > 0; i /= 3) {
+        int i = idx + 1;
+        while (i > 0) {
             f /= 3.0f;
             r += f * (float)(i % 3);
+            i /= 3;
         }
         return r;
     }

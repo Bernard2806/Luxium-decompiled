@@ -85,10 +85,12 @@ final class NeoShadowsRuntime {
             return;
         }
         long nowMs = System.currentTimeMillis();
-        boolean quietWindowElapsed = nowMs - this.engine.pendingRebuildSinceMs >= 2L;
-        boolean maxDeferralElapsed = nowMs - this.engine.pendingRebuildFirstRequestMs >= 1500L;
-        if (!quietWindowElapsed && !maxDeferralElapsed) {
-            return;
+        {
+            boolean quietWindowElapsed = nowMs - this.engine.pendingRebuildSinceMs >= 2L;
+            boolean maxDeferralElapsed = nowMs - this.engine.pendingRebuildFirstRequestMs >= 1500L;
+            if (!quietWindowElapsed && !maxDeferralElapsed) {
+                return;
+            }
         }
         this.engine.pendingRebuild = false;
         this.engine.pendingRebuildSinceMs = 0L;

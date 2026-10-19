@@ -37,11 +37,11 @@ public final class LightRtMath {
             double distance = (double)i * 0.5;
             if (distance >= maxDistance) {
                 lut[i] = 0;
-                continue;
+            } else {
+                double attenuation = Math.exp(-distance / (maxDistance / 3.0));
+                int light = (int)Math.round((double)baseLevel * attenuation);
+                lut[i] = Math.max(0, Math.min(baseLevel, light));
             }
-            double attenuation = Math.exp(-distance / (maxDistance / 3.0));
-            int light = (int)Math.round((double)baseLevel * attenuation);
-            lut[i] = Math.max(0, Math.min(baseLevel, light));
         }
         return lut;
     }

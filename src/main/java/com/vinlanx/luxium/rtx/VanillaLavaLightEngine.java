@@ -326,8 +326,8 @@ public final class VanillaLavaLightEngine {
             int localX = index & 0xF;
             int localZ = index >>> 4 & 0xF;
             int localY = index >>> 8 & 0xF;
-            BlockState state2 = section.m_62982_(localX, localY, localZ);
-            if (state2.m_60819_().m_205070_(FluidTags.f_13132_)) {
+            BlockState state = section.m_62982_(localX, localY, localZ);
+            if (state.m_60819_().m_205070_(FluidTags.f_13132_)) {
                 scan.foundSources.add(BlockPos.m_121882_((int)(baseX + localX), (int)(baseY + localY), (int)(baseZ + localZ)));
             }
             if ((index & 0x3F) == 63 && System.nanoTime() >= deadline) {
@@ -378,11 +378,13 @@ public final class VanillaLavaLightEngine {
             return;
         }
         long deadline = System.nanoTime() + 500000L;
-        for (int checked = 0; checked < 1024 && !this.pendingSourceChecks.isEmpty() && System.nanoTime() < deadline; ++checked) {
+        int checked = 0;
+        while (checked < 1024 && !this.pendingSourceChecks.isEmpty() && System.nanoTime() < deadline) {
             long key = this.pendingSourceChecks.dequeueLong();
             this.pendingSourceCheckSet.remove(key);
             this.scanCursor.m_122178_(BlockPos.m_121983_((long)key), BlockPos.m_122008_((long)key), BlockPos.m_122015_((long)key));
             current.m_7174_((BlockPos)this.scanCursor);
+            ++checked;
         }
     }
 

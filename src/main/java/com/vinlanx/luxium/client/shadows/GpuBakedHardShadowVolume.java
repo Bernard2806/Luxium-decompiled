@@ -333,10 +333,10 @@ final class GpuBakedHardShadowVolume {
                 this.metadataPixels.put(sourceColors[base + 2]);
                 this.metadataPixels.put(atlasRects[rectBase + 7]);
                 this.metadataPixels.put(atlasRects, rectBase, 24);
-                continue;
-            }
-            for (int j = 0; j < 36; ++j) {
-                this.metadataPixels.put(0.0f);
+            } else {
+                for (int j = 0; j < 36; ++j) {
+                    this.metadataPixels.put(0.0f);
+                }
             }
         }
         this.metadataPixels.flip();

@@ -195,9 +195,7 @@ final class NeoShadowsOcclusionPipeline {
         for (NeoShadowsTypes.UvPoint probe : probes) {
             double value = useU ? probe.u : probe.v;
             boolean exists = false;
-            Iterator iterator = values.iterator();
-            while (iterator.hasNext()) {
-                double existing = (Double)iterator.next();
+            for (double existing : values) {
                 if (Math.abs(existing - value) <= 1.0E-6) {
                     exists = true;
                     break;

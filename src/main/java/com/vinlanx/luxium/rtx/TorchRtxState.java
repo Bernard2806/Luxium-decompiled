@@ -476,9 +476,9 @@ public final class TorchRtxState {
             }
             GpuShadowCache.get().onSourcesRemoved(removed);
         }
-        ObjectIterator<Long2ByteMap.Entry> entries = discovered.long2ByteEntrySet().fastIterator();
-        while (entries.hasNext()) {
-            Long2ByteMap.Entry entry = entries.next();
+        ObjectIterator<Long2ByteMap.Entry> it = discovered.long2ByteEntrySet().fastIterator();
+        while (it.hasNext()) {
+            Long2ByteMap.Entry entry = it.next();
             long key = entry.getLongKey();
             byte emission = entry.getByteValue();
             int oldEmission = this.lightSources.containsKey(key) ? this.lightSources.get(key) & 0xFF : -1;
@@ -826,9 +826,9 @@ public final class TorchRtxState {
         if (this.enabled) {
             LongIterator oldIterator = previous.iterator();
             while (oldIterator.hasNext()) {
-                long sourceKey2 = oldIterator.nextLong();
-                if (!next.contains(sourceKey2) && this.lightSources.containsKey(sourceKey2)) {
-                    this.engine.addOrUpdateSource(sourceKey2, this.lightSources.get(sourceKey2) & 0xFF, false);
+                long sourceKey = oldIterator.nextLong();
+                if (!next.contains(sourceKey) && this.lightSources.containsKey(sourceKey)) {
+                    this.engine.addOrUpdateSource(sourceKey, this.lightSources.get(sourceKey) & 0xFF, false);
                 }
             }
             LongIterator newIterator = next.iterator();
@@ -1359,15 +1359,15 @@ public final class TorchRtxState {
         for (int y = 0; y < 16; ++y) {
             for (int z = 0; z < 16; ++z) {
                 for (int x = 0; x < 16; ++x) {
-                    BlockState state2 = section.m_62982_(x, y, z);
+                    BlockState state = section.m_62982_(x, y, z);
                     pos.m_122178_(baseX + x, baseY + y, baseZ + z);
                     if (maybeLight) {
-                        int emission = state2.getLightEmission((BlockGetter)task.level, (BlockPos)pos);
-                        if (emission > 0 && TorchRtxState.shouldRegisterRtxSource(task.level, state2)) {
+                        int emission = state.getLightEmission((BlockGetter)task.level, (BlockPos)pos);
+                        if (emission > 0 && TorchRtxState.shouldRegisterRtxSource(task.level, state)) {
                             task.sources.put(pos.m_121878_(), (byte)emission);
                         }
                     }
-                    if (maybeReflective && ReflectionMaterialRegistry.find(state2) != null) {
+                    if (maybeReflective && ReflectionMaterialRegistry.find(state) != null) {
                         task.reflections.add(pos.m_121878_());
                     }
                 }
@@ -1620,8 +1620,8 @@ public final class TorchRtxState {
         while (attempts < 24 && this.discoveryCursor < this.discoveryOffsets.length) {
             int packed = this.discoveryOffsets[this.discoveryCursor++];
             ++attempts;
-            short dx = (short)(packed >>> 16);
-            short dz = (short)packed;
+            int dx = (short)(packed >>> 16);
+            int dz = (short)packed;
             int chunkX = centerX + dx;
             int chunkZ = centerZ + dz;
             long key = ChunkPos.m_45589_((int)chunkX, (int)chunkZ);
@@ -1651,8 +1651,8 @@ public final class TorchRtxState {
         offsets.sort(Comparator.comparingInt(v -> v[0] * v[0] + v[1] * v[1]));
         int[] packed = new int[offsets.size()];
         for (int i = 0; i < offsets.size(); ++i) {
-            int[] v2 = (int[])offsets.get(i);
-            packed[i] = (v2[0] & 0xFFFF) << 16 | v2[1] & 0xFFFF;
+            int[] v = (int[])offsets.get(i);
+            packed[i] = (v[0] & 0xFFFF) << 16 | v[1] & 0xFFFF;
         }
         return packed;
     }
@@ -1764,8 +1764,8 @@ public final class TorchRtxState {
         boolean rescannedAny = false;
         int[] offsets = TorchRtxState.buildNearestChunkOffsets(chunkRadius);
         for (int packedOffset : offsets) {
-            short dx = (short)(packedOffset >>> 16);
-            short dz = (short)packedOffset;
+            int dx = (short)(packedOffset >>> 16);
+            int dz = (short)packedOffset;
             LevelChunk chunk = level.m_7726_().m_7131_(centerChunkX + dx, centerChunkZ + dz);
             if (chunk == null) continue;
             if (scanLight && NeoGpuVanilla.isConfiguredEnabled()) {

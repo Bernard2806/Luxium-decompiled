@@ -83,168 +83,166 @@ public final class PostEffectPipeline {
      */
     @SubscribeEvent(priority=EventPriority.LOWEST)
     public static void onRenderLevel(RenderLevelStageEvent event) {
-        {
-            if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
-                return;
-            }
-            if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) {
-                return;
-            }
-            PostEffectPipeline.clearDeferredTonemap();
-            Minecraft mc = Minecraft.m_91087_();
-            if (mc.f_91073_ == null || mc.f_91074_ == null) {
-                return;
-            }
-            boolean renderFog = fog.isEnabled();
-            boolean renderRays = skygodrays.isEnabled() && skygodrays.hasVisibleCelestial();
-            boolean renderVolumetricRays = skyvolumetrigodrays.shouldRender();
-            boolean renderFlare = lensflare.isEnabled() && skygodrays.hasVisibleCelestial();
-            boolean renderEffects = renderFog || renderRays || renderVolumetricRays || renderFlare;
-            boolean renderTonemap = tonemap.isEnabled();
-            if (!renderEffects && !renderTonemap) {
-                return;
-            }
-            RenderTarget main = mc.m_91385_();
-            int width = main.f_83917_;
-            int height = main.f_83918_;
-            if (width <= 0 || height <= 0) {
-                return;
-            }
-            float renderScale = Mth.m_14036_((float)((Double)Config.CLIENT.postEffectsRenderScale.get()).floatValue(), (float)0.1f, (float)1.0f);
-            boolean useEffectsTarget = renderEffects && (renderTonemap || renderScale < 0.999f);
-            int effectsWidth = useEffectsTarget ? Math.max(1, Math.round((float)width * renderScale)) : width;
-            int effectsHeight = useEffectsTarget ? Math.max(1, Math.round((float)height * renderScale)) : height;
-            if (useEffectsTarget) {
-                PostEffectPipeline.ensureEffectsTarget(effectsWidth, effectsHeight);
-            }
-            int effectsDepthTexture = useEffectsTarget ? main.m_83980_() : SharedPostResources.getDepthTextureId();
-            PREVIOUS_PROJECTION.set((Matrix4fc)RenderSystem.getProjectionMatrix());
-            VertexSorting previousVertexSorting = RenderSystem.getVertexSorting();
-            int[] savedTextures = PostEffectPipeline.saveShaderTextures();
-            float[] savedShaderColor = RenderSystem.getShaderColor();
-            int cloudOcclusionTexture = 0;
-            if (renderRays || renderFlare) {
-                Vec3 cameraPos = event.getCamera().m_90583_();
-                cloudOcclusionTexture = LuxiumCloudRenderer.get().renderOcclusionMask(event.getPoseStack(), event.getProjectionMatrix(), event.getPartialTick(), cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_, event.getRenderTick(), effectsWidth, effectsHeight);
-            }
-            PoseStack modelViewStack = RenderSystem.getModelViewStack();
-            modelViewStack.m_85836_();
-            modelViewStack.m_166856_();
-            modelViewStack.m_252880_(0.0f, 0.0f, -2000.0f);
-            RenderSystem.applyModelViewMatrix();
-            try {
-                if (renderEffects) {
-                    RenderTarget destination = main;
-                    int activeEffectCount = (renderFog ? 1 : 0) + (renderRays ? 1 : 0) + (renderVolumetricRays ? 1 : 0) + (renderFlare ? 1 : 0);
-                    ShaderInstance combinedEffects = renderVolumetricRays || activeEffectCount >= 2 ? ShaderManager.getPostEffectsCombinedShader() : null;
-                    boolean useCombinedEffects = combinedEffects != null;
-                    if (useEffectsTarget) {
-                        TextureTarget target = effectsTarget;
-                        if (target == null) {
-                            return;
-                        }
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+            return;
+        }
+        if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) {
+            return;
+        }
+        PostEffectPipeline.clearDeferredTonemap();
+        Minecraft mc = Minecraft.m_91087_();
+        if (mc.f_91073_ == null || mc.f_91074_ == null) {
+            return;
+        }
+        boolean renderFog = fog.isEnabled();
+        boolean renderRays = skygodrays.isEnabled() && skygodrays.hasVisibleCelestial();
+        boolean renderVolumetricRays = skyvolumetrigodrays.shouldRender();
+        boolean renderFlare = lensflare.isEnabled() && skygodrays.hasVisibleCelestial();
+        boolean renderEffects = renderFog || renderRays || renderVolumetricRays || renderFlare;
+        boolean renderTonemap = tonemap.isEnabled();
+        if (!renderEffects && !renderTonemap) {
+            return;
+        }
+        RenderTarget main = mc.m_91385_();
+        int width = main.f_83917_;
+        int height = main.f_83918_;
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+        float renderScale = Mth.m_14036_((float)((Double)Config.CLIENT.postEffectsRenderScale.get()).floatValue(), (float)0.1f, (float)1.0f);
+        boolean useEffectsTarget = renderEffects && (renderTonemap || renderScale < 0.999f);
+        int effectsWidth = useEffectsTarget ? Math.max(1, Math.round((float)width * renderScale)) : width;
+        int effectsHeight = useEffectsTarget ? Math.max(1, Math.round((float)height * renderScale)) : height;
+        if (useEffectsTarget) {
+            PostEffectPipeline.ensureEffectsTarget(effectsWidth, effectsHeight);
+        }
+        int effectsDepthTexture = useEffectsTarget ? main.m_83980_() : SharedPostResources.getDepthTextureId();
+        PREVIOUS_PROJECTION.set((Matrix4fc)RenderSystem.getProjectionMatrix());
+        VertexSorting previousVertexSorting = RenderSystem.getVertexSorting();
+        int[] savedTextures = PostEffectPipeline.saveShaderTextures();
+        float[] savedShaderColor = RenderSystem.getShaderColor();
+        int cloudOcclusionTexture = 0;
+        if (renderRays || renderFlare) {
+            Vec3 cameraPos = event.getCamera().m_90583_();
+            cloudOcclusionTexture = LuxiumCloudRenderer.get().renderOcclusionMask(event.getPoseStack(), event.getProjectionMatrix(), event.getPartialTick(), cameraPos.f_82479_, cameraPos.f_82480_, cameraPos.f_82481_, event.getRenderTick(), effectsWidth, effectsHeight);
+        }
+        PoseStack modelViewStack = RenderSystem.getModelViewStack();
+        modelViewStack.m_85836_();
+        modelViewStack.m_166856_();
+        modelViewStack.m_252880_(0.0f, 0.0f, -2000.0f);
+        RenderSystem.applyModelViewMatrix();
+        try {
+            if (renderEffects) {
+                RenderTarget destination = main;
+                int activeEffectCount = (renderFog ? 1 : 0) + (renderRays ? 1 : 0) + (renderVolumetricRays ? 1 : 0) + (renderFlare ? 1 : 0);
+                ShaderInstance combinedEffects = renderVolumetricRays || activeEffectCount >= 2 ? ShaderManager.getPostEffectsCombinedShader() : null;
+                boolean useCombinedEffects = combinedEffects != null;
+                if (useEffectsTarget) {
+                    TextureTarget target = effectsTarget;
+                    if (target == null) {
+                        return;
+                    }
+                    target.m_83947_(true);
+                    boolean firstPassOverwrites = useCombinedEffects || renderFog && fog.getShader() != null;
+                    if (!firstPassOverwrites) {
+                        target.m_83931_(0.0f, 0.0f, 0.0f, 0.0f);
+                        target.m_83954_(Minecraft.f_91002_);
                         target.m_83947_(true);
-                        boolean firstPassOverwrites = useCombinedEffects || renderFog && fog.getShader() != null;
-                        if (!firstPassOverwrites) {
-                            target.m_83931_(0.0f, 0.0f, 0.0f, 0.0f);
-                            target.m_83954_(Minecraft.f_91002_);
-                            target.m_83947_(true);
-                        }
-                        destination = target;
                     }
-                    if (useCombinedEffects) {
-                        combinedEffects.m_173350_("DepthSampler", (Object)effectsDepthTexture);
-                        PostEffectPipeline.setUniform1i(combinedEffects, "RenderFogEffect", renderFog ? 1 : 0);
-                        PostEffectPipeline.setUniform1i(combinedEffects, "RenderSkyRays", renderRays ? 1 : 0);
-                        PostEffectPipeline.setUniform1i(combinedEffects, "RenderSkyVolumetricRays", renderVolumetricRays ? 1 : 0);
-                        PostEffectPipeline.setUniform1i(combinedEffects, "RenderLensFlare", renderFlare ? 1 : 0);
-                        PostEffectPipeline.setUniform1i(combinedEffects, "RenderCelestialVisibility", renderRays || renderFlare ? 1 : 0);
-                        if (renderFog) {
-                            fog.configure(combinedEffects, event, mc, effectsDepthTexture);
-                        }
-                        if (renderRays) {
-                            skygodrays.configure(combinedEffects, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
-                        }
-                        if (renderVolumetricRays) {
-                            skyvolumetrigodrays.configure(combinedEffects, event, renderFog);
-                        }
-                        if (renderFlare) {
-                            if (renderRays) {
-                                lensflare.configureEffectUniforms(combinedEffects);
-                            } else {
-                                lensflare.configure(combinedEffects, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
-                            }
-                        }
-                        destination.m_83947_(true);
-                        PostEffectPipeline.draw(combinedEffects, effectsWidth, effectsHeight, useEffectsTarget ? BlendMode.OVERWRITE : (renderFog ? BlendMode.PREMULTIPLIED : BlendMode.ADDITIVE));
-                    } else {
-                        ShaderInstance shader2;
-                        if (renderFog) {
-                            destination.m_83947_(true);
-                            shader2 = fog.getShader();
-                            if (shader2 != null) {
-                                fog.configure(shader2, event, mc, effectsDepthTexture);
-                                PostEffectPipeline.draw(shader2, effectsWidth, effectsHeight, useEffectsTarget ? BlendMode.OVERWRITE : BlendMode.PREMULTIPLIED);
-                            }
-                        }
-                        if (renderRays) {
-                            shader2 = skygodrays.getShader();
-                            if (shader2 != null) {
-                                skygodrays.configure(shader2, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
-                                destination.m_83947_(true);
-                                PostEffectPipeline.draw(shader2, effectsWidth, effectsHeight, BlendMode.ADDITIVE);
-                            }
-                        }
-                        if (renderFlare) {
-                            shader2 = lensflare.getShader();
-                            if (shader2 != null) {
-                                lensflare.configure(shader2, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
-                                destination.m_83947_(true);
-                                PostEffectPipeline.draw(shader2, effectsWidth, effectsHeight, BlendMode.ADDITIVE);
-                            }
-                        }
-                    }
+                    destination = target;
                 }
-                if (renderTonemap) {
-                    ShaderInstance shader = tonemap.getShader();
-                    if (shader != null) {
-                        int sceneTexture = main.m_83975_();
-                        int effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.m_83975_() : 0;
-                        if (LsrSystem.shouldDeferTonemap()) {
-                            deferredTonemap = true;
-                            deferredTonemapCompositeEffects = useEffectsTarget;
-                            deferredEffectsTextureId = effectsTexture;
+                if (useCombinedEffects) {
+                    combinedEffects.m_173350_("DepthSampler", (Object)effectsDepthTexture);
+                    PostEffectPipeline.setUniform1i(combinedEffects, "RenderFogEffect", renderFog ? 1 : 0);
+                    PostEffectPipeline.setUniform1i(combinedEffects, "RenderSkyRays", renderRays ? 1 : 0);
+                    PostEffectPipeline.setUniform1i(combinedEffects, "RenderSkyVolumetricRays", renderVolumetricRays ? 1 : 0);
+                    PostEffectPipeline.setUniform1i(combinedEffects, "RenderLensFlare", renderFlare ? 1 : 0);
+                    PostEffectPipeline.setUniform1i(combinedEffects, "RenderCelestialVisibility", renderRays || renderFlare ? 1 : 0);
+                    if (renderFog) {
+                        fog.configure(combinedEffects, event, mc, effectsDepthTexture);
+                    }
+                    if (renderRays) {
+                        skygodrays.configure(combinedEffects, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
+                    }
+                    if (renderVolumetricRays) {
+                        skyvolumetrigodrays.configure(combinedEffects, event, renderFog);
+                    }
+                    if (renderFlare) {
+                        if (renderRays) {
+                            lensflare.configureEffectUniforms(combinedEffects);
                         } else {
-                            tonemap.configure(shader, sceneTexture, effectsTexture, useEffectsTarget);
-                            int previousSceneFilter = main.f_83922_;
-                            if (previousSceneFilter != 9729) {
-                                main.m_83936_(9729);
-                            }
-                            try {
-                                RenderTarget postTarget = PostProcessSwapChain.begin(main);
-                                postTarget.m_83947_(true);
-                                PostEffectPipeline.draw(shader, width, height, BlendMode.OVERWRITE);
-                            }
-                            finally {
-                                if (main.f_83922_ != previousSceneFilter) {
-                                    main.m_83936_(previousSceneFilter);
-                                }
-                            }
-                            PostProcessSwapChain.commit(main);
+                            lensflare.configure(combinedEffects, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
                         }
                     }
-                } else if (useEffectsTarget && effectsTarget != null) {
-                    ShaderInstance shader = ShaderManager.getPostEffectCompositeShader();
-                    if (shader != null) {
-                        shader.m_173350_("EffectsSampler", (Object)effectsTarget.m_83975_());
-                        main.m_83947_(true);
-                        PostEffectPipeline.draw(shader, width, height, BlendMode.PREMULTIPLIED);
+                    destination.m_83947_(true);
+                    PostEffectPipeline.draw(combinedEffects, effectsWidth, effectsHeight, useEffectsTarget ? BlendMode.OVERWRITE : (renderFog ? BlendMode.PREMULTIPLIED : BlendMode.ADDITIVE));
+                } else {
+                    ShaderInstance shader;
+                    if (renderFog) {
+                        destination.m_83947_(true);
+                        shader = fog.getShader();
+                        if (shader != null) {
+                            fog.configure(shader, event, mc, effectsDepthTexture);
+                            PostEffectPipeline.draw(shader, effectsWidth, effectsHeight, useEffectsTarget ? BlendMode.OVERWRITE : BlendMode.PREMULTIPLIED);
+                        }
+                    }
+                    if (renderRays) {
+                        shader = skygodrays.getShader();
+                        if (shader != null) {
+                            skygodrays.configure(shader, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
+                            destination.m_83947_(true);
+                            PostEffectPipeline.draw(shader, effectsWidth, effectsHeight, BlendMode.ADDITIVE);
+                        }
+                    }
+                    if (renderFlare) {
+                        shader = lensflare.getShader();
+                        if (shader != null) {
+                            lensflare.configure(shader, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
+                            destination.m_83947_(true);
+                            PostEffectPipeline.draw(shader, effectsWidth, effectsHeight, BlendMode.ADDITIVE);
+                        }
                     }
                 }
             }
-            finally {
-                PostEffectPipeline.restoreRenderState(modelViewStack, previousVertexSorting, savedTextures, savedShaderColor, main);
+            if (renderTonemap) {
+                ShaderInstance shader = tonemap.getShader();
+                if (shader != null) {
+                    int sceneTexture = main.m_83975_();
+                    int effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.m_83975_() : 0;
+                    if (LsrSystem.shouldDeferTonemap()) {
+                        deferredTonemap = true;
+                        deferredTonemapCompositeEffects = useEffectsTarget;
+                        deferredEffectsTextureId = effectsTexture;
+                    } else {
+                        tonemap.configure(shader, sceneTexture, effectsTexture, useEffectsTarget);
+                        int previousSceneFilter = main.f_83922_;
+                        if (previousSceneFilter != 9729) {
+                            main.m_83936_(9729);
+                        }
+                        try {
+                            RenderTarget postTarget = PostProcessSwapChain.begin(main);
+                            postTarget.m_83947_(true);
+                            PostEffectPipeline.draw(shader, width, height, BlendMode.OVERWRITE);
+                        }
+                        finally {
+                            if (main.f_83922_ != previousSceneFilter) {
+                                main.m_83936_(previousSceneFilter);
+                            }
+                        }
+                        PostProcessSwapChain.commit(main);
+                    }
+                }
+            } else if (useEffectsTarget && effectsTarget != null) {
+                ShaderInstance shader = ShaderManager.getPostEffectCompositeShader();
+                if (shader != null) {
+                    shader.m_173350_("EffectsSampler", (Object)effectsTarget.m_83975_());
+                    main.m_83947_(true);
+                    PostEffectPipeline.draw(shader, width, height, BlendMode.PREMULTIPLIED);
+                }
             }
+        }
+        finally {
+            PostEffectPipeline.restoreRenderState(modelViewStack, previousVertexSorting, savedTextures, savedShaderColor, main);
         }
     }
 

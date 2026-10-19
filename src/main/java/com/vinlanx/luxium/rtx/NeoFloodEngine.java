@@ -838,20 +838,20 @@ public final class NeoFloodEngine {
             LongOpenHashSet affected = new LongOpenHashSet();
             ArrayList<CompletedTrace> current = new ArrayList<CompletedTrace>(pending.size());
             synchronized (this.stateLock) {
-                for (CompletedTrace completedTrace : pending) {
-                    if (!this.isCaptureCurrent(completedTrace.capture)) {
-                        NeoFloodRtEngine.recycleVisibilityVolume(completedTrace.data.visibilityVolume);
+                for (CompletedTrace trace : pending) {
+                    if (!this.isCaptureCurrent(trace.capture)) {
+                        NeoFloodRtEngine.recycleVisibilityVolume(trace.data.visibilityVolume);
                         continue;
                     }
-                    long l = completedTrace.capture.state.key;
-                    PackedSourceData oldData = completedTrace.capture.state.result;
-                    current.add(completedTrace);
-                    replacements.put(l, (Object)completedTrace.data);
+                    long sourceKey = trace.capture.state.key;
+                    PackedSourceData oldData = trace.capture.state.result;
+                    current.add(trace);
+                    replacements.put(sourceKey, (Object)trace.data);
                     if (oldData != null) {
-                        oldDataBySource.put(l, (Object)oldData);
+                        oldDataBySource.put(sourceKey, (Object)oldData);
                         affected.addAll((LongCollection)oldData.sectionBits.keySet());
                     }
-                    affected.addAll((LongCollection)completedTrace.data.sectionBits.keySet());
+                    affected.addAll((LongCollection)trace.data.sectionBits.keySet());
                 }
             }
             pending.clear();
@@ -861,21 +861,21 @@ public final class NeoFloodEngine {
             PublishResult rebuilt = this.rebuildSectionsBatch(affected, (Long2ObjectOpenHashMap<PackedSourceData>)replacements, null);
             boolean allCurrent = true;
             synchronized (this.stateLock) {
-                for (CompletedTrace completedTrace : current) {
-                    if (!this.isCaptureCurrent(completedTrace.capture)) {
+                for (CompletedTrace trace : current) {
+                    if (!this.isCaptureCurrent(trace.capture)) {
                         allCurrent = false;
                         break;
                     }
                 }
                 if (allCurrent) {
-                    for (CompletedTrace completedTrace : current) {
-                        SourceState state = completedTrace.capture.state;
+                    for (CompletedTrace trace : current) {
+                        SourceState state = trace.capture.state;
                         PackedSourceData oldData = (PackedSourceData)oldDataBySource.get(state.key);
                         synchronized (state) {
-                            state.result = completedTrace.data;
+                            state.result = trace.data;
                             state.visibilityRevision = this.visibilityRevision.incrementAndGet();
                         }
-                        this.updateReverseIndex(state.key, oldData, completedTrace.data);
+                        this.updateReverseIndex(state.key, oldData, trace.data);
                     }
                     if (this.activeSourceSnapshotDirty) {
                         this.rebuildActiveSourceSnapshotLocked();
@@ -885,19 +885,19 @@ public final class NeoFloodEngine {
                 }
             }
             if (!allCurrent) {
-                for (CompletedTrace completedTrace : current) {
-                    if (this.isCaptureCurrent(completedTrace.capture)) {
-                        pending.add(completedTrace);
+                for (CompletedTrace trace : current) {
+                    if (this.isCaptureCurrent(trace.capture)) {
+                        pending.add(trace);
                     } else {
-                        NeoFloodRtEngine.recycleVisibilityVolume(completedTrace.data.visibilityVolume);
+                        NeoFloodRtEngine.recycleVisibilityVolume(trace.data.visibilityVolume);
                     }
                 }
                 continue;
             }
-            for (CompletedTrace completedTrace : current) {
-                PackedSourceData packedSourceData = (PackedSourceData)oldDataBySource.get(completedTrace.capture.state.key);
-                if (packedSourceData != null && packedSourceData.visibilityVolume != completedTrace.data.visibilityVolume) {
-                    NeoFloodRtEngine.recycleVisibilityVolume(packedSourceData.visibilityVolume);
+            for (CompletedTrace trace : current) {
+                PackedSourceData oldData = (PackedSourceData)oldDataBySource.get(trace.capture.state.key);
+                if (oldData != null && oldData.visibilityVolume != trace.data.visibilityVolume) {
+                    NeoFloodRtEngine.recycleVisibilityVolume(oldData.visibilityVolume);
                 }
             }
             this.notifyRebuiltSections(rebuilt, highPriority);
@@ -1033,7 +1033,8 @@ public final class NeoFloodEngine {
             if (bitsForSection == null) continue;
             scratch.sourceKeys[scratch.sourceCount++] = sourceKey;
             for (int word = 0; word < 64; ++word) {
-                for (long bits = bitsForSection[word]; bits != 0L; bits &= bits - 1L) {
+                long bits = bitsForSection[word];
+                while (bits != 0L) {
                     int bit = Long.numberOfTrailingZeros(bits);
                     int localIndex = (word << 6) + bit;
                     int worldX = baseX + (localIndex & 0xF);
@@ -1047,6 +1048,7 @@ public final class NeoFloodEngine {
                         scratch.light[localIndex] = (byte)candidateLight;
                         scratch.coverage[localIndex] = (byte)candidateCoverage;
                     }
+                    bits &= bits - 1L;
                 }
             }
         }
@@ -1096,11 +1098,11 @@ public final class NeoFloodEngine {
             }
             if (rebuilt.emptySections.contains(sectionKey)) {
                 nextShards[shardIndex].remove(sectionKey);
-                continue;
-            }
-            SectionLightData section = (SectionLightData)rebuilt.rebuilt.get(sectionKey);
-            if (section != null) {
-                nextShards[shardIndex].put(sectionKey, (Object)section);
+            } else {
+                SectionLightData section = (SectionLightData)rebuilt.rebuilt.get(sectionKey);
+                if (section != null) {
+                    nextShards[shardIndex].put(sectionKey, (Object)section);
+                }
             }
         }
         this.snapshot = new Snapshot(nextShards);

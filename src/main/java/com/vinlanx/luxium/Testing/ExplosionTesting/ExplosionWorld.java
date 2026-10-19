@@ -123,9 +123,11 @@ public final class ExplosionWorld {
             }
         }
         this.fluidAccumulator += dt;
-        for (int iterations = 0; this.fluidAccumulator >= 0.033333335f && iterations < 2; ++iterations) {
+        int iterations = 0;
+        while (this.fluidAccumulator >= 0.033333335f && iterations < 2) {
             this.fluid.step(0.033333335f);
             this.fluidAccumulator -= 0.033333335f;
+            ++iterations;
         }
         this.particles.step(dt, this.fluid, this.collision, this.simulationTime);
     }

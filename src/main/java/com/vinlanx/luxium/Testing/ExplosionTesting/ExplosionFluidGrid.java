@@ -172,8 +172,7 @@ final class ExplosionFluidGrid {
         float smokeDecay = (float)Math.exp(-dt * 0.075f);
         float fuelDecay = (float)Math.exp(-dt * 0.12f);
         float expansionDecay = (float)Math.exp(-dt * 4.2f);
-        int i = 0;
-        while (i < 9196) {
+        for (int i = 0; i < 9196; ++i) {
             this.vx[i] *= velocityDecay;
             this.vy[i] *= velocityDecay;
             this.vz[i] *= velocityDecay;
@@ -181,7 +180,6 @@ final class ExplosionFluidGrid {
             this.smoke[i] = Mth.m_14036_((float)(this.smoke[i] * smokeDecay), (float)0.0f, (float)4.0f);
             this.fuel[i] = Mth.m_14036_((float)(this.fuel[i] * fuelDecay), (float)0.0f, (float)3.0f);
             this.expansion[i] *= expansionDecay;
-            ++i;
         }
         this.applySolidBoundary();
     }
@@ -269,12 +267,12 @@ final class ExplosionFluidGrid {
         Arrays.fill(this.pressure, 0.0f);
         for (int iteration = 0; iteration < 7; ++iteration) {
             Arrays.fill(this.nextPressure, 0.0f);
-            for (int y2 = 1; y2 < 18; ++y2) {
-                for (int z2 = 1; z2 < 21; ++z2) {
-                    for (int x2 = 1; x2 < 21; ++x2) {
-                        int i2 = ExplosionFluidGrid.index(x2, y2, z2);
-                        if (!this.solid[i2]) {
-                            this.nextPressure[i2] = (this.pressure[ExplosionFluidGrid.index(x2 + 1, y2, z2)] + this.pressure[ExplosionFluidGrid.index(x2 - 1, y2, z2)] + this.pressure[ExplosionFluidGrid.index(x2, y2 + 1, z2)] + this.pressure[ExplosionFluidGrid.index(x2, y2 - 1, z2)] + this.pressure[ExplosionFluidGrid.index(x2, y2, z2 + 1)] + this.pressure[ExplosionFluidGrid.index(x2, y2, z2 - 1)] - this.scratch[i2]) / 6.0f;
+            for (int y = 1; y < 18; ++y) {
+                for (int z = 1; z < 21; ++z) {
+                    for (int x = 1; x < 21; ++x) {
+                        int i = ExplosionFluidGrid.index(x, y, z);
+                        if (!this.solid[i]) {
+                            this.nextPressure[i] = (this.pressure[ExplosionFluidGrid.index(x + 1, y, z)] + this.pressure[ExplosionFluidGrid.index(x - 1, y, z)] + this.pressure[ExplosionFluidGrid.index(x, y + 1, z)] + this.pressure[ExplosionFluidGrid.index(x, y - 1, z)] + this.pressure[ExplosionFluidGrid.index(x, y, z + 1)] + this.pressure[ExplosionFluidGrid.index(x, y, z - 1)] - this.scratch[i]) / 6.0f;
                         }
                     }
                 }

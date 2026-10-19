@@ -255,9 +255,9 @@ final class NeoShadowsProjection {
             return Double.compare(left.v, right.v);
         });
         List<NeoShadowsTypes.UvPoint> unique = new ArrayList<NeoShadowsTypes.UvPoint>(sorted.size());
-        for (NeoShadowsTypes.UvPoint uvPoint : sorted) {
-            if (unique.isEmpty() || !(uvPoint.equalsApprox((NeoShadowsTypes.UvPoint)unique.get(unique.size() - 1)))) {
-                unique.add(uvPoint);
+        for (NeoShadowsTypes.UvPoint point : sorted) {
+            if (unique.isEmpty() || !(point.equalsApprox((NeoShadowsTypes.UvPoint)unique.get(unique.size() - 1)))) {
+                unique.add(point);
             }
         }
         if (unique.size() < 3) {
@@ -297,9 +297,9 @@ final class NeoShadowsProjection {
         });
         List<NeoShadowsTypes.UvPoint> unique = scratch.hullUniqueBuf;
         unique.clear();
-        for (NeoShadowsTypes.UvPoint uvPoint : sorted) {
-            if (unique.isEmpty() || !(uvPoint.equalsApprox(unique.get(unique.size() - 1)))) {
-                unique.add(uvPoint);
+        for (NeoShadowsTypes.UvPoint point : sorted) {
+            if (unique.isEmpty() || !(point.equalsApprox(unique.get(unique.size() - 1)))) {
+                unique.add(point);
             }
         }
         if (unique.size() < 3) {
@@ -313,22 +313,22 @@ final class NeoShadowsProjection {
             }
             lower.add(point);
         }
-        List<NeoShadowsTypes.UvPoint> list = scratch.hullUpperBuf;
-        list.clear();
-        for (int index2 = unique.size() - 1; index2 >= 0; --index2) {
-            NeoShadowsTypes.UvPoint point = unique.get(index2);
-            while (list.size() >= 2 && NeoShadowsProjection.cross(list.get(list.size() - 2), list.get(list.size() - 1), point) <= 1.0E-6) {
-                list.remove(list.size() - 1);
+        List<NeoShadowsTypes.UvPoint> upper = scratch.hullUpperBuf;
+        upper.clear();
+        for (int index = unique.size() - 1; index >= 0; --index) {
+            NeoShadowsTypes.UvPoint point = unique.get(index);
+            while (upper.size() >= 2 && NeoShadowsProjection.cross(upper.get(upper.size() - 2), upper.get(upper.size() - 1), point) <= 1.0E-6) {
+                upper.remove(upper.size() - 1);
             }
-            list.add(point);
+            upper.add(point);
         }
         List<NeoShadowsTypes.UvPoint> output = scratch.hullOutputBuf;
         output.clear();
         for (int index = 0; index < lower.size() - 1; ++index) {
             output.add(lower.get(index));
         }
-        for (int index = 0; index < list.size() - 1; ++index) {
-            output.add(list.get(index));
+        for (int index = 0; index < upper.size() - 1; ++index) {
+            output.add(upper.get(index));
         }
         return output;
     }

@@ -777,9 +777,9 @@ final class NeoShadowsTypes {
                     int nextV = startCellV + height;
                     boolean rowMatches = true;
                     for (int offsetU = 0; offsetU < width; ++offsetU) {
-                        long nextCellKey2 = NeoShadowsProjection.receiverCellKey(startCellU + offsetU, nextV);
-                        long nextPosKey2 = fullFacePosByCell.get(nextCellKey2);
-                        if (nextPosKey2 == Long.MIN_VALUE || visitedCells.contains(nextCellKey2) || !(NeoShadowsProjection.sameReceiverStrength(strength, this.faceWeights.get(nextPosKey2)))) {
+                        long nextCellKey = NeoShadowsProjection.receiverCellKey(startCellU + offsetU, nextV);
+                        long nextPosKey = fullFacePosByCell.get(nextCellKey);
+                        if (nextPosKey == Long.MIN_VALUE || visitedCells.contains(nextCellKey) || !(NeoShadowsProjection.sameReceiverStrength(strength, this.faceWeights.get(nextPosKey)))) {
                             rowMatches = false;
                             break;
                         }

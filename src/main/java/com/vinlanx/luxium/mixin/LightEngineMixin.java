@@ -77,16 +77,16 @@ implements LuxiumLightEngineExtension {
         }
         LuxiumLayerLightStorageExtension storageAccess = (LuxiumLayerLightStorageExtension)this.f_283849_;
         while (processed < budget && this.f_283823_.isEmpty() && !this.f_283934_.isEmpty()) {
-            long posKey2 = this.f_283934_.dequeueLong();
+            long posKey = this.f_283934_.dequeueLong();
             long entry = this.f_283934_.dequeueLong();
-            int stored = storageAccess.luxium$getStoredLevel(posKey2);
+            int stored = storageAccess.luxium$getStoredLevel(posKey);
             int fromLevel = LightEngine.QueueEntry.m_284170_((long)entry);
             if (LightEngine.QueueEntry.m_284312_((long)entry) && stored < fromLevel) {
-                storageAccess.luxium$setStoredLevel(posKey2, fromLevel);
+                storageAccess.luxium$setStoredLevel(posKey, fromLevel);
                 stored = fromLevel;
             }
             if (stored == fromLevel) {
-                this.m_284316_(posKey2, entry, stored);
+                this.m_284316_(posKey, entry, stored);
             }
             ++processed;
         }

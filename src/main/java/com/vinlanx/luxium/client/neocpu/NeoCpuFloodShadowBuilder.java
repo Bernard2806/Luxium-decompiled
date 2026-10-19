@@ -714,11 +714,10 @@ public final class NeoCpuFloodShadowBuilder {
     }
 
     private void appendProjectedQuadShadow(Vec3 source, NeoCpuShadowTypes.ReceiverSurface receiver, Vec3[] vertices) {
-        int i;
         if (vertices.length < 4) {
             return;
         }
-        for (i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; ++i) {
             Vec3 vertex = vertices[i];
             this.quadCornerProjScratch[i] = NeoCpuFloodShadowBuilder.projectWorldPoint(source, receiver, vertex.f_82479_, vertex.f_82480_, vertex.f_82481_);
             NeoCpuShadowTypes.Uv uv = this.quadCornerProjScratch[i].uv();
@@ -726,7 +725,7 @@ public final class NeoCpuFloodShadowBuilder {
                 this.projected.add(uv);
             }
         }
-        for (i = 0; i < 4; ++i) {
+        for (int i = 0; i < 4; ++i) {
             int next = i + 1 & 3;
             Vec3 start = vertices[i];
             Vec3 end = vertices[next];
