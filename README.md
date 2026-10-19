@@ -20,7 +20,7 @@ This is an unofficial decompilation. If you are the original author or a rights 
 
 This is a decompilation, not the original source tree. CFR reports one class/method it could not fully decompile: `com.vinlanx.luxium.rtx.TorchRtxState.drainFrontierChecks(int)`; see `src/main/java/summary.txt`. That method was reconstructed with Vineflower 1.10.1 and compiles to the same bytecode as the original.
 
-The sources were then corrected until a Gradle build reproduces every `.class` file of the original JAR byte for byte (395 of 395), including local variable tables and line numbers. Statements therefore sit on the line numbers of the original source, which leaves some blank lines and a few compact lines. Only packaging differs: the original resources use CRLF line endings, and the manifest and `mods.toml` carry different build metadata and credits.
+The sources were then corrected until a Gradle build reproduces every `.class` file of the original JAR byte for byte (395 of 395), including local variable tables and line numbers. Statements therefore sit on the line numbers of the original source, which leaves some blank lines and a few compact lines. Resources keep the original line endings (see `.gitattributes`). Only packaging differs: the manifest and `mods.toml` carry different build metadata and credits, and the generated mixin refmap lists the same entries in a different order.
 
 ## Dependencies and requirements
 
