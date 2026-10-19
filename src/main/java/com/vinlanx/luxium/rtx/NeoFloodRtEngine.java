@@ -397,6 +397,22 @@ final class NeoFloodRtEngine {
         return (dy + 36) * 5329 + (dz + 36) * 73 + (dx + 36);
     }
 
+    static final class Result {
+        final byte[] packedLight;
+        final byte[] visibilityVolume;
+        final long[] touchedBits;
+        final int solvedCellCount;
+        final boolean dataIncomplete;
+
+        Result(byte[] packedLight, byte[] visibilityVolume, long[] touchedBits, int solvedCellCount, boolean dataIncomplete) {
+            this.packedLight = packedLight;
+            this.visibilityVolume = visibilityVolume;
+            this.touchedBits = touchedBits;
+            this.solvedCellCount = solvedCellCount;
+            this.dataIncomplete = dataIncomplete;
+        }
+    }
+
     private static final class Scratch {
         final float[] throughput = new float[389017];
         final byte[] opacity = new byte[389017];
@@ -487,22 +503,6 @@ final class NeoFloodRtEngine {
             double left = Math.pow(fraction, sharpness);
             double right = Math.pow(1.0 - fraction, sharpness);
             return (float)(left / (left + right));
-        }
-    }
-
-    static final class Result {
-        final byte[] packedLight;
-        final byte[] visibilityVolume;
-        final long[] touchedBits;
-        final int solvedCellCount;
-        final boolean dataIncomplete;
-
-        Result(byte[] packedLight, byte[] visibilityVolume, long[] touchedBits, int solvedCellCount, boolean dataIncomplete) {
-            this.packedLight = packedLight;
-            this.visibilityVolume = visibilityVolume;
-            this.touchedBits = touchedBits;
-            this.solvedCellCount = solvedCellCount;
-            this.dataIncomplete = dataIncomplete;
         }
     }
 }

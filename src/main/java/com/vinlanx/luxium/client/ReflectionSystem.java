@@ -1303,66 +1303,148 @@ public final class ReflectionSystem {
         }
     }
 
-    private static final class PlaneRenderCache {
-        final RenderTarget[] targets;
-        final GlTextureRef textureRef;
-        final RenderType reflectRenderType;
-        final RenderType polishedAndesiteReflectRenderType;
-        final RenderType metalReflectRenderType;
-        final Matrix4f exactMirrorLinear = new Matrix4f();
-        final Matrix4f exactVirtualProj = new Matrix4f();
-        @Nullable
-        Vec3 exactVirtualCamPos;
-        boolean exactValid = false;
-        final Matrix4f feedMirrorLinear = new Matrix4f();
-        final Matrix4f feedVirtualProj = new Matrix4f();
-        @Nullable
-        Vec3 feedVirtualCamPos;
-        boolean feedValid = false;
-        long feedConsumerIdentity = Long.MIN_VALUE;
-        float exactUvScaleX = 1.0f;
-        float exactUvScaleY = 1.0f;
-        float feedUvScaleX = 1.0f;
-        float feedUvScaleY = 1.0f;
-        float activeUvScaleX = 1.0f;
-        float activeUvScaleY = 1.0f;
-        @Nullable
-        CachedPlaneMesh mesh;
-        long meshSignature = Long.MIN_VALUE;
-        long lastPlaneIdentity = Long.MIN_VALUE;
+    private static final class PlaneKey {
+        final Direction face;
+        final int coordinate;
 
-        PlaneRenderCache(RenderTarget[] targets, GlTextureRef textureRef, RenderType reflectRenderType, RenderType polishedAndesiteReflectRenderType, RenderType metalReflectRenderType) {
-            this.targets = targets;
-            this.textureRef = textureRef;
-            this.reflectRenderType = reflectRenderType;
-            this.polishedAndesiteReflectRenderType = polishedAndesiteReflectRenderType;
-            this.metalReflectRenderType = metalReflectRenderType;
+        private PlaneKey(Direction face, int coordinate) {
+            this.face = face;
+            this.coordinate = coordinate;
         }
 
-        void invalidate() {
-            this.exactValid = false;
-            this.exactVirtualCamPos = null;
-            this.feedValid = false;
-            this.feedVirtualCamPos = null;
+        static PlaneKey of(BlockPos pos, Direction face) {
+            int coord = switch (face) {
+                default -> throw new IncompatibleClassChangeError();
+                case Direction.EAST -> pos.m_123341_() + 1;
+                case Direction.WEST -> pos.m_123341_();
+                case Direction.UP -> pos.m_123342_() + 1;
+                case Direction.DOWN -> pos.m_123342_();
+                case Direction.SOUTH -> pos.m_123343_() + 1;
+                case Direction.NORTH -> pos.m_123343_();
+            };
+            return new PlaneKey(face, coord);
         }
 
-        void ensureMesh(MirrorPlane plane, long signature) {
-            if (this.mesh != null && this.meshSignature == signature) {
-                return;
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
             }
-            if (this.mesh != null) {
-                this.mesh.close();
+            if (!(o instanceof PlaneKey k)) {
+                return false;
             }
-            this.mesh = new CachedPlaneMesh(plane);
-            this.meshSignature = signature;
+            return this.face == k.face && this.coordinate == k.coordinate;
         }
 
-        void closeMesh() {
-            if (this.mesh != null) {
-                this.mesh.close();
-                this.mesh = null;
+        public int hashCode() {
+            return 31 * this.face.hashCode() + this.coordinate;
+        }
+    }
+
+    private static final class MirrorFace {
+        final BlockPos blockPos;
+        final Direction face;
+        final ReflectionMaterial material;
+        final boolean usePolishedShader;
+        final boolean useMetalShader;
+        @Nullable
+        final RainPuddleSurface rainPuddleSurface;
+        final float[] warpedU = new float[4];
+        final float[] warpedV = new float[4];
+
+        MirrorFace(BlockPos p, Direction f, ReflectionMaterial material, boolean usePolishedShader, boolean useMetalShader, @Nullable RainPuddleSurface rainPuddleSurface, Vec3 cameraPos) {
+            this.blockPos = p.m_7949_();
+            this.face = f;
+            this.material = material;
+            this.usePolishedShader = usePolishedShader;
+            this.useMetalShader = useMetalShader;
+            this.rainPuddleSurface = rainPuddleSurface;
+            for (int vertex = 0; vertex < 4; ++vertex) {
+                float u = vertex == 0 || vertex == 3 ? 0.0f : 1.0f;
+                float v = vertex <= 1 ? 0.0f : 1.0f;
+                float worldX = (float)ReflectionSystem.facePointX(p, f, u);
+                float worldY = (float)ReflectionSystem.facePointY(p, f, v);
+                float worldZ = (float)ReflectionSystem.facePointZ(p, f, u, v);
+                this.warpedU[vertex] = material.warpU(u, v, worldX, worldY, worldZ, p, f, vertex, cameraPos);
+                this.warpedV[vertex] = material.warpV(u, v, worldX, worldY, worldZ, p, f, vertex, cameraPos);
             }
-            this.meshSignature = Long.MIN_VALUE;
+        }
+    }
+
+    private static final class CachedPlaneMesh
+    implements AutoCloseable {
+        @Nullable
+        final VertexBuffer defaultBuffer;
+        @Nullable
+        final VertexBuffer polishedBuffer;
+        @Nullable
+        final VertexBuffer metalBuffer;
+
+        CachedPlaneMesh(MirrorPlane plane) {
+            this.defaultBuffer = CachedPlaneMesh.buildBuffer(plane, 0);
+            this.polishedBuffer = CachedPlaneMesh.buildBuffer(plane, 1);
+            this.metalBuffer = CachedPlaneMesh.buildBuffer(plane, 2);
+        }
+
+        @Nullable
+        private static VertexBuffer buildBuffer(MirrorPlane plane, int category) {
+            int count = 0;
+            for (MirrorFace face : plane.faces) {
+                if (CachedPlaneMesh.categoryOf(face) == category) {
+                    ++count;
+                }
+            }
+            if (count == 0) {
+                return null;
+            }
+            BufferBuilder builder = new BufferBuilder(Math.max(256, count * 128));
+            builder.m_166779_(VertexFormat.Mode.QUADS, DefaultVertexFormat.f_85820_);
+            for (MirrorFace face : plane.faces) {
+                if (CachedPlaneMesh.categoryOf(face) == category) {
+                    CachedPlaneMesh.emitFace(builder, plane, face);
+                }
+            }
+            VertexBuffer buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+            buffer.m_85921_();
+            buffer.m_231221_(builder.m_231175_());
+            VertexBuffer.m_85931_();
+            return buffer;
+        }
+
+        private static void emitFace(BufferBuilder builder, MirrorPlane plane, MirrorFace face) {
+            for (int vertex = 0; vertex < 4; ++vertex) {
+                float u = vertex == 0 || vertex == 3 ? 0.0f : 1.0f;
+                float v = vertex <= 1 ? 0.0f : 1.0f;
+                float mask = ReflectionSystem.sampleMaskedAlpha(1.0f, face.rainPuddleSurface, face.blockPos, u, v);
+                CachedPlaneMesh.emitMeshVertex(builder, plane, face, ReflectionSystem.facePointX(face.blockPos, face.face, u), ReflectionSystem.facePointY(face.blockPos, face.face, v), ReflectionSystem.facePointZ(face.blockPos, face.face, u, v), face.warpedU[vertex], face.warpedV[vertex], mask);
+            }
+        }
+
+        private static void emitMeshVertex(BufferBuilder builder, MirrorPlane plane, MirrorFace face, double x, double y, double z, float u, float v, float mask) {
+            Vec3 origin = plane.meshOrigin;
+            builder.m_5483_(x - origin.f_82479_, y - origin.f_82480_, z - origin.f_82481_).m_85950_(face.material.getBaseAlpha(), face.material.getMaxDistance() / 64.0f, mask, CachedPlaneMesh.categoryOf(face) == 0 ? 0.5f : 1.0f).m_7421_(u, v).m_85969_(0xF000F0).m_5752_();
+        }
+
+        private static int categoryOf(MirrorFace face) {
+            if (face.usePolishedShader) {
+                return 1;
+            }
+            if (face.useMetalShader) {
+                return 2;
+            }
+            return 0;
+        }
+
+        @Override
+        public void close() {
+            CachedPlaneMesh.closeBuffer(this.defaultBuffer);
+            CachedPlaneMesh.closeBuffer(this.polishedBuffer);
+            CachedPlaneMesh.closeBuffer(this.metalBuffer);
+        }
+
+        private static void closeBuffer(@Nullable VertexBuffer buffer) {
+            if (buffer != null) {
+                buffer.close();
+            }
         }
     }
 
@@ -1479,166 +1561,70 @@ public final class ReflectionSystem {
         }
     }
 
-    static final class GlTextureRef
-    extends AbstractTexture {
-        GlTextureRef(int glId) {
-            this.f_117950_ = glId;
+    private static final class PlaneRenderCache {
+        final RenderTarget[] targets;
+        final GlTextureRef textureRef;
+        final RenderType reflectRenderType;
+        final RenderType polishedAndesiteReflectRenderType;
+        final RenderType metalReflectRenderType;
+        final Matrix4f exactMirrorLinear = new Matrix4f();
+        final Matrix4f exactVirtualProj = new Matrix4f();
+        @Nullable
+        Vec3 exactVirtualCamPos;
+        boolean exactValid = false;
+        final Matrix4f feedMirrorLinear = new Matrix4f();
+        final Matrix4f feedVirtualProj = new Matrix4f();
+        @Nullable
+        Vec3 feedVirtualCamPos;
+        boolean feedValid = false;
+        long feedConsumerIdentity = Long.MIN_VALUE;
+        float exactUvScaleX = 1.0f;
+        float exactUvScaleY = 1.0f;
+        float feedUvScaleX = 1.0f;
+        float feedUvScaleY = 1.0f;
+        float activeUvScaleX = 1.0f;
+        float activeUvScaleY = 1.0f;
+        @Nullable
+        CachedPlaneMesh mesh;
+        long meshSignature = Long.MIN_VALUE;
+        long lastPlaneIdentity = Long.MIN_VALUE;
+
+        PlaneRenderCache(RenderTarget[] targets, GlTextureRef textureRef, RenderType reflectRenderType, RenderType polishedAndesiteReflectRenderType, RenderType metalReflectRenderType) {
+            this.targets = targets;
+            this.textureRef = textureRef;
+            this.reflectRenderType = reflectRenderType;
+            this.polishedAndesiteReflectRenderType = polishedAndesiteReflectRenderType;
+            this.metalReflectRenderType = metalReflectRenderType;
         }
 
-        void setGlId(int glId) {
-            this.f_117950_ = glId;
+        void invalidate() {
+            this.exactValid = false;
+            this.exactVirtualCamPos = null;
+            this.feedValid = false;
+            this.feedVirtualCamPos = null;
         }
 
-        public void m_6704_(ResourceManager manager) throws IOException {
+        void ensureMesh(MirrorPlane plane, long signature) {
+            if (this.mesh != null && this.meshSignature == signature) {
+                return;
+            }
+            if (this.mesh != null) {
+                this.mesh.close();
+            }
+            this.mesh = new CachedPlaneMesh(plane);
+            this.meshSignature = signature;
+        }
+
+        void closeMesh() {
+            if (this.mesh != null) {
+                this.mesh.close();
+                this.mesh = null;
+            }
+            this.meshSignature = Long.MIN_VALUE;
         }
     }
 
     private record CropRect(int x, int y, int width, int height, int targetWidth, int targetHeight) {
-    }
-
-    private static final class PlaneKey {
-        final Direction face;
-        final int coordinate;
-
-        private PlaneKey(Direction face, int coordinate) {
-            this.face = face;
-            this.coordinate = coordinate;
-        }
-
-        static PlaneKey of(BlockPos pos, Direction face) {
-            int coord = switch (face) {
-                default -> throw new IncompatibleClassChangeError();
-                case Direction.EAST -> pos.m_123341_() + 1;
-                case Direction.WEST -> pos.m_123341_();
-                case Direction.UP -> pos.m_123342_() + 1;
-                case Direction.DOWN -> pos.m_123342_();
-                case Direction.SOUTH -> pos.m_123343_() + 1;
-                case Direction.NORTH -> pos.m_123343_();
-            };
-            return new PlaneKey(face, coord);
-        }
-
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof PlaneKey k)) {
-                return false;
-            }
-            return this.face == k.face && this.coordinate == k.coordinate;
-        }
-
-        public int hashCode() {
-            return 31 * this.face.hashCode() + this.coordinate;
-        }
-    }
-
-    private static final class CachedPlaneMesh
-    implements AutoCloseable {
-        @Nullable
-        final VertexBuffer defaultBuffer;
-        @Nullable
-        final VertexBuffer polishedBuffer;
-        @Nullable
-        final VertexBuffer metalBuffer;
-
-        CachedPlaneMesh(MirrorPlane plane) {
-            this.defaultBuffer = CachedPlaneMesh.buildBuffer(plane, 0);
-            this.polishedBuffer = CachedPlaneMesh.buildBuffer(plane, 1);
-            this.metalBuffer = CachedPlaneMesh.buildBuffer(plane, 2);
-        }
-
-        @Nullable
-        private static VertexBuffer buildBuffer(MirrorPlane plane, int category) {
-            int count = 0;
-            for (MirrorFace face : plane.faces) {
-                if (CachedPlaneMesh.categoryOf(face) == category) {
-                    ++count;
-                }
-            }
-            if (count == 0) {
-                return null;
-            }
-            BufferBuilder builder = new BufferBuilder(Math.max(256, count * 128));
-            builder.m_166779_(VertexFormat.Mode.QUADS, DefaultVertexFormat.f_85820_);
-            for (MirrorFace face : plane.faces) {
-                if (CachedPlaneMesh.categoryOf(face) == category) {
-                    CachedPlaneMesh.emitFace(builder, plane, face);
-                }
-            }
-            VertexBuffer buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-            buffer.m_85921_();
-            buffer.m_231221_(builder.m_231175_());
-            VertexBuffer.m_85931_();
-            return buffer;
-        }
-
-        private static void emitFace(BufferBuilder builder, MirrorPlane plane, MirrorFace face) {
-            for (int vertex = 0; vertex < 4; ++vertex) {
-                float u = vertex == 0 || vertex == 3 ? 0.0f : 1.0f;
-                float v = vertex <= 1 ? 0.0f : 1.0f;
-                float mask = ReflectionSystem.sampleMaskedAlpha(1.0f, face.rainPuddleSurface, face.blockPos, u, v);
-                CachedPlaneMesh.emitMeshVertex(builder, plane, face, ReflectionSystem.facePointX(face.blockPos, face.face, u), ReflectionSystem.facePointY(face.blockPos, face.face, v), ReflectionSystem.facePointZ(face.blockPos, face.face, u, v), face.warpedU[vertex], face.warpedV[vertex], mask);
-            }
-        }
-
-        private static void emitMeshVertex(BufferBuilder builder, MirrorPlane plane, MirrorFace face, double x, double y, double z, float u, float v, float mask) {
-            Vec3 origin = plane.meshOrigin;
-            builder.m_5483_(x - origin.f_82479_, y - origin.f_82480_, z - origin.f_82481_).m_85950_(face.material.getBaseAlpha(), face.material.getMaxDistance() / 64.0f, mask, CachedPlaneMesh.categoryOf(face) == 0 ? 0.5f : 1.0f).m_7421_(u, v).m_85969_(0xF000F0).m_5752_();
-        }
-
-        private static int categoryOf(MirrorFace face) {
-            if (face.usePolishedShader) {
-                return 1;
-            }
-            if (face.useMetalShader) {
-                return 2;
-            }
-            return 0;
-        }
-
-        @Override
-        public void close() {
-            CachedPlaneMesh.closeBuffer(this.defaultBuffer);
-            CachedPlaneMesh.closeBuffer(this.polishedBuffer);
-            CachedPlaneMesh.closeBuffer(this.metalBuffer);
-        }
-
-        private static void closeBuffer(@Nullable VertexBuffer buffer) {
-            if (buffer != null) {
-                buffer.close();
-            }
-        }
-    }
-
-    private static final class MirrorFace {
-        final BlockPos blockPos;
-        final Direction face;
-        final ReflectionMaterial material;
-        final boolean usePolishedShader;
-        final boolean useMetalShader;
-        @Nullable
-        final RainPuddleSurface rainPuddleSurface;
-        final float[] warpedU = new float[4];
-        final float[] warpedV = new float[4];
-
-        MirrorFace(BlockPos p, Direction f, ReflectionMaterial material, boolean usePolishedShader, boolean useMetalShader, @Nullable RainPuddleSurface rainPuddleSurface, Vec3 cameraPos) {
-            this.blockPos = p.m_7949_();
-            this.face = f;
-            this.material = material;
-            this.usePolishedShader = usePolishedShader;
-            this.useMetalShader = useMetalShader;
-            this.rainPuddleSurface = rainPuddleSurface;
-            for (int vertex = 0; vertex < 4; ++vertex) {
-                float u = vertex == 0 || vertex == 3 ? 0.0f : 1.0f;
-                float v = vertex <= 1 ? 0.0f : 1.0f;
-                float worldX = (float)ReflectionSystem.facePointX(p, f, u);
-                float worldY = (float)ReflectionSystem.facePointY(p, f, v);
-                float worldZ = (float)ReflectionSystem.facePointZ(p, f, u, v);
-                this.warpedU[vertex] = material.warpU(u, v, worldX, worldY, worldZ, p, f, vertex, cameraPos);
-                this.warpedV[vertex] = material.warpV(u, v, worldX, worldY, worldZ, p, f, vertex, cameraPos);
-            }
-        }
     }
 
     private static final class RenderHelper
@@ -1651,6 +1637,20 @@ public final class ReflectionSystem {
 
         private RenderHelper() {
             super("loh_helper", () -> {}, () -> {});
+        }
+    }
+
+    static final class GlTextureRef
+    extends AbstractTexture {
+        GlTextureRef(int glId) {
+            this.f_117950_ = glId;
+        }
+
+        void setGlId(int glId) {
+            this.f_117950_ = glId;
+        }
+
+        public void m_6704_(ResourceManager manager) throws IOException {
         }
     }
 }

@@ -216,70 +216,6 @@ public final class fog {
         }
     }
 
-    private static final class FogUniforms {
-        private final ShaderInstance shader;
-        private final Uniform inverseProjMat;
-        private final Uniform inverseViewMat;
-        private final Uniform fogSunDir;
-        private final Uniform fogEnabled;
-        private final Uniform celestialScatteringEnabled;
-        private final Uniform fogDensityAtOrigin;
-        private final Uniform fogExtinction;
-        private final Uniform fogScatteringBrightness;
-        private final Uniform fogMaxBrightness;
-        private final Uniform fogNearDensityBoost;
-        private final Uniform fogNearBoostRange;
-        private final Uniform fogDynamicCelestialColor;
-        private final Uniform fogCelestialColorBlend;
-        private final Uniform fogCelestialColor;
-        private final Uniform fogStartDistance;
-        private final Uniform fogNearFade;
-        private final Uniform fogMaxOpacity;
-        private final Uniform fogSkyTint;
-        private final Uniform fogScatteringStrength;
-        private final Uniform fogDistanceCurve;
-        private final Uniform fogHeightFalloff;
-        private final Uniform fogAmbientColor;
-        private final Uniform fogSkyColor;
-        private final Uniform fogSunColor;
-        private final Uniform fogMoonColor;
-        private final Uniform fogMieParams;
-        private final Uniform fogSunVisibility;
-        private final Uniform fogMoonVisibility;
-
-        private FogUniforms(ShaderInstance shader) {
-            this.shader = shader;
-            this.inverseProjMat = shader.m_173348_("InverseProjMat");
-            this.inverseViewMat = shader.m_173348_("InverseViewMat");
-            this.fogSunDir = shader.m_173348_("FogSunDir");
-            this.fogEnabled = shader.m_173348_("FogEnabled");
-            this.celestialScatteringEnabled = shader.m_173348_("CelestialScatteringEnabled");
-            this.fogDensityAtOrigin = shader.m_173348_("FogDensityAtOrigin");
-            this.fogExtinction = shader.m_173348_("FogExtinction");
-            this.fogScatteringBrightness = shader.m_173348_("FogScatteringBrightness");
-            this.fogMaxBrightness = shader.m_173348_("FogMaxBrightness");
-            this.fogNearDensityBoost = shader.m_173348_("FogNearDensityBoost");
-            this.fogNearBoostRange = shader.m_173348_("FogNearBoostRange");
-            this.fogDynamicCelestialColor = shader.m_173348_("FogDynamicCelestialColor");
-            this.fogCelestialColorBlend = shader.m_173348_("FogCelestialColorBlend");
-            this.fogCelestialColor = shader.m_173348_("FogCelestialColor");
-            this.fogStartDistance = shader.m_173348_("FogStartDistance");
-            this.fogNearFade = shader.m_173348_("FogNearFade");
-            this.fogMaxOpacity = shader.m_173348_("FogMaxOpacity");
-            this.fogSkyTint = shader.m_173348_("FogSkyTint");
-            this.fogScatteringStrength = shader.m_173348_("FogScatteringStrength");
-            this.fogDistanceCurve = shader.m_173348_("FogDistanceCurve");
-            this.fogHeightFalloff = shader.m_173348_("FogHeightFalloff");
-            this.fogAmbientColor = shader.m_173348_("FogAmbientColor");
-            this.fogSkyColor = shader.m_173348_("FogSkyColor");
-            this.fogSunColor = shader.m_173348_("FogSunColor");
-            this.fogMoonColor = shader.m_173348_("FogMoonColor");
-            this.fogMieParams = shader.m_173348_("FogMieParams");
-            this.fogSunVisibility = shader.m_173348_("FogSunVisibility");
-            this.fogMoonVisibility = shader.m_173348_("FogMoonVisibility");
-        }
-    }
-
     private static final class FogFrameState {
         private boolean renderFog;
         private boolean celestialScatteringEnabled;
@@ -397,6 +333,70 @@ public final class fog {
             this.moonR = 0.34f * moonScale;
             this.moonG = 0.44f * moonScale;
             this.moonB = 0.68f * moonScale;
+        }
+    }
+
+    private static final class FogUniforms {
+        private final ShaderInstance shader;
+        private final Uniform inverseProjMat;
+        private final Uniform inverseViewMat;
+        private final Uniform fogSunDir;
+        private final Uniform fogEnabled;
+        private final Uniform celestialScatteringEnabled;
+        private final Uniform fogDensityAtOrigin;
+        private final Uniform fogExtinction;
+        private final Uniform fogScatteringBrightness;
+        private final Uniform fogMaxBrightness;
+        private final Uniform fogNearDensityBoost;
+        private final Uniform fogNearBoostRange;
+        private final Uniform fogDynamicCelestialColor;
+        private final Uniform fogCelestialColorBlend;
+        private final Uniform fogCelestialColor;
+        private final Uniform fogStartDistance;
+        private final Uniform fogNearFade;
+        private final Uniform fogMaxOpacity;
+        private final Uniform fogSkyTint;
+        private final Uniform fogScatteringStrength;
+        private final Uniform fogDistanceCurve;
+        private final Uniform fogHeightFalloff;
+        private final Uniform fogAmbientColor;
+        private final Uniform fogSkyColor;
+        private final Uniform fogSunColor;
+        private final Uniform fogMoonColor;
+        private final Uniform fogMieParams;
+        private final Uniform fogSunVisibility;
+        private final Uniform fogMoonVisibility;
+
+        private FogUniforms(ShaderInstance shader) {
+            this.shader = shader;
+            this.inverseProjMat = shader.m_173348_("InverseProjMat");
+            this.inverseViewMat = shader.m_173348_("InverseViewMat");
+            this.fogSunDir = shader.m_173348_("FogSunDir");
+            this.fogEnabled = shader.m_173348_("FogEnabled");
+            this.celestialScatteringEnabled = shader.m_173348_("CelestialScatteringEnabled");
+            this.fogDensityAtOrigin = shader.m_173348_("FogDensityAtOrigin");
+            this.fogExtinction = shader.m_173348_("FogExtinction");
+            this.fogScatteringBrightness = shader.m_173348_("FogScatteringBrightness");
+            this.fogMaxBrightness = shader.m_173348_("FogMaxBrightness");
+            this.fogNearDensityBoost = shader.m_173348_("FogNearDensityBoost");
+            this.fogNearBoostRange = shader.m_173348_("FogNearBoostRange");
+            this.fogDynamicCelestialColor = shader.m_173348_("FogDynamicCelestialColor");
+            this.fogCelestialColorBlend = shader.m_173348_("FogCelestialColorBlend");
+            this.fogCelestialColor = shader.m_173348_("FogCelestialColor");
+            this.fogStartDistance = shader.m_173348_("FogStartDistance");
+            this.fogNearFade = shader.m_173348_("FogNearFade");
+            this.fogMaxOpacity = shader.m_173348_("FogMaxOpacity");
+            this.fogSkyTint = shader.m_173348_("FogSkyTint");
+            this.fogScatteringStrength = shader.m_173348_("FogScatteringStrength");
+            this.fogDistanceCurve = shader.m_173348_("FogDistanceCurve");
+            this.fogHeightFalloff = shader.m_173348_("FogHeightFalloff");
+            this.fogAmbientColor = shader.m_173348_("FogAmbientColor");
+            this.fogSkyColor = shader.m_173348_("FogSkyColor");
+            this.fogSunColor = shader.m_173348_("FogSunColor");
+            this.fogMoonColor = shader.m_173348_("FogMoonColor");
+            this.fogMieParams = shader.m_173348_("FogMieParams");
+            this.fogSunVisibility = shader.m_173348_("FogSunVisibility");
+            this.fogMoonVisibility = shader.m_173348_("FogMoonVisibility");
         }
     }
 }

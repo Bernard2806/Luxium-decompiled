@@ -112,73 +112,6 @@ implements ChunkRenderListIterable {
         }
     }
 
-    public record BuildResult(NeoSkyShadowRenderLists near, float nearCasterFront, boolean nearIncomplete, NeoSkyShadowRenderLists far, float farCasterFront, boolean farIncomplete) {
-    }
-
-    private static final class BuildAccumulator {
-        private final Cache cache;
-        private final int frameId;
-        private final Reference2ObjectLinkedOpenHashMap<RenderRegion, ChunkRenderList> active = new Reference2ObjectLinkedOpenHashMap();
-        private float maxCasterAxial = Float.NEGATIVE_INFINITY;
-        private boolean incomplete;
-
-        private BuildAccumulator(Cache cache, int frameId) {
-            this.cache = cache;
-            this.frameId = frameId;
-        }
-
-        private void observeIncomplete(float casterFront) {
-            this.maxCasterAxial = Math.max(this.maxCasterAxial, casterFront);
-            this.incomplete = true;
-        }
-
-        private void add(RenderRegion region, RenderSection section, float casterFront) {
-            ChunkRenderList list = (ChunkRenderList)this.active.get((Object)region);
-            if (list == null) {
-                list = this.cache.getOrCreate(region);
-                list.reset(this.frameId);
-                this.active.put((Object)region, (Object)list);
-            }
-            list.add(section);
-            this.maxCasterAxial = Math.max(this.maxCasterAxial, casterFront);
-        }
-
-        private NeoSkyShadowRenderLists finish() {
-            this.cache.trimToActive(this.active);
-            return new NeoSkyShadowRenderLists(new ArrayList<ChunkRenderList>((Collection<ChunkRenderList>)this.active.values()));
-        }
-    }
-
-    public static final class Cache {
-        private final Reference2ObjectOpenHashMap<RenderRegion, ChunkRenderList> lists = new Reference2ObjectOpenHashMap();
-
-        private ChunkRenderList getOrCreate(RenderRegion region) {
-            ChunkRenderList list = (ChunkRenderList)this.lists.get((Object)region);
-            if (list == null) {
-                list = new ChunkRenderList(region);
-                this.lists.put((Object)region, (Object)list);
-            }
-            return list;
-        }
-
-        private void trimToActive(Reference2ObjectLinkedOpenHashMap<RenderRegion, ChunkRenderList> active) {
-            int maximumRetained = active.size() * 3 + 64;
-            if (this.lists.size() <= maximumRetained) {
-                return;
-            }
-            Iterator<RenderRegion> iterator = this.lists.keySet().iterator();
-            while (iterator.hasNext()) {
-                if (!(active.containsKey(iterator.next()))) {
-                    iterator.remove();
-                }
-            }
-        }
-
-        public void clear() {
-            this.lists.clear();
-        }
-    }
-
     private static final class CasterVolume {
         private final Vec3 center;
         private final Vec3 toLight;
@@ -221,6 +154,73 @@ implements ChunkRenderListIterable {
                 return Float.NaN;
             }
             return maxAxial;
+        }
+    }
+
+    public record BuildResult(NeoSkyShadowRenderLists near, float nearCasterFront, boolean nearIncomplete, NeoSkyShadowRenderLists far, float farCasterFront, boolean farIncomplete) {
+    }
+
+    public static final class Cache {
+        private final Reference2ObjectOpenHashMap<RenderRegion, ChunkRenderList> lists = new Reference2ObjectOpenHashMap();
+
+        private ChunkRenderList getOrCreate(RenderRegion region) {
+            ChunkRenderList list = (ChunkRenderList)this.lists.get((Object)region);
+            if (list == null) {
+                list = new ChunkRenderList(region);
+                this.lists.put((Object)region, (Object)list);
+            }
+            return list;
+        }
+
+        private void trimToActive(Reference2ObjectLinkedOpenHashMap<RenderRegion, ChunkRenderList> active) {
+            int maximumRetained = active.size() * 3 + 64;
+            if (this.lists.size() <= maximumRetained) {
+                return;
+            }
+            Iterator<RenderRegion> iterator = this.lists.keySet().iterator();
+            while (iterator.hasNext()) {
+                if (!(active.containsKey(iterator.next()))) {
+                    iterator.remove();
+                }
+            }
+        }
+
+        public void clear() {
+            this.lists.clear();
+        }
+    }
+
+    private static final class BuildAccumulator {
+        private final Cache cache;
+        private final int frameId;
+        private final Reference2ObjectLinkedOpenHashMap<RenderRegion, ChunkRenderList> active = new Reference2ObjectLinkedOpenHashMap();
+        private float maxCasterAxial = Float.NEGATIVE_INFINITY;
+        private boolean incomplete;
+
+        private BuildAccumulator(Cache cache, int frameId) {
+            this.cache = cache;
+            this.frameId = frameId;
+        }
+
+        private void observeIncomplete(float casterFront) {
+            this.maxCasterAxial = Math.max(this.maxCasterAxial, casterFront);
+            this.incomplete = true;
+        }
+
+        private void add(RenderRegion region, RenderSection section, float casterFront) {
+            ChunkRenderList list = (ChunkRenderList)this.active.get((Object)region);
+            if (list == null) {
+                list = this.cache.getOrCreate(region);
+                list.reset(this.frameId);
+                this.active.put((Object)region, (Object)list);
+            }
+            list.add(section);
+            this.maxCasterAxial = Math.max(this.maxCasterAxial, casterFront);
+        }
+
+        private NeoSkyShadowRenderLists finish() {
+            this.cache.trimToActive(this.active);
+            return new NeoSkyShadowRenderLists(new ArrayList<ChunkRenderList>((Collection<ChunkRenderList>)this.active.values()));
         }
     }
 }

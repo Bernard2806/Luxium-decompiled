@@ -222,45 +222,6 @@ final class NeoShadowsOcclusionPipeline {
         return NeoShadowsProjection.isHorizontalReceiverFace(face) ? NeoShadowsEngine.HORIZONTAL_OCCLUSION_FACE_PROBES : NeoShadowsEngine.OCCLUSION_FACE_PROBES;
     }
 
-    private record OcclusionCacheKey(long receiverPosKey, int faceOrdinal, long sourceKey) {
-    }
-
-    private static final class CachedFaceOcclusion {
-        static final CachedFaceOcclusion EMPTY = new CachedFaceOcclusion(new long[0], new NeoShadowsTypes.Box[0][], new NeoShadowsTypes.UvPoint[0][]);
-        final long[] hitKeys;
-        final NeoShadowsTypes.Box[][] hitBoxes;
-        final NeoShadowsTypes.UvPoint[][] probesPerHit;
-
-        CachedFaceOcclusion(long[] hitKeys, NeoShadowsTypes.Box[][] hitBoxes, NeoShadowsTypes.UvPoint[][] probesPerHit) {
-            this.hitKeys = hitKeys;
-            this.hitBoxes = hitBoxes;
-            this.probesPerHit = probesPerHit;
-        }
-    }
-
-    static final class OccluderHit {
-        final BlockPos blockPos;
-        long blockKey;
-        NeoShadowsTypes.Box[] boxes;
-        final List<NeoShadowsTypes.UvPoint> receiverSamples = new ArrayList<NeoShadowsTypes.UvPoint>(4);
-
-        OccluderHit(BlockPos blockPos, NeoShadowsTypes.Box[] boxes) {
-            this.blockPos = blockPos;
-            this.blockKey = blockPos.m_121878_();
-            this.boxes = boxes;
-        }
-
-        void reset() {
-            this.blockKey = 0L;
-            this.boxes = null;
-            this.receiverSamples.clear();
-        }
-
-        void addReceiverSample(NeoShadowsTypes.UvPoint sample) {
-            this.receiverSamples.add(sample);
-        }
-    }
-
     private static final class FaceOcclusionScratch {
         final Long2ObjectLinkedOpenHashMap<List<NeoShadowsTypes.UvPoint>> probesByHit = new Long2ObjectLinkedOpenHashMap(8);
         final Long2ObjectOpenHashMap<NeoShadowsTypes.Box[]> boxesByHit = new Long2ObjectOpenHashMap(8);
@@ -287,6 +248,44 @@ final class NeoShadowsOcclusionPipeline {
             this.probesByHit.clear();
             this.boxesByHit.clear();
             this.listPoolUsed = 0;
+        }
+    }
+
+    static final class CachedFirstScalarHit {
+        static final CachedFirstScalarHit MISS = new CachedFirstScalarHit(false, Long.MIN_VALUE, null);
+        final boolean hit;
+        final long blockKey;
+        final int blockX;
+        final int blockY;
+        final int blockZ;
+        final NeoShadowsTypes.Box[] boxes;
+
+        private CachedFirstScalarHit(boolean hit, long blockKey, @Nullable NeoShadowsTypes.Box[] boxes) {
+            this.hit = hit;
+            this.blockKey = blockKey;
+            this.blockX = hit ? BlockPos.m_121983_((long)blockKey) : 0;
+            this.blockY = hit ? BlockPos.m_122008_((long)blockKey) : 0;
+            this.blockZ = hit ? BlockPos.m_122015_((long)blockKey) : 0;
+            this.boxes = boxes;
+        }
+
+        static CachedFirstScalarHit hit(long blockKey, NeoShadowsTypes.Box[] boxes) {
+            return new CachedFirstScalarHit(true, blockKey, boxes);
+        }
+
+        boolean intersectsSegment(double startX, double startY, double startZ, double endX, double endY, double endZ) {
+            if (!this.hit || this.boxes == null || this.boxes.length == 0) {
+                return false;
+            }
+            if (this.boxes.length == 1) {
+                return this.boxes[0].intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, this.blockX, this.blockY, this.blockZ);
+            }
+            for (NeoShadowsTypes.Box box : this.boxes) {
+                if (box.intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, this.blockX, this.blockY, this.blockZ)) {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 
@@ -327,41 +326,42 @@ final class NeoShadowsOcclusionPipeline {
         }
     }
 
-    static final class CachedFirstScalarHit {
-        static final CachedFirstScalarHit MISS = new CachedFirstScalarHit(false, Long.MIN_VALUE, null);
-        final boolean hit;
-        final long blockKey;
-        final int blockX;
-        final int blockY;
-        final int blockZ;
-        final NeoShadowsTypes.Box[] boxes;
+    private record OcclusionCacheKey(long receiverPosKey, int faceOrdinal, long sourceKey) {
+    }
 
-        private CachedFirstScalarHit(boolean hit, long blockKey, @Nullable NeoShadowsTypes.Box[] boxes) {
-            this.hit = hit;
-            this.blockKey = blockKey;
-            this.blockX = hit ? BlockPos.m_121983_((long)blockKey) : 0;
-            this.blockY = hit ? BlockPos.m_122008_((long)blockKey) : 0;
-            this.blockZ = hit ? BlockPos.m_122015_((long)blockKey) : 0;
+    private static final class CachedFaceOcclusion {
+        static final CachedFaceOcclusion EMPTY = new CachedFaceOcclusion(new long[0], new NeoShadowsTypes.Box[0][], new NeoShadowsTypes.UvPoint[0][]);
+        final long[] hitKeys;
+        final NeoShadowsTypes.Box[][] hitBoxes;
+        final NeoShadowsTypes.UvPoint[][] probesPerHit;
+
+        CachedFaceOcclusion(long[] hitKeys, NeoShadowsTypes.Box[][] hitBoxes, NeoShadowsTypes.UvPoint[][] probesPerHit) {
+            this.hitKeys = hitKeys;
+            this.hitBoxes = hitBoxes;
+            this.probesPerHit = probesPerHit;
+        }
+    }
+
+    static final class OccluderHit {
+        final BlockPos blockPos;
+        long blockKey;
+        NeoShadowsTypes.Box[] boxes;
+        final List<NeoShadowsTypes.UvPoint> receiverSamples = new ArrayList<NeoShadowsTypes.UvPoint>(4);
+
+        OccluderHit(BlockPos blockPos, NeoShadowsTypes.Box[] boxes) {
+            this.blockPos = blockPos;
+            this.blockKey = blockPos.m_121878_();
             this.boxes = boxes;
         }
 
-        static CachedFirstScalarHit hit(long blockKey, NeoShadowsTypes.Box[] boxes) {
-            return new CachedFirstScalarHit(true, blockKey, boxes);
+        void reset() {
+            this.blockKey = 0L;
+            this.boxes = null;
+            this.receiverSamples.clear();
         }
 
-        boolean intersectsSegment(double startX, double startY, double startZ, double endX, double endY, double endZ) {
-            if (!this.hit || this.boxes == null || this.boxes.length == 0) {
-                return false;
-            }
-            if (this.boxes.length == 1) {
-                return this.boxes[0].intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, this.blockX, this.blockY, this.blockZ);
-            }
-            for (NeoShadowsTypes.Box box : this.boxes) {
-                if (box.intersectsSegmentWithOffset(startX, startY, startZ, endX, endY, endZ, this.blockX, this.blockY, this.blockZ)) {
-                    return true;
-                }
-            }
-            return false;
+        void addReceiverSample(NeoShadowsTypes.UvPoint sample) {
+            this.receiverSamples.add(sample);
         }
     }
 

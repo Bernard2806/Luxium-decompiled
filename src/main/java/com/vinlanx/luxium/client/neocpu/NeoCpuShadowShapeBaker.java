@@ -444,6 +444,15 @@ final class NeoCpuShadowShapeBaker {
         }
     }
 
+    private record AtlasUv(double u, double v) {
+    }
+
+    private record SpriteRect(int minX, int maxX, int minY, int maxY) {
+    }
+
+    private record SpritePixelBounds(double minX, double maxX, double minY, double maxY) {
+    }
+
     private record SpriteAlphaMask(SpriteRect[] rectangles, boolean fullyOpaque, boolean fullyTransparent, float averageOpacity) {
         private static final SpriteAlphaMask FULLY_OPAQUE = new SpriteAlphaMask(new SpriteRect[0], true, false, 1.0f);
         private static final SpriteAlphaMask FULLY_TRANSPARENT = new SpriteAlphaMask(new SpriteRect[0], false, true, 0.0f);
@@ -486,14 +495,5 @@ final class NeoCpuShadowShapeBaker {
             }
             return new LocalTexturedQuad(worldVertices, atlasUvs);
         }
-    }
-
-    private record SpritePixelBounds(double minX, double maxX, double minY, double maxY) {
-    }
-
-    private record SpriteRect(int minX, int maxX, int minY, int maxY) {
-    }
-
-    private record AtlasUv(double u, double v) {
     }
 }

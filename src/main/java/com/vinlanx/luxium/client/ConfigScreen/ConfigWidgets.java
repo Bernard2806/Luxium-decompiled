@@ -63,93 +63,50 @@ final class ConfigWidgets {
         return a << 24 | r << 16 | g << 8 | b;
     }
 
-    static final class EnumCycle<E extends Enum<E>>
+    static final class Toggle
     extends AbstractWidget {
-        private final ConfigOption<E> option;
-        private E value;
+        private final ConfigOption<Boolean> option;
+        private boolean value;
+        private float selection;
         private float hover;
-        private float pulse;
 
-        EnumCycle(int x, int y, int width, ConfigOption<E> option) {
+        Toggle(int x, int y, int width, ConfigOption<Boolean> option) {
             super(x, y, width, 20, option.label());
             this.option = option;
-            this.value = (E)option.get();
+            this.value = option.get();
+            this.selection = this.value ? 1.0f : 0.0f;
         }
 
         public void m_5716_(double mouseX, double mouseY) {
-            int index = this.option.choices().indexOf(this.value);
-            this.value = (E)this.option.choices().get((index + 1) % this.option.choices().size());
-            this.option.set(this.value);
-            this.pulse = 1.0f;
-        }
-
-        protected void m_87963_(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            this.hover = ConfigWidgets.animate(this.hover, this.m_274382_() ? 1.0f : 0.0f, 0.2f);
-            this.pulse = ConfigWidgets.animate(this.pulse, 0.0f, 0.12f);
-            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), -1291845632);
-            int border = ConfigWidgets.blend(0x3FFFFFFF, -11157, Math.max(this.hover, this.pulse));
-            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + 1, border);
-            graphics.m_280509_(this.m_252754_(), this.m_252907_() + this.m_93694_() - 1, this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), border);
-            if (this.pulse > 0.01f) {
-                graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), (int)(this.pulse * 34.0f) << 24 | 0xFFD46B);
-            }
-            graphics.m_280137_(Minecraft.m_91087_().f_91062_, this.option.format(this.value).getString().toUpperCase(Locale.ROOT), this.m_252754_() + this.m_5711_() / 2, this.m_252907_() + 6, -461080);
-        }
-
-        protected void m_168797_(NarrationElementOutput output) {
-            this.m_168802_(output);
-        }
-    }
-
-    static final class ActionButton
-    extends AbstractWidget {
-        private final Runnable action;
-        private final Integer fillColor;
-        private final Integer textColor;
-        private float hover;
-
-        ActionButton(int x, int y, int width, Component label, Runnable action) {
-            this(x, y, width, label, action, null, null);
-        }
-
-        ActionButton(int x, int y, int width, Component label, Runnable action, Integer fillColor, Integer textColor) {
-            super(x, y, width, 20, label);
-            this.action = action;
-            this.fillColor = fillColor;
-            this.textColor = textColor;
-        }
-
-        public void m_5716_(double mouseX, double mouseY) {
-            this.action.run();
-        }
-
-        protected void m_87963_(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            this.hover = ConfigWidgets.animate(this.hover, this.m_274382_() ? 1.0f : 0.0f, 0.22f);
-            if (this.fillColor != null) {
-                int fill = ConfigWidgets.blend(this.fillColor, ActionButton.blendLighter(this.fillColor, this.hover * 0.25f), this.hover);
-                graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), fill);
-                graphics.m_280653_(Minecraft.m_91087_().f_91062_, this.m_6035_(), this.m_252754_() + this.m_5711_() / 2, this.m_252907_() + 6, this.textColor != null ? this.textColor : -461080);
+            if (!this.option.isEnabled()) {
                 return;
             }
-            int border = ConfigWidgets.blend(0x3FFFFFFF, -11157, this.hover);
+            this.value = mouseX >= (double)this.m_252754_() + (double)this.m_5711_() / 2.0;
+            this.option.set(this.value);
+        }
+
+        protected void m_87963_(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            this.f_93623_ = this.option.isEnabled();
+            this.value = this.option.get();
+            int half = this.m_5711_() / 2;
+            this.selection = ConfigWidgets.animate(this.selection, this.value ? 1.0f : 0.0f, 0.24f);
+            this.hover = ConfigWidgets.animate(this.hover, this.m_274382_() ? 1.0f : 0.0f, 0.22f);
             graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), -1728053248);
-            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + 1, border);
-            graphics.m_280509_(this.m_252754_(), this.m_252907_() + this.m_93694_() - 1, this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), border);
-            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + 1, this.m_252907_() + this.m_93694_(), border);
-            graphics.m_280509_(this.m_252754_() + this.m_5711_() - 1, this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), border);
-            graphics.m_280653_(Minecraft.m_91087_().f_91062_, this.m_6035_(), this.m_252754_() + this.m_5711_() / 2, this.m_252907_() + 6, ConfigWidgets.blend(-6249040, -461080, this.hover));
+            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + 1, 0x3FFFFFFF);
+            graphics.m_280509_(this.m_252754_(), this.m_252907_() + this.m_93694_() - 1, this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), 0x3FFFFFFF);
+            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + 1, this.m_252907_() + this.m_93694_(), 0x3FFFFFFF);
+            graphics.m_280509_(this.m_252754_() + this.m_5711_() - 1, this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), 0x3FFFFFFF);
+            int selectionX = this.m_252754_() + Math.round((float)half * this.selection);
+            graphics.m_280509_(selectionX, this.m_252907_(), selectionX + half, this.m_252907_() + this.m_93694_(), ConfigWidgets.blend(-637906350, -650067881, this.selection));
+            if (this.hover > 0.01f) {
+                graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), (int)(this.hover * 20.0f) << 24 | 0xFFFFFF);
+            }
+            graphics.m_280137_(Minecraft.m_91087_().f_91062_, "OFF", this.m_252754_() + half / 2, this.m_252907_() + 6, this.value ? -6249040 : -461080);
+            graphics.m_280137_(Minecraft.m_91087_().f_91062_, "ON", this.m_252754_() + half + half / 2, this.m_252907_() + 6, this.value ? -461080 : -6249040);
         }
 
         protected void m_168797_(NarrationElementOutput output) {
             this.m_168802_(output);
-        }
-
-        private static int blendLighter(int color, float amount) {
-            int a = color >>> 24 & 0xFF;
-            int r = Math.min(255, Math.round((float)(color >>> 16 & 0xFF) * (1.0f + amount)));
-            int g = Math.min(255, Math.round((float)(color >>> 8 & 0xFF) * (1.0f + amount)));
-            int b = Math.min(255, Math.round((float)(color & 0xFF) * (1.0f + amount)));
-            return a << 24 | r << 16 | g << 8 | b;
         }
     }
 
@@ -263,46 +220,89 @@ final class ConfigWidgets {
         }
     }
 
-    static final class Toggle
+    static final class ActionButton
     extends AbstractWidget {
-        private final ConfigOption<Boolean> option;
-        private boolean value;
-        private float selection;
+        private final Runnable action;
+        private final Integer fillColor;
+        private final Integer textColor;
         private float hover;
 
-        Toggle(int x, int y, int width, ConfigOption<Boolean> option) {
-            super(x, y, width, 20, option.label());
-            this.option = option;
-            this.value = option.get();
-            this.selection = this.value ? 1.0f : 0.0f;
+        ActionButton(int x, int y, int width, Component label, Runnable action) {
+            this(x, y, width, label, action, null, null);
+        }
+
+        ActionButton(int x, int y, int width, Component label, Runnable action, Integer fillColor, Integer textColor) {
+            super(x, y, width, 20, label);
+            this.action = action;
+            this.fillColor = fillColor;
+            this.textColor = textColor;
         }
 
         public void m_5716_(double mouseX, double mouseY) {
-            if (!this.option.isEnabled()) {
-                return;
-            }
-            this.value = mouseX >= (double)this.m_252754_() + (double)this.m_5711_() / 2.0;
-            this.option.set(this.value);
+            this.action.run();
         }
 
         protected void m_87963_(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-            this.f_93623_ = this.option.isEnabled();
-            this.value = this.option.get();
-            int half = this.m_5711_() / 2;
-            this.selection = ConfigWidgets.animate(this.selection, this.value ? 1.0f : 0.0f, 0.24f);
             this.hover = ConfigWidgets.animate(this.hover, this.m_274382_() ? 1.0f : 0.0f, 0.22f);
-            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), -1728053248);
-            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + 1, 0x3FFFFFFF);
-            graphics.m_280509_(this.m_252754_(), this.m_252907_() + this.m_93694_() - 1, this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), 0x3FFFFFFF);
-            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + 1, this.m_252907_() + this.m_93694_(), 0x3FFFFFFF);
-            graphics.m_280509_(this.m_252754_() + this.m_5711_() - 1, this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), 0x3FFFFFFF);
-            int selectionX = this.m_252754_() + Math.round((float)half * this.selection);
-            graphics.m_280509_(selectionX, this.m_252907_(), selectionX + half, this.m_252907_() + this.m_93694_(), ConfigWidgets.blend(-637906350, -650067881, this.selection));
-            if (this.hover > 0.01f) {
-                graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), (int)(this.hover * 20.0f) << 24 | 0xFFFFFF);
+            if (this.fillColor != null) {
+                int fill = ConfigWidgets.blend(this.fillColor, ActionButton.blendLighter(this.fillColor, this.hover * 0.25f), this.hover);
+                graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), fill);
+                graphics.m_280653_(Minecraft.m_91087_().f_91062_, this.m_6035_(), this.m_252754_() + this.m_5711_() / 2, this.m_252907_() + 6, this.textColor != null ? this.textColor : -461080);
+                return;
             }
-            graphics.m_280137_(Minecraft.m_91087_().f_91062_, "OFF", this.m_252754_() + half / 2, this.m_252907_() + 6, this.value ? -6249040 : -461080);
-            graphics.m_280137_(Minecraft.m_91087_().f_91062_, "ON", this.m_252754_() + half + half / 2, this.m_252907_() + 6, this.value ? -461080 : -6249040);
+            int border = ConfigWidgets.blend(0x3FFFFFFF, -11157, this.hover);
+            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), -1728053248);
+            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + 1, border);
+            graphics.m_280509_(this.m_252754_(), this.m_252907_() + this.m_93694_() - 1, this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), border);
+            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + 1, this.m_252907_() + this.m_93694_(), border);
+            graphics.m_280509_(this.m_252754_() + this.m_5711_() - 1, this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), border);
+            graphics.m_280653_(Minecraft.m_91087_().f_91062_, this.m_6035_(), this.m_252754_() + this.m_5711_() / 2, this.m_252907_() + 6, ConfigWidgets.blend(-6249040, -461080, this.hover));
+        }
+
+        protected void m_168797_(NarrationElementOutput output) {
+            this.m_168802_(output);
+        }
+
+        private static int blendLighter(int color, float amount) {
+            int a = color >>> 24 & 0xFF;
+            int r = Math.min(255, Math.round((float)(color >>> 16 & 0xFF) * (1.0f + amount)));
+            int g = Math.min(255, Math.round((float)(color >>> 8 & 0xFF) * (1.0f + amount)));
+            int b = Math.min(255, Math.round((float)(color & 0xFF) * (1.0f + amount)));
+            return a << 24 | r << 16 | g << 8 | b;
+        }
+    }
+
+    static final class EnumCycle<E extends Enum<E>>
+    extends AbstractWidget {
+        private final ConfigOption<E> option;
+        private E value;
+        private float hover;
+        private float pulse;
+
+        EnumCycle(int x, int y, int width, ConfigOption<E> option) {
+            super(x, y, width, 20, option.label());
+            this.option = option;
+            this.value = (E)option.get();
+        }
+
+        public void m_5716_(double mouseX, double mouseY) {
+            int index = this.option.choices().indexOf(this.value);
+            this.value = (E)this.option.choices().get((index + 1) % this.option.choices().size());
+            this.option.set(this.value);
+            this.pulse = 1.0f;
+        }
+
+        protected void m_87963_(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+            this.hover = ConfigWidgets.animate(this.hover, this.m_274382_() ? 1.0f : 0.0f, 0.2f);
+            this.pulse = ConfigWidgets.animate(this.pulse, 0.0f, 0.12f);
+            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), -1291845632);
+            int border = ConfigWidgets.blend(0x3FFFFFFF, -11157, Math.max(this.hover, this.pulse));
+            graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + 1, border);
+            graphics.m_280509_(this.m_252754_(), this.m_252907_() + this.m_93694_() - 1, this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), border);
+            if (this.pulse > 0.01f) {
+                graphics.m_280509_(this.m_252754_(), this.m_252907_(), this.m_252754_() + this.m_5711_(), this.m_252907_() + this.m_93694_(), (int)(this.pulse * 34.0f) << 24 | 0xFFD46B);
+            }
+            graphics.m_280137_(Minecraft.m_91087_().f_91062_, this.option.format(this.value).getString().toUpperCase(Locale.ROOT), this.m_252754_() + this.m_5711_() / 2, this.m_252907_() + 6, -461080);
         }
 
         protected void m_168797_(NarrationElementOutput output) {

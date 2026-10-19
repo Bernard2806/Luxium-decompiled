@@ -1301,7 +1301,41 @@ public final class NeoCpuFloodShadowBuilder {
         return t;
     }
 
-    private record CpuProjection(double denominator, double t, NeoCpuShadowTypes.Uv uv) {
+    private record ContributionData(boolean accepted, float weightScale) {
+        private static final ContributionData REJECTED = new ContributionData(false, 0.0f);
+    }
+
+    private static final class SourceDebugStats {
+        private long sourceKey;
+        private int emission;
+        private int boundaryFaces;
+        private int acceptedReceivers;
+        private int rejectedReceivers;
+        private int dominantBaseAccepts;
+        private int dominantSampleAccepts;
+        private int contributorAccepts;
+        private int noSampleRejects;
+        private int contributorRejects;
+        private int hitBlocks;
+        private boolean hitPolygonCap;
+
+        private SourceDebugStats() {
+        }
+
+        void reset(long sourceKey, int emission, int boundaryFaces) {
+            this.sourceKey = sourceKey;
+            this.emission = emission;
+            this.boundaryFaces = boundaryFaces;
+            this.acceptedReceivers = 0;
+            this.rejectedReceivers = 0;
+            this.dominantBaseAccepts = 0;
+            this.dominantSampleAccepts = 0;
+            this.contributorAccepts = 0;
+            this.noSampleRejects = 0;
+            this.contributorRejects = 0;
+            this.hitBlocks = 0;
+            this.hitPolygonCap = false;
+        }
     }
 
     private static final class ContributionCollector
@@ -1360,41 +1394,17 @@ public final class NeoCpuFloodShadowBuilder {
         }
     }
 
-    private static final class SourceDebugStats {
-        private long sourceKey;
-        private int emission;
-        private int boundaryFaces;
-        private int acceptedReceivers;
-        private int rejectedReceivers;
-        private int dominantBaseAccepts;
-        private int dominantSampleAccepts;
-        private int contributorAccepts;
-        private int noSampleRejects;
-        private int contributorRejects;
-        private int hitBlocks;
-        private boolean hitPolygonCap;
-
-        private SourceDebugStats() {
-        }
-
-        void reset(long sourceKey, int emission, int boundaryFaces) {
-            this.sourceKey = sourceKey;
-            this.emission = emission;
-            this.boundaryFaces = boundaryFaces;
-            this.acceptedReceivers = 0;
-            this.rejectedReceivers = 0;
-            this.dominantBaseAccepts = 0;
-            this.dominantSampleAccepts = 0;
-            this.contributorAccepts = 0;
-            this.noSampleRejects = 0;
-            this.contributorRejects = 0;
-            this.hitBlocks = 0;
-            this.hitPolygonCap = false;
-        }
+    private record CpuProjection(double denominator, double t, NeoCpuShadowTypes.Uv uv) {
     }
 
-    private record ContributionData(boolean accepted, float weightScale) {
-        private static final ContributionData REJECTED = new ContributionData(false, 0.0f);
+    private record Hit(NeoCpuShadowTypes.Occluder occluder, double distance) {
+    }
+
+    private record ProbeSample(Hit hit, boolean suspicious) {
+        private static final ProbeSample NONE = new ProbeSample(null, false);
+    }
+
+    record ReceiverEntry(NeoCpuShadowTypes.ReceiverSurface receiver, float strength) {
     }
 
     private static final class PlaneGroup {
@@ -1403,12 +1413,6 @@ public final class NeoCpuFloodShadowBuilder {
 
         private PlaneGroup() {
         }
-    }
-
-    record ReceiverEntry(NeoCpuShadowTypes.ReceiverSurface receiver, float strength) {
-    }
-
-    private record Hit(NeoCpuShadowTypes.Occluder occluder, double distance) {
     }
 
     private static final class ProbeStats {
@@ -1488,9 +1492,5 @@ public final class NeoCpuFloodShadowBuilder {
         int differentHitCount() {
             return this.differentHitCount;
         }
-    }
-
-    private record ProbeSample(Hit hit, boolean suspicious) {
-        private static final ProbeSample NONE = new ProbeSample(null, false);
     }
 }

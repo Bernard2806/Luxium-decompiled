@@ -344,6 +344,15 @@ public final class ConfigScreenModel {
         c.skyGodRaysCenterSuppression.save();
     }
 
+    public record Category(String id, Component title, Component description, List<Row> rows) {
+        public Category(String id, Component title, List<Row> rows) {
+            this(id, title, (Component)Component.m_237119_(), rows);
+        }
+    }
+
+    public record Folder(String id, Component title, Component description, List<Category> categories) {
+    }
+
     public record Row(Component header, ConfigOption<?> option) {
         public static Row option(ConfigOption<?> option) {
             return new Row(null, option);
@@ -356,15 +365,6 @@ public final class ConfigScreenModel {
         public boolean isHeader() {
             return this.header != null;
         }
-    }
-
-    public record Category(String id, Component title, Component description, List<Row> rows) {
-        public Category(String id, Component title, List<Row> rows) {
-            this(id, title, (Component)Component.m_237119_(), rows);
-        }
-    }
-
-    public record Folder(String id, Component title, Component description, List<Category> categories) {
     }
 }
 

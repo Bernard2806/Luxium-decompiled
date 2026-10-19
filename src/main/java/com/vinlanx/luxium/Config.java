@@ -50,6 +50,51 @@ public class Config {
         CLIENT_SPEC = (ForgeConfigSpec)specPair.getRight();
     }
 
+    public static enum SkyGodRaysVisualPreset {
+        DEFAULT,
+        CINEMATIC,
+        CUSTOM;
+
+    }
+
+    public static enum SkyBakeTileSize {
+        SIZE_512(512),
+        SIZE_256(256),
+        SIZE_128(128);
+
+        private final int pixels;
+
+        private SkyBakeTileSize(int pixels) {
+            this.pixels = pixels;
+        }
+
+        public int pixels() {
+            return this.pixels;
+        }
+    }
+
+    public static enum GpuLocalLightingMode {
+        GPU_ONLY,
+        HYBRID,
+        NEOFLOOD_ONLY;
+
+    }
+
+    public static enum GpuLocalShadowMode {
+        FAST_SPREAD,
+        CUBEMAP_HARD,
+        CUBEMAP_SOFT;
+
+    }
+
+    public static enum DebugHudPosition {
+        TOP_LEFT,
+        TOP_RIGHT,
+        BOTTOM_LEFT,
+        BOTTOM_RIGHT;
+
+    }
+
     public static class Client {
         public final ForgeConfigSpec.BooleanValue luxiumEnabled;
         public final ForgeConfigSpec.BooleanValue rtxEnabled;
@@ -664,51 +709,6 @@ public class Config {
             this.alphaWarningShown = builder.comment("Set to true after the alpha warning screen has been acknowledged. Do not change manually.").define("alphaWarningShown", false);
             builder.pop();
         }
-    }
-
-    public static enum DebugHudPosition {
-        TOP_LEFT,
-        TOP_RIGHT,
-        BOTTOM_LEFT,
-        BOTTOM_RIGHT;
-
-    }
-
-    public static enum GpuLocalShadowMode {
-        FAST_SPREAD,
-        CUBEMAP_HARD,
-        CUBEMAP_SOFT;
-
-    }
-
-    public static enum GpuLocalLightingMode {
-        GPU_ONLY,
-        HYBRID,
-        NEOFLOOD_ONLY;
-
-    }
-
-    public static enum SkyBakeTileSize {
-        SIZE_512(512),
-        SIZE_256(256),
-        SIZE_128(128);
-
-        private final int pixels;
-
-        private SkyBakeTileSize(int pixels) {
-            this.pixels = pixels;
-        }
-
-        public int pixels() {
-            return this.pixels;
-        }
-    }
-
-    public static enum SkyGodRaysVisualPreset {
-        DEFAULT,
-        CINEMATIC,
-        CUSTOM;
-
     }
 }
 

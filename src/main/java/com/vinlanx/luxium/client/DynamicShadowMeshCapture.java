@@ -257,12 +257,6 @@ public final class DynamicShadowMeshCapture {
         }
     }
 
-    private record VertexRecord(double x, double y, double z, int alpha) {
-        Vec3 position() {
-            return new Vec3(this.x, this.y, this.z);
-        }
-    }
-
     private static final class CapturingVertexConsumer
     implements VertexConsumer {
         private static final int MIN_VERTEX_ALPHA = 16;
@@ -379,6 +373,12 @@ public final class DynamicShadowMeshCapture {
             for (int index = 0; index < limit; ++index) {
                 output.add(this.quads.get(index));
             }
+        }
+    }
+
+    private record VertexRecord(double x, double y, double z, int alpha) {
+        Vec3 position() {
+            return new Vec3(this.x, this.y, this.z);
         }
     }
 }

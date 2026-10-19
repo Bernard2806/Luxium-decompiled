@@ -221,10 +221,10 @@ public final class skygodrays {
         }
     }
 
-    private record CelestialScreenPos(float screenX, float screenY, float fade, Vector3f color, float rayStrength, float haloStrength, float discStrength, float haloRadius, float discRadius, float centerSuppression, boolean useMoonStyle) {
+    private record CelestialLook(Vector3f color, float horizonFade, float rayStrength, float haloStrength, float discStrength, float haloRadius, float discRadius, float centerSuppression) {
     }
 
-    private record CelestialLook(Vector3f color, float horizonFade, float rayStrength, float haloStrength, float discStrength, float haloRadius, float discRadius, float centerSuppression) {
+    private record CelestialScreenPos(float screenX, float screenY, float fade, Vector3f color, float rayStrength, float haloStrength, float discStrength, float haloRadius, float discRadius, float centerSuppression, boolean useMoonStyle) {
     }
 }
 

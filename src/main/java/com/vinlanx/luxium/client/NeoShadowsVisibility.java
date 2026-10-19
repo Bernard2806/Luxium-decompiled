@@ -588,6 +588,133 @@ final class NeoShadowsVisibility {
         return new NeoShadowsTypes.PlaneRect(minU, maxU, minV, maxV);
     }
 
+    private static final class TouchedSectionScratch {
+        final Long2ObjectOpenHashMap<TouchedSectionData> touchedSections = new Long2ObjectOpenHashMap();
+        final List<TouchedSectionData> sectionPool = new ArrayList<TouchedSectionData>();
+        final List<DenseTouchedBits> denseBitsetPool = new ArrayList<DenseTouchedBits>();
+        int usedSections;
+        int usedDenseBitsets;
+
+        private TouchedSectionScratch() {
+        }
+
+        TouchedSectionData rentTouchedSection() {
+            TouchedSectionData touchedSection;
+            if (this.usedSections < this.sectionPool.size()) {
+                touchedSection = this.sectionPool.get(this.usedSections);
+                touchedSection.reset();
+            } else {
+                touchedSection = new TouchedSectionData();
+                this.sectionPool.add(touchedSection);
+            }
+            ++this.usedSections;
+            return touchedSection;
+        }
+
+        DenseTouchedBits rentDenseBits() {
+            DenseTouchedBits denseBits;
+            if (this.usedDenseBitsets < this.denseBitsetPool.size()) {
+                denseBits = this.denseBitsetPool.get(this.usedDenseBitsets);
+                denseBits.reset();
+            } else {
+                denseBits = new DenseTouchedBits();
+                this.denseBitsetPool.add(denseBits);
+            }
+            ++this.usedDenseBitsets;
+            return denseBits;
+        }
+
+        void reset() {
+            this.touchedSections.clear();
+            this.usedSections = 0;
+            this.usedDenseBitsets = 0;
+        }
+    }
+
+    private static final class TouchedSectionData {
+        private final short[] sparseIndices = new short[24];
+        private int sparseCount;
+        @Nullable
+        private DenseTouchedBits denseBits;
+
+        private TouchedSectionData() {
+        }
+
+        void reset() {
+            this.sparseCount = 0;
+            this.denseBits = null;
+        }
+
+        void add(int localIndex, TouchedSectionScratch scratch) {
+            if (this.denseBits != null) {
+                this.denseBits.set(localIndex);
+                return;
+            }
+            short packed = (short)localIndex;
+            for (int index = 0; index < this.sparseCount; ++index) {
+                if (this.sparseIndices[index] == packed) {
+                    return;
+                }
+            }
+            if (this.sparseCount < this.sparseIndices.length) {
+                this.sparseIndices[this.sparseCount++] = packed;
+                return;
+            }
+            DenseTouchedBits promoted = scratch.rentDenseBits();
+            for (int index = 0; index < this.sparseCount; ++index) {
+                promoted.set(this.sparseIndices[index] & 0xFFFF);
+            }
+            promoted.set(localIndex);
+            this.denseBits = promoted;
+            this.sparseCount = 0;
+        }
+
+        boolean isDense() {
+            return this.denseBits != null;
+        }
+
+        DenseTouchedBits denseBits() {
+            return this.denseBits;
+        }
+
+        int sparseCount() {
+            return this.sparseCount;
+        }
+
+        int sparseIndexAt(int index) {
+            return this.sparseIndices[index] & 0xFFFF;
+        }
+    }
+
+    private static final class DenseTouchedBits {
+        private final long[] words = new long[64];
+        private final int[] dirtyWordIndices = new int[64];
+        private int dirtyWordCount;
+
+        private DenseTouchedBits() {
+        }
+
+        void reset() {
+            for (int index = 0; index < this.dirtyWordCount; ++index) {
+                this.words[this.dirtyWordIndices[index]] = 0L;
+            }
+            this.dirtyWordCount = 0;
+        }
+
+        void set(int localIndex) {
+            int wordIndex = localIndex >>> 6;
+            long mask = 1L << (localIndex & 0x3F);
+            long existing = this.words[wordIndex];
+            if ((existing & mask) != 0L) {
+                return;
+            }
+            if (existing == 0L) {
+                this.dirtyWordIndices[this.dirtyWordCount++] = wordIndex;
+            }
+            this.words[wordIndex] = existing | mask;
+        }
+    }
+
     private static final class NearestFaceCandidateCollector {
         private final NeoShadowsTypes.FaceCandidate[] heap;
         private int size;
@@ -653,133 +780,6 @@ final class NeoShadowsVisibility {
                 this.heap[largestIndex] = temp;
                 index = largestIndex;
             }
-        }
-    }
-
-    private static final class TouchedSectionData {
-        private final short[] sparseIndices = new short[24];
-        private int sparseCount;
-        @Nullable
-        private DenseTouchedBits denseBits;
-
-        private TouchedSectionData() {
-        }
-
-        void reset() {
-            this.sparseCount = 0;
-            this.denseBits = null;
-        }
-
-        void add(int localIndex, TouchedSectionScratch scratch) {
-            if (this.denseBits != null) {
-                this.denseBits.set(localIndex);
-                return;
-            }
-            short packed = (short)localIndex;
-            for (int index = 0; index < this.sparseCount; ++index) {
-                if (this.sparseIndices[index] == packed) {
-                    return;
-                }
-            }
-            if (this.sparseCount < this.sparseIndices.length) {
-                this.sparseIndices[this.sparseCount++] = packed;
-                return;
-            }
-            DenseTouchedBits promoted = scratch.rentDenseBits();
-            for (int index = 0; index < this.sparseCount; ++index) {
-                promoted.set(this.sparseIndices[index] & 0xFFFF);
-            }
-            promoted.set(localIndex);
-            this.denseBits = promoted;
-            this.sparseCount = 0;
-        }
-
-        boolean isDense() {
-            return this.denseBits != null;
-        }
-
-        DenseTouchedBits denseBits() {
-            return this.denseBits;
-        }
-
-        int sparseCount() {
-            return this.sparseCount;
-        }
-
-        int sparseIndexAt(int index) {
-            return this.sparseIndices[index] & 0xFFFF;
-        }
-    }
-
-    private static final class TouchedSectionScratch {
-        final Long2ObjectOpenHashMap<TouchedSectionData> touchedSections = new Long2ObjectOpenHashMap();
-        final List<TouchedSectionData> sectionPool = new ArrayList<TouchedSectionData>();
-        final List<DenseTouchedBits> denseBitsetPool = new ArrayList<DenseTouchedBits>();
-        int usedSections;
-        int usedDenseBitsets;
-
-        private TouchedSectionScratch() {
-        }
-
-        TouchedSectionData rentTouchedSection() {
-            TouchedSectionData touchedSection;
-            if (this.usedSections < this.sectionPool.size()) {
-                touchedSection = this.sectionPool.get(this.usedSections);
-                touchedSection.reset();
-            } else {
-                touchedSection = new TouchedSectionData();
-                this.sectionPool.add(touchedSection);
-            }
-            ++this.usedSections;
-            return touchedSection;
-        }
-
-        DenseTouchedBits rentDenseBits() {
-            DenseTouchedBits denseBits;
-            if (this.usedDenseBitsets < this.denseBitsetPool.size()) {
-                denseBits = this.denseBitsetPool.get(this.usedDenseBitsets);
-                denseBits.reset();
-            } else {
-                denseBits = new DenseTouchedBits();
-                this.denseBitsetPool.add(denseBits);
-            }
-            ++this.usedDenseBitsets;
-            return denseBits;
-        }
-
-        void reset() {
-            this.touchedSections.clear();
-            this.usedSections = 0;
-            this.usedDenseBitsets = 0;
-        }
-    }
-
-    private static final class DenseTouchedBits {
-        private final long[] words = new long[64];
-        private final int[] dirtyWordIndices = new int[64];
-        private int dirtyWordCount;
-
-        private DenseTouchedBits() {
-        }
-
-        void reset() {
-            for (int index = 0; index < this.dirtyWordCount; ++index) {
-                this.words[this.dirtyWordIndices[index]] = 0L;
-            }
-            this.dirtyWordCount = 0;
-        }
-
-        void set(int localIndex) {
-            int wordIndex = localIndex >>> 6;
-            long mask = 1L << (localIndex & 0x3F);
-            long existing = this.words[wordIndex];
-            if ((existing & mask) != 0L) {
-                return;
-            }
-            if (existing == 0L) {
-                this.dirtyWordIndices[this.dirtyWordCount++] = wordIndex;
-            }
-            this.words[wordIndex] = existing | mask;
         }
     }
 }

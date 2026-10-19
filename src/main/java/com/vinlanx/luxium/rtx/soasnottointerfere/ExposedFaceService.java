@@ -976,6 +976,284 @@ public final class ExposedFaceService {
         return (hash ^ value) * 1099511628211L;
     }
 
+    private static final class BuiltSectionCommit {
+        final long sectionKey;
+        final long revision;
+        final SectionFaceData data;
+        final SectionFaceSnapshot faceSnapshot;
+        final SectionReceiverSnapshot receiverSnapshot;
+        final boolean fullyCaptured;
+
+        BuiltSectionCommit(long sectionKey, long revision, SectionFaceData data, SectionFaceSnapshot faceSnapshot, SectionReceiverSnapshot receiverSnapshot, boolean fullyCaptured) {
+            this.sectionKey = sectionKey;
+            this.revision = revision;
+            this.data = data;
+            this.faceSnapshot = faceSnapshot;
+            this.receiverSnapshot = receiverSnapshot;
+            this.fullyCaptured = fullyCaptured;
+        }
+    }
+
+    private static final class SectionCapture {
+        private final long sectionKey;
+        private final Long2ByteOpenHashMap facesByBlock = new Long2ByteOpenHashMap();
+
+        private SectionCapture(long sectionKey) {
+            this.sectionKey = sectionKey;
+            this.facesByBlock.defaultReturnValue((byte)0);
+        }
+
+        private void recordFace(long blockKey, Direction face) {
+            this.facesByBlock.put(blockKey, (byte)(this.facesByBlock.get(blockKey) | 1 << face.ordinal()));
+        }
+
+        private SectionFaceData detachFaceData() {
+            return new SectionFaceData(this.facesByBlock, true);
+        }
+    }
+
+    private static final class SectionFaceData {
+        private final Long2ByteOpenHashMap facesByBlock;
+
+        private SectionFaceData(Long2ByteOpenHashMap source) {
+            this(source, false);
+        }
+
+        private SectionFaceData(Long2ByteOpenHashMap source, boolean takeOwnership) {
+            this.facesByBlock = takeOwnership ? source : new Long2ByteOpenHashMap((Long2ByteMap)source);
+            this.facesByBlock.defaultReturnValue((byte)0);
+        }
+
+        private byte faceMask(long blockKey) {
+            return this.facesByBlock.get(blockKey);
+        }
+
+        private boolean isEmpty() {
+            return this.facesByBlock.isEmpty();
+        }
+
+        private Long2ByteOpenHashMap copyFaces() {
+            return new Long2ByteOpenHashMap((Long2ByteMap)this.facesByBlock);
+        }
+
+        private boolean sameContent(SectionFaceData other) {
+            if (this.facesByBlock.size() != other.facesByBlock.size()) {
+                return false;
+            }
+            for (Long2ByteMap.Entry entry : this.facesByBlock.long2ByteEntrySet()) {
+                if (other.facesByBlock.get(entry.getLongKey()) != entry.getByteValue()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    public static final class SectionFaceSnapshot {
+        private static final SectionFaceSnapshot EMPTY = new SectionFaceSnapshot(new long[64], new byte[4096], false);
+        private final long[] renderableSolidBits;
+        private final byte[] faceMasks;
+        private final boolean anyCandidateReceivers;
+
+        private SectionFaceSnapshot(long[] renderableSolidBits, byte[] faceMasks, boolean anyCandidateReceivers) {
+            this.renderableSolidBits = renderableSolidBits;
+            this.faceMasks = faceMasks;
+            this.anyCandidateReceivers = anyCandidateReceivers;
+        }
+
+        public boolean hasCandidateReceivers() {
+            return this.anyCandidateReceivers;
+        }
+
+        public boolean isRenderableSolid(int localIndex) {
+            return (this.renderableSolidBits[localIndex >>> 6] & 1L << (localIndex & 0x3F)) != 0L;
+        }
+
+        public long word(int wordIndex) {
+            return this.renderableSolidBits[wordIndex];
+        }
+
+        public int wordCount() {
+            return this.renderableSolidBits.length;
+        }
+
+        public byte faceMask(int localIndex) {
+            return this.faceMasks[localIndex];
+        }
+
+        public static SectionFaceSnapshot empty() {
+            return EMPTY;
+        }
+    }
+
+    public static final class SectionReceiverSnapshot {
+        private static final SectionReceiverSnapshot EMPTY = new SectionReceiverSnapshot(Collections.emptyList());
+        private final List<ReceiverRect> rects;
+
+        private SectionReceiverSnapshot(List<ReceiverRect> rects) {
+            this.rects = List.copyOf(rects);
+        }
+
+        public List<ReceiverRect> rects() {
+            return this.rects;
+        }
+
+        public boolean isEmpty() {
+            return this.rects.isEmpty();
+        }
+
+        public static SectionReceiverSnapshot empty() {
+            return EMPTY;
+        }
+    }
+
+    public static final class ReceiverRect {
+        private final Direction face;
+        private final int planeCoordinate;
+        private final int minCellU;
+        private final int maxCellU;
+        private final int minCellV;
+        private final int maxCellV;
+        private final long anchorBlockKey;
+
+        private ReceiverRect(Direction face, int planeCoordinate, int minCellU, int maxCellU, int minCellV, int maxCellV, long anchorBlockKey) {
+            this.face = face;
+            this.planeCoordinate = planeCoordinate;
+            this.minCellU = minCellU;
+            this.maxCellU = maxCellU;
+            this.minCellV = minCellV;
+            this.maxCellV = maxCellV;
+            this.anchorBlockKey = anchorBlockKey;
+        }
+
+        public Direction face() {
+            return this.face;
+        }
+
+        public int planeCoordinate() {
+            return this.planeCoordinate;
+        }
+
+        public int minCellU() {
+            return this.minCellU;
+        }
+
+        public int maxCellU() {
+            return this.maxCellU;
+        }
+
+        public int minCellV() {
+            return this.minCellV;
+        }
+
+        public int maxCellV() {
+            return this.maxCellV;
+        }
+
+        public long anchorBlockKey() {
+            return this.anchorBlockKey;
+        }
+    }
+
+    public static final class ReceiverSurface {
+        private final long blockKey;
+        private final Direction face;
+        private final double planeCoordinate;
+        private final double minU;
+        private final double maxU;
+        private final double minV;
+        private final double maxV;
+        private final long surfaceKey;
+
+        private ReceiverSurface(long blockKey, Direction face, double planeCoordinate, double minU, double maxU, double minV, double maxV, long surfaceKey) {
+            this.blockKey = blockKey;
+            this.face = face;
+            this.planeCoordinate = planeCoordinate;
+            this.minU = minU;
+            this.maxU = maxU;
+            this.minV = minV;
+            this.maxV = maxV;
+            this.surfaceKey = surfaceKey;
+        }
+
+        public long blockKey() {
+            return this.blockKey;
+        }
+
+        public Direction face() {
+            return this.face;
+        }
+
+        public double planeCoordinate() {
+            return this.planeCoordinate;
+        }
+
+        public double minU() {
+            return this.minU;
+        }
+
+        public double maxU() {
+            return this.maxU;
+        }
+
+        public double minV() {
+            return this.minV;
+        }
+
+        public double maxV() {
+            return this.maxV;
+        }
+
+        public long surfaceKey() {
+            return this.surfaceKey;
+        }
+    }
+
+    @FunctionalInterface
+    public static interface ReceiverSurfaceVisitor {
+        public void visit(Direction var1, double var2, double var4, double var6, double var8, double var10, long var12);
+    }
+
+    private record SurfaceRect(double minU, double maxU, double minV, double maxV) {
+        double width() {
+            return this.maxU - this.minU;
+        }
+
+        double height() {
+            return this.maxV - this.minV;
+        }
+    }
+
+    private record ReceiverSurfaceBounds(double minU, double maxU, double minV, double maxV) {
+        double width() {
+            return this.maxU - this.minU;
+        }
+
+        double height() {
+            return this.maxV - this.minV;
+        }
+    }
+
+    private static final class ReceiverSurfaceTemplate {
+        private final Direction face;
+        private final int faceMaskBit;
+        private final double planeCoordinate;
+        private final ReceiverSurfaceBounds bounds;
+        private final boolean boundaryFace;
+
+        private ReceiverSurfaceTemplate(Direction face, double planeCoordinate, ReceiverSurfaceBounds bounds, boolean boundaryFace) {
+            this.face = face;
+            this.faceMaskBit = 1 << face.ordinal();
+            this.planeCoordinate = planeCoordinate;
+            this.bounds = bounds;
+            this.boundaryFace = boundaryFace;
+        }
+
+        private ReceiverSurface instantiate(long blockKey) {
+            return new ReceiverSurface(blockKey, this.face, this.planeCoordinate, this.bounds.minU, this.bounds.maxU, this.bounds.minV, this.bounds.maxV, ExposedFaceService.computeSurfaceKey(blockKey, this.face, this.planeCoordinate, this.bounds));
+        }
+    }
+
     private static final class ReceiverShapeTemplate {
         private static final ReceiverShapeTemplate EMPTY = new ReceiverShapeTemplate(new ReceiverSurfaceTemplate[0]);
         private final ReceiverSurfaceTemplate[] surfaces;
@@ -1082,288 +1360,10 @@ public final class ExposedFaceService {
         }
     }
 
-    private static final class SectionCapture {
-        private final long sectionKey;
-        private final Long2ByteOpenHashMap facesByBlock = new Long2ByteOpenHashMap();
-
-        private SectionCapture(long sectionKey) {
-            this.sectionKey = sectionKey;
-            this.facesByBlock.defaultReturnValue((byte)0);
-        }
-
-        private void recordFace(long blockKey, Direction face) {
-            this.facesByBlock.put(blockKey, (byte)(this.facesByBlock.get(blockKey) | 1 << face.ordinal()));
-        }
-
-        private SectionFaceData detachFaceData() {
-            return new SectionFaceData(this.facesByBlock, true);
-        }
-    }
-
-    private static final class SectionFaceData {
-        private final Long2ByteOpenHashMap facesByBlock;
-
-        private SectionFaceData(Long2ByteOpenHashMap source) {
-            this(source, false);
-        }
-
-        private SectionFaceData(Long2ByteOpenHashMap source, boolean takeOwnership) {
-            this.facesByBlock = takeOwnership ? source : new Long2ByteOpenHashMap((Long2ByteMap)source);
-            this.facesByBlock.defaultReturnValue((byte)0);
-        }
-
-        private byte faceMask(long blockKey) {
-            return this.facesByBlock.get(blockKey);
-        }
-
-        private boolean isEmpty() {
-            return this.facesByBlock.isEmpty();
-        }
-
-        private Long2ByteOpenHashMap copyFaces() {
-            return new Long2ByteOpenHashMap((Long2ByteMap)this.facesByBlock);
-        }
-
-        private boolean sameContent(SectionFaceData other) {
-            if (this.facesByBlock.size() != other.facesByBlock.size()) {
-                return false;
-            }
-            for (Long2ByteMap.Entry entry : this.facesByBlock.long2ByteEntrySet()) {
-                if (other.facesByBlock.get(entry.getLongKey()) != entry.getByteValue()) {
-                    return false;
-                }
-            }
-            return true;
-        }
-    }
-
-    public static final class SectionFaceSnapshot {
-        private static final SectionFaceSnapshot EMPTY = new SectionFaceSnapshot(new long[64], new byte[4096], false);
-        private final long[] renderableSolidBits;
-        private final byte[] faceMasks;
-        private final boolean anyCandidateReceivers;
-
-        private SectionFaceSnapshot(long[] renderableSolidBits, byte[] faceMasks, boolean anyCandidateReceivers) {
-            this.renderableSolidBits = renderableSolidBits;
-            this.faceMasks = faceMasks;
-            this.anyCandidateReceivers = anyCandidateReceivers;
-        }
-
-        public boolean hasCandidateReceivers() {
-            return this.anyCandidateReceivers;
-        }
-
-        public boolean isRenderableSolid(int localIndex) {
-            return (this.renderableSolidBits[localIndex >>> 6] & 1L << (localIndex & 0x3F)) != 0L;
-        }
-
-        public long word(int wordIndex) {
-            return this.renderableSolidBits[wordIndex];
-        }
-
-        public int wordCount() {
-            return this.renderableSolidBits.length;
-        }
-
-        public byte faceMask(int localIndex) {
-            return this.faceMasks[localIndex];
-        }
-
-        public static SectionFaceSnapshot empty() {
-            return EMPTY;
-        }
-    }
-
     private static final class SectionCompleteReceiverSurfaceCache {
         final ConcurrentHashMap<Long, ReceiverSurface[]> surfacesByBlock = new ConcurrentHashMap();
 
         private SectionCompleteReceiverSurfaceCache() {
-        }
-    }
-
-    public static final class ReceiverSurface {
-        private final long blockKey;
-        private final Direction face;
-        private final double planeCoordinate;
-        private final double minU;
-        private final double maxU;
-        private final double minV;
-        private final double maxV;
-        private final long surfaceKey;
-
-        private ReceiverSurface(long blockKey, Direction face, double planeCoordinate, double minU, double maxU, double minV, double maxV, long surfaceKey) {
-            this.blockKey = blockKey;
-            this.face = face;
-            this.planeCoordinate = planeCoordinate;
-            this.minU = minU;
-            this.maxU = maxU;
-            this.minV = minV;
-            this.maxV = maxV;
-            this.surfaceKey = surfaceKey;
-        }
-
-        public long blockKey() {
-            return this.blockKey;
-        }
-
-        public Direction face() {
-            return this.face;
-        }
-
-        public double planeCoordinate() {
-            return this.planeCoordinate;
-        }
-
-        public double minU() {
-            return this.minU;
-        }
-
-        public double maxU() {
-            return this.maxU;
-        }
-
-        public double minV() {
-            return this.minV;
-        }
-
-        public double maxV() {
-            return this.maxV;
-        }
-
-        public long surfaceKey() {
-            return this.surfaceKey;
-        }
-    }
-
-    @FunctionalInterface
-    public static interface ReceiverSurfaceVisitor {
-        public void visit(Direction var1, double var2, double var4, double var6, double var8, double var10, long var12);
-    }
-
-    public static final class SectionReceiverSnapshot {
-        private static final SectionReceiverSnapshot EMPTY = new SectionReceiverSnapshot(Collections.emptyList());
-        private final List<ReceiverRect> rects;
-
-        private SectionReceiverSnapshot(List<ReceiverRect> rects) {
-            this.rects = List.copyOf(rects);
-        }
-
-        public List<ReceiverRect> rects() {
-            return this.rects;
-        }
-
-        public boolean isEmpty() {
-            return this.rects.isEmpty();
-        }
-
-        public static SectionReceiverSnapshot empty() {
-            return EMPTY;
-        }
-    }
-
-    private record SurfaceRect(double minU, double maxU, double minV, double maxV) {
-        double width() {
-            return this.maxU - this.minU;
-        }
-
-        double height() {
-            return this.maxV - this.minV;
-        }
-    }
-
-    private record ReceiverSurfaceBounds(double minU, double maxU, double minV, double maxV) {
-        double width() {
-            return this.maxU - this.minU;
-        }
-
-        double height() {
-            return this.maxV - this.minV;
-        }
-    }
-
-    private static final class ReceiverSurfaceTemplate {
-        private final Direction face;
-        private final int faceMaskBit;
-        private final double planeCoordinate;
-        private final ReceiverSurfaceBounds bounds;
-        private final boolean boundaryFace;
-
-        private ReceiverSurfaceTemplate(Direction face, double planeCoordinate, ReceiverSurfaceBounds bounds, boolean boundaryFace) {
-            this.face = face;
-            this.faceMaskBit = 1 << face.ordinal();
-            this.planeCoordinate = planeCoordinate;
-            this.bounds = bounds;
-            this.boundaryFace = boundaryFace;
-        }
-
-        private ReceiverSurface instantiate(long blockKey) {
-            return new ReceiverSurface(blockKey, this.face, this.planeCoordinate, this.bounds.minU, this.bounds.maxU, this.bounds.minV, this.bounds.maxV, ExposedFaceService.computeSurfaceKey(blockKey, this.face, this.planeCoordinate, this.bounds));
-        }
-    }
-
-    private static final class BuiltSectionCommit {
-        final long sectionKey;
-        final long revision;
-        final SectionFaceData data;
-        final SectionFaceSnapshot faceSnapshot;
-        final SectionReceiverSnapshot receiverSnapshot;
-        final boolean fullyCaptured;
-
-        BuiltSectionCommit(long sectionKey, long revision, SectionFaceData data, SectionFaceSnapshot faceSnapshot, SectionReceiverSnapshot receiverSnapshot, boolean fullyCaptured) {
-            this.sectionKey = sectionKey;
-            this.revision = revision;
-            this.data = data;
-            this.faceSnapshot = faceSnapshot;
-            this.receiverSnapshot = receiverSnapshot;
-            this.fullyCaptured = fullyCaptured;
-        }
-    }
-
-    public static final class ReceiverRect {
-        private final Direction face;
-        private final int planeCoordinate;
-        private final int minCellU;
-        private final int maxCellU;
-        private final int minCellV;
-        private final int maxCellV;
-        private final long anchorBlockKey;
-
-        private ReceiverRect(Direction face, int planeCoordinate, int minCellU, int maxCellU, int minCellV, int maxCellV, long anchorBlockKey) {
-            this.face = face;
-            this.planeCoordinate = planeCoordinate;
-            this.minCellU = minCellU;
-            this.maxCellU = maxCellU;
-            this.minCellV = minCellV;
-            this.maxCellV = maxCellV;
-            this.anchorBlockKey = anchorBlockKey;
-        }
-
-        public Direction face() {
-            return this.face;
-        }
-
-        public int planeCoordinate() {
-            return this.planeCoordinate;
-        }
-
-        public int minCellU() {
-            return this.minCellU;
-        }
-
-        public int maxCellU() {
-            return this.maxCellU;
-        }
-
-        public int minCellV() {
-            return this.minCellV;
-        }
-
-        public int maxCellV() {
-            return this.maxCellV;
-        }
-
-        public long anchorBlockKey() {
-            return this.anchorBlockKey;
         }
     }
 }

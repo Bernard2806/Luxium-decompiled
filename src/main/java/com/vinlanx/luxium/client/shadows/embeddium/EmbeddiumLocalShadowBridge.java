@@ -152,6 +152,9 @@ public final class EmbeddiumLocalShadowBridge {
         }
     }
 
+    public record PreparedCapture(ChunkRenderer renderer, LocalRenderLists lists, double lightX, double lightY, double lightZ) {
+    }
+
     public static final class LocalRenderLists
     implements ChunkRenderListIterable {
         private final List<ChunkRenderList> lists;
@@ -182,9 +185,6 @@ public final class EmbeddiumLocalShadowBridge {
         public int regionCount() {
             return this.lists.size();
         }
-    }
-
-    public record PreparedCapture(ChunkRenderer renderer, LocalRenderLists lists, double lightX, double lightY, double lightZ) {
     }
 }
 

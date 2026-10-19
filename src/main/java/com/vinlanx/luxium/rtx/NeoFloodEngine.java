@@ -1328,39 +1328,114 @@ public final class NeoFloodEngine {
         return value < min ? min : Math.min(value, max);
     }
 
-    private static final class Snapshot {
-        final Long2ObjectOpenHashMap<SectionLightData>[] shards;
+    @FunctionalInterface
+    public static interface ContributorVisitor {
+        public void visit(long var1, int var3, int var4, int var5);
+    }
 
-        Snapshot(Long2ObjectOpenHashMap<SectionLightData>[] shards) {
-            this.shards = shards;
+    @FunctionalInterface
+    public static interface SectionChangeVisitor {
+        public void visit(long var1, long[] var3);
+    }
+
+    public static final class LightChangeBatch {
+        private final Long2ObjectOpenHashMap<long[]> sections;
+
+        private LightChangeBatch(Long2ObjectOpenHashMap<long[]> sections) {
+            this.sections = sections;
         }
 
-        static Snapshot empty() {
-            Long2ObjectOpenHashMap<SectionLightData>[] shards = new Long2ObjectOpenHashMap[64];
-            for (int i = 0; i < shards.length; ++i) {
-                shards[i] = new Long2ObjectOpenHashMap();
+        public int sectionCount() {
+            return this.sections.size();
+        }
+
+        public void forEachSection(SectionChangeVisitor visitor) {
+            if (visitor == null) {
+                return;
             }
-            return new Snapshot(shards);
-        }
-
-        SectionLightData getSection(long sectionKey) {
-            return (SectionLightData)this.shards[NeoFloodEngine.snapshotShard(sectionKey)].get(sectionKey);
-        }
-
-        int getLight(long posKey) {
-            SectionLightData section = this.getSection(NeoFloodEngine.sectionKeyForBlock(posKey));
-            return section == null ? 0 : section.light[NeoFloodEngine.localSectionIndex(posKey)] & 0xFF;
-        }
-
-        int getCoverage(long posKey) {
-            SectionLightData section = this.getSection(NeoFloodEngine.sectionKeyForBlock(posKey));
-            return section == null ? 0 : section.coverage[NeoFloodEngine.localSectionIndex(posKey)] & 0xFF;
-        }
-
-        void collectSectionKeys(LongOpenHashSet output) {
-            for (Long2ObjectOpenHashMap<SectionLightData> shard : this.shards) {
-                output.addAll((LongCollection)shard.keySet());
+            ObjectIterator<Long2ObjectMap.Entry<long[]>> it = this.sections.long2ObjectEntrySet().fastIterator();
+            while (it.hasNext()) {
+                Long2ObjectMap.Entry<long[]> entry = (Long2ObjectMap.Entry)it.next();
+                visitor.visit(entry.getLongKey(), (long[])entry.getValue());
             }
+        }
+    }
+
+    private static final class ChangedCells {
+        final Long2ObjectOpenHashMap<long[]> sections = new Long2ObjectOpenHashMap();
+
+        private ChangedCells() {
+        }
+
+        long[] wordsFor(long sectionKey) {
+            long[] words = (long[])this.sections.get(sectionKey);
+            if (words == null) {
+                words = new long[64];
+                this.sections.put(sectionKey, (Object)words);
+            }
+            return words;
+        }
+
+        boolean isEmpty() {
+            return this.sections.isEmpty();
+        }
+    }
+
+    private static final class PublishResult {
+        final LongOpenHashSet affected;
+        final Long2ObjectOpenHashMap<SectionLightData> rebuilt;
+        final LongOpenHashSet emptySections;
+        final ChangedCells changed;
+        final LongOpenHashSet changedSections;
+
+        PublishResult(LongOpenHashSet affected, Long2ObjectOpenHashMap<SectionLightData> rebuilt, LongOpenHashSet emptySections, ChangedCells changed, LongOpenHashSet changedSections) {
+            this.affected = affected;
+            this.rebuilt = rebuilt;
+            this.emptySections = emptySections;
+            this.changed = changed;
+            this.changedSections = changedSections;
+        }
+    }
+
+    private static final class CompletedTrace {
+        final TraceCapture capture;
+        final PackedSourceData data;
+
+        CompletedTrace(TraceCapture capture, PackedSourceData data) {
+            this.capture = capture;
+            this.data = data;
+        }
+    }
+
+    private static final class SectionBuildScratch {
+        final byte[] light = new byte[4096];
+        final byte[] coverage = new byte[4096];
+        long[] sourceKeys = new long[16];
+        int sourceCount;
+
+        private SectionBuildScratch() {
+        }
+
+        void reset(int sourceCapacity) {
+            Arrays.fill(this.light, (byte)0);
+            Arrays.fill(this.coverage, (byte)0);
+            this.sourceCount = 0;
+            if (sourceCapacity > this.sourceKeys.length) {
+                int capacity;
+                for (capacity = this.sourceKeys.length; capacity < sourceCapacity; capacity <<= 1) {
+                }
+                this.sourceKeys = new long[capacity];
+            }
+        }
+    }
+
+    private static final class SectionBuildOutput {
+        final SectionLightData next;
+        final long[] dirtyWords;
+
+        SectionBuildOutput(SectionLightData next, long[] dirtyWords) {
+            this.next = next;
+            this.dirtyWords = dirtyWords;
         }
     }
 
@@ -1386,25 +1461,17 @@ public final class NeoFloodEngine {
         }
     }
 
-    private static final class SectionBuildScratch {
-        final byte[] light = new byte[4096];
-        final byte[] coverage = new byte[4096];
-        long[] sourceKeys = new long[16];
-        int sourceCount;
+    private static final class TraceCapture {
+        final int epoch;
+        final SourceState state;
+        final int generation;
+        final int emission;
 
-        private SectionBuildScratch() {
-        }
-
-        void reset(int sourceCapacity) {
-            Arrays.fill(this.light, (byte)0);
-            Arrays.fill(this.coverage, (byte)0);
-            this.sourceCount = 0;
-            if (sourceCapacity > this.sourceKeys.length) {
-                int capacity;
-                for (capacity = this.sourceKeys.length; capacity < sourceCapacity; capacity <<= 1) {
-                }
-                this.sourceKeys = new long[capacity];
-            }
+        TraceCapture(int epoch, SourceState state, int generation, int emission) {
+            this.epoch = epoch;
+            this.state = state;
+            this.generation = generation;
+            this.emission = emission;
         }
     }
 
@@ -1523,106 +1590,39 @@ public final class NeoFloodEngine {
         }
     }
 
-    @FunctionalInterface
-    public static interface ContributorVisitor {
-        public void visit(long var1, int var3, int var4, int var5);
-    }
+    private static final class Snapshot {
+        final Long2ObjectOpenHashMap<SectionLightData>[] shards;
 
-    private static final class TraceCapture {
-        final int epoch;
-        final SourceState state;
-        final int generation;
-        final int emission;
-
-        TraceCapture(int epoch, SourceState state, int generation, int emission) {
-            this.epoch = epoch;
-            this.state = state;
-            this.generation = generation;
-            this.emission = emission;
-        }
-    }
-
-    private static final class CompletedTrace {
-        final TraceCapture capture;
-        final PackedSourceData data;
-
-        CompletedTrace(TraceCapture capture, PackedSourceData data) {
-            this.capture = capture;
-            this.data = data;
-        }
-    }
-
-    private static final class PublishResult {
-        final LongOpenHashSet affected;
-        final Long2ObjectOpenHashMap<SectionLightData> rebuilt;
-        final LongOpenHashSet emptySections;
-        final ChangedCells changed;
-        final LongOpenHashSet changedSections;
-
-        PublishResult(LongOpenHashSet affected, Long2ObjectOpenHashMap<SectionLightData> rebuilt, LongOpenHashSet emptySections, ChangedCells changed, LongOpenHashSet changedSections) {
-            this.affected = affected;
-            this.rebuilt = rebuilt;
-            this.emptySections = emptySections;
-            this.changed = changed;
-            this.changedSections = changedSections;
-        }
-    }
-
-    private static final class ChangedCells {
-        final Long2ObjectOpenHashMap<long[]> sections = new Long2ObjectOpenHashMap();
-
-        private ChangedCells() {
+        Snapshot(Long2ObjectOpenHashMap<SectionLightData>[] shards) {
+            this.shards = shards;
         }
 
-        long[] wordsFor(long sectionKey) {
-            long[] words = (long[])this.sections.get(sectionKey);
-            if (words == null) {
-                words = new long[64];
-                this.sections.put(sectionKey, (Object)words);
+        static Snapshot empty() {
+            Long2ObjectOpenHashMap<SectionLightData>[] shards = new Long2ObjectOpenHashMap[64];
+            for (int i = 0; i < shards.length; ++i) {
+                shards[i] = new Long2ObjectOpenHashMap();
             }
-            return words;
+            return new Snapshot(shards);
         }
 
-        boolean isEmpty() {
-            return this.sections.isEmpty();
-        }
-    }
-
-    private static final class SectionBuildOutput {
-        final SectionLightData next;
-        final long[] dirtyWords;
-
-        SectionBuildOutput(SectionLightData next, long[] dirtyWords) {
-            this.next = next;
-            this.dirtyWords = dirtyWords;
-        }
-    }
-
-    public static final class LightChangeBatch {
-        private final Long2ObjectOpenHashMap<long[]> sections;
-
-        private LightChangeBatch(Long2ObjectOpenHashMap<long[]> sections) {
-            this.sections = sections;
+        SectionLightData getSection(long sectionKey) {
+            return (SectionLightData)this.shards[NeoFloodEngine.snapshotShard(sectionKey)].get(sectionKey);
         }
 
-        public int sectionCount() {
-            return this.sections.size();
+        int getLight(long posKey) {
+            SectionLightData section = this.getSection(NeoFloodEngine.sectionKeyForBlock(posKey));
+            return section == null ? 0 : section.light[NeoFloodEngine.localSectionIndex(posKey)] & 0xFF;
         }
 
-        public void forEachSection(SectionChangeVisitor visitor) {
-            if (visitor == null) {
-                return;
-            }
-            ObjectIterator<Long2ObjectMap.Entry<long[]>> it = this.sections.long2ObjectEntrySet().fastIterator();
-            while (it.hasNext()) {
-                Long2ObjectMap.Entry<long[]> entry = (Long2ObjectMap.Entry)it.next();
-                visitor.visit(entry.getLongKey(), (long[])entry.getValue());
+        int getCoverage(long posKey) {
+            SectionLightData section = this.getSection(NeoFloodEngine.sectionKeyForBlock(posKey));
+            return section == null ? 0 : section.coverage[NeoFloodEngine.localSectionIndex(posKey)] & 0xFF;
+        }
+
+        void collectSectionKeys(LongOpenHashSet output) {
+            for (Long2ObjectOpenHashMap<SectionLightData> shard : this.shards) {
+                output.addAll((LongCollection)shard.keySet());
             }
         }
-    }
-
-    @FunctionalInterface
-    public static interface SectionChangeVisitor {
-        public void visit(long var1, long[] var3);
     }
 }

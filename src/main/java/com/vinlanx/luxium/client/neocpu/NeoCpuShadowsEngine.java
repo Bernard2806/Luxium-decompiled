@@ -569,16 +569,16 @@ public final class NeoCpuShadowsEngine {
         nextRequestId = 1L;
     }
 
-    private record BuildResult(long id, long epoch, long fingerprint, NeoCpuShadowTypes.StaticBuildOutput staticOutput, List<NeoCpuShadowTypes.ShadowPolygon> blockPolygons) {
-    }
-
-    private record DynamicBuildResult(long id, long epoch, long entityFingerprint, List<NeoCpuShadowTypes.ShadowPolygon> entityPolygons) {
-    }
-
     private record BuildRequest(long id, long epoch, long fingerprint, ClientLevel level, long[] sources, int[] emissions) {
     }
 
+    private record BuildResult(long id, long epoch, long fingerprint, NeoCpuShadowTypes.StaticBuildOutput staticOutput, List<NeoCpuShadowTypes.ShadowPolygon> blockPolygons) {
+    }
+
     private record DynamicBuildRequest(long id, long epoch, long entityFingerprint, ClientLevel level, NeoCpuShadowTypes.StaticBuildOutput staticOutput, NeoCpuEntityShadows.CaptureState entityState) {
+    }
+
+    private record DynamicBuildResult(long id, long epoch, long entityFingerprint, List<NeoCpuShadowTypes.ShadowPolygon> entityPolygons) {
     }
 
     static final class RenderHelper

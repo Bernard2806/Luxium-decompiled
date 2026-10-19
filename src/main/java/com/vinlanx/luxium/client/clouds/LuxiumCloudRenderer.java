@@ -1047,6 +1047,18 @@ public final class LuxiumCloudRenderer {
         return new LayerConfig[]{new LayerConfig(Config.isFeatureEnabled(c.cloudLayer1Enabled), (Double)c.cloudLayer1Height.get(), (Double)c.cloudLayer1Speed.get(), (Double)c.cloudLayer1Direction.get(), (Double)c.cloudLayer1Scale.get(), (Double)c.cloudLayer1Opacity.get(), (Double)c.cloudLayer1Thickness.get(), (Double)c.cloudLayer1Brightness.get(), (Double)c.cloudLayer1Coverage.get(), (Double)c.cloudLayer1EdgeSoftness.get(), (Double)c.cloudLayer1Variation.get(), (Double)c.cloudLayer1WeatherInfluence.get(), (Double)c.cloudLayer1StormDarkening.get(), (Integer)c.cloudLayer1RenderDistance.get()), new LayerConfig(Config.isFeatureEnabled(c.cloudLayer2Enabled), (Double)c.cloudLayer2Height.get(), (Double)c.cloudLayer2Speed.get(), (Double)c.cloudLayer2Direction.get(), (Double)c.cloudLayer2Scale.get(), (Double)c.cloudLayer2Opacity.get(), (Double)c.cloudLayer2Thickness.get(), (Double)c.cloudLayer2Brightness.get(), (Double)c.cloudLayer2Coverage.get(), (Double)c.cloudLayer2EdgeSoftness.get(), (Double)c.cloudLayer2Variation.get(), (Double)c.cloudLayer2WeatherInfluence.get(), (Double)c.cloudLayer2StormDarkening.get(), (Integer)c.cloudLayer2RenderDistance.get()), new LayerConfig(Config.isFeatureEnabled(c.cloudLayer3Enabled), (Double)c.cloudLayer3Height.get(), (Double)c.cloudLayer3Speed.get(), (Double)c.cloudLayer3Direction.get(), (Double)c.cloudLayer3Scale.get(), (Double)c.cloudLayer3Opacity.get(), (Double)c.cloudLayer3Thickness.get(), (Double)c.cloudLayer3Brightness.get(), (Double)c.cloudLayer3Coverage.get(), (Double)c.cloudLayer3EdgeSoftness.get(), (Double)c.cloudLayer3Variation.get(), (Double)c.cloudLayer3WeatherInfluence.get(), (Double)c.cloudLayer3StormDarkening.get(), (Integer)c.cloudLayer3RenderDistance.get())};
     }
 
+    private record LayerConfig(boolean enabled, double height, double speed, double direction, double scale, double opacity, double thickness, double brightness, double coverage, double edgeSoftness, double variation, double weatherInfluence, double stormDarkening, int renderDistance) {
+    }
+
+    private record LayerFrame(float blockScale, float fractionX, float fractionY, float fractionZ, ResourceLocation texture) {
+    }
+
+    private record MaskLayerFrame(float blockScale, float fractionX, float relativeY, float fractionZ, ResourceLocation texture) {
+    }
+
+    private record ShadowPlane(Vector3f p0, Vector3f p1, Vector3f p2, Vector3f p3, double maxFront) {
+    }
+
     private static final class LayerState {
         final int index;
         VertexBuffer vertexBuffer;
@@ -1061,18 +1073,6 @@ public final class LuxiumCloudRenderer {
         LayerState(int index) {
             this.index = index;
         }
-    }
-
-    private record LayerConfig(boolean enabled, double height, double speed, double direction, double scale, double opacity, double thickness, double brightness, double coverage, double edgeSoftness, double variation, double weatherInfluence, double stormDarkening, int renderDistance) {
-    }
-
-    private record ShadowPlane(Vector3f p0, Vector3f p1, Vector3f p2, Vector3f p3, double maxFront) {
-    }
-
-    private record MaskLayerFrame(float blockScale, float fractionX, float relativeY, float fractionZ, ResourceLocation texture) {
-    }
-
-    private record LayerFrame(float blockScale, float fractionX, float fractionY, float fractionZ, ResourceLocation texture) {
     }
 }
 

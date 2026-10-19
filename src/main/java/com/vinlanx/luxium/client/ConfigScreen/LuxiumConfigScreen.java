@@ -742,6 +742,9 @@ extends Screen {
     private record ControlRow(ConfigScreenModel.Row row, AbstractWidget widget, int baseY) {
     }
 
+    private record PreviewImageBounds(int x, int y, int width, int height) {
+    }
+
     private record SidebarEntry(ConfigScreenModel.Folder folder, ConfigScreenModel.Category category, boolean indented) {
         static SidebarEntry folder(ConfigScreenModel.Folder folder) {
             return new SidebarEntry(folder, null, false);
@@ -754,8 +757,5 @@ extends Screen {
         boolean isFolder() {
             return this.folder != null;
         }
-    }
-
-    private record PreviewImageBounds(int x, int y, int width, int height) {
     }
 }
