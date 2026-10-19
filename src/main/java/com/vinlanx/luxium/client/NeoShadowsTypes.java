@@ -453,9 +453,9 @@ final class NeoShadowsTypes {
                 StaticHotPatchOverlay.clearFaceBuckets(buckets, faceMask);
                 if (StaticHotPatchOverlay.hasAnyPolygons(buckets)) {
                     mergedByBlock.put(blockKey, (Object)buckets);
-                    continue;
+                } else {
+                    mergedByBlock.remove(blockKey);
                 }
-                mergedByBlock.remove(blockKey);
             }
             for (ShadowPolygon polygon : output.shadowPolygons) {
                 long blockKey = polygon.blockPos.m_121878_();

@@ -173,7 +173,7 @@ public final class BlockLightTest {
         if (program <= 0) {
             return;
         }
-        int[] slots = PROGRAMS.computeIfAbsent(program, id -> new int[]{GL20.glGetUniformLocation((int)id, (CharSequence)(entityProgram ? "BtCount" : "u_BtCount")), GL20.glGetUniformLocation((int)id, (CharSequence)(entityProgram ? "BtEmitters[0]" : "u_BtEmitters[0]")), GL20.glGetUniformLocation((int)id, (CharSequence)(entityProgram ? "BtColors[0]" : "u_BtColors[0]")), entityProgram ? GL20.glGetUniformLocation((int)id, (CharSequence)"BtActive") : -1});
+        int[] slots = PROGRAMS.computeIfAbsent(program, id -> new int[]{GL20.glGetUniformLocation((int)id, entityProgram ? "BtCount" : "u_BtCount"), GL20.glGetUniformLocation((int)id, entityProgram ? "BtEmitters[0]" : "u_BtEmitters[0]"), GL20.glGetUniformLocation((int)id, entityProgram ? "BtColors[0]" : "u_BtColors[0]"), entityProgram ? GL20.glGetUniformLocation((int)id, (CharSequence)"BtActive") : -1});
         if (slots[3] >= 0) {
             GL20.glUniform1i((int)slots[3], (int)(BlockLightTest.enabled() ? 1 : 0));
         }

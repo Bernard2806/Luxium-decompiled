@@ -29,7 +29,7 @@ public final class NeoCpuShadowTypes {
     /*
      * Uses 'sealed' constructs - enablewith --sealed true
      */
-    public static interface Occluder {
+    public static sealed interface Occluder permits Box, QuadOccluder {
         public long blockKey();
 
         public float opacity();

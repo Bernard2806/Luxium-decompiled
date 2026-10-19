@@ -317,8 +317,8 @@ extends Screen {
                 if (y + 38 > top && y < bottom) {
                     graphics.m_280614_(this.f_96547_, LuxiumConfigScreen.upper(control.row.header()), labelX, y + 12, -11157, true);
                     graphics.m_280509_(labelX, y + 27, controlRight, y + 29, -11157);
-                    continue;
                 }
+                continue;
             }
             boolean visible = y + 32 > top && y < bottom;
             control.widget.f_93624_ = visible;

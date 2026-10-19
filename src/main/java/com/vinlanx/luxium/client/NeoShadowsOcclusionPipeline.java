@@ -428,6 +428,7 @@ final class NeoShadowsOcclusionPipeline {
                             if (nextTraveled >= maxDistance) {
                                 break;
                             }
+                            continue;
                         }
                         if (!sectionIsAir && cachedSection != null) {
                             BlockState state = cachedSection.m_62982_(traversal.blockX & 0xF, traversal.blockY & 0xF, traversal.blockZ & 0xF);

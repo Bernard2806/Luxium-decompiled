@@ -396,6 +396,7 @@ public final class NeoCpuFloodShadowBuilder {
                 if (polygons.size() >= 8192) {
                     return;
                 }
+                continue;
             }
             for (NeoCpuShadowTypes.Occluder occluder : occluders) {
                 this.appendProjectedOccluderShadow(source, group, occluder, polygons);
@@ -862,9 +863,9 @@ public final class NeoCpuFloodShadowBuilder {
             double length = Math.sqrt(du * du + dv * dv);
             if (length <= 1.0E-6) {
                 out.add(point);
-                continue;
+            } else {
+                out.add(new NeoCpuShadowTypes.Uv(point.u() + du / length * amount, point.v() + dv / length * amount));
             }
-            out.add(new NeoCpuShadowTypes.Uv(point.u() + du / length * amount, point.v() + dv / length * amount));
         }
         return out;
     }

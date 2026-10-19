@@ -992,9 +992,9 @@ public final class NeoFloodEngine {
                     Long2ObjectMap.Entry<PackedSourceData> entry = (Long2ObjectMap.Entry)replacementIt.next();
                     if (((PackedSourceData)entry.getValue()).sectionBits.containsKey(sectionKey)) {
                         candidates.add(entry.getLongKey());
-                        continue;
+                    } else {
+                        candidates.remove(entry.getLongKey());
                     }
-                    candidates.remove(entry.getLongKey());
                 }
             }
             SectionLightData previous = oldSnapshot.getSection(sectionKey);
@@ -1005,9 +1005,9 @@ public final class NeoFloodEngine {
             }
             if (output.next == null) {
                 emptySections.add(sectionKey);
-                continue;
+            } else {
+                rebuilt.put(sectionKey, (Object)output.next);
             }
-            rebuilt.put(sectionKey, (Object)output.next);
         }
         return new PublishResult(affected, (Long2ObjectOpenHashMap<SectionLightData>)rebuilt, emptySections, changed, changedSections);
     }

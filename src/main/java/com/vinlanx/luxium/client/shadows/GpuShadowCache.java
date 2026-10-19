@@ -892,9 +892,7 @@ public final class GpuShadowCache {
             AABB newBox = (AABB)nextCasters.get(key);
             if (newBox == null) {
                 this.markEntriesAffectedByCasterBounds(oldBox);
-                continue;
-            }
-            if (!GpuShadowCache.sameBounds(oldBox, newBox)) {
+            } else if (!GpuShadowCache.sameBounds(oldBox, newBox)) {
                 this.markEntriesAffectedByCasterBounds(GpuShadowCache.union(oldBox, newBox));
             }
         }

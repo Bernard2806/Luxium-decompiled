@@ -2062,9 +2062,9 @@ public final class TorchRtxState {
                     }
                     if (values.isEmpty()) {
                         nextByChunk.remove(chunkKey);
-                        continue;
+                    } else {
+                        nextByChunk.put(chunkKey, values.toLongArray());
                     }
-                    nextByChunk.put(chunkKey, values.toLongArray());
                 }
                 if (this.frontierEpoch.get() != epoch || !this.enabled) {
                     return;

@@ -75,6 +75,8 @@ public final class EntityShadowManager {
                         long[] closest = TorchRtxState.get().getClosestSources(entity.m_20182_(), 256.0, 1);
                         if (closest.length > 0) {
                             dominantSourceKey = closest[0];
+                        } else {
+                            continue;
                         }
                     }
                     int emission = TorchRtxState.get().getSourceEmission(dominantSourceKey);

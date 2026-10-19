@@ -340,6 +340,7 @@ final class NeoShadowsStaticPipeline {
                 if (scratch.shadowPolygons.size() >= 12288) {
                     return;
                 }
+                continue;
             }
             for (NeoShadowsTypes.Box bounds : hit.boxes) {
                 List<NeoShadowsTypes.UvPoint> projected = NeoShadowsProjection.collectProjectedBoxPoints(group.plane, group.source, bounds, hit.blockPos);
@@ -443,7 +444,7 @@ final class NeoShadowsStaticPipeline {
             return false;
         }
         int polygonsBefore = scratch.shadowPolygons.size();
-        block1: for (BakedQuad quad : quads) {
+        for (BakedQuad quad : quads) {
             if (scratch.shadowPolygons.size() >= 12288) break;
             NeoShadowsTypes.TexturedQuad texturedQuad = NeoShadowsTypes.TexturedQuad.from(quad, hit.blockPos);
             if (texturedQuad == null || !texturedQuad.facesSource(group.source)) continue;
@@ -458,7 +459,7 @@ final class NeoShadowsStaticPipeline {
             NeoShadowsTypes.SpritePixelBounds usedPixels = NeoShadowsStaticPipeline.computeQuadPixelBounds(texturedQuad, sprite);
             if (usedPixels == null) continue;
             for (NeoShadowsTypes.SpriteRect rect : mask.rectangles) {
-                if (scratch.shadowPolygons.size() >= 12288) continue block1;
+                if (scratch.shadowPolygons.size() >= 12288) break;
                 double minPixelX = Math.max((double)rect.minX, usedPixels.minX);
                 double maxPixelX = Math.min((double)rect.maxX, usedPixels.maxX);
                 double minPixelY = Math.max((double)rect.minY, usedPixels.minY);
