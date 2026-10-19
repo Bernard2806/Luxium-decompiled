@@ -1,8 +1,10 @@
-# Luxium
+# Luxium 2.8.0-pre-alpha
 
 > Unofficial decompilation of **Luxium: Let there be light**, originally created by **Vinlanx**.
 > Original project: https://www.curseforge.com/minecraft/mc-mods/luxium
 > All original code, shaders, assets, and branding are Copyright © Vinlanx and are distributed under the Luxium Custom License included in `src/main/resources/LICENSE.txt`. This repository is not affiliated with or endorsed by the original author. See `NOTICE.md`.
+
+This is the `2.8.0-pre-alpha` branch. Each version of the mod is decompiled on its own branch; the [`main`](https://github.com/Bernard2806/Luxium-decompiled/tree/main) branch describes the repository layout and lists every version.
 
 ## Takedown and contact
 
@@ -39,4 +41,8 @@ Run `./gradlew build` to compile and package the mod. The build remaps the decom
 
 ## Releases
 
-Push a tag matching `v*` (for example, `v2.8.1`) to trigger the GitHub Actions release workflow. It builds the mod using the tag as the version, creates a GitHub Release, and attaches the JAR. Tags containing a hyphen are marked as prereleases.
+This version has exactly one release tag, `v2.8.0-pre-alpha`, on this branch. Pushing it triggers the GitHub Actions release workflow, which builds the mod using the tag as the version, measures how closely the build matches the original JAR, creates a GitHub Release, and attaches the JAR and the decompilation map. Tags containing a hyphen are marked as prereleases. The workflow ignores every other tag, since other versions live on other branches. To publish a fix, move the tag to the new commit (`git tag -f`) and push it again.
+
+## License
+
+The original code, shaders, and assets are Copyright © Vinlanx under the Luxium Custom License (`src/main/resources/LICENSE.txt`). `scripts/decompilation_map.py` is GPL-2.0-only; see `NOTICE.md`.
