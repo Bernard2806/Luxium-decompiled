@@ -38,3 +38,30 @@ gradlew      text eol=lf
 *.gif        binary
 *.ogg        binary
 *.nbt        binary
+
+# Resources that the original JAR ships with CRLF line endings (built on Windows);
+# keep them CRLF so the packaged files match the original byte for byte.
+# Mixed line endings in the original (only the first line is CRLF): store the bytes as they are.
+/src/main/resources/assets/luxium/shaders/core/blackhole.json -text
+/src/main/resources/assets/luxium/shaders/core/cloud_shadow_caster.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/config_glass.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/depth_to_distance.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/explosion_particle.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/flood_shadow_composite.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/fog.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/godrays_post.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/kawase_composite.fsh text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/kawase_composite.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/kawase_down.fsh text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/kawase_down.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/kawase_source.fsh text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/kawase_source.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/kawase_up.fsh text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/kawase_up.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/lensflare.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/metal_reflection.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/polished_andesite_reflection.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/posteffect_composite.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/skygodrays.json text eol=crlf
+/src/main/resources/assets/luxium/shaders/core/youshader.json text eol=crlf
+/src/main/resources/LICENSE.txt text eol=crlf
