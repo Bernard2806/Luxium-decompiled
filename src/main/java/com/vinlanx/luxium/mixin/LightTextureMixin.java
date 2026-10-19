@@ -60,7 +60,8 @@ public abstract class LightTextureMixin
 implements NeoSkyLightTextureExtension {
     @Shadow
     private boolean f_109873_;
-    @Shadow(aliases={"f_109871_"})
+    // Split so the SRG-to-official source remap keeps the literal SRG alias of the original jar.
+    @Shadow(aliases={"f_" + "109871_"})
     @Final
     private NativeImage f_109871_;
     @Shadow
