@@ -1,0 +1,44 @@
+// Root project: merges the Forge and Fabric JARs into one with Forgix, as the original release was built.
+plugins {
+    id 'io.github.pacifistmc.forgix' version '1.2.9'
+}
+
+group = 'com.vinlanx.luxium'
+version = providers.gradleProperty('modVersion').get()
+
+subprojects {
+    apply plugin: 'java'
+    group = rootProject.group
+    version = rootProject.version
+    base {
+        archivesName = 'luxium'
+    }
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(17)
+    }
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+    // Sources and resources shared by both loaders live in common/ and are compiled by each loader.
+    sourceSets.main.java.srcDir rootProject.file('common/src/main/java')
+    sourceSets.main.resources.srcDir rootProject.file('common/src/main/resources')
+}
+
+forgix {
+    group = 'com.vinlanx'
+    mergedJarName = "luxium-${version}.jar"
+    outputDir = 'build/libs'
+
+    forge {
+        projectName = 'forge'
+        jarLocation = "build/libs/luxium-${version}.jar"
+    }
+    fabric {
+        projectName = 'fabric'
+        jarLocation = "build/libs/luxium-${version}.jar"
+    }
+}
+
+tasks.named('mergeJars') {
+    dependsOn ':forge:build', ':fabric:build'
+}

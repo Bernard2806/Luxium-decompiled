@@ -1,0 +1,48 @@
+plugins {
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+}
+
+repositories {
+    maven { url = 'https://maven.minecraftforge.net/' }
+    maven { url = 'https://api.modrinth.com/maven' }
+    mavenCentral()
+}
+
+minecraft {
+    mappings channel: 'official', version: minecraftVersion
+}
+
+mixin {
+    add sourceSets.main, 'luxium.forge.mixins.refmap.json'
+    config 'luxium.forge.mixins.json'
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${minecraftVersion}-${forgeVersion}"
+    // Embeddium 0.3.31+mc1.20.1
+    implementation fg.deobf('maven.modrinth:sk9rgfiA:UTbfe5d1')
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+processResources {
+    filesMatching('META-INF/mods.toml') {
+        expand 'modVersion': project.version
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+            'Specification-Title'     : 'luxium',
+            'Specification-Vendor'    : 'vinlanx',
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : project.name,
+            'Implementation-Version'  : project.version,
+            'Implementation-Vendor'   : 'vinlanx',
+            'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+            'MixinConfigs'            : 'luxium.forge.mixins.json'
+        ])
+    }
+    finalizedBy 'reobfJar'
+}

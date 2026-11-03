@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "luxium",
+  "version": "${version}",
+  "name": "Luxium: Let there be light",
+  "description": "A performance-focused graphics mod that makes Minecraft look better without turning it into a slideshow.",
+  "authors": [
+    "vinlanx"
+  ],
+  "license": "LICENSE.txt",
+  "icon": "logo.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.vinlanx.luxium.fabric.FabricLuxium"
+    ]
+  },
+  "mixins": [
+    "luxium.fabric.mixins.json"
+  ],
+  "accessWidener": "luxium.accesswidener",
+  "depends": {
+    "fabricloader": ">=0.16.14",
+    "fabric-api": ">=0.92.2+1.20.1",
+    "minecraft": "1.20.1",
+    "java": ">=17",
+    "sodium": "0.5.13"
+  }
+}

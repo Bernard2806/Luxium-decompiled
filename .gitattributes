@@ -1,0 +1,91 @@
+# Normalize all text files to LF in the repository and in the working tree,
+# regardless of each contributor's core.autocrlf setting.
+* text=auto eol=lf
+
+# Source and build files
+*.java       text eol=lf diff=java
+*.gradle     text eol=lf diff=java
+*.py         text eol=lf diff=python
+*.properties text eol=lf
+*.toml       text eol=lf
+*.yml        text eol=lf
+*.yaml       text eol=lf
+*.md         text eol=lf diff=markdown
+*.txt        text eol=lf
+*.MF         text eol=lf
+
+# Shaders and resource data
+*.fsh        text eol=lf
+*.vsh        text eol=lf
+*.glsl       text eol=lf
+*.json       text eol=lf
+*.mcmeta     text eol=lf
+
+# Scripts: the Gradle wrapper must stay LF to run on Linux/macOS (CI),
+# and Windows batch files need CRLF.
+gradlew      text eol=lf
+*.sh         text eol=lf
+*.bat        text eol=crlf
+*.cmd        text eol=crlf
+
+# Binary files
+*.jar        binary
+*.zip        binary
+*.class      binary
+*.png        binary
+*.jpg        binary
+*.jpeg       binary
+*.gif        binary
+*.ogg        binary
+*.nbt        binary
+
+# Resources that the original JAR ships with CRLF line endings (built on Windows);
+# keep them CRLF so the packaged files match the original byte for byte.
+/common/src/main/resources/LICENSE.txt text eol=crlf
+/common/src/main/resources/assets/luxium/lang/uk_ua.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/cloud_shadow_caster.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/config_glass.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/depth_to_distance.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_receivers/rendertype_armor_cutout_no_cull.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_receivers/rendertype_entity_cutout.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_receivers/rendertype_entity_cutout_no_cull.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_receivers/rendertype_entity_solid.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_receivers/rendertype_entity_translucent.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_receivers/rendertype_entity_translucent_cull.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_shadow_caster.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_shadow_caster.vsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_shadow_cutout.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/entity_shadow_solid.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/explosion_particle.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/flood_shadow_composite.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/fog.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/godrays_post.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/kawase_composite.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/kawase_composite.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/kawase_down.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/kawase_down.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/kawase_source.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/kawase_source.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/kawase_up.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/kawase_up.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/lensflare.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/metal_reflection.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/polished_andesite_reflection.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/posteffect_composite.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/skygodrays.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/core/youshader.json text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_blocklighttest.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_blocklighttest.vsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_neogpuvanilla.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_neoskycelestia.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_neoskycelestia.vsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_neoskycelestia_forward.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_neoskycelestia_forward.vsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_opaque.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_opaque.vsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_plantswave.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_plantswave.vsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_water.fsh text eol=crlf
+/common/src/main/resources/assets/luxium/shaders/sodium/block_layer_water.vsh text eol=crlf
+# Mixed line endings in the original: store the bytes as they are.
+/common/src/main/resources/assets/luxium/shaders/core/blackhole.json -text

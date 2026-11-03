@@ -1,0 +1,14 @@
+.gradle/
+build/
+run/
+out/
+bin/
+*.iml
+.idea/
+.classpath
+.project
+.settings/
+
+# Python bytecode from the scripts/ tools
+__pycache__/
+*.pyc

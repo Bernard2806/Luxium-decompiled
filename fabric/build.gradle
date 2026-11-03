@@ -1,0 +1,33 @@
+plugins {
+    id 'fabric-loom' version '1.1.14'
+}
+
+repositories {
+    maven { url = 'https://api.modrinth.com/maven' }
+    mavenCentral()
+}
+
+loom {
+    accessWidenerPath = file('src/main/resources/luxium.accesswidener')
+    mixin {
+        defaultRefmapName = 'luxium.fabric.mixins.refmap.json'
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraftVersion}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${fabricLoaderVersion}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
+    modImplementation 'maven.modrinth:sodium:mc1.20.1-0.5.13-fabric'
+    implementation "com.electronwill.night-config:core:${nightConfigVersion}"
+    implementation "com.electronwill.night-config:toml:${nightConfigVersion}"
+    include "com.electronwill.night-config:core:${nightConfigVersion}"
+    include "com.electronwill.night-config:toml:${nightConfigVersion}"
+}
+
+processResources {
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
