@@ -80,16 +80,16 @@ LUXIUM$ENTITY_RECEIVER_DEFINITIONS = Set.of(new ResourceLocation("minecraft", "s
                     return resourceProvider.getResource(resourceLocation);
                 } else { Resource definition = luxium$entityReceiverDefinition(resourceProvider, resourceLocation);
                     return Optional.of(new Resource(definition.source(),
-                            () -> {
-                                ByteArrayInputStream var3;
-                                try (InputStream stream = definition.open()) {
+                            () -> { try (InputStream stream = definition.open()) {
                                     String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8)
                                         .replace("\"vertex\": \"luxium_entity_shadow\"", "\"vertex\": \"luxium_entity_blocklighttest\"")
-                                        .replace("\"fragment\": \"luxium_entity_shadow\"", "\"fragment\": \"luxium_entity_blocklighttest\"");
-                                    var3 = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+                                        .replace
+                                        ("\"fragment\": \"luxium_entity_shadow\"", "\"fragment\": \"luxium_entity_blocklighttest\"");
+
+                                    return new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
                                 }
 
-                                return var3;
+
                             } ) );
                 }
             }; } else if (LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled()) {
@@ -100,16 +100,16 @@ return resourceLocation -> {
                 } else {
                     Resource receiverDefinition = luxium$entityReceiverDefinition(resourceProvider, resourceLocation);
                     return Optional.of(new Resource(receiverDefinition.source(),
-                            () -> {
-                                ByteArrayInputStream var3;
-                                try (InputStream stream = receiverDefinition.open()) {
+                            () -> { try (InputStream stream = receiverDefinition.open()) {
                                     String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8)
                                         .replace("\"fragment\": \"luxium_entity_shadow\"", "\"fragment\": \"luxium_entity_neogpuvanilla\"");
-                                    var3 = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+
+                                    return new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
                                 }
 
-                                return var3;
+
                             } ) ); } }; } else { if (LuxiumGpuShaderFeatures.localReceiverEnabled
+
 ()) {
 return resourceLocation -> LUXIUM$ENTITY_RECEIVER_DEFINITIONS.contains(resourceLocation)
                         ? Optional.of(luxium$entityReceiverDefinition(resourceProvider, resourceLocation)) : resourceProvider.getResource
@@ -132,16 +132,16 @@ return resourceLocation -> {
                         Resource
                         receiverDefinition = luxium$entityReceiverDefinition(resourceProvider, resourceLocation);
                         return Optional.of(new Resource(receiverDefinition.source(),
-                                () -> {
-                                    ByteArrayInputStream var3x;
-                                    try (InputStream stream = receiverDefinition.open()) {
+                                () -> { try (InputStream stream = receiverDefinition.open()) {
                                         String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8)
                                             .replace("\"vertex\": \"luxium_entity_shadow\"", "\"vertex\": \"luxium_entity_neoskycelestia\"")
-                                            .replace("\"fragment\": \"luxium_entity_shadow\"", "\"fragment\": \"luxium_entity_neoskycelestia\"");
-                                        var3x = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
+                                            .replace
+                                            ("\"fragment\": \"luxium_entity_shadow\"", "\"fragment\": \"luxium_entity_neoskycelestia\"");
+
+                                        return new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
                                     }
 
-                                    return var3x;
+
                                 } ) );
                     } }; } } @Unique private static Resource luxium$entityReceiverDefinition(ResourceProvider provider, ResourceLocation location) { String
 

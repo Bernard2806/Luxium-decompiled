@@ -99,40 +99,40 @@ return new EmbeddiumLocalShadowBridge.PreparedCapture(renderer, lists, lightX, l
 
 
 
+    public boolean renderFace(EmbeddiumLocalShadowBridge.PreparedCapture capture, Matrix4f projection, Matrix4f viewRotation) { if (capture == null || capture.renderer == null || capture.lists == null) { return false; } else
+ if (capture.lists.regionCount() == 0) { return false; } else { ChunkRenderMatrices
+
+ matrices = new ChunkRenderMatrices(projection, viewRotation); CameraTransform
+ camera = new CameraTransform(capture.lightX, capture.lightY, capture.lightZ); RenderDevice.enterManagedCode
+
+ (); CommandList
+ commandList = null; try {
+
+ commandList = RenderDevice.INSTANCE.createCommandList();
+GlStateManager._colorMask(false, false, false, false); GlStateManager._enableDepthTest
+ ();
+ GlStateManager._depthMask(true);
+RenderSystem.depthFunc(513); RenderSystem.disableBlend
+ (); RenderSystem.disableCull
+
+ ();
+
+ capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRenderPasses.SOLID, camera); if (!NeoGpuVanilla.isConfiguredEnabled
 
 
+() || Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaCutoutEnabled)) {
+capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRenderPasses.CUTOUT, camera); }
 
 
+ return true; } finally {
+
+ GlStateManager._colorMask(true, true, true, true);
+ if (commandList != null) { commandList.close(); } RenderDevice.exitManagedCode
+ ();
+ } } }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public static record PreparedCapture(ChunkRenderer renderer, EmbeddiumLocalShadowBridge.LocalRenderLists lists, double lightX, double lightY, double lightZ) { } public boolean renderFace(EmbeddiumLocalShadowBridge.PreparedCapture capture, Matrix4f projection, Matrix4f viewRotation) { if (capture == null || capture.renderer == null || capture.lists == null) { return false; } else if (capture.lists.regionCount() == 0) { return false; } else { ChunkRenderMatrices matrices = new ChunkRenderMatrices(projection, viewRotation); CameraTransform camera = new CameraTransform(capture.lightX, capture.lightY, capture.lightZ); RenderDevice.enterManagedCode(); CommandList commandList = null; boolean var7; try { commandList = RenderDevice.INSTANCE.createCommandList(); GlStateManager._colorMask(false, false, false, false); GlStateManager._enableDepthTest(); GlStateManager._depthMask(true); RenderSystem.depthFunc(513); RenderSystem.disableBlend(); RenderSystem.disableCull(); capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRenderPasses.SOLID, camera); if (!NeoGpuVanilla.isConfiguredEnabled() || Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaCutoutEnabled)) { capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRenderPasses.CUTOUT, camera); } var7 = true; } finally { GlStateManager._colorMask(true, true, true, true); if (commandList != null) { commandList.close(); } RenderDevice.exitManagedCode(); } return var7; } } public static final class LocalRenderLists implements ChunkRenderListIterable { private final List<ChunkRenderList> lists; private LocalRenderLists(List<ChunkRenderList> lists)
+ public static record PreparedCapture(ChunkRenderer renderer, EmbeddiumLocalShadowBridge.LocalRenderLists lists, double lightX, double lightY, double lightZ) { } public static final class LocalRenderLists implements ChunkRenderListIterable { private final List<ChunkRenderList> lists; private LocalRenderLists(List<ChunkRenderList> lists)
 
 
 

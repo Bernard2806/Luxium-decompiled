@@ -41,67 +41,56 @@ public final class PostEffectPipeline {
 
     private static int deferredEffectsTextureId;
     private PostEffectPipeline() { } public static void onRenderLevel(RenderFrame event) {
-        if (!(event.getStage() == RenderFrame.Stage.AFTER_PARTICLES)) {
-return;
-}
 
-            if (!(!ReflectionSystem.isRenderingWorldPass() && !NeoShadowsEngine.isAnyShadowCapturePass())) {
-return;
-}
 
+        if (!(event.getStage() == RenderFrame.Stage.AFTER_PARTICLES)) { return;
+ } if (!(!ReflectionSystem.isRenderingWorldPass() && !NeoShadowsEngine.isAnyShadowCapturePass())) { return;
+ }
                 clearDeferredTonemap();
                 Minecraft mc = Minecraft.getInstance();
-                if (!(mc.level != null && mc.player != null)) {
- return;
+                if (!(mc.level != null && mc.player != null)) { return;
  }
-
                     boolean renderFog = fog.isEnabled();
                     boolean renderRays = skygodrays.isEnabled() && skygodrays.hasVisibleCelestial();
                     boolean renderVolumetricRays = skyvolumetrigodrays.shouldRender();
                     boolean renderFlare = lensflare.isEnabled() && skygodrays.hasVisibleCelestial();
                     boolean renderEffects = renderFog || renderRays || renderVolumetricRays || renderFlare;
                     boolean renderTonemap = tonemap.isEnabled();
-                    if (!(renderEffects || renderTonemap)) {
- return;
+                    if (!(renderEffects || renderTonemap)) { return;
  }
-
                         RenderTarget main = mc.getMainRenderTarget();
                         int width = main.viewWidth;
                         int height = main.viewHeight;
-                        if (!(width > 0 && height > 0)) {
- return;
+                        if (!(width > 0 && height > 0)) { return;
  }
-
                             float renderScale = Mth.clamp(Config.CLIENT.postEffectsRenderScale.get().floatValue(), 0.1F, 1.0F);
                             boolean useEffectsTarget = renderEffects;
-                            int effectsWidth = renderEffects ? Math.max(1, Math.round((float)width * renderScale)) : width;
-                            int effectsHeight = renderEffects ? Math.max(1, Math.round((float)height * renderScale)) : height;
-                            if (renderEffects) {
+                            int effectsWidth = useEffectsTarget ? Math.max(1, Math.round((float)width * renderScale)) : width;
+                            int effectsHeight = useEffectsTarget ? Math.max(1, Math.round((float)height * renderScale)) : height;
+
+                            if (useEffectsTarget) {
                                 ensureEffectsTarget(effectsWidth, effectsHeight);
                                 Hdr.configureColorTarget(effectsTarget, Hdr.isEnabled(), true);
                             }
 
-                            int effectsDepthTexture = renderEffects ? main.getDepthTextureId() : SharedPostResources.getDepthTextureId();
+                            int effectsDepthTexture = useEffectsTarget ? main.getDepthTextureId
+ () : SharedPostResources.getDepthTextureId
+ ();
+
                             PREVIOUS_PROJECTION.set(RenderSystem.getProjectionMatrix());
                             VertexSorting previousVertexSorting = RenderSystem.getVertexSorting();
                             int[] savedTextures = saveShaderTextures();
                             float[] savedShaderColor = RenderSystem.getShaderColor();
-                            int cloudOcclusionTexture = 0;
+                            int
+                            cloudOcclusionTexture = 0;
                             if (renderRays || renderFlare) {
                                 Vec3 cameraPos = event.getCamera().getPosition();
-                                cloudOcclusionTexture = LuxiumCloudRenderer.get()
-                                    .renderOcclusionMask(
-                                        event.getPoseStack(),
-                                        event.getProjectionMatrix(),
-                                        event.getPartialTick(),
-                                        cameraPos.x,
-                                        cameraPos.y,
-                                        cameraPos.z,
-                                        event.getRenderTick(),
+                                cloudOcclusionTexture = LuxiumCloudRenderer.get() .renderOcclusionMask(
+                                        event.getPoseStack(), event.getProjectionMatrix(), event.getPartialTick(),
+                                        cameraPos.x, cameraPos.y, cameraPos.z, event.getRenderTick(),
                                         effectsWidth,
                                         effectsHeight );
                             }
-
                             PoseStack modelViewStack = RenderSystem.getModelViewStack();
                             modelViewStack.pushPose();
                             modelViewStack.setIdentity();
@@ -111,24 +100,24 @@ return;
                             try {
                                 if (renderEffects) {
                                     RenderTarget destination = main;
-                                    int activeEffectCount = (renderFog ? 1 : 0) + (renderRays ? 1 : 0) + (renderVolumetricRays ? 1 : 0) + (renderFlare ? 1 : 0);
-                                    ShaderInstance combinedEffects = !renderVolumetricRays && activeEffectCount < 2
-                                        ? null : ShaderManager.getPostEffectsCombinedShader();
+                                    int activeEffectCount = (renderFog ? 1 : 0) + (renderRays ? 1 : 0) + (
+ renderVolumetricRays ? 1 : 0) + (renderFlare ? 1 : 0);
+                                    ShaderInstance combinedEffects = renderVolumetricRays || activeEffectCount >= 2
+                                        ? ShaderManager.getPostEffectsCombinedShader() : null;
                                     boolean useCombinedEffects = combinedEffects != null;
+
                                     if (useEffectsTarget) {
                                         TextureTarget target = effectsTarget;
-                                        if (target == null) {
-                                            return;
-                                        }
-
-                                        target.bindWrite(true);
-                                        boolean firstPassOverwrites = useCombinedEffects || renderFog && fog.getShader() != null;
+                                        if (target == null) { return;
+                                        } target.bindWrite(true);
+                                        boolean
+                                        firstPassOverwrites = useCombinedEffects || renderFog && fog.getShader
+ () != null;
                                         if (!firstPassOverwrites) {
                                             target.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
                                             target.clear(Minecraft.ON_OSX);
                                             target.bindWrite(true);
                                         }
-
                                         destination = target;
                                     }
 
@@ -138,21 +127,22 @@ return;
                                         setUniform1i(combinedEffects, "RenderSkyRays", renderRays ? 1 : 0);
                                         setUniform1i(combinedEffects, "RenderSkyVolumetricRays", renderVolumetricRays ? 1 : 0);
                                         setUniform1i(combinedEffects, "RenderLensFlare", renderFlare ? 1 : 0);
-                                        setUniform1i(combinedEffects, "RenderCelestialVisibility", !renderRays && !renderFlare ? 0 : 1);
+                                        setUniform1i(combinedEffects, "RenderCelestialVisibility", renderRays
+ || renderFlare ? 1 : 0);
+
                                         if (renderFog) {
                                             fog.configure(combinedEffects, event, mc, effectsDepthTexture);
                                         }
-
                                         if (renderRays) {
                                             skygodrays.configure(combinedEffects, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
                                         }
-
                                         if (renderVolumetricRays) {
+
                                             skyvolumetrigodrays.configure(combinedEffects, event, renderFog);
                                         }
-
                                         if (renderFlare) {
                                             if (renderRays) {
+
                                                 lensflare.configureEffectUniforms(combinedEffects);
                                             } else {
                                                 lensflare.configure(combinedEffects, effectsWidth, effectsHeight, effectsDepthTexture, cloudOcclusionTexture);
@@ -161,11 +151,8 @@ return;
 
                                         destination.bindWrite(true);
                                         draw(
-                                            combinedEffects,
-                                            effectsWidth,
-                                            effectsHeight,
-                                            useEffectsTarget
-                                                ? PostEffectPipeline.BlendMode.OVERWRITE : (renderFog ? PostEffectPipeline.BlendMode.PREMULTIPLIED : PostEffectPipeline.BlendMode.ADDITIVE) );
+                                            combinedEffects, effectsWidth, effectsHeight, useEffectsTarget ? PostEffectPipeline.BlendMode.OVERWRITE : (
+renderFog ? PostEffectPipeline.BlendMode.PREMULTIPLIED : PostEffectPipeline.BlendMode.ADDITIVE) );
                                     } else {
                                         if (renderFog) {
                                             destination.bindWrite(true);
@@ -173,13 +160,9 @@ return;
                                             if (shader != null) {
                                                 fog.configure(shader, event, mc, effectsDepthTexture);
                                                 draw(
-                                                    shader,
-                                                    effectsWidth,
-                                                    effectsHeight,
-                                                    useEffectsTarget ? PostEffectPipeline.BlendMode.OVERWRITE : PostEffectPipeline.BlendMode.PREMULTIPLIED );
+                                                    shader, effectsWidth, effectsHeight, useEffectsTarget ? PostEffectPipeline.BlendMode.OVERWRITE : PostEffectPipeline.BlendMode.PREMULTIPLIED );
                                             }
                                         }
-
                                         if (renderRays) {
                                             ShaderInstance shader = skygodrays.getShader();
                                             if (shader != null) {
@@ -188,7 +171,6 @@ return;
                                                 draw(shader, effectsWidth, effectsHeight, PostEffectPipeline.BlendMode.ADDITIVE);
                                             }
                                         }
-
                                         if (renderFlare) {
                                             ShaderInstance shader = lensflare.getShader();
                                             if (shader != null) {
@@ -202,7 +184,25 @@ return;
 
                                 if (renderTonemap) {
                                     ShaderInstance shader = tonemap.getShader();
-                                    if (shader != null) { int effectsTexture = useEffectsTarget && effectsTarget != null ? effectsTarget.getColorTextureId() : 0; deferredTonemap = true; deferredTonemapCompositeEffects = useEffectsTarget; deferredEffectsTextureId = effectsTexture; } } else if (useEffectsTarget && effectsTarget != null) { deferredEffectsComposite = true; deferredEffectsTextureId = effectsTarget.getColorTextureId(); return; } } finally { restoreRenderState(modelViewStack, previousVertexSorting, savedTextures, savedShaderColor, main); } } public static boolean hasDeferredTonemap() { return deferredTonemap;
+                                    if (shader != null) { int effectsTexture = useEffectsTarget
+ && effectsTarget != null ? effectsTarget.getColorTextureId
+ () : 0;
+
+ deferredTonemap = true;
+ deferredTonemapCompositeEffects = useEffectsTarget;
+ deferredEffectsTextureId = effectsTexture; }
+
+ } else if (useEffectsTarget && effectsTarget != null) {
+ deferredEffectsComposite = true;
+ deferredEffectsTextureId = effectsTarget.getColorTextureId(); } } finally {
+
+
+ restoreRenderState(modelViewStack, previousVertexSorting, savedTextures, savedShaderColor, main);
+ }
+ } public static boolean hasDeferredTonemap() {
+
+
+ return deferredTonemap;
     }
 
     public static boolean deferredTonemapCompositesEffects() {
@@ -213,14 +213,18 @@ return;
     public static int getDeferredEffectsTextureId() { return deferredEffectsTextureId; }
 
     public static boolean flushDeferredTonemapForSceneConsumer() {
-        if (!deferredTonemap && !deferredEffectsComposite) {
-            return false;
+
+        if (!deferredTonemap && !deferredEffectsComposite) { return false;
         } else {
             Minecraft mc = Minecraft.getInstance();
             RenderTarget main = mc.getMainRenderTarget();
-            ShaderInstance shader = deferredTonemap ? tonemap.getShader() : ShaderManager.getPostEffectCompositeShader();
-            if (!(main != null && shader != null && main.viewWidth > 0 && main.viewHeight > 0)) { return false; }
-                Matrix4f previousProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
+            ShaderInstance shader = deferredTonemap ? tonemap.getShader() : ShaderManager.getPostEffectCompositeShader
+ ();
+            if (!(main != null && shader != null && main.viewWidth > 0 && main.viewHeight > 0)) {
+ return false; }
+                Matrix4f
+
+                previousProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
                 VertexSorting previousVertexSorting = RenderSystem.getVertexSorting();
                 int[] savedTextures = saveShaderTextures();
                 float[] savedShaderColor = RenderSystem.getShaderColor();
@@ -229,15 +233,14 @@ return;
                 modelViewStack.setIdentity();
                 modelViewStack.translate(0.0F, 0.0F, -2000.0F);
                 RenderSystem.applyModelViewMatrix();
-                int previousSceneFilter = main.filterMode;
-                boolean var14 = false /* VF: Semaphore variable */;
+                int
+                previousSceneFilter = main.filterMode;
 
-                boolean var16;
-                try {
-                    var14 = true;
-                    if (deferredTonemap) {
-                        tonemap.configure(
-                            shader, main.getColorTextureId(), deferredEffectsTextureId, deferredTonemapCompositeEffects, false, main.width, main.height );
+
+                try { if (deferredTonemap) {
+                        tonemap.configure(shader, main.getColorTextureId(), deferredEffectsTextureId, deferredTonemapCompositeEffects, false, main.width, main.height );
+
+
                         if (previousSceneFilter != 9729) {
                             main.setFilterMode(9729);
                         }
@@ -253,11 +256,9 @@ return;
                     }
 
                     clearDeferredTonemap();
-                    var16 = true;
-                    var14 = false;
-                } finally {
-                    if (var14) {
-                        if (main.filterMode != previousSceneFilter) {
+                    return true;
+
+                } finally { if (main.filterMode != previousSceneFilter) {
                             main.setFilterMode(previousSceneFilter);
                         }
 
@@ -274,11 +275,10 @@ return;
                         for (int i = 0; i < savedTextures.length; i++) {
                             RenderSystem.setShaderTexture(i, savedTextures[i]);
                         }
-
                         RenderSystem.activeTexture(33984);
                         main.bindWrite(true);
                         RenderSystem.viewport(0, 0, main.viewWidth, main.viewHeight);
-                    } } if (main.filterMode != previousSceneFilter) { main.setFilterMode(previousSceneFilter); } modelViewStack.popPose(); RenderSystem.applyModelViewMatrix(); RenderSystem.setProjectionMatrix(previousProjection, previousVertexSorting); GlStateManager._disableBlend(); RenderSystem.defaultBlendFunc(); GlStateManager._depthMask(true); GlStateManager._enableDepthTest(); RenderSystem.depthFunc(515); RenderSystem.setShaderColor(savedShaderColor[0], savedShaderColor[1], savedShaderColor[2], savedShaderColor[3]); for (int i = 0; i < savedTextures.length; i++) { RenderSystem.setShaderTexture(i, savedTextures[i]); } RenderSystem.activeTexture(33984); main.bindWrite(true); RenderSystem.viewport(0, 0, main.viewWidth, main.viewHeight); return var16; } }
+                    } } }
 
     public static void clearDeferredTonemap() {
 

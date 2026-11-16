@@ -164,74 +164,74 @@ this.latestSectionBuildRevision.clear();
                 (level, blockKey, state, pos, template) :
                 (byte)-1;
         return template.instantiate(blockKey, visibleBoundaryMask);
-    } public void forEachCompleteReceiverSurface(@Nullable ClientLevel level, long blockKey, ExposedFaceService.ReceiverSurfaceVisitor visitor) { if (!(isCacheActive() && level != null && visitor != null)) {
+    } public void forEachCompleteReceiverSurface(@Nullable ClientLevel level, long blockKey, ExposedFaceService.ReceiverSurfaceVisitor visitor) { if (!(isCacheActive
+
+
+
+
+() && level != null && visitor != null)) {
  return;
  }
- long sectionKey = sectionKeyForBlock(blockKey); if (!this.fullyCapturedSections.containsKey(sectionKey)) { BlockPos pos = BlockPos.of(blockKey); BlockState state = level.getBlockState(pos); ExposedFaceService.ReceiverShapeTemplate template = this.resolveReceiverShapeTemplate(state, level, pos); if (!template.isEmpty()) { byte visibleBoundaryMask = template.hasBoundaryFaces() ? this.getCompleteExposedFaceMask(level, blockKey, state, pos, template) : -1; template.forEachSurface(blockKey, visibleBoundaryMask, visitor); } } else { ExposedFaceService.SectionFaceSnapshot snapshot = this.sectionFaceSnapshots.get(sectionKey); if (!(snapshot != null && snapshot.hasCandidateReceivers())) {
+ long
+ sectionKey = sectionKeyForBlock(blockKey);
+if (this.fullyCapturedSections.containsKey(sectionKey)) { ExposedFaceService.SectionFaceSnapshot
+ snapshot = this.sectionFaceSnapshots.get(sectionKey);
+if (!(snapshot != null && snapshot.hasCandidateReceivers())) {
 return;
 }
- int localIndex = sectionLocalIndex(BlockPos.getX(blockKey) & 15, BlockPos.getY(blockKey) & 15, BlockPos.getZ(blockKey) & 15); byte visibleBoundaryMask = snapshot.faceMask(localIndex); if (!(visibleBoundaryMask != 0)) {
+ int
+ localIndex = sectionLocalIndex(BlockPos.getX(blockKey) & 15, BlockPos.getY(blockKey) & 15, BlockPos.getZ
+ (blockKey) & 15); byte
+ visibleBoundaryMask = snapshot.faceMask(localIndex);
+if (!(visibleBoundaryMask != 0)) {
  return;
  }
- ExposedFaceService.SectionCompleteReceiverSurfaceCache sectionCache = this.sectionCompleteReceiverSurfaces .computeIfAbsent(sectionKey, ignored ->
+ ExposedFaceService.SectionCompleteReceiverSurfaceCache
+ sectionCache = this.sectionCompleteReceiverSurfaces .computeIfAbsent(
+ sectionKey, ignored ->
+ new ExposedFaceService.SectionCompleteReceiverSurfaceCache()); ExposedFaceService.ReceiverSurface[]
+cached = sectionCache.surfacesByBlock.get(blockKey);
+if (cached == null) { BlockPos
+ pos = BlockPos.of(blockKey); BlockState
+state = level.getBlockState(pos); ExposedFaceService.ReceiverShapeTemplate
+ template = this.resolveReceiverShapeTemplate(state, level, pos);
+ if (template.isEmpty()) {
+return; }
+
+
+cached = template.instantiateArray(blockKey, visibleBoundaryMask); ExposedFaceService.ReceiverSurface[]
+existing = sectionCache.surfacesByBlock.putIfAbsent(blockKey, cached);
+if (existing != null) {
+ cached = existing; } } for (ExposedFaceService.ReceiverSurface surface :
 
 
 
+cached) {
+visitor.visit(surface.face
+(), surface.planeCoordinate
+ (), surface.minU
+ (), surface.maxU
+ (), surface.minV
+ (), surface.maxV
+ (), surface.surfaceKey
+ () ); }
+
+ return; } BlockPos
 
 
+ pos = BlockPos.of(blockKey); BlockState
+state = level.getBlockState(pos); ExposedFaceService.ReceiverShapeTemplate
+ template = this.resolveReceiverShapeTemplate(state, level, pos);
+ if (template.isEmpty()) {
+return; } byte visibleBoundaryMask = template.hasBoundaryFaces
 
 
-
-
-
-
-
-
-
-
-new ExposedFaceService.SectionCompleteReceiverSurfaceCache()); ExposedFaceService.ReceiverSurface[] cached = sectionCache.surfacesByBlock.get(blockKey); if (cached == null) { BlockPos pos = BlockPos.of(blockKey); BlockState state = level.getBlockState(pos); ExposedFaceService.ReceiverShapeTemplate template = this.resolveReceiverShapeTemplate(state, level, pos); if (template.isEmpty()) { return; } cached = template.instantiateArray(blockKey, visibleBoundaryMask); ExposedFaceService.ReceiverSurface[] existing = sectionCache.surfacesByBlock.putIfAbsent(blockKey, cached); if (existing != null) { cached = existing; } } for (ExposedFaceService.ReceiverSurface surface : cached) { visitor.visit(surface.face(), surface.planeCoordinate(), surface.minU(), surface.maxU(), surface.minV(), surface.maxV(), surface.surfaceKey() ); } } } public byte getExposedFaceMask(@Nullable ClientLevel level, long blockKey) {
+ () ? this.getCompleteExposedFaceMask
+ (level, blockKey, state, pos, template) :
+ -1;
+ template.forEachSurface(blockKey, visibleBoundaryMask, visitor);
+ } public byte getExposedFaceMask(@Nullable ClientLevel level, long blockKey) {
         if (!ExposedFaceService.isCacheActive
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 ()) {
             return 0;
@@ -841,117 +841,117 @@ this.completedSectionBuilds .add(new ExposedFaceService.BuiltSectionCommit(secti
  previous = this.sectionFaces.get(sectionKey);
 if (previous != null && previous.sameContent(nextData)) { return false; } else {
  this.scheduleSectionBuild(sectionKey, nextData, false);
- return true; } } private ExposedFaceService.SectionFaceSnapshot buildFaceSnapshot(ExposedFaceService.SectionFaceData sectionData) { if (!(sectionData != null && !sectionData.isEmpty())) { return ExposedFaceService.SectionFaceSnapshot.empty(); } long[] renderableSolidBits = new long[64]; byte[] faceMasks = new byte[4096]; boolean anyCandidateReceivers = false; for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry : sectionData.facesByBlock.long2ByteEntrySet()) { byte faceMask = entry.getByteValue(); if (!(faceMask != 0)) {
+ return true; } } private ExposedFaceService.SectionFaceSnapshot buildFaceSnapshot(ExposedFaceService.SectionFaceData sectionData) {
+
+
+
+ if (!(sectionData != null && !sectionData.isEmpty())) {
+return ExposedFaceService.SectionFaceSnapshot.empty(); } long[]
+
+
+ renderableSolidBits = new long[64]; byte[]
+ faceMasks = new byte[4096]; boolean
+anyCandidateReceivers = false; for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry :
+
+sectionData.facesByBlock.long2ByteEntrySet()) { byte
+ faceMask = entry.getByteValue();
+if (!(faceMask != 0)) {
  continue;
  }
- long blockKey = entry.getLongKey(); int localIndex = sectionLocalIndex(BlockPos.getX(blockKey) & 15, BlockPos.getY(blockKey) & 15, BlockPos.getZ(blockKey) & 15); renderableSolidBits[localIndex >>> 6] = renderableSolidBits[localIndex >>> 6] | 1L << (localIndex & 63); faceMasks[localIndex] = faceMask; anyCandidateReceivers = true; } return anyCandidateReceivers ? new ExposedFaceService.SectionFaceSnapshot(renderableSolidBits, faceMasks, true) : ExposedFaceService.SectionFaceSnapshot.empty(); } private ExposedFaceService.SectionReceiverSnapshot buildReceiverSnapshot(ExposedFaceService.SectionFaceData sectionData) { if (!(sectionData != null && !sectionData.isEmpty())) { return ExposedFaceService.SectionReceiverSnapshot.empty(); } HashMap<Long, Long> faceCells = new HashMap<>(); ArrayList<ExposedFaceService.ReceiverRect> rects = new ArrayList<>(); for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry : sectionData.facesByBlock.long2ByteEntrySet()) { long blockKey = entry.getLongKey(); byte faceMask = entry.getByteValue(); if (!(faceMask != 0)) {
+ long
+ blockKey = entry.getLongKey(); int
+localIndex = sectionLocalIndex(BlockPos.getX(blockKey) & 15, BlockPos.getY(blockKey) & 15, BlockPos.getZ(blockKey) & 15);
+ renderableSolidBits[localIndex >>> 6] |= 1L << (localIndex & 63);
+ faceMasks[localIndex] = faceMask;
+ anyCandidateReceivers = true;
+ }
+
+ return anyCandidateReceivers ? new ExposedFaceService.SectionFaceSnapshot(renderableSolidBits, faceMasks, true) : ExposedFaceService.SectionFaceSnapshot.empty(); } private ExposedFaceService.SectionReceiverSnapshot buildReceiverSnapshot(ExposedFaceService.SectionFaceData sectionData) {
+
+
+
+ if (!(sectionData != null && !sectionData.isEmpty())) {
+return ExposedFaceService.SectionReceiverSnapshot.empty(); } HashMap<Long, Long>
+
+
+faceCells = new HashMap<>(); ArrayList<ExposedFaceService.ReceiverRect>
+rects = new ArrayList<>(); for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry :
+
+sectionData.facesByBlock.long2ByteEntrySet()) { long
+ blockKey = entry.getLongKey(); byte
+faceMask = entry.getByteValue();
+if (!(faceMask != 0)) {
  continue;
  }
- int localX = BlockPos.getX(blockKey) & 15; int localY = BlockPos.getY(blockKey) & 15; int localZ = BlockPos.getZ(blockKey) & 15; for (Direction face : FACES) { if (!((faceMask & 1 << face.ordinal()) != 0)) {
+ int
+ localX = BlockPos.getX(blockKey) & 15; int
+ localY = BlockPos.getY(blockKey) & 15; int
+ localZ = BlockPos.getZ(blockKey) & 15; for (Direction face :
+FACES) {
+if (!((faceMask & 1 << face.ordinal()) != 0)) {
  continue;
  }
- int cellU = localCellU(face, localX, localZ); int cellV = localCellV(face, localY, localZ); int planeCoordinate = planeCoordinateForFace(face, localX, localY, localZ); faceCells.put(receiverCellKey(face.ordinal(), planeCoordinate, cellU, cellV), blockKey); } } HashSet<Long> visited = new HashSet<>(faceCells.size()); for (java.util.Map.Entry<Long, Long> entryx : faceCells.entrySet()) { long packedCell = entryx.getKey(); if (!(visited.add(packedCell))) {
+ int cellU = localCellU(face, localX, localZ); int
+ cellV = localCellV(face, localY, localZ); int
+ planeCoordinate = planeCoordinateForFace(face, localX, localY, localZ);
+ faceCells.put(receiverCellKey(face.ordinal(), planeCoordinate, cellU, cellV), blockKey); }
+
+ } HashSet<Long>
+
+visited = new HashSet<>(faceCells.size()); for (java.util.Map.Entry<Long, Long> entry :
+ faceCells.entrySet()) { long
+ packedCell = entry.getKey();
+if (!(visited.add(packedCell))) {
 continue;
 }
- int faceOrdinal = unpackFaceOrdinal(packedCell); int planeCoordinate = unpackPlaneCoordinate(packedCell); int startCellU = unpackCellU(packedCell); int startCellV = unpackCellV(packedCell); int width = 1; while (faceCells.containsKey(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + width, startCellV)) && !visited.contains(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + width, startCellV)) ) { width++; } int height = 1; while (true) { int nextV = startCellV + height; boolean rowMatches = true; for (int offsetU = 0; offsetU < width; offsetU++) { long nextKey = receiverCellKey(faceOrdinal, planeCoordinate, startCellU + offsetU, nextV); if (!faceCells.containsKey(nextKey) || visited.contains(nextKey)) { rowMatches = false; break; } } if (!rowMatches) { for (int offsetV = 0; offsetV < height; offsetV++) { for (int offsetUx = 0; offsetUx < width; offsetUx++) { visited.add(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + offsetUx, startCellV + offsetV)); } } rects.add(new ExposedFaceService.ReceiverRect(Direction.from3DDataValue(faceOrdinal), planeCoordinate, startCellU, startCellU + width, startCellV, startCellV + height, entryx.getValue() ) ); break; } height++; } } return rects.isEmpty() ? ExposedFaceService.SectionReceiverSnapshot.empty() : new ExposedFaceService.SectionReceiverSnapshot(rects); } private static long receiverCellKey(int faceOrdinal, int planeCoordinate, int cellU, int cellV) {
+ int
+ faceOrdinal = unpackFaceOrdinal(packedCell); int
+planeCoordinate = unpackPlaneCoordinate(packedCell); int
+startCellU = unpackCellU(packedCell); int
+startCellV = unpackCellV(packedCell); int
+
+width = 1; while
+ (faceCells.containsKey(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + width, startCellV)) && !visited.contains
+(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + width, startCellV)) ) {
+ width++; } int
+
+
+ height = 1; while (true) { int
+
+ nextV = startCellV + height; boolean
+ rowMatches = true; for (int
+ offsetU = 0; offsetU < width; offsetU++) { long
+ nextKey = receiverCellKey(faceOrdinal, planeCoordinate, startCellU + offsetU, nextV);
+ if (!faceCells.containsKey(nextKey) || visited.contains(nextKey)) {
+rowMatches = false;
+ break; } }
+
+
+ if (!rowMatches) {
+break; }
+
+height++;
+} for (int
+
+ offsetV = 0; offsetV < height; offsetV++) { for (int
+ offsetU = 0; offsetU < width; offsetU++) {
+visited.add(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + offsetU, startCellV + offsetV)); } }
+
+
+
+ rects.add(new ExposedFaceService.ReceiverRect(Direction.from3DDataValue
+(faceOrdinal), planeCoordinate, startCellU, startCellU + width, startCellV, startCellV + height, entry.getValue
+
+
+
+
+
+ () ) );
+
+ }
+
+ return rects.isEmpty() ? ExposedFaceService.SectionReceiverSnapshot.empty() : new ExposedFaceService.SectionReceiverSnapshot(rects); } private static long receiverCellKey(int faceOrdinal, int planeCoordinate, int cellU, int cellV) {
         long
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         value = ((long)faceOrdinal & 7L) << 61;

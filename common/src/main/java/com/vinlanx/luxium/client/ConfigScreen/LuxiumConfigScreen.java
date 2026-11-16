@@ -282,90 +282,90 @@ option = row.option();
         int top = this.contentTop();
         int bottom = this.panelY + this.panelHeight - 48;
         this.hoveredOption = null;
+
         if (this.resolutionSlider != null) {
             this.renderResolutionContent(graphics, mouseX, mouseY, partialTick, left, right, top, bottom);
         return; }
-            int labelX = left + 24;
-            int controlRight = right - 24;
+            int
 
+            labelX = left + 24;
+            int controlRight = right - 24;
             for (LuxiumConfigScreen.ControlRow control : this.controls) {
                 if (control.widget != null) {
                     control.widget.visible = false;
                 }
             }
-
             graphics.enableScissor(left, top, right, bottom);
-
-            for (LuxiumConfigScreen.ControlRow controlx : this.controls) {
+            for (LuxiumConfigScreen.ControlRow control : this.controls) {
                 int animatedOffset = Math.round((1.0F - this.tabAnimation) * 10.0F);
-                int y = controlx.baseY - (int)this.scroll + animatedOffset;
-                if (controlx.row.isHeader()) {
+                int y = control.baseY - (int)this.scroll + animatedOffset;
+                if (control.row.isHeader()) {
                     if (y + 38 > top && y < bottom) {
-                        graphics.drawString(this.font, upper(controlx.row.header()), labelX, y + 12, -11157, true);
+                        graphics.drawString(this.font, upper(control.row.header()), labelX, y + 12, -11157, true);
                         graphics.fill(labelX, y + 27, controlRight, y + 29, -11157);
                     }
                 } else {
-                    boolean visible = y + 32 > top && y < bottom;
-                    controlx.widget.visible = visible;
-                    if (visible) {
-                        ConfigOption<?> option = controlx.row.option();
-                        controlx.widget.active = option.isEnabled();
+                    boolean
+
+                    visible = y + 32 > top && y < bottom;
+                    control.widget.visible = visible;
+                    if (!(visible)) { continue; }
+                        ConfigOption<?> option = control.row.option();
+                        control.widget.active = option.isEnabled();
                         boolean hovered = inside((double)mouseX, (double)mouseY, left, y, right - left, 32);
                         if (hovered) {
                             graphics.fill(left, y, right, y + 32, 352321535);
                             graphics.fill(left, y, left + 2, y + 32, -11157);
                             this.hoveredOption = option;
                         }
-
                         graphics.fill(left + 10, y + 32 - 1, right - 10, y + 32, 234881023);
-                        controlx.widget.setX(controlRight - controlx.widget.getWidth());
-                        controlx.widget.setY(y + 6);
-                        int labelWidth = Math.max(20, controlx.widget.getX() - labelX - 6);
-                        graphics.drawString(
-                            this.font, this.fittedUpper(option.label(), labelWidth), labelX, y + 12, option.isEnabled() ? -461080 : -6249040, true );
-                        controlx.widget.render(graphics, mouseX, mouseY, partialTick);
-                        if (option.type() == ConfigOption.Type.COLOR) {
-                            AbstractWidget hex = controlx.widget;
-                            if (hex instanceof EditBox) {
-                                EditBox box = (EditBox)hex;
+                        control.widget.setX(controlRight - control.widget.getWidth());
+                        control.widget.setY(y + 6);
+                        int labelWidth = Math.max(20, control.widget.getX() - labelX - 6);
+                        graphics.drawString(this.font, this.fittedUpper(option.label(), labelWidth), labelX, y + 12, option.isEnabled
+ () ? -461080 : -6249040, true );
+                        control.widget.render(graphics, mouseX, mouseY, partialTick);
+                        if (option.type() == ConfigOption.Type.COLOR) { if (control.widget instanceof EditBox box) {
 
-                                try {
-                                    String hexx = box.getValue().replace("#", "");
-                                    int color = hexx.length() == 6 ? Integer.parseInt(hexx, 16) : 0;
+                                try { String hex = box.getValue().replace("#", "");
+                                    int color = hex.length() == 6 ? Integer.parseInt(hex, 16) : 0;
                                     graphics.fill(box.getX() - 28, y + 7, box.getX() - 6, y + 25, 0xFF000000 | color);
                                     drawBorder(graphics, box.getX() - 28, y + 7, 22, 18, 872415231);
                                 } catch (NumberFormatException var22) {
                                 }
                             }
-                        }
-                    }
-                }
-            }
-
+                        } } }
             graphics.disableScissor();
+
             if (this.hoveredOption != null && this.hoveredOption != this.previewOption) {
                 this.previewOption = this.hoveredOption;
                 this.syncPreviewWithConfig();
                 this.previewAnimation = 0.0F;
-            } int contentHeight = this.controls.isEmpty() ? 0 : this.controls.get(this.controls.size() - 1).baseY + 32 - top; int viewport = bottom - top; if (contentHeight > viewport) { int thumbHeight = Math.max(24, viewport * viewport / contentHeight); int thumbY = top + (int)((double)(viewport - thumbHeight) * this.scroll / (double)(contentHeight - viewport)); graphics.fill(right - 5, top, right - 2, top + viewport, 855638016); graphics.fill(right - 5, thumbY, right - 2, thumbY + thumbHeight, 1442840575); } int actionsY = this.panelY + this.panelHeight - 34; graphics.fill(left, actionsY - 8, right, this.panelY + this.panelHeight, this.dimmedColor(Integer.MIN_VALUE)); graphics.fill(left, actionsY - 8, right, actionsY - 7, 872415231); this.resetAllButton.setX(right - this.resetAllButton.getWidth()); this.resetAllButton.setY(actionsY); this.resetPageButton.setX(this.resetAllButton.getX() - this.resetPageButton.getWidth() - 8); this.resetPageButton.setY(actionsY); this.resetPageButton.visible = true; this.resetAllButton.visible = true; this.resetPageButton.render(graphics, mouseX, mouseY, partialTick); this.resetAllButton.render(graphics, mouseX, mouseY, partialTick); } private void renderResolutionContent(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, int left, int right, int top, int bottom) { int
+            } int contentHeight = this.controls.isEmpty
+
+() ? 0 : this.controls.get(this.controls.size() - 1).baseY + 32 - top; int
+ viewport = bottom - top;
+ if (contentHeight > viewport) { int
+ trackY = top; int
+ trackHeight = viewport; int
+ thumbHeight = Math.max(24, viewport * viewport / contentHeight); int
+ thumbY = trackY + (int)((double)(trackHeight - thumbHeight) * this.scroll / (double)(contentHeight - viewport));
+ graphics.fill(right - 5, trackY, right - 2, trackY + trackHeight, 855638016);
+ graphics.fill(right - 5, thumbY, right - 2, thumbY + thumbHeight, 1442840575); } int
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ actionsY = this.panelY + this.panelHeight - 34;
+ graphics.fill(left, actionsY - 8, right, this.panelY + this.panelHeight, this.dimmedColor(Integer.MIN_VALUE));
+graphics.fill(left, actionsY - 8, right, actionsY - 7, 872415231);
+ this.resetAllButton.setX(right - this.resetAllButton.getWidth());
+this.resetAllButton.setY(actionsY);
+this.resetPageButton.setX(this.resetAllButton.getX() - this.resetPageButton.getWidth() - 8);
+ this.resetPageButton.setY(actionsY);
+this.resetPageButton.visible = true;
+ this.resetAllButton.visible = true;
+ this.resetPageButton.render(graphics, mouseX, mouseY, partialTick);
+ this.resetAllButton.render(graphics, mouseX, mouseY, partialTick);
+ } private void renderResolutionContent(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, int left, int right, int top, int bottom) { int
 
 
 

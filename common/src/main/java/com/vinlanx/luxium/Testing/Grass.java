@@ -276,10 +276,10 @@ catch (Throwable var5) { var5.printStackTrace(); } finally {
             blockPackedLight );
     }
 
-    private static RenderedBuffer doFill(Grass.ScanData sd) {
-        BufferBuilder bb = new BufferBuilder(8388608);
+    private static RenderedBuffer doFill(Grass.ScanData sd) { BufferBuilder bb = new BufferBuilder(8388608);
         bb.begin(Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
-        float H = 0.5F;
+        float
+        H = 0.5F;
         int V = 12;
 
         for (int idx = 0; idx < sd.totalBlades; idx++) {
@@ -288,27 +288,27 @@ catch (Throwable var5) { var5.printStackTrace(); } finally {
             float base = sd.bladeBaseY[idx];
             float phi1 = sd.bladePhi1[idx];
             int light = sd.blockPackedLight[sd.bladeBlkIdx[idx]];
-            int hash = Float.floatToRawIntBits(phi1);
+            int
+            hash = Float.floatToRawIntBits(phi1);
             int vr = (hash * -1640531527 >>> 24 & 0xFF) * 2 * 12 / 255 - 12;
             int vg = (hash * 1818371887 >>> 24 & 0xFF) * 2 * 12 / 255 - 12;
             int vb = (hash * 608135817 >>> 24 & 0xFF) * 2 * 12 / 255 - 12;
-            int r = Math.max(0, Math.min(255, sd.bladeCR[idx] + vr));
+            int
+            r = Math.max(0, Math.min(255, sd.bladeCR[idx] + vr));
             int g = Math.max(0, Math.min(255, sd.bladeCG[idx] + vg));
             int b = Math.max(0, Math.min(255, sd.bladeCB[idx] + vb));
-            int phi1Enc = (int)(phi1 / (float) (Math.PI * 2) * 32767.0F) & 32767;
-            int ov_right = phi1Enc | 65536;
-            emitQuad(bb, bx, bz, base, 1.0F, base + 0.125F, 0.75F, r, g, b, light, phi1Enc, ov_right);
-            emitQuad(bb, bx, bz, base + 0.125F, 0.75F, base + 0.25F, 0.5F, r, g, b, light, phi1Enc, ov_right);
-            emitQuad(bb, bx, bz, base + 0.25F, 0.5F, base + 0.375F, 0.25F, r, g, b, light, phi1Enc, ov_right);
-            emitQuad(bb, bx, bz, base + 0.375F, 0.25F, base + 0.5F, 0.0F, r, g, b, light, phi1Enc, ov_right); } return bb.end(); } private static void emitQuad(BufferBuilder bb, float bx, float bz, float yBot, float uvBot, float yTop, float uvTop, int r, int g, int b, int light, int ov_left, int ov_right ) {
+            int
+            phi1Enc = (int)(phi1 / (float) (Math.PI * 2) * 32767.0F) & 32767;
+            int ov_left = phi1Enc; int
+ ov_right = phi1Enc | 65536;
+
+            emitQuad(bb, bx, bz, base, 1.0F, base + 0.125F, 0.75F, r, g, b, light, ov_left, ov_right);
+            emitQuad(bb, bx, bz, base + 0.125F, 0.75F, base + 0.25F, 0.5F, r, g, b, light, ov_left, ov_right);
+            emitQuad(bb, bx, bz, base + 0.25F, 0.5F, base + 0.375F, 0.25F, r, g, b, light, ov_left, ov_right);
+            emitQuad(bb, bx, bz, base + 0.375F, 0.25F, base + 0.5F, 0.0F, r, g, b, light, ov_left, ov_right); }
 
 
-
-
-
-
-
-
+ return bb.end(); } private static void emitQuad(BufferBuilder bb, float bx, float bz, float yBot, float uvBot, float yTop, float uvTop, int r, int g, int b, int light, int ov_left, int ov_right ) {
 
 
 

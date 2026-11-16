@@ -472,122 +472,122 @@ this.entries.values()) {
     }
 
     public void buildPendingShadows(LevelRenderer levelRenderer, float partialTick, long finishNano, GameRenderer gameRenderer, LightTexture lightTexture) {
-        if (!(captureConsumerActive() && !this.entries.isEmpty())) {
-return;
-}
-
+        if (!(captureConsumerActive() && !this.entries.isEmpty())) { return;
+ }
             this.flushExpectedRenderedSectionsIfTimedOut();
             this.flushRenderedSectionInvalidationsIfReady();
-            boolean urgentMeshUploadPending = !this.expectedRenderedSections.isEmpty();
+            boolean
+            urgentMeshUploadPending = !this.expectedRenderedSections.isEmpty();
             boolean hasDirty = false;
-
-            for (GpuShadowCache.Entry e : this.entries.values()) {
-                if (hasDirtyFaces(e)) {
-                    hasDirty = true;
-                    break;
-                }
-            }
-
-            if (!(hasDirty)) {
-return;
-}
-
+            for (GpuShadowCache.Entry e : this.entries.values()) { if (hasDirtyFaces(e)) { hasDirty = true; break; } }
+            if (!(hasDirty)) { return;
+ }
                 Minecraft mc = Minecraft.getInstance();
                 ClientLevel level = mc.level;
-                if (!(level != null)) {
- return;
- }
-
-                    RenderTarget oldMainTarget = mc.getMainRenderTarget();
+                if (!(level != null)) { return;
+ } RenderTarget oldMainTarget = mc.getMainRenderTarget();
                     Matrix4f oldProj = new Matrix4f(RenderSystem.getProjectionMatrix());
                     VertexSorting oldSorting = RenderSystem.getVertexSorting();
+
                     this.ensureAtlasAndTargets();
+
                     this.shadowCamera.setup(level, (Entity)(mc.getCameraEntity() != null ? mc.getCameraEntity() : mc.player), true, false, partialTick);
+
                     ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(this.shadowTileTarget);
                     NeoGpuVanillaGpuDebug.beginCapture();
 
-                    try {
-                        int staticBuildsThisFrame = 0;
+                    try { int staticBuildsThisFrame = 0;
                         int dynamicFacesThisFrame = 0;
-                        if (NeoGpuVanilla.isConfiguredEnabled()) {
-                            for (int faceBudget = this.neoGpuFaceRebuildBudget(); staticBuildsThisFrame < faceBudget; staticBuildsThisFrame++) {
-                                GpuShadowCache.Entry nearestDirty = null;
+                        if (NeoGpuVanilla.isConfiguredEnabled
+()) {
+                            int
+                            faceBudget = this.neoGpuFaceRebuildBudget(); while
+(staticBuildsThisFrame
+< faceBudget) { GpuShadowCache.Entry nearestDirty = null; for (GpuShadowCache.Entry entry :
+this.entries.values()) {
+if (entry.lastVisibleFrame != this.visibilityFrame || !hasDirtyFaces
+ (entry) || !entry.staticDirty) { continue; }
+ if (urgentMeshUploadPending && entry.urgentStaticDirty) { continue; }
+ if (nearestDirty == null || entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty || entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority) {
 
-                                for (GpuShadowCache.Entry entry : this.entries.values()) {
-                                    if (!(entry.lastVisibleFrame == this.visibilityFrame
-                                        && hasDirtyFaces(entry)
-                                        && entry.staticDirty
-                                        && (!urgentMeshUploadPending || !entry.urgentStaticDirty)
-                                        && (
-                                            nearestDirty == null
-                                                || entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty
-                                                || entry.urgentStaticDirty == nearestDirty.urgentStaticDirty
-                                                    && entry.stagedPriority < nearestDirty.stagedPriority ))) {
-continue;
-}
 
-                                        nearestDirty = entry;
 
-                                }
+nearestDirty = entry; }
 
-                                if (nearestDirty == null) {
-                                    break;
-                                }
+ }
+ if (nearestDirty == null) { break; } int
+ face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 63);
+ if (face < 0 || face >= 6) { break; }
+ this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
 
-                                int face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 63);
-                                if (face < 0 || face >= 6) {
-                                    break;
-                                }
+                             staticBuildsThisFrame++;
+                             }
+                        } else if (GpuNeoShadows.isHardShadowBakeEnabled()) {
+                            int
+                            faceBudget = Math.max(1, Config.CLIENT.gpuHardShadowCaptureBudget.get()); while
+(staticBuildsThisFrame < faceBudget) { GpuShadowCache.Entry
+ nearestDirty = null; for (GpuShadowCache.Entry entryx :
+this.entries.values()) {
+if (entryx.lastVisibleFrame != this.visibilityFrame || !hasDirtyFaces
+ (entryx) || !entryx.staticDirty) { continue; }
+ if (nearestDirty == null || entryx.urgentStaticDirty && !nearestDirty.urgentStaticDirty || entryx.urgentStaticDirty == nearestDirty.urgentStaticDirty && entryx.stagedPriority < nearestDirty.stagedPriority) {
 
-                                this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
-                            }
-                        } else if (!GpuNeoShadows.isHardShadowBakeEnabled()) {
-                            for (GpuShadowCache.Entry entryx : this.entries.values()) {
-                                if (staticBuildsThisFrame >= 1) {
-                                    break;
-                                }
 
-                                if (hasDirtyFaces(entryx) && entryx.staticDirty) {
-                                    this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entryx, entryx.dirtyFaceMask);
-                                    staticBuildsThisFrame++;
-                                }
-                            }
+
+nearestDirty = entryx; }
+
+ }
+ if (nearestDirty == null) { break; } int
+ face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 63);
+ if (face < 0 || face >= 6) { break; }
+ this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
+
+                             staticBuildsThisFrame++;
+                             }
                         } else {
-                            for (int faceBudget = Math.max(1, Config.CLIENT.gpuHardShadowCaptureBudget.get());
-                                staticBuildsThisFrame < faceBudget;
-                                staticBuildsThisFrame++ ) {
-                                GpuShadowCache.Entry nearestDirty = null;
-
-                                for (GpuShadowCache.Entry entryx : this.entries.values()) {
-                                    if (!(entryx.lastVisibleFrame == this.visibilityFrame
-                                        && hasDirtyFaces(entryx)
-                                        && entryx.staticDirty
-                                        && (
-                                            nearestDirty == null
-                                                || entryx.urgentStaticDirty && !nearestDirty.urgentStaticDirty
-                                                || entryx.urgentStaticDirty == nearestDirty.urgentStaticDirty
-                                                    && entryx.stagedPriority < nearestDirty.stagedPriority ))) {
-continue;
-}
-
-                                        nearestDirty = entryx;
-
-                                }
-
-                                if (nearestDirty == null) {
-                                    break;
-                                }
-
-                                int face = Integer.numberOfTrailingZeros(nearestDirty.dirtyFaceMask & 63);
-                                if (face < 0 || face >= 6) {
-                                    break;
-                                }
-
-                                this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, nearestDirty, 1 << face);
+                            for (GpuShadowCache.Entry entryx : this.entries.values()) {
+                                if (staticBuildsThisFrame >= 1) { break;
+                                } if (!hasDirtyFaces(entryx) || !entryx.staticDirty) { continue; }
+                                this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entryx, entryx.dirtyFaceMask);
+                                staticBuildsThisFrame++;
                             }
                         }
 
-                        if (dynamicFacesThisFrame < 24) { for (GpuShadowCache.Entry entryxx : this.entries.values()) { if (dynamicFacesThisFrame >= 24) { break; } if (!(hasDirtyFaces(entryxx) && !entryxx.staticDirty)) { continue; } for (int mask = entryxx.dirtyFaceMask; mask != 0 && dynamicFacesThisFrame < 24; dynamicFacesThisFrame++) { int face = Integer.numberOfTrailingZeros(mask); int singleFaceMask = 1 << face; this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entryxx, singleFaceMask); mask &= ~singleFaceMask; } } } } finally { NeoGpuVanillaGpuDebug.endCapture(); NeoShadowsEngine.endGpuShadowAtlasCapture(); ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(oldMainTarget); RenderSystem.setProjectionMatrix(oldProj, oldSorting); oldMainTarget.bindWrite(true); GL11.glDisable(3089); GlStateManager._activeTexture(33984); GlStateManager._colorMask(true, true, true, true); GlStateManager._depthMask(true); GlStateManager._enableDepthTest(); RenderSystem.depthFunc(515); RenderSystem.disableBlend(); RenderSystem.enableCull(); GL11.glCullFace(1029); } } private void rebuildFaces(LevelRenderer levelRenderer, float partialTick, long finishNano, GameRenderer gameRenderer, LightTexture lightTexture, GpuShadowCache.Entry entry, int faceMask ) { int mask = faceMask & 63;
+                        if (dynamicFacesThisFrame < 24) { for (GpuShadowCache.Entry entryxx :
+this.entries.values()) {
+if (dynamicFacesThisFrame >= 24) { break; }
+ if (!(hasDirtyFaces(entryxx) && !entryxx.staticDirty)) { continue; } int
+
+ mask = entryxx.dirtyFaceMask; while
+(mask != 0
+ && dynamicFacesThisFrame < 24) { int face = Integer.numberOfTrailingZeros(mask); int
+singleFaceMask = 1 << face;
+ this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entryxx, singleFaceMask);
+ mask &= ~singleFaceMask;
+ dynamicFacesThisFrame++;
+ }
+ } } } finally {
+
+
+ NeoGpuVanillaGpuDebug.endCapture(); NeoShadowsEngine.endGpuShadowAtlasCapture
+ ();
+ ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(oldMainTarget);
+RenderSystem.setProjectionMatrix(oldProj, oldSorting);
+oldMainTarget.bindWrite(true);
+GL11.glDisable(3089);
+GlStateManager._activeTexture(33984);
+GlStateManager._colorMask(true, true, true, true);
+ GlStateManager._depthMask(true); GlStateManager._enableDepthTest
+ ();
+ RenderSystem.depthFunc(515); RenderSystem.disableBlend
+ (); RenderSystem.enableCull
+ ();
+ GL11.glCullFace(1029);
+}
+} private void rebuildFaces(LevelRenderer levelRenderer, float partialTick, long finishNano, GameRenderer gameRenderer, LightTexture lightTexture, GpuShadowCache.Entry entry, int faceMask ) { int
+
+
+ mask = faceMask & 63;
         if (!(mask != 0)) { return;
  }
             boolean directEmbeddium = NeoGpuVanilla.isConfiguredEnabled() && this.embeddiumLocalShadowBridge.isAvailable
@@ -653,51 +653,51 @@ if (entry.dirtyFaceMask == 0) {
  entry.dynamicDirty = false;
  entry.urgentStaticDirty = false; }
 
- } private boolean copyDepthToAtlas(GpuShadowCache.Entry entry, int face, Matrix4f proj) { ShaderInstance shader = ShaderManager.getDepthToDistanceShader(); if (shader == null) { return false; } else { GL30.glBindFramebuffer(36160, this.fboId); int tileX = entry.tileIndices[face] % this.tileGrid; int tileY = entry.tileIndices[face] / this.tileGrid; int vx = tileX * this.tileSize; int vy = tileY * this.tileSize; GL11.glViewport(vx, vy, this.tileSize, this.tileSize); GL11.glEnable(3089); GL11.glScissor(vx, vy, this.tileSize, this.tileSize); GL11.glDisable(2929); GlStateManager._colorMask(true, true, true, true); boolean var12; try { shader.setSampler("DepthSampler", this.shadowTileTarget.getDepthTextureId()); if (shader.getUniform("InverseProj") != null) { shader.getUniform("InverseProj").set(new Matrix4f(proj).invert()); } if (shader.getUniform("LightRadius") != null) { shader.getUniform("LightRadius").set(entry.radius); } Matrix4f ortho = new Matrix4f().setOrtho(0.0F, (float)this.tileSize, (float)this.tileSize, 0.0F, -1.0F, 1.0F); RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z); shader.MODEL_VIEW_MATRIX.set(new Matrix4f()); shader.PROJECTION_MATRIX.set(ortho); shader.apply(); Tesselator tess = RenderSystem.renderThreadTesselator(); BufferBuilder buf = tess.getBuilder(); buf.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX); buf.vertex(0.0, (double)this.tileSize, 0.0).uv(0.0F, 0.0F).endVertex(); buf.vertex((double)this.tileSize, (double)this.tileSize, 0.0).uv(1.0F, 0.0F).endVertex(); buf.vertex((double)this.tileSize, 0.0, 0.0).uv(1.0F, 1.0F).endVertex(); buf.vertex(0.0, 0.0, 0.0).uv(0.0F, 1.0F).endVertex(); BufferUploader.draw(buf.end()); var12 = true; } finally { shader.clear(); GL11.glDisable(3089); GL11.glEnable(2929); GL30.glBindFramebuffer(36160, 0); } return var12; } } private static float getYawForFace(int face) {
+ } private boolean copyDepthToAtlas(GpuShadowCache.Entry entry, int face, Matrix4f proj) { ShaderInstance shader = ShaderManager.getDepthToDistanceShader
 
 
+ ();
+ if (shader == null) { return false; } else {
 
+ GL30.glBindFramebuffer(36160, this.fboId); int
+tileX = entry.tileIndices[face] % this.tileGrid; int
+tileY = entry.tileIndices[face] / this.tileGrid; int
+vx = tileX * this.tileSize; int
+vy = tileY * this.tileSize;
 
+ GL11.glViewport(vx, vy, this.tileSize, this.tileSize);
+ GL11.glEnable(3089);
+GL11.glScissor(vx, vy, this.tileSize, this.tileSize);
+ GL11.glDisable(2929);
+GlStateManager._colorMask(true, true, true, true); try {
 
+ shader.setSampler("DepthSampler", this.shadowTileTarget.getDepthTextureId());
+if (shader.getUniform("InverseProj") != null) {
+ shader.getUniform("InverseProj").set(new Matrix4f(proj).invert()); }
+if (shader.getUniform("LightRadius") != null) {
+ shader.getUniform("LightRadius").set(entry.radius); } Matrix4f
 
+ ortho = new Matrix4f().setOrtho(0.0F, (float)this.tileSize, (float)this.tileSize, 0.0F, -1.0F, 1.0F);
+RenderSystem.setProjectionMatrix(ortho, VertexSorting.ORTHOGRAPHIC_Z);
+ shader.MODEL_VIEW_MATRIX.set(new Matrix4f());
+shader.PROJECTION_MATRIX.set(ortho);
+shader.apply(); Tesselator tess = RenderSystem.renderThreadTesselator
 
+ (); BufferBuilder
+ buf = tess.getBuilder();
+buf.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+ buf.vertex(0.0, (double)this.tileSize, 0.0).uv(0.0F, 0.0F).endVertex();
+buf.vertex((double)this.tileSize, (double)this.tileSize, 0.0).uv(1.0F, 0.0F).endVertex();
+buf.vertex((double)this.tileSize, 0.0, 0.0).uv(1.0F, 1.0F).endVertex();
+buf.vertex(0.0, 0.0, 0.0).uv(0.0F, 1.0F).endVertex();
+BufferUploader.draw(buf.end());
+return true; } finally {
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ shader.clear();
+GL11.glDisable(3089);
+GL11.glEnable(2929);
+GL30.glBindFramebuffer(36160, 0);
+} } } private static float getYawForFace(int face) {
 
 
 

@@ -98,20 +98,20 @@ scratches[w].reset(); } for (int
 
  w = 0; w < activeWorkers; w++) { NeoShadowsTypes.BuildScratch
  scratch = scratches[w];
-pool.execute(() -> { try { int idx; try { while ((idx = nextIdx.getAndIncrement()) < stripeEnd && state.shadowPolygons.size() < 12288) { this.processReceiverPlaneGroup(level, planeGroups.get(idx), state, scratch); } } catch (Throwable var12x) { } } finally { stripeLatch.countDown(); } }); } try {
+pool.execute(() -> { try { int idx; while
 
 
+ ((idx = nextIdx.getAndIncrement()) < stripeEnd) {
+ if (state.shadowPolygons.size() >= 12288) {
+ break; }
 
+ this.processReceiverPlaneGroup(level, planeGroups.get(idx), state, scratch); } }
 
+ catch (Throwable var12x) { } finally {
 
-
-
-
-
-
-
-
-
+ stripeLatch.countDown();
+}
+}); } try {
 
 
  stripeLatch.await(); }
@@ -144,66 +144,66 @@ if (progressPublisher != null) {
 
 
 
- return this.buildRealtimeChangedBlockShadowOutput(level, changedBlocks, maxBlocks, localRadius).shadowPolygons; } NeoShadowsTypes.StaticHotPatchOutput buildRealtimeChangedBlockShadowOutput(ClientLevel level, LongOpenHashSet changedBlocks, int maxBlocks, int localRadius) { if (!(level != null && changedBlocks != null && !changedBlocks.isEmpty() && maxBlocks > 0 && localRadius >= 0)) { return NeoShadowsTypes.StaticHotPatchOutput.EMPTY; } ExposedFaceService exposedFaceService = ExposedFaceService.get(); TorchRtxState torchState = TorchRtxState.get(); List<NeoShadowsTypes.ShadowPolygon> output = new ArrayList<>(); Long2ByteOpenHashMap affectedFacesByBlock = new Long2ByteOpenHashMap(); affectedFacesByBlock.defaultReturnValue((byte)0); LongIterator iterator = changedBlocks.iterator(); int processed = 0; for (NeoShadowsTypes.BuildScratch scratch = new NeoShadowsTypes.BuildScratch(); iterator.hasNext() && processed < maxBlocks && output.size() < 12288; processed++ ) { BlockPos center = BlockPos.of(iterator.nextLong()); markImmediateHotPatchFaces(affectedFacesByBlock, center); NeoShadowsTypes.GeometryBuildState state = new NeoShadowsTypes.GeometryBuildState(this.engine, level, center, exposedFaceService, false, DynamicShadowMeshCapture.Snapshot.empty() ); List<NeoShadowsTypes.FaceCandidate> candidates = this.engine .visibility .buildLocalFaceCandidates(level, center, localRadius, exposedFaceService); state.receiverFaceCount = candidates.size(); markAffectedReceiverFaces(affectedFacesByBlock, candidates); if (!candidates.isEmpty()) { for (NeoShadowsTypes.ReceiverPlaneGroup group : this.buildReceiverPlaneGroups(torchState, candidates, state)) { if (output.size() >= 12288) { break; } scratch.reset(); this.processReceiverPlaneGroup(level, group, state, scratch); if (!scratch.shadowPolygons.isEmpty()) { output.addAll(scratch.shadowPolygons); } } } } return affectedFacesByBlock.isEmpty() ? NeoShadowsTypes.StaticHotPatchOutput.EMPTY : new NeoShadowsTypes.StaticHotPatchOutput(affectedFacesByBlock, output.isEmpty() ? Collections.emptyList() : List.copyOf(output)); } private static void markImmediateHotPatchFaces(Long2ByteOpenHashMap affectedFacesByBlock, BlockPos center) { byte
+ return this.buildRealtimeChangedBlockShadowOutput(level, changedBlocks, maxBlocks, localRadius).shadowPolygons; } NeoShadowsTypes.StaticHotPatchOutput buildRealtimeChangedBlockShadowOutput(ClientLevel level, LongOpenHashSet changedBlocks, int maxBlocks, int localRadius) {
 
 
 
 
 
 
+ if (!(level != null && changedBlocks != null && !changedBlocks.isEmpty() && maxBlocks > 0 && localRadius >= 0)) {
+ return NeoShadowsTypes.StaticHotPatchOutput.EMPTY; } ExposedFaceService exposedFaceService = ExposedFaceService.get
+
+
+ (); TorchRtxState torchState = TorchRtxState.get
+ (); List<NeoShadowsTypes.ShadowPolygon>
+output = new ArrayList<>(); Long2ByteOpenHashMap
+affectedFacesByBlock = new Long2ByteOpenHashMap();
+ affectedFacesByBlock.defaultReturnValue((byte)0); LongIterator
+iterator = changedBlocks.iterator(); int
+processed = 0; NeoShadowsTypes.BuildScratch
+ scratch = new NeoShadowsTypes.BuildScratch(); while
+
+(iterator.hasNext() && processed < maxBlocks && output.size() < 12288) { BlockPos
+ center = BlockPos.of(iterator.nextLong());
+markImmediateHotPatchFaces(affectedFacesByBlock, center); NeoShadowsTypes.GeometryBuildState
+ state = new NeoShadowsTypes.GeometryBuildState(this.engine, level, center, exposedFaceService, false, DynamicShadowMeshCapture.Snapshot.empty
 
 
 
 
 
+() ); List<NeoShadowsTypes.FaceCandidate>
+
+candidates = this.engine .visibility .buildLocalFaceCandidates(level, center, localRadius, exposedFaceService);
+ state.receiverFaceCount = candidates.size();
+markAffectedReceiverFaces(affectedFacesByBlock, candidates);
+
+if (!candidates.isEmpty()) { List<NeoShadowsTypes.ReceiverPlaneGroup>
+planeGroups = this.buildReceiverPlaneGroups(torchState, candidates, state); for (NeoShadowsTypes.ReceiverPlaneGroup group :
+planeGroups) {
+if (output.size() >= 12288) {
+ break; }
 
 
+ scratch.reset();
+this.processReceiverPlaneGroup(level, group, state, scratch);
+ if (!scratch.shadowPolygons.isEmpty()) {
+output.addAll(scratch.shadowPolygons); }
+
+} }
 
 
+processed++;
+}
+
+ if (affectedFacesByBlock.isEmpty()) {
+return NeoShadowsTypes.StaticHotPatchOutput.EMPTY; }
 
 
+return new NeoShadowsTypes.StaticHotPatchOutput(affectedFacesByBlock, output.isEmpty
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ () ? Collections.emptyList() : List.copyOf(output)); } private static void markImmediateHotPatchFaces(Long2ByteOpenHashMap affectedFacesByBlock, BlockPos center) { byte
 
 
 
@@ -227,105 +227,105 @@ mergeAffectedFaceMask(affectedFacesByBlock, candidate.pos.asLong(), (byte)(1 << 
 
 
  affectedFacesByBlock.put(blockKey, (byte)(affectedFacesByBlock.get(blockKey) | mask));
- } List<NeoShadowsTypes.ReceiverPlaneGroup> buildReceiverPlaneGroups(TorchRtxState torchState, List<NeoShadowsTypes.FaceCandidate> candidates, NeoShadowsTypes.GeometryBuildState state ) { int initialCapacity = Math.max(16, Math.min(candidates.size() * 2, 4096)); LinkedHashMap<NeoShadowsTypes.ReceiverPlaneKey, NeoShadowsTypes.ReceiverPlaneGroup> groups = new LinkedHashMap<>(initialCapacity); int n = candidates.size(); NeoShadowsTypes.FaceLightingInfo[] lightingByIndex = new NeoShadowsTypes.FaceLightingInfo[n]; int workerCount = Math.max(1, Math.min(NeoShadowsEngine.SHADOW_WORKER_COUNT, n)); if (workerCount > 1 && n >= 64) { ExecutorService pool = NeoShadowsEngine.shadowWorkerPool(); CountDownLatch latch = new CountDownLatch(workerCount); for (int w = 0; w < workerCount; w++) { int shard = w; pool.execute(() -> { try { int i = shard; while (i < n) { NeoShadowsTypes.FaceCandidate candidate = candidates.get(i); lightingByIndex[i] = this.engine.visibility.resolveFaceLightingCached(torchState, state, candidate); i += workerCount; } } catch (Throwable var14) { } finally { latch.countDown(); } }); } try { latch.await(); } catch (InterruptedException var20) { Thread.currentThread().interrupt(); } } else { for (int i = 0; i < n; i++) { NeoShadowsTypes.FaceCandidate candidate = candidates.get(i); lightingByIndex[i] = this.engine.visibility.resolveFaceLightingCached(torchState, state, candidate); } } for (int i = 0; i < n; i++) { NeoShadowsTypes.FaceCandidate candidate = candidates.get(i); NeoShadowsTypes.FaceLightingInfo lighting = lightingByIndex[i]; if (lighting == null) { lighting = this.engine.visibility.resolveFaceLightingCached(torchState, state, candidate); } if (!(!lighting.contributions.isEmpty())) {
+ } List<NeoShadowsTypes.ReceiverPlaneGroup> buildReceiverPlaneGroups(TorchRtxState torchState, List<NeoShadowsTypes.FaceCandidate> candidates, NeoShadowsTypes.GeometryBuildState state ) { int
+
+
+
+
+ initialCapacity = Math.max(16, Math.min(candidates.size() * 2, 4096)); LinkedHashMap<NeoShadowsTypes.ReceiverPlaneKey, NeoShadowsTypes.ReceiverPlaneGroup>
+ groups = new LinkedHashMap<>(initialCapacity); int
+
+n = candidates.size(); NeoShadowsTypes.FaceLightingInfo[]
+lightingByIndex = new NeoShadowsTypes.FaceLightingInfo[n]; int
+workerCount = Math.max(1, Math.min(NeoShadowsEngine.SHADOW_WORKER_COUNT, n));
+if (workerCount > 1 && n >= 64) { ExecutorService pool = NeoShadowsEngine.shadowWorkerPool
+ (); CountDownLatch
+ latch = new CountDownLatch(workerCount); for (int
+ w = 0; w < workerCount; w++) { int
+ shard = w;
+ pool.execute(() -> { try { for (int
+
+ i = shard; i < n; i += workerCount) { NeoShadowsTypes.FaceCandidate
+ candidate = candidates.get(i);
+lightingByIndex[i] = this.engine.visibility.resolveFaceLightingCached(torchState, state, candidate); } }
+
+ catch (Throwable var14) { } finally {
+
+ latch.countDown();
+}
+}); } try {
+
+
+ latch.await(); }
+catch (InterruptedException var20) { Thread.currentThread
+ ().interrupt();
+}
+} else { for (int
+ i = 0; i < n; i++) { NeoShadowsTypes.FaceCandidate
+ candidate = candidates.get(i);
+lightingByIndex[i] = this.engine.visibility.resolveFaceLightingCached(torchState, state, candidate); } } for (int
+
+
+
+ i = 0; i < n; i++) { NeoShadowsTypes.FaceCandidate
+ candidate = candidates.get(i); NeoShadowsTypes.FaceLightingInfo
+ lighting = lightingByIndex[i];
+if (lighting == null) {
+ lighting = this.engine.visibility.resolveFaceLightingCached(torchState, state, candidate); }
+
+ if (!(!lighting.contributions.isEmpty())) {
 continue;
 }
- long candidatePosKey = candidate.pos.asLong(); for (NeoShadowsTypes.SourceContribution contribution : lighting.contributions) { if (!(contribution.sourceKey != Long.MIN_VALUE && contribution.sourceEmission > 0 && contribution.sourceKey != candidatePosKey)) {
+ long candidatePosKey = candidate.pos.asLong(); for (NeoShadowsTypes.SourceContribution contribution :
+
+lighting.contributions) {
+if (!(contribution.sourceKey != Long.MIN_VALUE && contribution.sourceEmission > 0 && contribution.sourceKey != candidatePosKey)) {
+
+
  continue;
  }
- NeoShadowsTypes.ReceiverPlaneKey key = NeoShadowsTypes.ReceiverPlaneKey.of(candidate, contribution.sourceKey); NeoShadowsTypes.ReceiverPlaneGroup group = groups.get(key); if (group == null) { Vec3 source = new Vec3((double)BlockPos.getX(contribution.sourceKey) + 0.5, (double)BlockPos.getY(contribution.sourceKey) + 0.5, (double)BlockPos.getZ(contribution.sourceKey) + 0.5 ); group = new NeoShadowsTypes.ReceiverPlaneGroup(key, source, contribution.sourceEmission); groups.put(key, group); } group.addFace(candidate, contribution.weight, contribution.localFaceBounds); } } List<NeoShadowsTypes.ReceiverPlaneGroup> result = new ArrayList<>(groups.values()); int rgCount = result.size(); if (rgCount > 1) { ExecutorService finalizePool = NeoShadowsEngine.shadowWorkerPool(); CountDownLatch finalizeLatch = new CountDownLatch(rgCount); for (NeoShadowsTypes.ReceiverPlaneGroup group : result) { finalizePool.execute(() -> { try {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ NeoShadowsTypes.ReceiverPlaneKey
+ key = NeoShadowsTypes.ReceiverPlaneKey.of(candidate, contribution.sourceKey); NeoShadowsTypes.ReceiverPlaneGroup
+ group = groups.get(key);
+if (group == null) { Vec3
+ source = new Vec3((double)BlockPos.getX
+(contribution.sourceKey) + 0.5, (double)BlockPos.getY
+(contribution.sourceKey) + 0.5, (double)BlockPos.getZ
+(contribution.sourceKey) + 0.5 );
+
+ group = new NeoShadowsTypes.ReceiverPlaneGroup(key, source, contribution.sourceEmission);
+ groups.put(key, group); }
+
+
+ group.addFace(candidate, contribution.weight, contribution.localFaceBounds);
+ } } List<NeoShadowsTypes.ReceiverPlaneGroup>
+
+
+result = new ArrayList<>(groups.values()); int
+rgCount = result.size();
+if (rgCount > 1) { ExecutorService finalizePool = NeoShadowsEngine.shadowWorkerPool
+ (); CountDownLatch
+ finalizeLatch = new CountDownLatch(rgCount); for (NeoShadowsTypes.ReceiverPlaneGroup group :
+result) {
+finalizePool.execute(() -> { try {
 
  group.finalizeReceiverSamples(); }
 catch (Throwable var6x) { } finally {
 
  finalizeLatch.countDown();
 }
-}); } try { finalizeLatch.await(); } catch (InterruptedException var19) { Thread.currentThread().interrupt(); } } else if (rgCount == 1) { result.get(0).finalizeReceiverSamples(); } return result; } static void sortPlaneGroupsByPriority(List<NeoShadowsTypes.ReceiverPlaneGroup> planeGroups, BlockPos center) {
+});
+} try {
+
+ finalizeLatch.await(); }
+catch (InterruptedException var19) { Thread.currentThread
+ ().interrupt();
+}
+} else if (rgCount == 1) {
+ result.get(0).finalizeReceiverSamples(); }
 
 
-
-
-
-
-
-
-
-
-
+return result; } static void sortPlaneGroupsByPriority(List<NeoShadowsTypes.ReceiverPlaneGroup> planeGroups, BlockPos center) {
 
 
 
@@ -643,7 +643,6 @@ projected = collectProjectedQuadPoints(group.plane, group.source, quadVertices);
 
         for (int pixelY = 0; pixelY < height; pixelY++) {
             int rowOffset = pixelY * width;
-
             for (int pixelX = 0; pixelX < width; pixelX++) {
                 int alpha = ARGB32.alpha(platform.spriteFirstFramePixel(sprite, pixelX, pixelY));
                 boolean opaque = alpha >= 16;
@@ -655,12 +654,13 @@ projected = collectProjectedQuadPoints(group.plane, group.source, quadVertices);
 
         if (!anyOpaque) {
             return NeoShadowsTypes.SpriteOpaqueMask.fullyTransparent();
-        } else if (!anyTransparent) {
+        } else
+        if (!anyTransparent) {
             return NeoShadowsTypes.SpriteOpaqueMask.fullyOpaque();
         } else {
-            boolean[] consumed = new boolean[opaquePixels.length];
+            boolean[]
+            consumed = new boolean[opaquePixels.length];
             List<NeoShadowsTypes.SpriteRect> rectangles = new ArrayList<>();
-
             for (int pixelY = 0; pixelY < height; pixelY++) {
                 for (int pixelX = 0; pixelX < width; pixelX++) {
                     int index = pixelY * width + pixelX;
@@ -668,47 +668,47 @@ projected = collectProjectedQuadPoints(group.plane, group.source, quadVertices);
 continue;
 }
 
-                        int rectWidth;
-                        for (rectWidth = 1; pixelX + rectWidth < width; rectWidth++) {
-                            int nextIndex = pixelY * width + pixelX + rectWidth;
-                            if (!opaquePixels[nextIndex] || consumed[nextIndex]) {
-                                break;
-                            }
-                        }
+                        int rectWidth = 1;
+ while (pixelX + rectWidth < width) {
+ int nextIndex = pixelY * width + pixelX + rectWidth;
+ if (!opaquePixels[nextIndex] || consumed[nextIndex]) {
+ break; }
 
-                        int rectHeight = 1;
+ rectWidth++;
+ }
+                        int
+                        rectHeight = 1;
                         boolean canGrow = true;
-
                         while (pixelY + rectHeight < height && canGrow) {
                             int nextRowOffset = (pixelY + rectHeight) * width;
-                            int scanX = 0;
-
-                            while (true) {
-                                if (scanX < rectWidth) {
-                                    int nextIndex = nextRowOffset + pixelX + scanX;
-                                    if (opaquePixels[nextIndex] && !consumed[nextIndex]) {
-                                        scanX++;
-                                        continue;
-                                    }
-
+                            for (int scanX = 0; scanX < rectWidth; scanX++) {
+                                int nextIndex = nextRowOffset + pixelX + scanX;
+                                if (!opaquePixels[nextIndex] || consumed[nextIndex]) {
                                     canGrow = false;
-                                }
-
-                                if (canGrow) {
-                                    rectHeight++;
-                                }
-                                break;
+                                    break; }
                             }
+
+                            if (canGrow) {
+                                rectHeight++; }
+
                         }
 
                         for (int fillY = 0; fillY < rectHeight; fillY++) {
                             int fillRowOffset = (pixelY + fillY) * width;
-
                             for (int fillX = 0; fillX < rectWidth; fillX++) {
                                 consumed[fillRowOffset + pixelX + fillX] = true;
                             }
                         }
-                        rectangles.add(new NeoShadowsTypes.SpriteRect(pixelX, pixelX + rectWidth, pixelY, pixelY + rectHeight)); } } return new NeoShadowsTypes.SpriteOpaqueMask(rectangles.toArray(new NeoShadowsTypes.SpriteRect[0]), false, false); } } @Nullable static NeoShadowsTypes.SpritePixelBounds computeQuadPixelBounds(NeoShadowsTypes.TexturedQuad quad, TextureAtlasSprite sprite) { int spriteWidth = Math.max(1, sprite.contents().width());
+
+                        rectangles.add(new NeoShadowsTypes.SpriteRect(pixelX, pixelX + rectWidth, pixelY, pixelY + rectHeight)); } }
+
+
+
+ return new NeoShadowsTypes.SpriteOpaqueMask(rectangles.toArray(new NeoShadowsTypes.SpriteRect[0]), false, false); } } @Nullable static NeoShadowsTypes.SpritePixelBounds computeQuadPixelBounds(NeoShadowsTypes.TexturedQuad quad, TextureAtlasSprite sprite) { int
+
+
+
+ spriteWidth = Math.max(1, sprite.contents().width());
         int spriteHeight = Math.max(1, sprite.contents().height());
         double minPixelX = Double.POSITIVE_INFINITY;
         double maxPixelX = Double.NEGATIVE_INFINITY;
@@ -849,8 +849,7 @@ projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
         Vec3 end,
         NeoShadowsTypes.ProjectionPoint startProjection,
         NeoShadowsTypes.ProjectionPoint endProjection,
-        List<NeoShadowsTypes.UvPoint> points ) {
-        boolean startValid = startProjection.uv != null;
+        List<NeoShadowsTypes.UvPoint> points ) { boolean startValid = startProjection.uv != null;
         boolean endValid = endProjection.uv != null;
         if (!(startValid != endValid)) {
  return;
@@ -865,10 +864,13 @@ projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
                 if (!(!(singularParam < -1.0E-6) && !(singularParam > 1.000001))) {
  return;
  }
-
                     singularParam = Math.max(0.0, Math.min(1.0, singularParam));
-                    double outerOffset = startValid ? -0.001 : 0.001;
-                    double innerOffset = startValid ? -2.5E-4 : 2.5E-4;
+                    boolean
+                    validFromStart = startValid; double outerOffset =
+ validFromStart ? -0.001 : 0.001;
+                    double innerOffset = validFromStart ?
+ -2.5E-4 :
+ 2.5E-4;
                     double outerParam = NeoShadowsProjection.clampUnit(singularParam + outerOffset);
                     double innerParam = NeoShadowsProjection.clampUnit(singularParam + innerOffset);
                     if (!(!(Math.abs(innerParam - outerParam) <= 1.0E-6))) {
@@ -877,10 +879,14 @@ projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
 
                         NeoShadowsTypes.UvPoint outerUv = plane.projectFinite(source, NeoShadowsProjection.lerp(start, end, outerParam));
                         NeoShadowsTypes.UvPoint innerUv = plane.projectFinite(source, NeoShadowsProjection.lerp(start, end, innerParam));
-                        if (outerUv != null && innerUv != null) {
+                        if (!(outerUv != null && innerUv != null)) {
+ return; }
+
+
                             points.add(outerUv);
                             points.add(innerUv);
-                            double directionU = innerUv.u - outerUv.u;
+                            double
+                            directionU = innerUv.u - outerUv.u;
                             double directionV = innerUv.v - outerUv.v;
                             double directionLengthSq = directionU * directionU + directionV * directionV;
                             if (directionLengthSq <= 1.0E-6) {
@@ -896,18 +902,12 @@ projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
                             double directionLength = Math.sqrt(directionLengthSq);
                             points.add(
                                 new NeoShadowsTypes.UvPoint(innerUv.u + directionU / directionLength * 8.0, innerUv.v + directionV / directionLength * 8.0) );
-                        }
-
-
 
 
     }
 
     void addBackFacingReceiverShadows(NeoShadowsTypes.ReceiverPlaneGroup group, NeoShadowsTypes.BuildScratch scratch) {
-        for (NeoShadowsTypes.ReceiverContributionRect rect :
-
-
-group.receiverRects()) {
+        for (NeoShadowsTypes.ReceiverContributionRect rect : group.receiverRects()) {
             if (scratch.shadowPolygons.size() >= 12288) {
                 return;
             }
@@ -939,11 +939,12 @@ group.receiverRects()) {
     }
 
     void addPlaneShadowPolygons(NeoShadowsTypes.ReceiverPlaneGroup group, List<NeoShadowsTypes.UvPoint> planePolygon, NeoShadowsTypes.BuildScratch scratch) {
-        double minU = Double.POSITIVE_INFINITY;
+        double
+
+        minU = Double.POSITIVE_INFINITY;
         double maxU = Double.NEGATIVE_INFINITY;
         double minV = Double.POSITIVE_INFINITY;
         double maxV = Double.NEGATIVE_INFINITY;
-
         for (NeoShadowsTypes.UvPoint point : planePolygon) {
             minU = Math.min(minU, point.u);
             maxU = Math.max(maxU, point.u);
@@ -957,23 +958,19 @@ group.receiverRects()) {
             }
 
             NeoShadowsTypes.PlaneRect rect = receiverRect.planeRect;
-            if (!(!(rect.maxU - rect.minU <= 1.0E-6)
-                && !(rect.maxV - rect.minV <= 1.0E-6)
-                && !(rect.maxU <= minU)
-                && !(rect.minU >= maxU)
-                && !(rect.maxV <= minV)
-                && !(rect.minV >= maxV))) {
- continue;
+            if (rect.maxU - rect.minU <= 1.0E-6 || rect.maxV - rect.minV <= 1.0E-6) {
+                continue; }
+
+            if (!(!(rect.maxU <= minU)
+                && !(rect.minU >= maxU) && !(rect.maxV <= minV) && !(rect.minV >= maxV))) { continue;
  }
 
-                if (!(rect.maxU - rect.minU > 1.000001) && !(rect.maxV - rect.minV > 1.000001)) {
-                    this.appendPlaneShadowPolygon(group, planePolygon, minU, maxU, minV, maxV, rect, receiverRect.anchorPos, receiverRect.strength, scratch);
-                } else {
-                    int minCellU = Mth.floor(rect.minU + 1.0E-6);
+                if (rect.maxU - rect.minU > 1.000001 || rect.maxV - rect.minV > 1.000001) {
+                    int
+                    minCellU = Mth.floor(rect.minU + 1.0E-6);
                     int maxCellU = Mth.ceil(rect.maxU - 1.0E-6) - 1;
                     int minCellV = Mth.floor(rect.minV + 1.0E-6);
                     int maxCellV = Mth.ceil(rect.maxV - 1.0E-6) - 1;
-
                     for (int cellV = minCellV; cellV <= maxCellV; cellV++) {
                         for (int cellU = minCellU; cellU <= maxCellU; cellU++) {
                             if (scratch.shadowPolygons.size() >= 12288) {
@@ -981,19 +978,22 @@ group.receiverRects()) {
                             }
 
                             NeoShadowsTypes.PlaneRect cellRect = new NeoShadowsTypes.PlaneRect(
-                                (double)cellU, (double)cellU + 1.0, (double)cellV, (double)cellV + 1.0 );
-                            BlockPos anchorPos = NeoShadowsProjection.planeCellToBlockPos(group.key, cellU, cellV);
+                                (double)cellU, (double)cellU + 1.0, (double)cellV, (double)cellV + 1.0 ); BlockPos anchorPos = NeoShadowsProjection.planeCellToBlockPos(group.key, cellU, cellV);
                             this.appendPlaneShadowPolygon(group, planePolygon, minU, maxU, minV, maxV, cellRect, anchorPos, receiverRect.strength, scratch);
                         }
                     }
-                }
+                } else {
 
-        }
+                    this.appendPlaneShadowPolygon(group, planePolygon, minU, maxU, minV, maxV, rect, receiverRect.anchorPos, receiverRect.strength, scratch);
+                } }
     }
 
     private void appendRectShadowPolygon(
-        NeoShadowsTypes.ReceiverPlaneGroup group, NeoShadowsTypes.PlaneRect rect, BlockPos anchorPos, float strength, NeoShadowsTypes.BuildScratch scratch ) {
-        List<NeoShadowsTypes.UvPoint> clipped = NeoShadowsProjection.rectShadowPolygon(rect);
+        NeoShadowsTypes.ReceiverPlaneGroup group, NeoShadowsTypes.PlaneRect rect, BlockPos anchorPos, float strength, NeoShadowsTypes.BuildScratch scratch ) { List<NeoShadowsTypes.UvPoint>
+
+
+
+clipped = NeoShadowsProjection.rectShadowPolygon(rect);
         double[] vertices = new double[clipped.size() * 3];
         for (int index = 0; index < clipped.size(); index++) {
             NeoShadowsTypes.UvPoint uv = clipped.get(index);

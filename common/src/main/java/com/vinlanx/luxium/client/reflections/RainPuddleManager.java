@@ -219,63 +219,66 @@ return;
 }
 
             try (Stream<Path> stream = Files.walk(DEV_RAIN_DIR)) {
-                for (Path file : stream.filter(x$0 ->
-Files.isRegularFile(x$0))
+                List<Path> files = stream.filter
+ (x$0 -> Files.isRegularFile(x$0))
                     .filter(path -> path.toString().toLowerCase(Locale.ROOT).endsWith(".png"))
                     .sorted(Comparator.comparing(path -> DEV_RAIN_DIR.relativize(path).toString()))
-                    .toList()) {
+                    .toList(); for (Path file :
+
+files) {
                     String relativePath = DEV_RAIN_DIR.relativize(file).toString().replace('\\', '/');
                     ResourceLocation id = new ResourceLocation("luxium", "rain/" + relativePath);
+
+
 
                     try (InputStream input = Files.newInputStream(file)) {
                         RainHeightmap heightmap = this.loadHeightmap(id, input);
                         if (heightmap != null) {
                             loaded.put(id, heightmap);
                         }
-                    } catch (IOException var14) {
-                        LOGGER.error("Failed to load dev rain heightmap {}", file, var14);
+                    } catch (IOException e) {
+                        LOGGER.error("Failed to load dev rain heightmap {}", file, e);
                     }
                 }
-            } catch (IOException var16) {
-                LOGGER.error("Failed to scan {} for rain heightmaps", DEV_RAIN_DIR, var16);
+            } catch (IOException e) {
+                LOGGER.error("Failed to scan {} for rain heightmaps", DEV_RAIN_DIR, e);
             }
-
     }
 
     @Nullable private RainHeightmap loadHeightmap(ResourceLocation id, InputStream input) {
-        try {
-            Object opacity;
-            try (NativeImage image = NativeImage.read(input)) {
-                int width = image.getWidth();
-                int height = image.getHeight();
-                if (width > 0 && height > 0) {
-                    float[] opacityx = new float[width * height];
 
-                    for (int y = 0; y < height; y++) {
-                        for (int x = 0; x < width; x++) {
-                            int pixel = image.getPixelRGBA(x, y);
-                            int alpha = pixel >>> 24 & 0xFF;
-                            int luminance = pixel & 0xFF;
-                            opacityx[y * width + x] = (float)alpha / 255.0F * ((float)luminance / 255.0F);
-                        }
-                    }
-
-                    RainHeightmap heightmap = new RainHeightmap(id, width, height, opacityx);
-                    if (!heightmap.hasVisiblePixels()) {
-                        LOGGER.warn("Skipping rain heightmap {} because it has no visible puddle data", id);
-                        return null;
-                    }
-
-                    return heightmap;
+        try (NativeImage image = NativeImage.read(input)) {
+            int width = image.getWidth();
+            int height = image.getHeight();
+            if (width <= 0 || height <= 0) {
+                return null;
+            }
+            float[]
+            opacity = new float[width * height];
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
+                    int pixel = image.getPixelRGBA(x, y);
+                    int alpha = pixel >>> 24 & 0xFF;
+                    int luminance = pixel & 0xFF;
+                    opacity[y * width + x] = (float)alpha / 255.0F * ((float)luminance / 255.0F);
                 }
-
-                opacity = null;
             }
 
-            return (RainHeightmap)opacity;
-        } catch (IOException var14) {
-            LOGGER.error("Failed to decode rain heightmap {}", id, var14);
+            RainHeightmap heightmap = new RainHeightmap(id, width, height, opacity);
+            if (!heightmap.hasVisiblePixels()) {
+                LOGGER.warn("Skipping rain heightmap {} because it has no visible puddle data", id);
+                return null;
+            }
+            return heightmap;
+        } catch (IOException e) {
+            LOGGER.error("Failed to decode rain heightmap {}", id, e);
             return null;
         }
+
+
+
+
+
+
     }
     }

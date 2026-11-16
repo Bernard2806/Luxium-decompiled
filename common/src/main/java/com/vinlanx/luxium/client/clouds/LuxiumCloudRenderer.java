@@ -1190,13 +1190,13 @@ if (shadowShader != null) {
         double bottom = layer.height + 0.33 - cameraY;
         double top = bottom;
         if (cloudStatus == CloudStatus.FANCY) {
-            top = bottom + Math.max(0.5, layer.thickness);
+            top += Math.max(0.5, layer.thickness);
         }
-
         return (float)Math.max(Math.abs(bottom), Math.abs(top));
     }
 
-    private static float layerRequiredFar(LuxiumCloudRenderer.LayerConfig layer, CloudStatus cloudStatus, double cameraY) { double horizontal = (double)layerGeometryRadiusBlocks(layer, cloudStatus);
+    private static float layerRequiredFar(LuxiumCloudRenderer.LayerConfig layer, CloudStatus cloudStatus, double cameraY) { double
+ horizontal = (double)layerGeometryRadiusBlocks(layer, cloudStatus);
         double vertical = (double)layerVerticalReach(layer, cloudStatus, cameraY);
         double cornerDistance = Math.sqrt(horizontal * horizontal * 2.0 + vertical * vertical);
         return (float)Math.min(16384.0, cornerDistance + 48.0);

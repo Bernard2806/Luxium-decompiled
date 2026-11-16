@@ -35,58 +35,58 @@ public abstract class IncompatibleModScreen extends Screen {
     }
 
     @Override public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+
         graphics.fill(0, 0, this.width, this.height, -15396840);
         int titleY = Math.max(8, this.height / 8);
         this.drawWrapped(graphics, this.title, titleY, -1);
-        float scale = Math.min(
-            3.0F,
-            Math.min((float)Math.max(1, this.width - 24) / (float)Math.max(1, this.font.width(this.removeMessage)), (float)Math.max(1, this.height / 8) / 9.0F) );
-        int titleBottom = titleY + this.font.split(this.title, Math.max(1, this.width - 24)).size() * (9 + 2);
-        int instructionsHeight = this.font.split(this.instructions, Math.max(1, this.width - 24)).size() * (9 + 2);
-        int messageHeight = (int)Math.ceil((double)(9.0F * scale));
-        int textureSize = Math.max(0, Math.min(144, Math.min(this.width - 24, this.height - 40 - instructionsHeight - titleBottom - messageHeight - 24)));
+        float
+        scale = Math.min(
+            3.0F, Math.min((float)Math.max(1, this.width - 24) / (float)Math.max(1, this.font.width(this.removeMessage)), (float)Math.max
+(1, this.height / 8) / (float)this.font.lineHeight) );
+        int titleBottom = titleY + this.font.split(this.title, Math.max(1, this.width - 24)).size() * (this
+ .font.lineHeight + 2);
+        int instructionsHeight = this.font.split(this.instructions, Math.max(1, this.width - 24)).size() * (this
+ .font.lineHeight + 2);
+        int messageHeight = (int)Math.ceil((double)((float)this.font.lineHeight * scale));
+        int textureSize = Math.max(0, Math.min(144, Math.min
+ (this.width - 24, this.height - 40 - instructionsHeight - titleBottom - messageHeight - 24)));
         float messageCenterY = Math.max((float)this.height / 2.0F, (float)(titleBottom + textureSize + 16) + (float)messageHeight / 2.0F);
-        int messageTop = (int)(messageCenterY - (float)messageHeight / 2.0F);
+        int
+        messageTop = (int)(messageCenterY - (float)messageHeight / 2.0F);
         if (textureSize > 0) {
             int frame = (int)((System.nanoTime() - this.animationStartNanos) / 150000000L % 12L);
-            RenderSystem.enableBlend();
+            RenderSystem.enableBlend
+            ();
             RenderSystem.defaultBlendFunc();
             graphics.blit(
                 NO_TEXTURE,
                 (this.width - textureSize) / 2,
                 titleBottom + (messageTop - titleBottom - textureSize) / 2,
                 textureSize,
-                textureSize,
-                (float)(frame % 6 * 124),
-                (float)(frame / 6 * 124),
-                124,
-                124,
-                744,
-                248 );
-            RenderSystem.disableBlend();
+                textureSize, (float)(frame % 6 * 124), (float)(frame / 6 * 124), 124, 124, 744, 248 ); RenderSystem.disableBlend();
         }
-
         graphics.pose().pushPose();
         graphics.pose().translate((float)this.width / 2.0F, messageCenterY, 0.0F);
         graphics.pose().scale(scale, scale, 1.0F);
-        graphics.drawString(this.font, this.removeMessage, -this.font.width(this.removeMessage) / 2, -9 / 2, -43691, true);
+        graphics.drawString(this.font, this.removeMessage, -this.font.width(this.removeMessage) / 2, -this
+ .font.lineHeight / 2, -43691, true);
         graphics.pose().popPose();
-        this.drawWrapped(
-            graphics,
-            this.instructions,
-            Math.min(this.height - 40 - instructionsHeight, Math.max(this.height * 3 / 4, messageTop + messageHeight + 8)),
+
+        this.drawWrapped(graphics, this.instructions, Math.min(this.height - 40 - instructionsHeight, Math.max
+ (this.height * 3 / 4, messageTop + messageHeight + 8)),
             -2236963 );
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
-    private void drawWrapped(GuiGraphics graphics, Component text, int y, int color) {
-        for (FormattedCharSequence line : this.font.split(text, Math.max(1, this.width - 24))) {
+    private void drawWrapped(GuiGraphics graphics, Component text, int y, int color) { for (FormattedCharSequence line :
+this.font.split(text, Math.max(1, this.width - 24))) {
             graphics.drawString(this.font, line, (this.width - this.font.width(line)) / 2, y, color, false);
-            y += 9 + 2;
+            y += this.font.lineHeight + 2;
         }
     }
 
     @Override public boolean shouldCloseOnEsc() {
+
         return false;
     }
 

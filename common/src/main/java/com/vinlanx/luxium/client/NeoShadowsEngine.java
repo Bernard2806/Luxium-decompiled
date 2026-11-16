@@ -349,9 +349,17 @@ volatile NeoShadowsTypes.StaticHotPatchOverlay activeStaticHotPatch = NeoShadows
         if (!(!ReflectionSystem.isRenderingWorldPass() && !isRenderingSkyLightPass())) {
 return;
 }
+            if (!this.isSelected()) {
+                if (NeoCpuShadowsEngine.isActive() || GpuNeoShadows.isActive
+ ()) {
+                    return; }
 
-            if (this.isSelected()) {
-                Minecraft mc = Minecraft.getInstance();
+                this.forceDisableInternal();
+                PostProcessStateGuard.restoreCanonicalMainTargetBinding(Minecraft.getInstance());
+                return; }
+                Minecraft mc = Minecraft.getInstance
+
+ ();
                 if (!(mc.level != null && mc.player != null)) {
  return;
  }
@@ -360,18 +368,10 @@ return;
                         this.renderPipeline.renderAfterParticles(mc, event);
                         this.runtime.drainDynamicCaptureQueue();
                     }
-
-            } else if (!NeoCpuShadowsEngine.isActive() && !GpuNeoShadows.isActive()) {
-                this.forceDisableInternal();
-                PostProcessStateGuard.restoreCanonicalMainTargetBinding(Minecraft.getInstance());
-            }
-
     }
 
     boolean isSelected() {
         if (!(!NeoCpuShadowsEngine.isActive
-
-
 () && !GpuNeoShadows.isActive())) {
 return false; }
 

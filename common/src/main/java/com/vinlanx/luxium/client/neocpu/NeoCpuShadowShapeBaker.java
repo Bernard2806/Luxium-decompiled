@@ -241,7 +241,6 @@ boxes = new ArrayList<>();
 
         for (int pixelY = 0; pixelY < height; pixelY++) {
             int rowOffset = pixelY * width;
-
             for (int pixelX = 0; pixelX < width; pixelX++) {
                 int alpha = ARGB32.alpha(platform.spriteFirstFramePixel(sprite, pixelX, pixelY));
                 boolean solid = alpha >= 16;
@@ -258,14 +257,18 @@ boxes = new ArrayList<>();
         if (!anyOpaque) {
             return NeoCpuShadowShapeBaker.SpriteAlphaMask.transparentMask();
         } else {
-            float averageOpacity = opaquePixelCount <= 0 ? 0.0F : Mth.clamp((float)opaqueAlphaSum / (float)((double)opaquePixelCount * 255.0), 0.0F, 1.0F);
+            float averageOpacity = opaquePixelCount
+ <= 0 ?
+ 0.0F : Mth.clamp
+ ((float)opaqueAlphaSum / (float)((double)opaquePixelCount * 255.0), 0.0F, 1.0F);
             if (!anyTransparent) {
                 return averageOpacity >= 0.999F
-                    ? NeoCpuShadowShapeBaker.SpriteAlphaMask.opaqueMask() : new NeoCpuShadowShapeBaker.SpriteAlphaMask(new NeoCpuShadowShapeBaker.SpriteRect[0], true, false, averageOpacity);
+                    ? NeoCpuShadowShapeBaker.SpriteAlphaMask.opaqueMask() :
+new NeoCpuShadowShapeBaker.SpriteAlphaMask(new NeoCpuShadowShapeBaker.SpriteRect[0], true, false, averageOpacity);
             } else {
-                boolean[] consumed = new boolean[opaque.length];
+                boolean[]
+                consumed = new boolean[opaque.length];
                 ArrayList<NeoCpuShadowShapeBaker.SpriteRect> rectangles = new ArrayList<>();
-
                 for (int pixelY = 0; pixelY < height; pixelY++) {
                     for (int pixelXx = 0; pixelXx < width; pixelXx++) {
                         int index = pixelY * width + pixelXx;
@@ -273,42 +276,33 @@ boxes = new ArrayList<>();
 continue;
 }
 
-                            int rectWidth;
-                            for (rectWidth = 1; pixelXx + rectWidth < width; rectWidth++) {
-                                int nextIndex = pixelY * width + pixelXx + rectWidth;
-                                if (!opaque[nextIndex] || consumed[nextIndex]) {
-                                    break;
-                                }
-                            }
+                            int rectWidth = 1;
+ while (pixelXx + rectWidth < width) {
+ int nextIndex = pixelY * width + pixelXx + rectWidth;
+ if (!opaque[nextIndex] || consumed[nextIndex]) {
+ break; }
 
-                            int rectHeight = 1;
+ rectWidth++;
+ }
+                            int
+                            rectHeight = 1;
                             boolean canGrow = true;
-
                             while (pixelY + rectHeight < height && canGrow) {
                                 int nextRowOffset = (pixelY + rectHeight) * width;
-                                int scanX = 0;
-
-                                while (true) {
-                                    if (scanX < rectWidth) {
+                                for (int scanX = 0; scanX < rectWidth; scanX++) {
                                         int nextIndex = nextRowOffset + pixelXx + scanX;
-                                        if (opaque[nextIndex] && !consumed[nextIndex]) {
-                                            scanX++;
-                                            continue;
-                                        }
-
-                                        canGrow = false;
+                                        if (!opaque[nextIndex] || consumed[nextIndex]) {
+                                            canGrow = false;
+                                            break; }
                                     }
 
                                     if (canGrow) {
-                                        rectHeight++;
-                                    }
-                                    break;
-                                }
+                                        rectHeight++; }
+
                             }
 
                             for (int fillY = 0; fillY < rectHeight; fillY++) {
                                 int fillRowOffset = (pixelY + fillY) * width;
-
                                 for (int fillX = 0; fillX < rectWidth; fillX++) {
                                     consumed[fillRowOffset + pixelXx + fillX] = true;
                                 }
@@ -316,7 +310,13 @@ continue;
 
                             rectangles.add(new NeoCpuShadowShapeBaker.SpriteRect(pixelXx, pixelXx + rectWidth, pixelY, pixelY + rectHeight));
 
-                    } } return new NeoCpuShadowShapeBaker.SpriteAlphaMask(rectangles.toArray(new NeoCpuShadowShapeBaker.SpriteRect[0]), false, false, averageOpacity); } } } @Nullable private static NeoCpuShadowShapeBaker.SpritePixelBounds computeQuadPixelBounds(NeoCpuShadowShapeBaker.LocalTexturedQuad quad, TextureAtlasSprite sprite) { int spriteWidth = Math.max(1, sprite.contents().width());
+                    } }
+
+                    return new NeoCpuShadowShapeBaker.SpriteAlphaMask(rectangles.toArray(new NeoCpuShadowShapeBaker.SpriteRect[0]), false, false, averageOpacity); } } } @Nullable private static NeoCpuShadowShapeBaker.SpritePixelBounds computeQuadPixelBounds(NeoCpuShadowShapeBaker.LocalTexturedQuad quad, TextureAtlasSprite sprite) { int
+
+
+
+ spriteWidth = Math.max(1, sprite.contents().width());
         int spriteHeight = Math.max(1, sprite.contents().height());
         double minPixelX = Double.POSITIVE_INFINITY;
         double maxPixelX = Double.NEGATIVE_INFINITY;

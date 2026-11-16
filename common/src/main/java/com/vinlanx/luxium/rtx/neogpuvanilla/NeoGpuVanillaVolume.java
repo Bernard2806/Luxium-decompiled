@@ -177,23 +177,28 @@ final class NeoGpuVanillaVolume {
 
     boolean bake(
         ClientLevel level, int shadowAtlasTexture, int sourceCount, float[] sourceData, float[] sourceGeometry, float[] sourceColors, float[] atlasRects ) {
+
+
+
+
+
         if (level == null || sourceCount < 0 || sourceCount > 40 || this.buildAnchorX == Integer.MIN_VALUE) {
             return false;
-        } else if (sourceCount > 0 && shadowAtlasTexture <= 0) {
-            return false;
+        } else if (sourceCount > 0 && shadowAtlasTexture <= 0) { return false;
         } else {
             ShaderInstance coarseShader = ShaderManager.getNeoGpuVanillaBakeShader();
             ShaderInstance resolveShader = ShaderManager.getNeoGpuVanillaResolveShader();
             boolean fastEnabled = Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaFastShadowsEnabled);
             ShaderInstance fastShader = fastEnabled ? ShaderManager.getNeoGpuVanillaFastResolveShader() : null;
             if (!(coarseShader != null && resolveShader != null && (!fastEnabled || fastShader != null))) { return false; }
+
                 this.ensureResources();
                 this.uploadVanillaLight(level);
                 this.uploadSourceMetadata(sourceCount, sourceData, sourceGeometry, sourceColors, atlasRects);
-                boolean fastSnapshotComplete = true;
+                boolean
+                fastSnapshotComplete = true;
                 if (fastEnabled && sourceGeometry != null) {
                     int max = Math.min(sourceCount, sourceGeometry.length / 4);
-
                     for (int i = 0; i < max; i++) {
                         int flags = Math.round(sourceGeometry[i * 4 + 3]);
                         if ((flags & 128) != 0) {
@@ -207,7 +212,8 @@ final class NeoGpuVanillaVolume {
                 int fineScale = receiverScaleForPixelsPerBlock(Config.CLIENT.neoGpuVanillaCaptureResolution.get());
                 this.ensureReceiverTexture(buildIndex, fineScale);
                 this.ensureFastLightTextures(buildIndex, fastEnabled && fastSnapshotComplete);
-                int oldFramebuffer = GL11.glGetInteger(36006);
+                int
+                oldFramebuffer = GL11.glGetInteger(36006);
                 boolean oldDepth = GL11.glIsEnabled(2929);
                 boolean oldCull = GL11.glIsEnabled(2884);
                 boolean oldBlend = GL11.glIsEnabled(3042);
@@ -218,10 +224,9 @@ final class NeoGpuVanillaVolume {
                 VertexSorting oldSorting = RenderSystem.getVertexSorting();
                 this.savedViewport.clear();
                 GL11.glGetIntegerv(2978, this.savedViewport);
-                int oldViewportX = this.savedViewport.get(0);
-                int oldViewportY = this.savedViewport.get(1);
-                int oldViewportW = this.savedViewport.get(2);
-                int oldViewportH = this.savedViewport.get(3);
+                int oldViewportX = this.savedViewport.get(0); int oldViewportY = this.savedViewport.get(1);
+                int oldViewportW = this.savedViewport.get(2); int oldViewportH = this.savedViewport.get(3);
+
                 GL11.glDisable(2929);
                 GL11.glDisable(2884);
                 GL11.glDisable(3042);
@@ -230,69 +235,58 @@ final class NeoGpuVanillaVolume {
                 GL11.glDisable(36281);
                 GlStateManager._colorMask(true, true, true, true);
 
-                boolean var50;
+
                 try {
                     this.attachColor(this.candidateTextures[buildIndex]);
                     GL11.glViewport(0, 0, 2304, 32);
                     Matrix4f coarseOrtho = new Matrix4f().setOrtho(0.0F, 2304.0F, 32.0F, 0.0F, -1.0F, 1.0F);
                     RenderSystem.setProjectionMatrix(coarseOrtho, VertexSorting.ORTHOGRAPHIC_Z);
+
                     coarseShader.setSampler("VanillaLightVolume", this.vanillaTexture);
                     coarseShader.setSampler("ShadowAtlas", Math.max(shadowAtlasTexture, 0));
                     coarseShader.setSampler("SourceMetadata", this.metadataTexture);
                     coarseShader.MODEL_VIEW_MATRIX.set(new Matrix4f());
                     coarseShader.PROJECTION_MATRIX.set(coarseOrtho);
-                    if (coarseShader.getUniform("SourceCount") != null) {
-                        coarseShader.getUniform("SourceCount").set(sourceCount);
+                    if (coarseShader.getUniform("SourceCount") != null) { coarseShader.getUniform("SourceCount").set(sourceCount);
+                    } if (coarseShader.getUniform("VolumeMin") != null) { coarseShader.getUniform("VolumeMin").set((float)this.buildAnchorX, (float)this.buildAnchorY, (float)this.buildAnchorZ);
                     }
-
-                    if (coarseShader.getUniform("VolumeMin") != null) {
-                        coarseShader.getUniform("VolumeMin").set((float)this.buildAnchorX, (float)this.buildAnchorY, (float)this.buildAnchorZ);
+                    if (coarseShader.getUniform("VolumeSize") != null) { coarseShader.getUniform("VolumeSize").set(48.0F, 32.0F, 48.0F);
                     }
-
-                    if (coarseShader.getUniform("VolumeSize") != null) {
-                        coarseShader.getUniform("VolumeSize").set(48.0F, 32.0F, 48.0F);
-                    }
-
                     coarseShader.apply();
                     drawFullscreen(2304, 32);
                     coarseShader.clear();
+
                     this.buildMirror.clear();
                     GlStateManager._pixelStore(3333, 1);
                     GL11.glReadPixels(0, 0, 2304, 32, 6408, 5121, this.buildMirror);
+
                     this.buildMirror.position(0).limit(this.buildMirror.capacity());
-                    int fineX = 48 * fineScale;
+                    int
+                    fineX = 48 * fineScale;
                     int fineY = 32 * fineScale;
                     int fineZ = 48 * fineScale;
                     int slicesPerRow = slicesPerRow(fineX, fineY, fineZ);
                     int rows = (fineZ + slicesPerRow - 1) / slicesPerRow;
                     int fineAtlasW = fineX * slicesPerRow;
                     int fineAtlasH = fineY * rows;
+
                     this.attachColor(this.receiverTextures[buildIndex]);
                     GL11.glViewport(0, 0, fineAtlasW, fineAtlasH);
                     Matrix4f fineOrtho = new Matrix4f().setOrtho(0.0F, (float)fineAtlasW, (float)fineAtlasH, 0.0F, -1.0F, 1.0F);
                     RenderSystem.setProjectionMatrix(fineOrtho, VertexSorting.ORTHOGRAPHIC_Z);
+
                     resolveShader.setSampler("CandidateVolume", this.candidateTextures[buildIndex]);
                     resolveShader.setSampler("VanillaLightVolume", this.vanillaTexture);
                     resolveShader.setSampler("ShadowAtlas", Math.max(shadowAtlasTexture, 0));
                     resolveShader.setSampler("SourceMetadata", this.metadataTexture);
                     resolveShader.MODEL_VIEW_MATRIX.set(new Matrix4f());
                     resolveShader.PROJECTION_MATRIX.set(fineOrtho);
-                    if (resolveShader.getUniform("SourceCount") != null) {
-                        resolveShader.getUniform("SourceCount").set(sourceCount);
-                    }
+                    if (resolveShader.getUniform("SourceCount") != null) { resolveShader.getUniform("SourceCount").set(sourceCount);
+                    } if (resolveShader.getUniform("FineScale") != null) { resolveShader.getUniform("FineScale").set(fineScale);
+                    } if (resolveShader.getUniform("FineSlicesPerRow") != null) { resolveShader.getUniform("FineSlicesPerRow").set(slicesPerRow);
+                    } NeoGpuVanillaGpuDebug.beginFineBake();
 
-                    if (resolveShader.getUniform("FineScale") != null) {
-                        resolveShader.getUniform("FineScale").set(fineScale);
-                    }
-
-                    if (resolveShader.getUniform("FineSlicesPerRow") != null) {
-                        resolveShader.getUniform("FineSlicesPerRow").set(slicesPerRow);
-                    }
-
-                    NeoGpuVanillaGpuDebug.beginFineBake();
-
-                    try {
-                        resolveShader.apply();
+                    try { resolveShader.apply();
                         drawFullscreen(fineAtlasW, fineAtlasH);
                     } finally {
                         resolveShader.clear();
@@ -308,35 +302,24 @@ final class NeoGpuVanillaVolume {
                         fastShader.setSampler("SourceMetadata", this.metadataTexture);
                         fastShader.MODEL_VIEW_MATRIX.set(new Matrix4f());
                         fastShader.PROJECTION_MATRIX.set(fastOrtho);
-                        if (fastShader.getUniform("SourceCount") != null) {
-                            fastShader.getUniform("SourceCount").set(sourceCount);
+                        if (fastShader.getUniform("SourceCount") != null) { fastShader.getUniform("SourceCount").set(sourceCount);
+                        } if (fastShader.getUniform("FastStrength") != null) { fastShader.getUniform("FastStrength").set(Config.CLIENT.neoGpuVanillaFastShadowStrength.get
+().floatValue());
+                        } if (fastShader.getUniform("DiffuseWrap") != null) { fastShader.getUniform("DiffuseWrap").set(Config.CLIENT.neoGpuVanillaFastDiffuseWrap.get
+().floatValue());
                         }
-
-                        if (fastShader.getUniform("FastStrength") != null) {
-                            fastShader.getUniform("FastStrength").set(Config.CLIENT.neoGpuVanillaFastShadowStrength.get().floatValue());
-                        }
-
-                        if (fastShader.getUniform("DiffuseWrap") != null) {
-                            fastShader.getUniform("DiffuseWrap").set(Config.CLIENT.neoGpuVanillaFastDiffuseWrap.get().floatValue());
-                        }
-
                         for (int z = 0; z < 48; z++) {
-                            if (fastShader.getUniform("SliceZ") != null) {
-                                fastShader.getUniform("SliceZ").set(z);
-                            }
-
-                            for (int direction = 0; direction < 6; direction++) {
+                            if (fastShader.getUniform("SliceZ") != null) { fastShader.getUniform("SliceZ").set(z);
+                            } for (int direction = 0; direction < 6; direction++) {
                                 this.attachFastLightLayer(buildIndex, z, direction);
                                 if (fastShader.getUniform("DirectionIndex") != null) {
                                     fastShader.getUniform("DirectionIndex").set(direction);
                                 }
-
                                 fastShader.apply();
                                 drawFullscreen(48, 32);
                                 fastShader.clear();
                             }
                         }
-
                         this.fastLightReady[buildIndex] = true;
                         this.fastActiveIndex = buildIndex;
                         this.fastAnchorX = this.buildAnchorX;
@@ -354,7 +337,24 @@ final class NeoGpuVanillaVolume {
                     this.activeAnchorZ = this.buildAnchorZ;
                     this.bakedSourceCount = sourceCount;
                     this.ready = true;
-                    this.revision++; var50 = true; } finally { GL30.glBindFramebuffer(36160, oldFramebuffer); GL11.glViewport(oldViewportX, oldViewportY, oldViewportW, oldViewportH); if (oldDepth) { GL11.glEnable(2929); } else { GL11.glDisable(2929); } if (oldCull) { GL11.glEnable(2884); } else { GL11.glDisable(2884); } if (oldBlend) { GL11.glEnable(3042); } else { GL11.glDisable(3042); } if (oldScissor) { GL11.glEnable(3089); } else { GL11.glDisable(3089); } if (oldDither) { GL11.glEnable(3024); } else { GL11.glDisable(3024); } if (oldFramebufferSrgb) { GL11.glEnable(36281); } else { GL11.glDisable(36281); } RenderSystem.setProjectionMatrix(oldProjection, oldSorting); GlStateManager._activeTexture(33984); } return var50; } } float sampleLightFactor(double worldX, double worldY, double worldZ) { if (!this.isReady()) { return 0.0f; }
+                    this.revision++;
+return true; } finally {
+
+ GL30.glBindFramebuffer(36160, oldFramebuffer);
+GL11.glViewport(oldViewportX, oldViewportY, oldViewportW, oldViewportH);
+ if (oldDepth) { GL11.glEnable(2929); } else { GL11.glDisable(2929); }
+if (oldCull) { GL11.glEnable(2884); } else { GL11.glDisable(2884); }
+if (oldBlend) { GL11.glEnable(3042); } else { GL11.glDisable(3042); }
+if (oldScissor) { GL11.glEnable(3089); } else { GL11.glDisable(3089); }
+if (oldDither) { GL11.glEnable(3024); } else { GL11.glDisable(3024); }
+if (oldFramebufferSrgb) { GL11.glEnable(36281); } else { GL11.glDisable(36281); }
+RenderSystem.setProjectionMatrix(oldProjection, oldSorting);
+GlStateManager._activeTexture(33984);
+} } } float sampleLightFactor(double worldX, double worldY, double worldZ) {
+
+
+
+ if (!this.isReady()) { return 0.0f; }
         int x = Mth.floor((double)worldX) - this.activeAnchorX;
         int y = Mth.floor((double)worldY) - this.activeAnchorY;
         int z = Mth.floor((double)worldZ) - this.activeAnchorZ;

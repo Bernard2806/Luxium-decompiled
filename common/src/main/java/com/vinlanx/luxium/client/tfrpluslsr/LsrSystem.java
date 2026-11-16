@@ -54,45 +54,45 @@ public final class LsrSystem {
         worldPassActive = false;
         nativeMainTarget = null;
         PostEffectPipeline.clearDeferredTonemap();
-        if (isEnabled() && mc.level != null) {
-            RenderTarget nativeTarget = mc.getMainRenderTarget();
+        if (!(isEnabled
+() && mc.level != null)) {
+            if (!isEnabled() && lowResWorldTarget != null) {
+                lowResWorldTarget.destroyBuffers();
+                lowResWorldTarget = null;
+            }
+            return false;
+        }
+            RenderTarget
+            nativeTarget = mc.getMainRenderTarget();
             if (!(nativeTarget != null && nativeTarget.width > 0 && nativeTarget.height > 0)) {
                 return false;
             }
-                int width = expectedWidth(nativeTarget.width);
+                int
+                width = expectedWidth(nativeTarget.width);
                 int height = expectedHeight(nativeTarget.height);
                 ensureLowResTarget(width, height);
                 TextureTarget lowRes = lowResWorldTarget;
                 if (lowRes == null) {
                     return false;
-                } else {
+                }
+
                     Hdr.configureColorTarget(lowRes, Hdr.isEnabled());
+
                     nativeMainTarget = nativeTarget;
                     worldPassActive = true;
-                    MinecraftAccessor accessor = (MinecraftAccessor)mc;
+                    MinecraftAccessor
+                    accessor = (MinecraftAccessor)mc;
                     accessor.luxium$setMainRenderTargetField(lowRes);
+
                     lowRes.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
                     lowRes.clear(Minecraft.ON_OSX);
                     lowRes.bindWrite(true);
                     RenderSystem.viewport(0, 0, lowRes.viewWidth, lowRes.viewHeight);
                     return true;
-                }
-
-        } else {
-            if (!isEnabled() && lowResWorldTarget != null) {
-                lowResWorldTarget.destroyBuffers();
-                lowResWorldTarget = null;
-            }
-
-            return false;
-        }
-    }
-
-    public static void rebindWorldTarget() {
 
 
 
-        if (!worldPassActive || lowResWorldTarget == null) { return; }
+    } public static void rebindWorldTarget() { if (!worldPassActive || lowResWorldTarget == null) { return; }
         lowResWorldTarget.bindWrite(true);
         RenderSystem.viewport((int)0, (int)0, (int)LsrSystem.lowResWorldTarget.viewWidth, (int)LsrSystem.lowResWorldTarget.viewHeight);
     }
