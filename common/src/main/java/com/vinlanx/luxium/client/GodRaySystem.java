@@ -31,15 +31,15 @@ public final class GodRaySystem {
     private GodRaySystem() { }
 
     public static void onRenderLevel(RenderFrame event) {
-        if (!(event.getStage() == RenderFrame.Stage.AFTER_PARTICLES)) {
-return;
-}
-
-            if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) {
-                ;
-            }
-
+        if (event.getStage() != RenderFrame.Stage.AFTER_PARTICLES) { return; }
+        if (ReflectionSystem.isRenderingWorldPass() || NeoShadowsEngine.isAnyShadowCapturePass()) { return; }
     }
+
+
+
+
+
+
 
     private static void renderPostPass(Minecraft mc, RenderFrame event, ShaderInstance shader) {
         RenderTarget

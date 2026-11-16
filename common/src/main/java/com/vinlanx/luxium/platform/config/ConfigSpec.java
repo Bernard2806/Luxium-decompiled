@@ -67,16 +67,16 @@ this.save = Objects.requireNonNull(save); }
     public static final class BooleanValue extends ConfigSpec.ConfigValue<Boolean> {
         private BooleanValue(List<String> path, String comment, boolean value) { super(path, comment, value); }
 
-        public Boolean decode(Object value) {
-            if (value instanceof Boolean) {
-                return (Boolean)value;
-            } else {
-                if (value instanceof String text) {
-                    if (text.equalsIgnoreCase("true")) {
-                        return true;
-                    }
+        public Boolean decode(Object value) { if (value instanceof Boolean bool) { return bool;
+            } if (value instanceof String text) {
+                    if (text.equalsIgnoreCase("true")) { return true;
+                    } if (text.equalsIgnoreCase("false")) { return false; } }
 
-                    if (text.equalsIgnoreCase("false")) { return false; } } return null; } } } public static final class IntValue extends ConfigSpec.ConfigValue<Integer> { private final int min; private final int max; private IntValue(List<String> path, String comment, int value, int min, int max) {
+ return null; } }
+
+
+
+ public static final class IntValue extends ConfigSpec.ConfigValue<Integer> { private final int min; private final int max; private IntValue(List<String> path, String comment, int value, int min, int max) {
 
 
 
@@ -156,15 +156,15 @@ if (choice == value || value instanceof String text && choice.name().equalsIgnor
         }
         public ConfigSpec.BooleanValue define(String name, boolean value) { return this.add(new ConfigSpec.BooleanValue(this.key(name), this.comment, value));
         }
+        public ConfigSpec.IntValue defineInRange(String name, int value, int min, int max) { if (!(value >= min && value <= max)) { throw new IllegalArgumentException(name);
+            } return this.add(new ConfigSpec.IntValue(this.key(name), this.comment, value, min, max));
 
-        public ConfigSpec.IntValue defineInRange(String name, int value, int min, int max) {
-            if (value >= min && value <= max) {
-                return this.add(new ConfigSpec.IntValue(this.key(name), this.comment, value, min, max));
-            } else {
-                throw new IllegalArgumentException(name);
-            }
         }
-        public ConfigSpec.DoubleValue defineInRange(String name, double value, double min, double max) { if (Double.isFinite(value) && !(value < min) && !(value > max)) { return this.add(new ConfigSpec.DoubleValue(this.key(name), this.comment, value, min, max)); } else { throw new IllegalArgumentException(name); } } public <E extends Enum<E>> ConfigSpec.EnumValue<E> defineEnum(String name, E value, List<E> choices) { if (!choices.contains(value)) { throw new IllegalArgumentException(name);
+        public ConfigSpec.DoubleValue defineInRange(String name, double value, double min, double max) { if (!(Double.isFinite(value) && !(value < min) && !(value > max))) { throw new IllegalArgumentException(name); }
+return this.add(new ConfigSpec.DoubleValue(this.key(name), this.comment, value, min, max)); } public <E extends Enum<E>> ConfigSpec.EnumValue<E> defineEnum(String name, E value, List<E> choices) {
+
+
+ if (!choices.contains(value)) { throw new IllegalArgumentException(name);
             } else { return this.add(new ConfigSpec.EnumValue<>(this.key(name), this.comment, value, choices));
             }
         }

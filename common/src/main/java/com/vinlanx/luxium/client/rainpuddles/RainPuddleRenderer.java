@@ -38,9 +38,13 @@ public final class RainPuddleRenderer {
     }
 
     public static void onRenderLevel(RenderFrame event) {
-        if (Config.isEnabled()) {
-            if (event.getStage() == RenderFrame.Stage.AFTER_TRANSLUCENT_BLOCKS) {
-                if (!(!ReflectionSystem.isRenderingWorldPass() && !NeoShadowsEngine.isAnyShadowCapturePass())) {
+        if (!(Config.isEnabled())) {
+return; }
+
+            if (!(event.getStage() == RenderFrame.Stage.AFTER_TRANSLUCENT_BLOCKS)) {
+return; }
+                if (!(!ReflectionSystem.isRenderingWorldPass
+() && !NeoShadowsEngine.isAnyShadowCapturePass())) {
 return;
 }
 
@@ -60,7 +64,8 @@ return;
  }
 
                                 RenderTarget main = mc.getMainRenderTarget();
-                                if (!(main != null && main.width > 0 && main.height > 0 && main.getColorTextureId() > 0 && main.getDepthTextureId() > 0)) {
+                                if (!(main != null && main.width > 0 && main.height > 0 && main.getColorTextureId
+ () > 0 && main.getDepthTextureId() > 0)) {
  return;
  }
 
@@ -68,37 +73,33 @@ return;
                                     SharedPostResources.captureDepth(main);
                                     int sceneColor = SharedPostResources.getColorTextureId();
                                     int sceneDepth = SharedPostResources.getDepthTextureId();
-                                    if (sceneColor > 0 && sceneDepth > 0) {
+                                    if (!(sceneColor > 0 && sceneDepth > 0)) {
+                                        main.bindWrite(true);
+return;
+                                    }
+
                                         main.bindWrite(true);
                                         Vec3 camera = event.getCamera().getPosition();
                                         Matrix4f viewRotation = VIEW_ROTATION.set(event.getPoseStack().last().pose());
-                                        Matrix4f viewProj = NeoSkyFrameCache.copyViewProjection(event.getProjectionMatrix(), viewRotation, VIEW_PROJ);
+                                        Matrix4f viewProj = NeoSkyFrameCache.copyViewProjection(event.getProjectionMatrix
+(), viewRotation, VIEW_PROJ);
                                         Matrix4f invViewProj = NeoSkyFrameCache.copyInverseViewProjection(
                                             event.getProjectionMatrix(), viewRotation, INV_VIEW_PROJ );
+
                                         mc.getTextureManager().bindForSetup(MICRO_NORMAL);
                                         AbstractTexture microTexture = mc.getTextureManager().getTexture(MICRO_NORMAL);
                                         int microNormal = microTexture.getId();
                                         SsrSettings ssr = ScreenSpaceReflectionSystem.settings(SsrConsumer.PUDDLE);
-                                        RenderSystem.enableDepthTest();
+                                        RenderSystem.enableDepthTest
+                                        ();
                                         RenderSystem.depthMask(false);
                                         RenderSystem.disableCull();
                                         RenderSystem.enableBlend();
                                         RenderSystem.defaultBlendFunc();
                                         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                                        RenderSystem.setShader(() ->
-
-
-
-
-
-
-
-
-
-
-
-shader);
-                                        float time = ((float)mc.level.getGameTime() + event.getPartialTick()) / 20.0F % 4096.0F;
+                                        RenderSystem.setShader(() -> shader);
+                                        float
+                                        time = ((float)mc.level.getGameTime() + event.getPartialTick()) / 20.0F % 4096.0F;
                                         setCommonUniforms(shader, viewProj, invViewProj, camera, main.width, main.height, time, ssr);
                                         shader.setSampler("SceneSampler", sceneColor);
                                         shader.setSampler("DepthSampler", sceneDepth);
@@ -112,10 +113,8 @@ shader);
                                                 if (!(depthMapTexture > 0)) {
  continue;
  }
-
                                                     shader.setSampler("PuddleDepthSampler", depthMapTexture);
                                                     drawPuddle(puddle, camera);
-
                                             }
                                         } finally {
                                             RenderSystem.depthMask(true);
@@ -124,9 +123,10 @@ shader);
                                             RenderSystem.defaultBlendFunc();
                                             main.bindWrite(true);
                                         }
-                                    } else {
-                                        main.bindWrite(true);
-                                    } } } } private static void drawPuddle(RainPuddleInstance puddle, Vec3 camera) { BufferBuilder builder = Tesselator.getInstance().getBuilder();
+                                      } private static void drawPuddle(RainPuddleInstance puddle, Vec3 camera) { BufferBuilder builder = Tesselator.getInstance
+
+
+ ().getBuilder();
         builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
         for (RainPuddlePatch p : puddle.patches()) {

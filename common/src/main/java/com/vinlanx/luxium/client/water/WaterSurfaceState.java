@@ -141,8 +141,11 @@ public final class WaterSurfaceState {
 
     public static WaterSurfaceState.Light light(float partialTick) {
         ClientLevel level = Minecraft.getInstance().level;
-        if (level != null && level.dimensionType().hasSkyLight()) {
-            CelestialPath.State path = NeoSkyFrameCache.celestial(level, partialTick);
+        if (!(level != null && level.dimensionType().hasSkyLight())) {
+            return new WaterSurfaceState.Light(new Vector3f(0.0F, 1.0F, 0.0F), new Vector3f(0.0F), 0.0F);
+        }
+            CelestialPath.State
+            path = NeoSkyFrameCache.celestial(level, partialTick);
             Vec3 direction = path.activeDirection();
             float rain = level.getRainLevel(partialTick);
             float thunder = level.getThunderLevel(partialTick);
@@ -151,32 +154,29 @@ public final class WaterSurfaceState {
             float horizonVisibility = smoothstep(0.0F, 0.14F, elevation);
             float sunElevation = (float)path.sunDirection().y;
             float sunColorBlend = smoothstep(-0.08F, 0.08F, sunElevation);
-            float sunLow = 1.0F - Math.min(1.0F, Math.max(0.0F, sunElevation) * 2.2F);
+            float
+            sunLow = 1.0F - Math.min(1.0F, Math.max(0.0F, sunElevation) * 2.2F);
             Vector3f moonColor = new Vector3f(0.48F, 0.58F, 0.82F);
             Vector3f sunColor = new Vector3f(1.0F, 0.94F - 0.26F * sunLow, 0.86F - 0.43F * sunLow);
-            Vector3f color = mix(moonColor, sunColor, sunColorBlend);
+            Vector3f
+
+
+            color = mix(moonColor, sunColor, sunColorBlend);
             float strength;
+
             if (path.usingMoon()) {
                 strength = 0.24F * weather * horizonVisibility;
             } else {
                 strength = weather * (0.48F + 0.52F * elevation) * horizonVisibility;
             }
 
-            return new WaterSurfaceState.Light(new Vector3f((float)direction.x, (float)direction.y, (float)direction.z).normalize(), color, strength);
-        } else {
-            return new WaterSurfaceState.Light(new Vector3f(0.0F, 1.0F, 0.0F), new Vector3f(0.0F), 0.0F);
-        }
+            return new WaterSurfaceState.Light(new Vector3f((float)direction.x, (float)direction.y, (float)direction.z).normalize
+(), color, strength);
+
     }
 
     private static Vector3f mix(Vector3f a, Vector3f b, float value) {
         float
-
-
-
-
-
-
-
         t = Math.max(0.0F, Math.min(1.0F, value));
         return new Vector3f(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t);
     }

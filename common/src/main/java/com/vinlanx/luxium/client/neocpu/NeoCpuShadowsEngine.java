@@ -128,27 +128,27 @@ public final class NeoCpuShadowsEngine {
     }
 
     public static void onRenderLevel(RenderFrame event) {
-        if (!(event.getStage() == RenderFrame.Stage.AFTER_PARTICLES)) {
-return;
-}
-
-            if (!(!ReflectionSystem.isRenderingWorldPass() && !NeoShadowsEngine.isAnyShadowCapturePass())) {
-return;
-}
-
-                Minecraft mc = Minecraft.getInstance();
+        if (!(event.getStage() == RenderFrame.Stage.AFTER_PARTICLES)) { return;
+ } if (!(!ReflectionSystem.isRenderingWorldPass() && !NeoShadowsEngine.isAnyShadowCapturePass())) { return;
+ } Minecraft mc = Minecraft.getInstance();
                 syncLevel(mc.level);
                 if (!isActive()) {
                     if (!activePolygons.isEmpty()) {
                         activePolygons = Collections.emptyList();
                     }
-                } else if (mc.level != null && mc.player != null && TorchRtxState.get().isEnabled()) {
+                    return;
+                } else
+                if (!(mc.level != null && mc.player != null && TorchRtxState.get().isEnabled())) {
+                    activePolygons = Collections.emptyList();
+return;
+                }
                     applyCompletedResult();
                     scheduleIfNeeded(mc, event.getCamera());
                     renderActivePolygons(mc, event.getPoseStack(), event.getCamera(), event.getFrustum());
-                } else {
-                    activePolygons = Collections.emptyList();
-                } } private static void scheduleIfNeeded(Minecraft mc, Camera camera) { Vec3 cameraPos = camera.getPosition();
+                 } private static void scheduleIfNeeded(Minecraft mc, Camera camera) { Vec3
+
+
+ cameraPos = camera.getPosition();
         TorchRtxState rtx = TorchRtxState.get();
         long[] sources = rtx.getClosestSources(cameraPos, 4356.0, 256);
         if (sources.length == 0) {

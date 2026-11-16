@@ -160,8 +160,10 @@ import org.joml.Matrix4fc; final class NeoShadowsRenderPipeline { private final 
         if (!this.engine.hasAnyShadowPolygons()) {
             this.engine.maskReady = false;
             this.engine.framePrepared = false;
-        } else {
-            Vec3 cameraPos = camera.getPosition();
+        return; }
+            Vec3
+
+            cameraPos = camera.getPosition();
             double cameraX = cameraPos.x;
             double cameraY = cameraPos.y;
             double cameraZ = cameraPos.z;
@@ -170,18 +172,20 @@ import org.joml.Matrix4fc; final class NeoShadowsRenderPipeline { private final 
             this.engine.shadowMaskTarget.clear(Minecraft.ON_OSX);
             this.engine.shadowMaskTarget.copyDepthFrom(main);
             this.engine.shadowMaskTarget.bindWrite(false);
-            BufferSource bufferSource = mc.renderBuffers().bufferSource();
+            BufferSource
+            bufferSource = mc.renderBuffers().bufferSource();
             VertexConsumer consumer = bufferSource.getBuffer(NeoShadowsEngine.MASK_PASS);
             Matrix4f pose = poseStack.last().pose();
             NeoShadowsTypes.StaticHotPatchOverlay hotPatch = this.engine.activeStaticHotPatch;
             boolean hasHotPatch = !hotPatch.isEmpty();
+
             if (this.engine.activeStaticOutput != null) {
                 for (NeoShadowsTypes.ShadowPolygon polygon : this.engine.activeStaticOutput.shadowPolygons) {
-                    if (!((!hasHotPatch || !hotPatch.replaces(polygon)) && !this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum))) {
- continue;
- }
+                    if (!(!hasHotPatch || !hotPatch.replaces(polygon))) {
+continue; }
 
-                        this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
+if (!this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
+                        this.engine.emitPolygon(pose, consumer, cameraPos, polygon); }
 
                 }
             }
@@ -213,13 +217,9 @@ import org.joml.Matrix4fc; final class NeoShadowsRenderPipeline { private final 
             main.bindWrite(false);
             this.engine.maskReady = true;
             this.engine.framePrepared = false;
-        }
     }
 
     void composeShadowMask(Minecraft mc) {
-
-
-
         if (!this.engine.maskReady || this.engine.shadowMaskTarget == null || !this.engine.skySceneReady || this.engine.skyCaptureTarget == null) {
             return;
         }

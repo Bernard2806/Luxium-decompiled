@@ -123,7 +123,7 @@ public final class NeoGpuVanillaGpuDebug {
     }
 
     private static boolean end(NeoGpuVanillaGpuDebug.Kind expected) {
-        if (activeStartQuery != 0 && activeKind == expected) {
+        if (!(activeStartQuery != 0 && activeKind == expected)) { return false; }
             int endQuery = GL32C.glGenQueries();
             if (endQuery == 0) {
                 deleteQuery(activeStartQuery);
@@ -137,8 +137,8 @@ public final class NeoGpuVanillaGpuDebug {
                 activeKind = null;
                 return true;
             }
-        } else {
-            return false; } } private static void pollResults() { if (!NeoGpuVanillaGpuDebug.timerSupported
+         } private static void pollResults() { if (!NeoGpuVanillaGpuDebug.timerSupported
+
 ()) { return; }
         int checks = PENDING.size();
         for (int i = 0; i < checks; ++i) {

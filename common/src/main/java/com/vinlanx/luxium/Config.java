@@ -1372,7 +1372,7 @@ this.alphaWarningShown = builder.comment
 ("alphaWarningShown", false);
 
 builder.pop();
-} } public static boolean isFeatureEnabled(ConfigSpec.BooleanValue feature) { return isEnabled() && feature.get() ? !CLIENT.blockLightTestEnabled.get() || feature != CLIENT.rtxEnabled && feature != CLIENT.gpuShadowsEnabled && feature != CLIENT.neoGpuVanillaEnabled && feature != CLIENT.neoCpuShadowsEnabled : false; } static { Pair<Config.Client, ConfigSpec>
+} } static { Pair<Config.Client, ConfigSpec>
 
 
 
@@ -1391,4 +1391,13 @@ CLIENT_SPEC = (ConfigSpec)specPair.getRight();
 
 
         return CLIENT.luxiumEnabled.get(); }
+
+
+    public static boolean isFeatureEnabled(ConfigSpec.BooleanValue feature) {
+        if (!isEnabled() || !feature.get()) { return false; }
+        if (CLIENT.blockLightTestEnabled.get() && (feature == CLIENT.rtxEnabled || feature == CLIENT.gpuShadowsEnabled || feature == CLIENT.neoGpuVanillaEnabled || feature == CLIENT.neoCpuShadowsEnabled)) {
+
+
+            return false; }
+        return true; }
     }

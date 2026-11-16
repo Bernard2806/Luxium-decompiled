@@ -1,50 +1,50 @@
 package com.vinlanx.luxium.client;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat.Mode;
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.client.neocpu.NeoCpuShadowsEngine;
-import com.vinlanx.luxium.client.postprocess.PostProcessStateGuard;
-import com.vinlanx.luxium.client.shadows.GpuNeoShadows;
-import com.vinlanx.luxium.platform.LuxiumPlatform;
-import com.vinlanx.luxium.platform.RenderFrame;
-import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.RenderType.CompositeState;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.Direction;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.vinlanx.luxium.client.DynamicShadowMeshCapture;
-import com.vinlanx.luxium.client.NeoShadowsDynamicPipeline;
-import com.vinlanx.luxium.client.NeoShadowsOcclusionPipeline;
-import com.vinlanx.luxium.client.NeoShadowsProjection;
-import com.vinlanx.luxium.client.NeoShadowsRenderPipeline;
-import com.vinlanx.luxium.client.NeoShadowsRuntime;
-import com.vinlanx.luxium.client.NeoShadowsStaticPipeline;
-import com.vinlanx.luxium.client.NeoShadowsTypes;
-import com.vinlanx.luxium.client.NeoShadowsVisibility;
-import com.vinlanx.luxium.client.ReflectionSystem; public final class NeoShadowsEngine { private static final NeoShadowsEngine INSTANCE = new NeoShadowsEngine();
+import com.mojang.blaze3d.pipeline.RenderTarget; import com.mojang.blaze3d.pipeline.TextureTarget; import com.mojang.blaze3d.vertex.DefaultVertexFormat; import com.mojang.blaze3d.vertex.PoseStack; import com.mojang.blaze3d.vertex.VertexConsumer; import com.mojang.blaze3d.vertex.VertexFormat.Mode; import com.vinlanx.luxium.Config; import com.vinlanx.luxium.client.neocpu.NeoCpuShadowsEngine; import com.vinlanx.luxium.client.postprocess.PostProcessStateGuard; import com.vinlanx.luxium.client.shadows.GpuNeoShadows; import com.vinlanx.luxium.platform.LuxiumPlatform; import com.vinlanx.luxium.platform.RenderFrame; import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla; import it.unimi.dsi.fastutil.longs.LongOpenHashSet; import java.util.Collections; import java.util.List; import java.util.concurrent.ConcurrentHashMap; import java.util.concurrent.ExecutorService; import java.util.concurrent.Executors; import java.util.concurrent.atomic.AtomicBoolean; import net.minecraft.client.Camera; import net.minecraft.client.Minecraft; import net.minecraft.client.renderer.GameRenderer; import net.minecraft.client.renderer.LevelRenderer; import net.minecraft.client.renderer.LightTexture; import net.minecraft.client.renderer.RenderStateShard; import net.minecraft.client.renderer.RenderType; import net.minecraft.client.renderer.RenderType.CompositeState; import net.minecraft.client.renderer.culling.Frustum; import net.minecraft.client.renderer.texture.TextureAtlasSprite; import net.minecraft.core.Direction; import net.minecraft.world.phys.Vec3; import org.jetbrains.annotations.Nullable; import org.joml.Matrix4f; import com.mojang.blaze3d.vertex.VertexFormat; import com.vinlanx.luxium.client.DynamicShadowMeshCapture; import com.vinlanx.luxium.client.NeoShadowsDynamicPipeline; import com.vinlanx.luxium.client.NeoShadowsOcclusionPipeline; import com.vinlanx.luxium.client.NeoShadowsProjection; import com.vinlanx.luxium.client.NeoShadowsRenderPipeline; import com.vinlanx.luxium.client.NeoShadowsRuntime; import com.vinlanx.luxium.client.NeoShadowsStaticPipeline; import com.vinlanx.luxium.client.NeoShadowsTypes; import com.vinlanx.luxium.client.NeoShadowsVisibility; import com.vinlanx.luxium.client.ReflectionSystem;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public final class NeoShadowsEngine { private static final NeoShadowsEngine INSTANCE = new NeoShadowsEngine();
+
+
+
+
+
+
     static final double RENDER_RADIUS = 36.0;
     static final double MAX_RECEIVER_LIGHT_DISTANCE = 30.0;
     static final int MAX_VISIBLE_SOURCES = 256;
@@ -198,13 +198,13 @@ volatile NeoShadowsTypes.StaticHotPatchOverlay activeStaticHotPatch = NeoShadows
 
 
     {
-
-
+        this.dynamicPipeline = new NeoShadowsDynamicPipeline(this);
+        this.occlusionPipeline = new NeoShadowsOcclusionPipeline(this);
         this.visibility = new NeoShadowsVisibility(this);
         this.staticPipeline = new NeoShadowsStaticPipeline(this);
         this.runtime = new NeoShadowsRuntime(this);
         this.renderPipeline = new NeoShadowsRenderPipeline(this);
-    } boolean lastSkyCaptureProjectionValid; final NeoShadowsRuntime runtime; final NeoShadowsRenderPipeline renderPipeline; final NeoShadowsDynamicPipeline dynamicPipeline = new NeoShadowsDynamicPipeline(this); final NeoShadowsVisibility visibility; final NeoShadowsOcclusionPipeline occlusionPipeline = new NeoShadowsOcclusionPipeline(this);
+    } boolean lastSkyCaptureProjectionValid; final NeoShadowsRuntime runtime; final NeoShadowsRenderPipeline renderPipeline; final NeoShadowsDynamicPipeline dynamicPipeline; final NeoShadowsVisibility visibility; final NeoShadowsOcclusionPipeline occlusionPipeline;
 
     public static NeoShadowsEngine get() {
         return INSTANCE;
@@ -369,17 +369,17 @@ return;
     }
 
     boolean isSelected() {
-        return !NeoCpuShadowsEngine.isActive() && !GpuNeoShadows.isActive()
-            ? !NeoGpuVanilla.isConfiguredEnabled() && Config.isFeatureEnabled(Config.CLIENT.realisticShadowsEnabled) : false;
+        if (!(!NeoCpuShadowsEngine.isActive
+
+
+() && !GpuNeoShadows.isActive())) {
+return false; }
+
+ return !NeoGpuVanilla.isConfiguredEnabled() && Config.isFeatureEnabled
+ (Config.CLIENT.realisticShadowsEnabled);
     }
 
     void setEnabled(boolean enabled) {
-
-
-
-
-
-
         if (this.enabled == enabled) {
             return;
         }
@@ -524,26 +524,26 @@ return;
         }
     }
 
-    static void mergeScratch(NeoShadowsTypes.GeometryBuildState state, NeoShadowsTypes.BuildScratch scratch) {
-        if (!scratch.shadowPolygons.isEmpty()) {
+    static void mergeScratch(NeoShadowsTypes.GeometryBuildState state, NeoShadowsTypes.BuildScratch scratch) { if (!scratch.shadowPolygons.isEmpty()) {
             state.shadowPolygons.addAll(scratch.shadowPolygons);
         }
-
-        state.occluderHitCount = state.occluderHitCount + scratch.occluderHitCount;
-        state.shadowPolygonCount = state.shadowPolygonCount + scratch.shadowPolygonCount;
+        state.occluderHitCount += scratch.occluderHitCount;
+        state.shadowPolygonCount += scratch.shadowPolygonCount;
     }
 
     boolean shouldCullShadowPolygon(NeoShadowsTypes.ShadowPolygon polygon, double cameraX, double cameraY, double cameraZ, @Nullable Frustum frustum) {
-        return !isFaceFacingCamera(polygon, cameraX, cameraY, cameraZ) ? true : frustum != null && !frustum.isVisible(polygon.bounds);
+
+
+
+
+        if (!isFaceFacingCamera(polygon, cameraX, cameraY, cameraZ)) {
+ return true; }
+
+ return frustum != null && !frustum.isVisible(polygon.bounds);
     }
 
     static boolean isFaceFacingCamera(NeoShadowsTypes.ShadowPolygon polygon, double cameraX, double cameraY, double cameraZ) {
         double
-
-
-
-
-
 
 
         toCameraX = cameraX - polygon.faceCenterX;

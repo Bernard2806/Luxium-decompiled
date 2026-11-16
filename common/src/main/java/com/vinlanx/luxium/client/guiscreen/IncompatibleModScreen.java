@@ -27,9 +27,9 @@ public abstract class IncompatibleModScreen extends Screen {
     }
 
     @Override protected void init() {
-        int buttonWidth = Math.min(200, Math.max(1, this.width - 24));
-        this.addRenderableWidget(Button.builder(Component.translatable("menu.quit"), button ->
-this.minecraft.stop())
+        int
+        buttonWidth = Math.min(200, Math.max(1, this.width - 24));
+        this.addRenderableWidget(Button.builder(Component.translatable("menu.quit"), button -> this.minecraft.stop())
                 .bounds((this.width - buttonWidth) / 2, this.height - 32, buttonWidth, 20)
                 .build() );
     }
@@ -91,5 +91,6 @@ this.minecraft.stop())
     }
 
     @Override public void onClose() {
+
     }
     }

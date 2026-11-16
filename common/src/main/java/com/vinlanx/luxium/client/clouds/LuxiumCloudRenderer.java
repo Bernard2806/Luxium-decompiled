@@ -1,45 +1,45 @@
 package com.vinlanx.luxium.client.clouds;
 
-import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
-import com.mojang.blaze3d.shaders.FogShape;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
-import com.mojang.blaze3d.vertex.VertexBuffer.Usage;
-import com.mojang.blaze3d.vertex.VertexFormat.Mode;
-import com.mojang.logging.LogUtils;
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.client.ShaderManager;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Optional;
-import net.minecraft.client.CloudStatus;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.util.Mth;
-import net.minecraft.util.FastColor.ABGR32;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.slf4j.Logger;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.util.FastColor;
-import org.joml.Matrix4fc; public final class LuxiumCloudRenderer { private static final Logger LOGGER = LogUtils.getLogger(); private static final LuxiumCloudRenderer INSTANCE = new LuxiumCloudRenderer(); private static final ResourceLocation VANILLA_CLOUDS = new ResourceLocation("minecraft", "textures/environment/clouds.png");
+import com.mojang.blaze3d.pipeline.TextureTarget; import com.mojang.blaze3d.platform.NativeImage; import com.mojang.blaze3d.platform.GlStateManager.DestFactor; import com.mojang.blaze3d.platform.GlStateManager.SourceFactor; import com.mojang.blaze3d.shaders.FogShape; import com.mojang.blaze3d.systems.RenderSystem; import com.mojang.blaze3d.vertex.BufferBuilder; import com.mojang.blaze3d.vertex.DefaultVertexFormat; import com.mojang.blaze3d.vertex.PoseStack; import com.mojang.blaze3d.vertex.Tesselator; import com.mojang.blaze3d.vertex.VertexBuffer; import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer; import com.mojang.blaze3d.vertex.VertexBuffer.Usage; import com.mojang.blaze3d.vertex.VertexFormat.Mode; import com.mojang.logging.LogUtils; import com.vinlanx.luxium.Config; import com.vinlanx.luxium.client.ShaderManager; import java.io.IOException; import java.io.InputStream; import java.util.Arrays; import java.util.Optional; import net.minecraft.client.CloudStatus; import net.minecraft.client.Minecraft; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.client.renderer.FogRenderer; import net.minecraft.client.renderer.GameRenderer; import net.minecraft.client.renderer.ShaderInstance; import net.minecraft.client.renderer.texture.DynamicTexture; import net.minecraft.resources.ResourceLocation; import net.minecraft.server.packs.resources.Resource; import net.minecraft.util.Mth; import net.minecraft.util.FastColor.ABGR32; import net.minecraft.world.phys.Vec3; import org.joml.Matrix4f; import org.joml.Vector3f; import org.slf4j.Logger; import com.mojang.blaze3d.platform.GlStateManager; import com.mojang.blaze3d.vertex.VertexFormat; import net.minecraft.util.FastColor; import org.joml.Matrix4fc;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public final class LuxiumCloudRenderer { private static final Logger LOGGER = LogUtils.getLogger();
+private static final LuxiumCloudRenderer INSTANCE = new LuxiumCloudRenderer();
+ private static final ResourceLocation VANILLA_CLOUDS = new ResourceLocation("minecraft", "textures/environment/clouds.png");
     private static final int TEXTURE_SIZE = 256;
     private static final float UV_SCALE = 0.00390625F;
     private static final float EPSILON = 9.765625E-4F;
@@ -145,33 +145,33 @@ private final LuxiumCloudRenderer.LayerState vanillaMaskLayer = new LuxiumCloudR
         Matrix4f projectionMatrix,
         Matrix4f lightViewRotation,
         float projectionRadius,
-        Vec3 toLight,
-        float partialTick,
-        double centerX,
-        double centerY,
-        double centerZ,
-        int ticks ) {
-        if (!Config.isFeatureEnabled(Config.CLIENT.cloudsEnabled)) {
+        Vec3 toLight, float partialTick, double centerX, double centerY, double centerZ, int ticks ) { if (!Config.isFeatureEnabled(Config.CLIENT.cloudsEnabled)) {
             return false;
         } else {
-            Minecraft mc = Minecraft.getInstance();
+            Minecraft mc = Minecraft.getInstance
+ ();
             ClientLevel level = mc.level;
-            if (level != null && mc.player != null && mc.options.getCloudsType() != CloudStatus.OFF) {
-                float dimensionCloudHeight = level.effects().getCloudHeight();
+            if (!(level != null && mc.player != null && mc.options.getCloudsType() != CloudStatus.OFF)) {
+                return true;
+            }
+                float
+                dimensionCloudHeight = level.effects().getCloudHeight();
                 if (Float.isNaN(dimensionCloudHeight)) {
                     return true;
                 } else {
-                    CloudStatus cloudStatus = mc.options.getCloudsType();
+                    CloudStatus
+                    cloudStatus = mc.options.getCloudsType();
                     LuxiumCloudRenderer.LayerConfig[] config = readConfig();
-                    float weather = Mth.clamp(Math.max(level.getRainLevel(partialTick), level.getThunderLevel(partialTick)), 0.0F, 1.0F);
+                    float weather = Mth.clamp(Math.max
+(level.getRainLevel(partialTick), level.getThunderLevel(partialTick)), 0.0F, 1.0F);
                     int weatherStep = Mth.clamp(Math.round(weather * 20.0F), 0, 20);
                     float textureWeather = (float)weatherStep / 20.0F;
+
                     this.ensureSourceTexture();
-                    ShaderInstance shadowShader = ShaderManager.getCloudShadowCasterShader();
-                    if (shadowShader != null) { RenderSystem.setShader(() ->
-
-
-shadowShader);
+                    ShaderInstance shadowShader = ShaderManager.getCloudShadowCasterShader
+ ();
+                    if (shadowShader != null) {
+ RenderSystem.setShader(() -> shadowShader);
                     } else {
                         RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
                     }
@@ -182,8 +182,8 @@ shadowShader);
                     RenderSystem.depthMask(true);
                     RenderSystem.colorMask(false, false, false, false);
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                    Vec3 center = new Vec3(centerX, centerY, centerZ);
-
+                    Vec3
+                    center = new Vec3(centerX, centerY, centerZ);
                     for (int i = 0; i < this.layers.length; i++) {
                         LuxiumCloudRenderer.LayerConfig layer = config[i];
                         if (!(layer.enabled && !(layer.opacity <= 0.0))) {
@@ -199,38 +199,39 @@ shadowShader);
                                 ResourceLocation texture = this.textureForLayer(i, layer, textureWeather);
                                 RenderSystem.setShaderTexture(0, texture);
                                 this.uploadShadowPlane(this.layers[i], plane, i, layer, partialTick, centerX, centerZ, ticks);
-                                LuxiumCloudRenderer.LayerState state = this.layers[i];
+                                LuxiumCloudRenderer.LayerState
+
+                                state = this.layers[i];
                                 if (state.shadowVertexBuffer != null) {
                                     state.shadowVertexBuffer.bind();
                                     ShaderInstance shader = RenderSystem.getShader();
                                     if (shader != null) {
-                                        state.shadowVertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, shader);
+                                        state.shadowVertexBuffer.drawWithShader(poseStack.last
+().pose(), projectionMatrix, shader);
                                     }
-
                                     VertexBuffer.unbind();
                                 }
 
 
-                    }
-
-                    RenderSystem.disableBlend();
+                    } RenderSystem.disableBlend();
                     RenderSystem.enableDepthTest();
                     RenderSystem.depthMask(true);
                     RenderSystem.colorMask(false, false, false, false);
                     RenderSystem.enableCull();
                     return true;
                 }
-            } else {
-                return true;
-            }
+
         }
     }
 
     public float computeCustomShadowCasterFront(Vec3 center, Vec3 toLight, Matrix4f lightViewRotation, float projectionRadius, CloudStatus cloudStatus) {
-        if (Config.isFeatureEnabled(Config.CLIENT.cloudsEnabled) && cloudStatus != CloudStatus.OFF && toLight != null && !(toLight.y <= 1.0E-6)) {
-            LuxiumCloudRenderer.LayerConfig[] config = readConfig();
-            double maxFront = Double.NEGATIVE_INFINITY;
+        if (!(Config.isFeatureEnabled(Config.CLIENT.cloudsEnabled) && cloudStatus != CloudStatus.OFF && toLight != null && !(toLight.y <= 1.0E-6))) {
 
+            return Float.NaN;
+        }
+            LuxiumCloudRenderer.LayerConfig[] config = readConfig
+ ();
+            double maxFront = Double.NEGATIVE_INFINITY;
             for (LuxiumCloudRenderer.LayerConfig layer : config) {
                 if (!(layer.enabled && !(layer.opacity <= 0.0))) {
  continue;
@@ -243,38 +244,45 @@ shadowShader);
                     }
 
             }
+            return Double.isFinite(maxFront) && maxFront > 0.0 ?
+ (float)maxFront : Float
+.NaN;
 
-            return Double.isFinite(maxFront) && maxFront > 0.0 ? (float)maxFront : Float.NaN;
-        } else {
-            return Float.NaN;
-        }
     }
 
     public int renderOcclusionMask(
         PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, double cameraX, double cameraY, double cameraZ, int ticks, int width, int height ) {
-        if (width > 0 && height > 0) {
-            Minecraft mc = Minecraft.getInstance();
+        if (!(width > 0 && height > 0)) {
+            return 0;
+        }
+            Minecraft mc = Minecraft.getInstance
+ ();
             ClientLevel level = mc.level;
-            if (level != null && mc.player != null) {
-                float dimensionCloudHeight = level.effects().getCloudHeight();
+            if (!(level != null && mc.player != null)) {
+                return 0;
+            }
+                float
+                dimensionCloudHeight = level.effects().getCloudHeight();
                 CloudStatus cloudStatus = mc.options.getCloudsType();
-                if (!Float.isNaN(dimensionCloudHeight) && cloudStatus != CloudStatus.OFF) {
-                    boolean customClouds = Config.isFeatureEnabled(Config.CLIENT.cloudsEnabled);
+                if (!(!Float.isNaN(dimensionCloudHeight) && cloudStatus != CloudStatus.OFF)) {
+                    return 0;
+                }
+                    boolean
+                    customClouds = Config.isFeatureEnabled(Config.CLIENT.cloudsEnabled);
                     LuxiumCloudRenderer.LayerConfig[] config = null;
                     float textureWeather = 0.0F;
                     if (customClouds) {
                         config = readConfig();
                         boolean anyEnabled = false;
-
                         for (LuxiumCloudRenderer.LayerConfig layer : config) {
                             anyEnabled |= layer.enabled && layer.opacity > 0.0;
                         }
-
                         if (!anyEnabled) {
                             return 0;
                         }
 
-                        float weather = Mth.clamp(Math.max(level.getRainLevel(partialTick), level.getThunderLevel(partialTick)), 0.0F, 1.0F);
+                        float weather = Mth.clamp(Math.max
+(level.getRainLevel(partialTick), level.getThunderLevel(partialTick)), 0.0F, 1.0F);
                         int weatherStep = Mth.clamp(Math.round(weather * 20.0F), 0, 20);
                         textureWeather = (float)weatherStep / 20.0F;
                         this.ensureSourceTexture();
@@ -284,17 +292,24 @@ shadowShader);
                     if (this.occlusionTarget == null) {
                         return 0;
                     } else {
+
                         this.occlusionTarget.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
                         RenderSystem.colorMask(true, true, true, true);
                         this.occlusionTarget.clear(Minecraft.ON_OSX);
                         this.occlusionTarget.bindWrite(true);
+
                         RenderSystem.viewport(0, 0, width, height);
                         RenderSystem.disableCull();
                         RenderSystem.disableDepthTest();
                         RenderSystem.depthMask(false);
                         RenderSystem.enableBlend();
                         RenderSystem.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ONE_MINUS_SRC_ALPHA);
+
+
+
+
                         RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+
                         if (customClouds) {
                             this.renderCustomOcclusionMask(
                                 poseStack, projectionMatrix, partialTick, cameraX, cameraY, cameraZ, ticks, cloudStatus, textureWeather, config );
@@ -310,30 +325,15 @@ shadowShader);
                         RenderSystem.enableCull();
                         RenderSystem.disableBlend();
                         RenderSystem.defaultBlendFunc();
+
                         return this.occlusionTarget.getColorTextureId();
                     }
-                } else {
-                    return 0;
-                }
-            } else {
-                return 0;
-            }
-        } else {
-            return 0;
-        }
+
+
+
     }
 
-    private void renderCustomOcclusionMask(
-        PoseStack poseStack,
-        Matrix4f projectionMatrix,
-        float partialTick,
-        double cameraX,
-        double cameraY,
-        double cameraZ,
-        int ticks,
-        CloudStatus cloudStatus,
-        float textureWeather,
-        LuxiumCloudRenderer.LayerConfig[] config ) { for (int i = 0; i < this.layers.length; i++) {
+    private void renderCustomOcclusionMask(PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, double cameraX, double cameraY, double cameraZ, int ticks, CloudStatus cloudStatus, float textureWeather, LuxiumCloudRenderer.LayerConfig[] config ) { for (int i = 0; i < this.layers.length; i++) {
             LuxiumCloudRenderer.LayerConfig layer = config[i];
             if (!(layer.enabled && !(layer.opacity <= 0.0))) {
  continue;
@@ -668,8 +668,14 @@ if (shadowShader != null) {
 
     private static LuxiumCloudRenderer.ShadowPlane buildShadowPlane(
         Vec3 center, Vec3 toLight, Matrix4f lightViewRotation, float projectionRadius, double cloudY ) {
-        if (center != null && toLight != null && lightViewRotation != null && Double.isFinite(cloudY) && !(toLight.y <= 1.0E-6)) {
-            float radius = Math.max(1.0F, projectionRadius) + 1.0F;
+
+
+        if (!(center != null && toLight != null && lightViewRotation != null && Double.isFinite
+ (cloudY) && !(toLight.y <= 1.0E-6))) {
+            return null;
+        }
+            float
+            radius = Math.max(1.0F, projectionRadius) + 1.0F;
             Matrix4f inverseLightRotation = new Matrix4f(lightViewRotation).invert();
             Vector3f[] corners = new Vector3f[4];
             float[] lightX = new float[]{-radius, radius, radius, -radius};
@@ -679,29 +685,23 @@ if (shadowShader != null) {
             for (int i = 0; i < corners.length; i++) {
                 Vector3f base = new Vector3f(lightX[i], lightY[i], 0.0F);
                 inverseLightRotation.transformDirection(base);
-                double front = (cloudY - center.y - (double)base.y) / toLight.y;
+                double
+                front = (cloudY - center.y - (double)base.y) / toLight.y;
                 maxFront = Math.max(maxFront, front);
                 base.add((float)(toLight.x * front), (float)(toLight.y * front), (float)(toLight.z * front));
+
+
+
                 corners[i] = base;
             }
 
             return new LuxiumCloudRenderer.ShadowPlane(corners[0], corners[1], corners[2], corners[3], maxFront);
-        } else {
-            return null;
-        }
+
     }
 
     private void uploadShadowPlane(
         LuxiumCloudRenderer.LayerState state,
-        LuxiumCloudRenderer.ShadowPlane plane,
-        int layerIndex,
-        LuxiumCloudRenderer.LayerConfig layer,
-        float partialTick,
-        double centerX,
-        double centerZ,
-        int ticks ) {
-        float
-        blockScale = (float)(12.0 * layer.scale);
+        LuxiumCloudRenderer.ShadowPlane plane, int layerIndex, LuxiumCloudRenderer.LayerConfig layer, float partialTick, double centerX, double centerZ, int ticks ) { float blockScale = (float)(12.0 * layer.scale);
         if (!(!(blockScale <= 0.0F))) {
  return;
  }
@@ -948,15 +948,21 @@ if (shadowShader != null) {
     }
 
     private ResourceLocation textureForLayer(int index, LuxiumCloudRenderer.LayerConfig config, float weather) {
-        if (this.sourceLoaded && this.sourceOpaque != null) {
-            double effectiveCoverage = config.coverage + (100.0 - config.coverage) * (config.weatherInfluence / 100.0) * (double)weather;
+        if (!(this.sourceLoaded && this.sourceOpaque != null)) {
+            return VANILLA_CLOUDS;
+        }
+            double
+            effectiveCoverage = config.coverage + (100.0 - config.coverage) * (config.weatherInfluence / 100.0) * (double)weather;
+
             effectiveCoverage = Mth.clamp(effectiveCoverage, 0.0, 100.0);
-            long key = 17L;
+            long
+            key = 17L;
             key = mix(key, effectiveCoverage);
             key = mix(key, config.edgeSoftness);
             key = mix(key, config.variation);
             key = 31L * key + (long)index;
-            LuxiumCloudRenderer.LayerState state = this.layers[index];
+            LuxiumCloudRenderer.LayerState
+            state = this.layers[index];
             if (state.textureKey != key || state.textureLocation == null || state.dynamicTexture == null) {
                 NativeImage image = this.buildCoverageTexture(index, effectiveCoverage, config.edgeSoftness, config.variation);
                 Minecraft mc = Minecraft.getInstance();
@@ -967,19 +973,13 @@ if (shadowShader != null) {
                     state.dynamicTexture.setPixels(image);
                     state.dynamicTexture.upload();
                 }
-
                 state.textureKey = key;
             }
-
             return state.textureLocation;
-        } else {
-            return VANILLA_CLOUDS;
-        }
+
     }
 
-    private NativeImage buildCoverageTexture(int layerIndex, double coverage, double softness, double variation) {
-        NativeImage
-        output = new NativeImage(256, 256, false);
+    private NativeImage buildCoverageTexture(int layerIndex, double coverage, double softness, double variation) { NativeImage output = new NativeImage(256, 256, false);
         double
         centered = (coverage - 50.0) / 50.0;
         double coverageShift = centered < 0.0 ? centered * 2.5 : centered * 5.5;

@@ -1,64 +1,64 @@
 package com.vinlanx.luxium.rtx;
 
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.client.NeoShadowsEngine;
-import com.vinlanx.luxium.client.ReflectionSystem;
-import com.vinlanx.luxium.client.neocpu.NeoCpuShadowsEngine;
-import com.vinlanx.luxium.client.reflections.RainPuddleManager;
-import com.vinlanx.luxium.client.reflections.ReflectionMaterialRegistry;
-import com.vinlanx.luxium.client.shadows.GpuShadowCache;
-import com.vinlanx.luxium.mixin.LightTextureAccessor;
-import com.vinlanx.luxium.platform.LuxiumPlatform;
-import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla;
-import com.vinlanx.luxium.rtx.soasnottointerfere.ExposedFaceService;
-import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry;
-import it.unimi.dsi.fastutil.objects.ObjectIterator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.SectionPos;
-import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.lighting.LightEngine;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
-import com.vinlanx.luxium.rtx.EntityShadowManager;
-import com.vinlanx.luxium.rtx.FloodRtSettings;
-import com.vinlanx.luxium.rtx.LightRtMath;
-import com.vinlanx.luxium.rtx.NeoFloodEngine;
-import it.unimi.dsi.fastutil.longs.Long2ByteMap;
-import it.unimi.dsi.fastutil.longs.Long2LongMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.LongCollection;
-import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.BlockGetter; public final class TorchRtxState { private static final TorchRtxState INSTANCE = new TorchRtxState();
+import com.vinlanx.luxium.Config; import com.vinlanx.luxium.client.NeoShadowsEngine; import com.vinlanx.luxium.client.ReflectionSystem; import com.vinlanx.luxium.client.neocpu.NeoCpuShadowsEngine; import com.vinlanx.luxium.client.reflections.RainPuddleManager; import com.vinlanx.luxium.client.reflections.ReflectionMaterialRegistry; import com.vinlanx.luxium.client.shadows.GpuShadowCache; import com.vinlanx.luxium.mixin.LightTextureAccessor; import com.vinlanx.luxium.platform.LuxiumPlatform; import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla; import com.vinlanx.luxium.rtx.soasnottointerfere.ExposedFaceService; import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap; import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap; import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap; import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue; import it.unimi.dsi.fastutil.longs.LongArrayList; import it.unimi.dsi.fastutil.longs.LongIterator; import it.unimi.dsi.fastutil.longs.LongOpenHashSet; import it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry; import it.unimi.dsi.fastutil.objects.ObjectIterator; import java.util.ArrayList; import java.util.Arrays; import java.util.Collections; import java.util.Comparator; import java.util.HashMap; import java.util.List; import java.util.Map; import java.util.concurrent.CompletableFuture; import java.util.concurrent.ConcurrentHashMap; import java.util.concurrent.ExecutorService; import java.util.concurrent.Executors; import java.util.concurrent.atomic.AtomicBoolean; import java.util.concurrent.atomic.AtomicInteger; import net.minecraft.client.Minecraft; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.core.BlockPos; import net.minecraft.core.Direction; import net.minecraft.core.SectionPos; import net.minecraft.core.BlockPos.MutableBlockPos; import net.minecraft.tags.FluidTags; import net.minecraft.util.Mth; import net.minecraft.world.level.ChunkPos; import net.minecraft.world.level.Level; import net.minecraft.world.level.block.state.BlockState; import net.minecraft.world.level.chunk.LevelChunk; import net.minecraft.world.level.chunk.LevelChunkSection; import net.minecraft.world.level.lighting.LightEngine; import net.minecraft.world.phys.Vec3; import org.jetbrains.annotations.Nullable; import com.vinlanx.luxium.rtx.EntityShadowManager; import com.vinlanx.luxium.rtx.FloodRtSettings; import com.vinlanx.luxium.rtx.LightRtMath; import com.vinlanx.luxium.rtx.NeoFloodEngine; import it.unimi.dsi.fastutil.longs.Long2ByteMap; import it.unimi.dsi.fastutil.longs.Long2LongMap; import it.unimi.dsi.fastutil.longs.Long2ObjectMap; import it.unimi.dsi.fastutil.longs.LongCollection; import net.minecraft.core.Vec3i; import net.minecraft.world.level.BlockGetter;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public final class TorchRtxState { private static final TorchRtxState INSTANCE = new TorchRtxState();
+
+
+
     private static final double ENTITY_UPDATE_RADIUS = 48.0;
     private static final int ENTITY_UPDATE_INTERVAL = 1;
     private static final int CLOSEST_SOURCE_CACHE_LIMIT = 20000;
@@ -207,12 +207,15 @@ import net.minecraft.world.level.BlockGetter; public final class TorchRtxState {
     public void tick(@Nullable ClientLevel level) {
         if (level == null) {
             this.lastLevel = null;
-        } else {
-            boolean levelChanged = level != this.lastLevel;
+        return; }
+            boolean
+
+            levelChanged = level != this.lastLevel;
             if (levelChanged) {
                 this.lastLevel = level;
                 this.warmupTicks = 40;
-                if (NeoGpuVanilla.isConfiguredEnabled()) {
+                if (NeoGpuVanilla.isConfiguredEnabled
+()) {
                     this.clearLightRegistry();
                     this.lastScanLight = false;
                 }
@@ -221,11 +224,14 @@ import net.minecraft.world.level.BlockGetter; public final class TorchRtxState {
             boolean gpuLightingEnabled = Config.isFeatureEnabled(Config.CLIENT.gpuShadowsEnabled);
             Config.GpuLocalLightingMode gpuMode = Config.CLIENT.gpuLocalLightingMode.get();
             boolean standaloneNeoFlood = Config.isFeatureEnabled(Config.CLIENT.rtxEnabled) && !gpuLightingEnabled;
-            boolean hybridNeoFlood = gpuLightingEnabled && gpuMode == Config.GpuLocalLightingMode.HYBRID && Config.isFeatureEnabled(Config.CLIENT.rtxEnabled);
+            boolean hybridNeoFlood = gpuLightingEnabled && gpuMode == Config.GpuLocalLightingMode.HYBRID && Config.isFeatureEnabled
+
+ (Config.CLIENT.rtxEnabled);
             boolean gpuNeoFloodOnly = gpuLightingEnabled
                 && gpuMode == Config.GpuLocalLightingMode.NEOFLOOD_ONLY
                 && Config.isFeatureEnabled(Config.CLIENT.rtxEnabled);
-            boolean gpuFastSpreadVisibility = false;
+            boolean
+            gpuFastSpreadVisibility = false;
             boolean realisticNeoFlood = Config.isFeatureEnabled(Config.CLIENT.realisticShadowsEnabled)
                 && (!gpuLightingEnabled || gpuMode == Config.GpuLocalLightingMode.NEOFLOOD_ONLY);
             boolean cfgEnabled = !NeoGpuVanilla.isConfiguredEnabled()
@@ -233,20 +239,20 @@ import net.minecraft.world.level.BlockGetter; public final class TorchRtxState {
                     standaloneNeoFlood
                         || hybridNeoFlood
                         || gpuNeoFloodOnly
-                        || gpuFastSpreadVisibility
-                        || realisticNeoFlood
-                        || Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) );
+                        || gpuFastSpreadVisibility || realisticNeoFlood || Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) );
             boolean cfgScanLight = shouldScanLightSources();
             boolean cfgReflection = Config.isFeatureEnabled(Config.CLIENT.reflectionEnabled);
             boolean cfgLavaTracing = shouldTraceLava(level);
             int cfgWorldTracingWorkers = Config.CLIENT.rtxWorldTracingWorkers.get();
             boolean neoGpuVanillaConfigured = NeoGpuVanilla.isConfiguredEnabled();
+
             if (this.lastNeoGpuVanillaConfigured != neoGpuVanillaConfigured) {
                 this.lastNeoGpuVanillaConfigured = neoGpuVanillaConfigured;
                 if (neoGpuVanillaConfigured) {
                     this.forceNeoGpuVanillaSourceBootstrap(level);
                 }
             } else if (levelChanged && neoGpuVanillaConfigured) {
+
                 this.forceNeoGpuVanillaSourceBootstrap(level);
             }
 
@@ -263,18 +269,14 @@ import net.minecraft.world.level.BlockGetter; public final class TorchRtxState {
                 if (cfgScanLight) {
                     this.rescanLoadedChunks(level, true, cfgReflection);
                 }
-
                 this.triggerGlobalUpdate();
             }
 
-            if (this.enabled != cfgEnabled) {
-                this.setEnabled(cfgEnabled);
+            if (this.enabled != cfgEnabled) { this.setEnabled(cfgEnabled);
             }
-
             if (this.enabled && this.appliedWorldTracingWorkers != cfgWorldTracingWorkers) {
                 this.applyConfiguredWorldTracingWorkers(cfgWorldTracingWorkers);
             }
-
             if (this.enabled) {
                 this.syncFloodRtSettings();
             }
@@ -282,7 +284,8 @@ import net.minecraft.world.level.BlockGetter; public final class TorchRtxState {
             Minecraft mc = Minecraft.getInstance();
             if (this.enabled) {
                 this.engine.setLevel(level);
-                Vec3 camPos = null;
+                Vec3
+                camPos = null;
                 if (mc.player != null) {
                     camPos = mc.player.position();
                 } else if (mc.cameraEntity != null) {
@@ -305,31 +308,28 @@ import net.minecraft.world.level.BlockGetter; public final class TorchRtxState {
                 this.tickLoadedChunkInvalidations();
                 this.engine.tick();
             } else {
-                Vec3 registryCenter = mc.player != null
-                    ? mc.player.position() : (
-                        mc.cameraEntity != null
-                            ? mc.cameraEntity.position() : (mc.gameRenderer != null && mc.gameRenderer.getMainCamera() != null ? mc.gameRenderer.getMainCamera().getPosition() : null) );
+                Vec3 registryCenter = mc.player != null ? mc.player.position() : (
+                        mc.cameraEntity != null ? mc.cameraEntity.position() : (mc.gameRenderer != null
+ && mc.gameRenderer.getMainCamera() != null ? mc.gameRenderer.getMainCamera
+().getPosition() : null) );
                 if (NeoGpuVanilla.isConfiguredEnabled()) {
                     this.discoverLoadedChunkSources(level, registryCenter);
                 }
-
                 this.drainChunkLifecycle(level);
             }
 
             this.drainPendingSectionNotifications();
             this.drainPendingLightChanges();
-            if (!(this.enabled)) {
-return;
-}
 
+            if (!(this.enabled)) { return;
+ }
                 if (this.usesEntityOcclusionShadows() && ++this.entityUpdateCounter >= 1) {
                     this.entityUpdateCounter = 0;
                     if (mc.cameraEntity != null) {
                         EntityShadowManager.get().updateAsync(level, mc.cameraEntity.position(), 48.0);
                     }
                 }
-
-        } } public boolean isImmediateStateChange(BlockPos pos) { Minecraft mc = Minecraft.getInstance
+         } public boolean isImmediateStateChange(BlockPos pos) { Minecraft mc = Minecraft.getInstance
 
 
  ();
@@ -1122,15 +1122,15 @@ return;
                         target = new long[64];
                         this.pendingLightChangeBitsBySection.put(sectionKey, target);
                     }
-
                     for (int i = 0; i < 64; i++) {
                         long added = incomingWords[i] & ~target[i];
                         if (added != 0L) {
                             target[i] |= added;
-                            this.pendingLightChangeCount = this.pendingLightChangeCount + Long.bitCount(added);
+                            this.pendingLightChangeCount += Long.bitCount(added);
                         }
                     }
-                }); }
+                });
+                }
     }
 
     private void drainPendingSectionNotifications() { long now = System.currentTimeMillis
@@ -1350,26 +1350,26 @@ return;
         }
 
         this.finishChunkLifecycleBatch(batch);
-    } private int scanNextChunkSection(TorchRtxState.PendingChunkScan task) { LevelChunkSection[] sections = task.chunk.getSections(); if (task.sectionIndex >= sections.length) { return 0; } else { int sectionIndex = task.sectionIndex++; LevelChunkSection section = sections[sectionIndex]; if (section != null && !section.hasOnlyAir()) { boolean maybeLight = task.scanLight && section.maybeHas(statex ->
+    } private int scanNextChunkSection(TorchRtxState.PendingChunkScan task) { LevelChunkSection[]
 
 
+ sections = task.chunk.getSections();
+if ((task.sectionIndex >= sections.length)) { return 0; } int
 
+ sectionIndex = task.sectionIndex++; LevelChunkSection
+section = sections[sectionIndex];
+if (!(section != null && !section.hasOnlyAir())) { return 0; } boolean
 
-
-
-
-
-
-
-LuxiumPlatform.get().lightEmission(statex, task.level, BlockPos.ZERO) != 0);
+ maybeLight = task.scanLight && section.maybeHas
+ (statex -> LuxiumPlatform.get().lightEmission(statex, task.level, BlockPos.ZERO) != 0);
                 boolean maybeReflective = task.scanReflective
                     && shouldScanReflectiveSources()
                     && section.maybeHas(statex -> ReflectionMaterialRegistry.find(statex) != null);
-                if (!maybeLight && !maybeReflective) {
-                    return 0;
+                if (!maybeLight && !maybeReflective) { return 0;
                 } else {
                     int baseX = task.chunk.getPos().getMinBlockX();
-                    int baseY = SectionPos.sectionToBlockCoord(task.chunk.getSectionYFromSectionIndex(sectionIndex));
+                    int baseY = SectionPos.sectionToBlockCoord(task.chunk.getSectionYFromSectionIndex
+(sectionIndex));
                     int baseZ = task.chunk.getPos().getMinBlockZ();
                     MutableBlockPos pos = task.mutablePos;
 
@@ -1378,24 +1378,24 @@ LuxiumPlatform.get().lightEmission(statex, task.level, BlockPos.ZERO) != 0);
                             for (int x = 0; x < 16; x++) {
                                 BlockState state = section.getBlockState(x, y, z);
                                 pos.set(baseX + x, baseY + y, baseZ + z);
+
                                 if (maybeLight) {
                                     int emission = LuxiumPlatform.get().lightEmission(state, task.level, pos);
                                     if (emission > 0 && shouldRegisterRtxSource(task.level, state)) {
                                         task.sources.put(pos.asLong(), (byte)emission);
                                     }
                                 }
-
                                 if (maybeReflective && ReflectionMaterialRegistry.find(state) != null) {
                                     task.reflections.add(pos.asLong());
                                 }
                             }
                         }
                     }
-
                     return 1;
                 }
-            } else {
-                return 0; } } } private void applyQueuedChunkUnload(long chunkKey, TorchRtxState.ChunkLifecycleBatch batch) { this.scannedLightChunks.remove(chunkKey);
+             } private void applyQueuedChunkUnload(long chunkKey, TorchRtxState.ChunkLifecycleBatch batch) {
+
+ this.scannedLightChunks.remove(chunkKey);
         LongOpenHashSet
         sourceBucket = this.sourcesByChunk.remove(chunkKey);
         if (sourceBucket != null && !sourceBucket.isEmpty()) {

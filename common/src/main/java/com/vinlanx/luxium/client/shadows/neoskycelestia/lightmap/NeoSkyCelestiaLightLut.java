@@ -224,11 +224,11 @@ class NeoSkyCelestiaLightLut implements AutoCloseable {
         hash = mixHash(hash, Config.isFeatureEnabled(Config.CLIENT.realisticShadowTemperature) ? 1 : 0);
         hash = mixHash(hash, bits(Config.CLIENT.shadowTemperatureStrength.get().floatValue()));
         hash = mixHash(hash, Config.CLIENT.shadowTemperatureBias.get());
-        return mixHash(hash, bits(Config.CLIENT.vanillaBlockLightInSunShadows.get().floatValue()));
+        hash = mixHash(hash, bits(Config.CLIENT.vanillaBlockLightInSunShadows.get().floatValue()));
+ return hash;
     }
 
     private static int mixHash(int hash, int value) {
-
         return hash * 31 + value;
     }
 
@@ -248,8 +248,10 @@ class NeoSkyCelestiaLightLut implements AutoCloseable {
         float fullB = blue(full);
         if (!lighting.enabled()) {
             this.put(fullR, fullG, fullB, rawNdotL);
-        } else {
-            float blockR = red(block);
+        return; }
+            float
+
+            blockR = red(block);
             float blockG = green(block);
             float blockB = blue(block);
             float zeroR = red(zero);
@@ -258,80 +260,78 @@ class NeoSkyCelestiaLightLut implements AutoCloseable {
             float skyR = red(sky);
             float skyG = green(sky);
             float skyB = blue(sky);
-            float vanillaSkyR = Math.max(skyR - zeroR, 0.0F);
+            float
+            vanillaSkyR = Math.max(skyR - zeroR, 0.0F);
             float vanillaSkyG = Math.max(skyG - zeroG, 0.0F);
             float vanillaSkyB = Math.max(skyB - zeroB, 0.0F);
-            float skyAccess = smoothstep(0.015F, 0.3F, Math.max(vanillaSkyR, Math.max(vanillaSkyG, vanillaSkyB)));
+            float skyAccess = smoothstep(0.015F, 0.3F, Math.max
+
+
+ (vanillaSkyR, Math.max(vanillaSkyG, vanillaSkyB)));
             float hemisphere = clamp(normalY * 0.5F + 0.5F);
-            float ambientR = lerp(lighting.shadowGroundAmbientColor().x, lighting.shadowSkyAmbientColor().x, hemisphere)
+            float ambientR = lerp(lighting.shadowGroundAmbientColor
+().x, lighting.shadowSkyAmbientColor
+ ().x, hemisphere)
                 * lighting.ambientStrength()
-                * skyAccess;
-            float ambientG = lerp(lighting.shadowGroundAmbientColor().y, lighting.shadowSkyAmbientColor().y, hemisphere)
+                * skyAccess; float ambientG = lerp(lighting.shadowGroundAmbientColor
+().y, lighting.shadowSkyAmbientColor
+ ().y, hemisphere)
                 * lighting.ambientStrength()
-                * skyAccess;
-            float ambientB = lerp(lighting.shadowGroundAmbientColor().z, lighting.shadowSkyAmbientColor().z, hemisphere)
+                * skyAccess; float ambientB = lerp(lighting.shadowGroundAmbientColor
+().z, lighting.shadowSkyAmbientColor
+ ().z, hemisphere)
                 * lighting.ambientStrength()
-                * skyAccess;
-            float directAccess = shadowsEnabled ? clamp(visibility) * skyAccess : skyAccess;
+                * skyAccess; float directAccess = shadowsEnabled ? clamp(visibility) * skyAccess : skyAccess;
             float geometricSunFacing = rawNdotL >= 0.005F ? 1.0F : 0.0F;
             float wrappedNdotL = clamp((rawNdotL + 0.16F) / 1.16F) * geometricSunFacing;
             float directScale = wrappedNdotL * lighting.directStrength() * directAccess;
             float celestialR = ambientR + lighting.directColor().x * directScale;
             float celestialG = ambientG + lighting.directColor().y * directScale;
             float celestialB = ambientB + lighting.directColor().z * directScale;
-            float sunShadowAmount = shadowsEnabled ? 1.0F - clamp(visibility) * geometricSunFacing : 0.0F;
-            float blockContributionR = Math.max(blockR - zeroR, 0.0F);
+            float sunShadowAmount = shadowsEnabled ? 1.0F
+ - clamp(visibility) * geometricSunFacing :
+ 0.0F;
+            float
+            blockContributionR = Math.max(blockR - zeroR, 0.0F);
             float blockContributionG = Math.max(blockG - zeroG, 0.0F);
             float blockContributionB = Math.max(blockB - zeroB, 0.0F);
             float skyReferenceR = Math.max(skyR - zeroR, 0.0F);
             float skyReferenceG = Math.max(skyG - zeroG, 0.0F);
             float skyReferenceB = Math.max(skyB - zeroB, 0.0F);
             float blockIrradiance = luminance(blockContributionR, blockContributionG, blockContributionB);
-            float adaptationIrradiance = Math.max(luminance(skyReferenceR, skyReferenceG, skyReferenceB), luminance(celestialR, celestialG, celestialB));
+            float
+
+
+            adaptationIrradiance = Math.max(luminance
+(skyReferenceR, skyReferenceG, skyReferenceB), luminance
+ (celestialR, celestialG, celestialB));
             float dominantVisibleBlockIrradiance = Math.max(blockIrradiance - adaptationIrradiance, 0.0F);
-            float dominantVisibility = blockIrradiance > 1.0E-5F ? dominantVisibleBlockIrradiance / blockIrradiance : 0.0F;
-            float daylightPresence = smoothstep(0.1F, 0.32F, luminance(skyReferenceR, skyReferenceG, skyReferenceB));
+            float dominantVisibility = blockIrradiance
+
+ > 1.0E-5F ? dominantVisibleBlockIrradiance
+ / blockIrradiance :
+ 0.0F;
+            float daylightPresence = smoothstep(0.1F, 0.32F, luminance
+
+
+ (skyReferenceR, skyReferenceG, skyReferenceB));
             float setting = clamp(sunShadowBlockVisibility);
-            float requestedShadowVisibility = setting * daylightPresence * clamp(sunShadowAmount);
+            float requestedShadowVisibility = setting * daylightPresence * clamp
+
+ (sunShadowAmount);
             float sourceCoreCompression = 1.0F / (1.0F + blockIrradiance * (1.0F - setting));
-            float shadowVisibility = requestedShadowVisibility * sourceCoreCompression;
+            float
+            shadowVisibility = requestedShadowVisibility * sourceCoreCompression;
             float blockVisibility = Math.max(dominantVisibility, shadowVisibility);
+
             this.put(
                 zeroR + celestialR + blockContributionR * blockVisibility,
                 zeroG + celestialG + blockContributionG * blockVisibility,
                 zeroB + celestialB + blockContributionB * blockVisibility,
                 rawNdotL );
-        }
     }
 
     private void put(float r, float g, float b, float a) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         this.pixels.put(r).put(g).put(b).put(a);
     }
 

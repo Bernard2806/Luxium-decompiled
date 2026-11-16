@@ -90,36 +90,25 @@ public final class BlockLightTest {
                 setLevel(null);
                 PROGRAMS.clear();
             }
-
             previouslyEnabled = false;
-        } else {
-            boolean firstTick = !previouslyEnabled || level != current;
+        return; }
+            boolean
+            firstTick = !previouslyEnabled || level != current;
             previouslyEnabled = true;
             setLevel(current);
             Minecraft minecraft = Minecraft.getInstance();
-            if (!(minecraft.player != null)) {
- return;
+            if (!(minecraft.player != null)) { return;
  }
-
-                if (firstTick) {
-                    PROGRAMS.clear();
-                }
-
-                int centerX = minecraft.player.blockPosition().getX() >> 4;
+                if (firstTick) { PROGRAMS.clear();
+                } int centerX = minecraft.player.blockPosition().getX() >> 4;
                 int centerZ = minecraft.player.blockPosition().getZ() >> 4;
-
                 for (int radius = 0; radius <= 3; radius++) {
                     boolean scanned = false;
-
                     for (int dz = -radius; dz <= radius && !scanned; dz++) {
                         for (int dx = -radius; dx <= radius; dx++) {
-                            int x = centerX + dx;
-                            int z = centerZ + dz;
-                            if (!(!SCANNED_CHUNKS.contains(ChunkPos.asLong(x, z)))) {
- continue;
- }
-
-                                LevelChunk chunk = current.getChunkSource().getChunk(x, z, ChunkStatus.FULL, false);
+                            int x = centerX + dx; int z = centerZ + dz;
+                            if (!(!SCANNED_CHUNKS.contains(ChunkPos.asLong(x, z)))) { continue;
+ } LevelChunk chunk = current.getChunkSource().getChunk(x, z, ChunkStatus.FULL, false);
                                 if (chunk != null) {
                                     onChunk(current, chunk);
                                     scanned = true;
@@ -127,13 +116,24 @@ public final class BlockLightTest {
                                 }
 
                         }
-                    }
-
-                    if (scanned) {
-                        break;
+                    } if (scanned) { break;
                     }
                 }
-                Vec3 camera = minecraft.gameRenderer.getMainCamera().getPosition(); Arrays.fill(NEAR, null); Arrays.fill(DISTANCES, Float.POSITIVE_INFINITY); size = 0; for (BlockLightTest.Emitter source : SOURCES.values()) { addNearby(source, camera); } if (minecraft.player.getMainHandItem().getItem() instanceof BlockItem item) { BlockState held = item.getBlock().defaultBlockState(); int light = LuxiumPlatform.get().lightEmission(held, current, minecraft.player.blockPosition()); if (light > 0) { addNearby(new BlockLightTest.Emitter(camera.x, camera.y - 0.15, camera.z, light, tint(item.getBlock().getDescriptionId()), true), camera ); } } } } public static void bind(int program, boolean entityProgram) { if (program <= 0) { return; }
+                Vec3 camera = minecraft.gameRenderer.getMainCamera().getPosition();
+Arrays.fill(NEAR, null);
+Arrays.fill(DISTANCES, Float.POSITIVE_INFINITY);
+ size = 0; for (BlockLightTest.Emitter source :
+SOURCES.values()) { addNearby(source, camera); } if (minecraft.player.getMainHandItem
+().getItem() instanceof BlockItem item) { BlockState
+ held = item.getBlock().defaultBlockState(); int light = LuxiumPlatform.get
+ ().lightEmission(held, current, minecraft.player.blockPosition());
+if (light > 0) { addNearby(new BlockLightTest.Emitter(camera.x, camera.y - 0.15, camera.z, light, tint
+ (item.getBlock().getDescriptionId()), true), camera ); } }
+
+ } public static void bind(int program, boolean entityProgram) {
+
+
+ if (program <= 0) { return; }
         int[] slots = PROGRAMS.computeIfAbsent(program, id -> new int[]{GL20.glGetUniformLocation
                 ((int)id, entityProgram ? "BtCount" : "u_BtCount"), GL20.glGetUniformLocation
                 ((int)id, entityProgram ? "BtEmitters[0]" : "u_BtEmitters[0]"), GL20.glGetUniformLocation

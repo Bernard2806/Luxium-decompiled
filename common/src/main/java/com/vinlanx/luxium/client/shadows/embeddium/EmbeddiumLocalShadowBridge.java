@@ -41,109 +41,109 @@ class EmbeddiumLocalShadowBridge {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public static record PreparedCapture(ChunkRenderer renderer, EmbeddiumLocalShadowBridge.LocalRenderLists lists, double lightX, double lightY, double lightZ) { }
-
-    public EmbeddiumLocalShadowBridge.PreparedCapture prepare(double lightX, double lightY, double lightZ, float radius) {
-        SodiumWorldRenderer worldRenderer = SodiumWorldRenderer.instanceNullable();
-        if (worldRenderer == null) {
-            return null;
+    public EmbeddiumLocalShadowBridge.PreparedCapture prepare(double lightX, double lightY, double lightZ, float radius) { SodiumWorldRenderer worldRenderer = SodiumWorldRenderer.instanceNullable();
+        if (worldRenderer == null) { return null;
         } else {
-            RenderSectionManager manager = ((SodiumWorldRendererAccessor)worldRenderer).luxium$getRenderSectionManager();
-            if (manager == null) {
-                return null;
+            RenderSectionManager manager = ((SodiumWorldRendererAccessor)worldRenderer).luxium$getRenderSectionManager
+();
+            if (manager == null) { return null;
             } else {
-                RenderSectionManagerAccessor accessor = (RenderSectionManagerAccessor)manager; ChunkRenderer renderer = accessor.luxium$getChunkRenderer(); Long2ReferenceMap<RenderSection> sections = accessor.luxium$getSectionByPosition(); if (renderer != null && sections != null && !sections.isEmpty()) { double reach = Math.max(1.0, (double)radius) + 18.0; int minSectionX = SectionPos.blockToSectionCoord(Mth.floor(lightX - reach)); int minSectionY = SectionPos.blockToSectionCoord(Mth.floor(lightY - reach)); int minSectionZ = SectionPos.blockToSectionCoord(Mth.floor(lightZ - reach)); int maxSectionX = SectionPos.blockToSectionCoord(Mth.floor(lightX + reach)); int maxSectionY = SectionPos.blockToSectionCoord(Mth.floor(lightY + reach)); int maxSectionZ = SectionPos.blockToSectionCoord(Mth.floor(lightZ + reach)); int currentFrame = ++this.frameId; Reference2ObjectLinkedOpenHashMap<RenderRegion, ChunkRenderList> byRegion = new Reference2ObjectLinkedOpenHashMap<>(); double maxDistance = reach + 14.0; double maxDistanceSq = maxDistance * maxDistance; for (int sx = minSectionX; sx <= maxSectionX; sx++) { for (int sz = minSectionZ; sz <= maxSectionZ; sz++) { for (int sy = minSectionY; sy <= maxSectionY; sy++) { RenderSection section = sections.get(SectionPos.asLong(sx, sy, sz)); if (!(section != null && section.isBuilt() && !section.isDisposed() && (section.getFlags() & 1) != 0)) { continue; } double dx = (double)section.getCenterX() - lightX; double dy = (double)section.getCenterY() - lightY; double dz = (double)section.getCenterZ() - lightZ; if (!(!(dx * dx + dy * dy + dz * dz > maxDistanceSq))) { continue; } RenderRegion region = section.getRegion(); if (!(region != null)) { continue; } ChunkRenderList list = byRegion.get(region); if (list == null) { list = new ChunkRenderList(region); list.reset(currentFrame); byRegion.put(region, list); } list.add(section); } } } EmbeddiumLocalShadowBridge.LocalRenderLists lists = new EmbeddiumLocalShadowBridge.LocalRenderLists(new ArrayList<>(byRegion.values())); return new EmbeddiumLocalShadowBridge.PreparedCapture(renderer, lists, lightX, lightY, lightZ); } else { return null; } } } } public boolean renderFace(EmbeddiumLocalShadowBridge.PreparedCapture capture, Matrix4f projection, Matrix4f viewRotation) { if (capture == null || capture.renderer == null || capture.lists == null) { return false; } else if (capture.lists.regionCount() == 0) { return false; } else { ChunkRenderMatrices matrices = new ChunkRenderMatrices(projection, viewRotation); CameraTransform camera = new CameraTransform(capture.lightX, capture.lightY, capture.lightZ); RenderDevice.enterManagedCode(); CommandList commandList = null; boolean var7; try { commandList = RenderDevice.INSTANCE.createCommandList(); GlStateManager._colorMask(false, false, false, false); GlStateManager._enableDepthTest(); GlStateManager._depthMask(true); RenderSystem.depthFunc(513); RenderSystem.disableBlend(); RenderSystem.disableCull(); capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRenderPasses.SOLID, camera); if (!NeoGpuVanilla.isConfiguredEnabled() || Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaCutoutEnabled)) { capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRenderPasses.CUTOUT, camera); } var7 = true; } finally { GlStateManager._colorMask(true, true, true, true); if (commandList != null) { commandList.close(); } RenderDevice.exitManagedCode(); } return var7; } } public static final class LocalRenderLists implements ChunkRenderListIterable { private final List<ChunkRenderList> lists; private LocalRenderLists(List<ChunkRenderList> lists) {
+                RenderSectionManagerAccessor accessor = (RenderSectionManagerAccessor)manager; ChunkRenderer
+renderer = accessor.luxium$getChunkRenderer(); Long2ReferenceMap<RenderSection>
+sections = accessor.luxium$getSectionByPosition();
+if (!(renderer != null && sections != null && !sections.isEmpty())) { return null; } double
+
+ reach = Math.max(1.0, (double)radius) + 18.0; int
+ minSectionX = SectionPos.blockToSectionCoord(Mth.floor(lightX - reach)); int
+ minSectionY = SectionPos.blockToSectionCoord(Mth.floor(lightY - reach)); int
+ minSectionZ = SectionPos.blockToSectionCoord(Mth.floor(lightZ - reach)); int
+ maxSectionX = SectionPos.blockToSectionCoord(Mth.floor(lightX + reach)); int
+ maxSectionY = SectionPos.blockToSectionCoord(Mth.floor(lightY + reach)); int
+ maxSectionZ = SectionPos.blockToSectionCoord(Mth.floor(lightZ + reach)); int
+
+ currentFrame = ++this.frameId; Reference2ObjectLinkedOpenHashMap<RenderRegion, ChunkRenderList>
+byRegion = new Reference2ObjectLinkedOpenHashMap<>(); double
+
+
+maxDistance = reach + 14.0; double
+ maxDistanceSq = maxDistance * maxDistance; for (int
+ sx = minSectionX; sx <= maxSectionX; sx++) { for (int
+ sz = minSectionZ; sz <= maxSectionZ; sz++) { for (int
+ sy = minSectionY; sy <= maxSectionY; sy++) { RenderSection
+ section = sections.get(SectionPos.asLong(sx, sy, sz));
+ if (!(section != null && section.isBuilt() && !section.isDisposed() && (section.getFlags
+() & 1) != 0)) {
+ continue; } double
+
+
+ dx = (double)section.getCenterX() - lightX; double
+ dy = (double)section.getCenterY() - lightY; double
+ dz = (double)section.getCenterZ() - lightZ;
+ if (!(!(dx * dx + dy * dy + dz * dz > maxDistanceSq))) { continue; } RenderRegion
+
+ region = section.getRegion();
+if (!(region != null)) { continue; } ChunkRenderList
+ list = byRegion.get(region);
+if (list == null) {
+ list = new ChunkRenderList(region);
+ list.reset(currentFrame);
+byRegion.put(region, list); }
+
+ list.add(section); } } } EmbeddiumLocalShadowBridge.LocalRenderLists
+
+
+
+
+ lists = new EmbeddiumLocalShadowBridge.LocalRenderLists(new ArrayList<>(byRegion.values()));
+return new EmbeddiumLocalShadowBridge.PreparedCapture(renderer, lists, lightX, lightY, lightZ); } } }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static record PreparedCapture(ChunkRenderer renderer, EmbeddiumLocalShadowBridge.LocalRenderLists lists, double lightX, double lightY, double lightZ) { } public boolean renderFace(EmbeddiumLocalShadowBridge.PreparedCapture capture, Matrix4f projection, Matrix4f viewRotation) { if (capture == null || capture.renderer == null || capture.lists == null) { return false; } else if (capture.lists.regionCount() == 0) { return false; } else { ChunkRenderMatrices matrices = new ChunkRenderMatrices(projection, viewRotation); CameraTransform camera = new CameraTransform(capture.lightX, capture.lightY, capture.lightZ); RenderDevice.enterManagedCode(); CommandList commandList = null; boolean var7; try { commandList = RenderDevice.INSTANCE.createCommandList(); GlStateManager._colorMask(false, false, false, false); GlStateManager._enableDepthTest(); GlStateManager._depthMask(true); RenderSystem.depthFunc(513); RenderSystem.disableBlend(); RenderSystem.disableCull(); capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRenderPasses.SOLID, camera); if (!NeoGpuVanilla.isConfiguredEnabled() || Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaCutoutEnabled)) { capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRenderPasses.CUTOUT, camera); } var7 = true; } finally { GlStateManager._colorMask(true, true, true, true); if (commandList != null) { commandList.close(); } RenderDevice.exitManagedCode(); } return var7; } } public static final class LocalRenderLists implements ChunkRenderListIterable { private final List<ChunkRenderList> lists; private LocalRenderLists(List<ChunkRenderList> lists)
+
+
+
+
+
+
+
+
+
+
+{
             this.lists = lists;
         }
 

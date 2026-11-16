@@ -1,29 +1,29 @@
 package com.vinlanx.luxium.client.neocpu;
 
-import com.vinlanx.luxium.platform.LuxiumPlatform;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.FastColor.ARGB32;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.Nullable;
-import com.vinlanx.luxium.client.neocpu.NeoCpuShadowShape;
-import com.vinlanx.luxium.client.neocpu.NeoCpuShadowTypes;
-import net.minecraft.util.FastColor;
-import net.minecraft.world.level.BlockGetter; final class NeoCpuShadowShapeBaker { private static final double SURFACE_EPSILON = 1.0E-5; private static final double SHADOW_EPSILON = 1.0E-6; private static final Direction[] ALL_FACES = Direction.values();
+import com.vinlanx.luxium.platform.LuxiumPlatform; import java.util.ArrayList; import java.util.List; import java.util.concurrent.ConcurrentHashMap; import net.minecraft.client.Minecraft; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.client.renderer.block.model.BakedQuad; import net.minecraft.client.renderer.texture.TextureAtlasSprite; import net.minecraft.client.resources.model.BakedModel; import net.minecraft.core.BlockPos; import net.minecraft.core.Direction; import net.minecraft.util.Mth; import net.minecraft.util.RandomSource; import net.minecraft.util.FastColor.ARGB32; import net.minecraft.world.level.block.RenderShape; import net.minecraft.world.level.block.state.BlockState; import net.minecraft.world.phys.AABB; import net.minecraft.world.phys.Vec3; import net.minecraft.world.phys.shapes.VoxelShape; import org.jetbrains.annotations.Nullable; import com.vinlanx.luxium.client.neocpu.NeoCpuShadowShape; import com.vinlanx.luxium.client.neocpu.NeoCpuShadowTypes; import net.minecraft.util.FastColor; import net.minecraft.world.level.BlockGetter;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+final class NeoCpuShadowShapeBaker {
+
+
+private static final double SURFACE_EPSILON = 1.0E-5; private static final double SHADOW_EPSILON = 1.0E-6; private static final Direction[] ALL_FACES = Direction.values();
     private static final int SPRITE_ALPHA_THRESHOLD = 16;
     private static final float MIN_MODEL_OPACITY = 0.003921569F;
     private static final NeoCpuShadowTypes.Box[] EMPTY_BOXES = new NeoCpuShadowTypes.Box[0];
@@ -93,87 +93,87 @@ receivers = new ArrayList<>(surfaceBoxes.size() * 6);
     }
 
     private NeoCpuShadowShape.LocalQuadTemplate[] collectModelOccluders(BlockState state, ClientLevel level, BlockPos pos) {
+
+
         if (state.getRenderShape() != RenderShape.MODEL) {
             return EMPTY_QUADS;
         } else {
-            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
+            BakedModel model = Minecraft.getInstance
+ ().getBlockRenderer().getBlockModel(state);
             if (model == null) {
                 return EMPTY_QUADS;
             } else {
-                List<BakedQuad> quads = collectModelQuads(model, state);
+                List<BakedQuad>
+quads = collectModelQuads(model, state);
                 if (quads.isEmpty()) {
                     return EMPTY_QUADS;
                 } else {
-                    boolean needsModelOccluders = !state.isCollisionShapeFullBlock(level, pos);
-
+                    boolean
+                    needsModelOccluders = !state.isCollisionShapeFullBlock(level, pos);
                     for (BakedQuad quad : quads) {
                         TextureAtlasSprite sprite = quad.getSprite();
                         if (!(sprite != null)) {
  continue;
  }
-
                             NeoCpuShadowShapeBaker.SpriteAlphaMask mask = this.spriteMaskCache.computeIfAbsent(sprite, this::buildSpriteMask);
                             if (!mask.fullyOpaque || mask.averageOpacity < 0.999F) {
                                 needsModelOccluders = true;
                                 break;
                             }
-
                     }
-
                     if (!needsModelOccluders) {
                         return EMPTY_QUADS;
                     } else {
-                        ArrayList<NeoCpuShadowShape.LocalQuadTemplate> result = new ArrayList<>(quads.size() * 4);
-
+                        ArrayList<NeoCpuShadowShape.LocalQuadTemplate>
+result = new ArrayList<>(quads.size() * 4);
                         for (BakedQuad quadx : quads) {
                             TextureAtlasSprite sprite = quadx.getSprite();
                             if (!(sprite != null)) {
  continue;
  }
-
                                 NeoCpuShadowShapeBaker.LocalTexturedQuad texturedQuad = NeoCpuShadowShapeBaker.LocalTexturedQuad.from(quadx);
                                 if (!(texturedQuad != null)) {
  continue;
  }
-
                                     NeoCpuShadowShapeBaker.SpriteAlphaMask mask = this.spriteMaskCache.computeIfAbsent(sprite, this::buildSpriteMask);
                                     if (!(!mask.fullyTransparent && !(mask.averageOpacity < 0.003921569F))) {
  continue;
  }
-
                                         if (mask.fullyOpaque) {
                                             result.add(new NeoCpuShadowShape.LocalQuadTemplate(texturedQuad.worldVertices, mask.averageOpacity));
-                                        } else {
-                                            NeoCpuShadowShapeBaker.SpritePixelBounds usedPixels = computeQuadPixelBounds(texturedQuad, sprite);
-                                            if (usedPixels != null) {
-                                                for (NeoCpuShadowShapeBaker.SpriteRect rect : mask.rectangles) {
+                                        continue; }
+                                            NeoCpuShadowShapeBaker.SpritePixelBounds
+
+                                            usedPixels = computeQuadPixelBounds(texturedQuad, sprite);
+                                            if (!(usedPixels != null)) {
+ continue; }
+                                                for (NeoCpuShadowShapeBaker.SpriteRect rect :
+
+mask.rectangles) {
                                                     double minPixelX = Math.max((double)rect.minX, usedPixels.minX);
                                                     double maxPixelX = Math.min((double)rect.maxX, usedPixels.maxX);
                                                     double minPixelY = Math.max((double)rect.minY, usedPixels.minY);
                                                     double maxPixelY = Math.min((double)rect.maxY, usedPixels.maxY);
                                                     if (!(!(maxPixelX - minPixelX <= 1.0E-6) && !(maxPixelY - minPixelY <= 1.0E-6))) {
+
  continue;
  }
-
                                                         Vec3[] vertices = buildOpaqueRectVertices(
-                                                            texturedQuad, sprite, minPixelX, maxPixelX, minPixelY, maxPixelY );
-                                                        if (vertices != null) {
+                                                            texturedQuad, sprite, minPixelX, maxPixelX, minPixelY, maxPixelY ); if (vertices != null) {
                                                             result.add(new NeoCpuShadowShape.LocalQuadTemplate(vertices, mask.averageOpacity));
                                                         }
 
-                                                }
-                                            }
-                                        }
+                                                } }
 
-
-
-                        }
-
-                        return result.isEmpty() ? EMPTY_QUADS : result.toArray(EMPTY_QUADS);
+                        return result.isEmpty() ?
+EMPTY_QUADS : result.toArray
+ (EMPTY_QUADS);
                     }
                 }
             }
-        } } private static List<AABB> collectRenderSurfaceBoxes(BlockState state, ClientLevel level, BlockPos pos) { VoxelShape shape = state.getShape((BlockGetter)level, pos);
+        } } private static List<AABB> collectRenderSurfaceBoxes(BlockState state, ClientLevel level, BlockPos pos) { VoxelShape
+
+ shape = state.getShape((BlockGetter)level, pos);
         if (shape.isEmpty()) {
             return List.of();
         }
@@ -316,16 +316,7 @@ continue;
 
                             rectangles.add(new NeoCpuShadowShapeBaker.SpriteRect(pixelXx, pixelXx + rectWidth, pixelY, pixelY + rectHeight));
 
-                    }
-                }
-
-                return new NeoCpuShadowShapeBaker.SpriteAlphaMask(rectangles.toArray(new NeoCpuShadowShapeBaker.SpriteRect[0]), false, false, averageOpacity);
-            }
-        }
-    }
-
-    @Nullable private static NeoCpuShadowShapeBaker.SpritePixelBounds computeQuadPixelBounds(NeoCpuShadowShapeBaker.LocalTexturedQuad quad, TextureAtlasSprite sprite) {
-        int spriteWidth = Math.max(1, sprite.contents().width());
+                    } } return new NeoCpuShadowShapeBaker.SpriteAlphaMask(rectangles.toArray(new NeoCpuShadowShapeBaker.SpriteRect[0]), false, false, averageOpacity); } } } @Nullable private static NeoCpuShadowShapeBaker.SpritePixelBounds computeQuadPixelBounds(NeoCpuShadowShapeBaker.LocalTexturedQuad quad, TextureAtlasSprite sprite) { int spriteWidth = Math.max(1, sprite.contents().width());
         int spriteHeight = Math.max(1, sprite.contents().height());
         double minPixelX = Double.POSITIVE_INFINITY;
         double maxPixelX = Double.NEGATIVE_INFINITY;
@@ -341,108 +332,117 @@ continue;
             maxPixelY = Math.max(maxPixelY, pixelY);
         }
 
-        if (Double.isFinite(minPixelX) && Double.isFinite(minPixelY) && Double.isFinite(maxPixelX) && Double.isFinite(maxPixelY)) {
+        if (!(Double.isFinite(minPixelX) && Double.isFinite(minPixelY) && Double.isFinite
+ (maxPixelX) && Double.isFinite(maxPixelY))) {
+            return null;
+        }
+
             minPixelX = Mth.clamp(minPixelX, 0.0, (double)spriteWidth);
             maxPixelX = Mth.clamp(maxPixelX, 0.0, (double)spriteWidth);
             minPixelY = Mth.clamp(minPixelY, 0.0, (double)spriteHeight);
             maxPixelY = Mth.clamp(maxPixelY, 0.0, (double)spriteHeight);
-            return !(maxPixelX - minPixelX <= 1.0E-6) && !(maxPixelY - minPixelY <= 1.0E-6)
-                ? new NeoCpuShadowShapeBaker.SpritePixelBounds(minPixelX, maxPixelX, minPixelY, maxPixelY) : null;
-        } else {
-            return null;
-        }
+            if (!(!(maxPixelX - minPixelX <= 1.0E-6) && !(maxPixelY - minPixelY <= 1.0E-6))) {
+ return null; }
+
+
+ return new NeoCpuShadowShapeBaker.SpritePixelBounds(minPixelX, maxPixelX, minPixelY, maxPixelY);
+
     }
 
     @Nullable private static Vec3[] buildOpaqueRectVertices(
         NeoCpuShadowShapeBaker.LocalTexturedQuad quad, TextureAtlasSprite sprite, double minPixelX, double maxPixelX, double minPixelY, double maxPixelY ) {
-        int spriteWidth = Math.max(1, sprite.contents().width());
+        int
+
+
+        spriteWidth = Math.max(1, sprite.contents().width());
         int spriteHeight = Math.max(1, sprite.contents().height());
         double minAtlasU = (double)sprite.getU(minPixelX * 16.0 / (double)spriteWidth);
         double maxAtlasU = (double)sprite.getU(maxPixelX * 16.0 / (double)spriteWidth);
         double minAtlasV = (double)sprite.getV(minPixelY * 16.0 / (double)spriteHeight);
         double maxAtlasV = (double)sprite.getV(maxPixelY * 16.0 / (double)spriteHeight);
-        Vec3 topLeft = mapAtlasUvToWorld(quad, minAtlasU, minAtlasV);
+        Vec3
+        topLeft = mapAtlasUvToWorld(quad, minAtlasU, minAtlasV);
         Vec3 topRight = mapAtlasUvToWorld(quad, maxAtlasU, minAtlasV);
         Vec3 bottomRight = mapAtlasUvToWorld(quad, maxAtlasU, maxAtlasV);
         Vec3 bottomLeft = mapAtlasUvToWorld(quad, minAtlasU, maxAtlasV);
-        return topLeft != null && topRight != null && bottomRight != null && bottomLeft != null ? new Vec3[]{topLeft, topRight, bottomRight, bottomLeft} : null;
+        if (!(topLeft != null && topRight != null && bottomRight != null && bottomLeft != null)) {
+ return null; }
+
+ return new Vec3[]{topLeft, topRight, bottomRight, bottomLeft};
     }
 
     @Nullable private static Vec3 mapAtlasUvToWorld(NeoCpuShadowShapeBaker.LocalTexturedQuad quad, double atlasU, double atlasV) {
         Vec3 mapped = mapAtlasUvToWorldTriangle(quad, 0, 1, 2, atlasU, atlasV);
-        return mapped != null ? mapped : mapAtlasUvToWorldTriangle(quad, 0, 2, 3, atlasU, atlasV);
+        if (mapped != null) {
+ return mapped; }
+
+ return mapAtlasUvToWorldTriangle(quad, 0, 2, 3, atlasU, atlasV);
     }
 
     @Nullable private static Vec3 mapAtlasUvToWorldTriangle(
         NeoCpuShadowShapeBaker.LocalTexturedQuad quad, int indexA, int indexB, int indexC, double atlasU, double atlasV ) {
-        NeoCpuShadowShapeBaker.AtlasUv uvA = quad.atlasUvs[indexA];
+        NeoCpuShadowShapeBaker.AtlasUv
+
+
+
+        uvA = quad.atlasUvs[indexA];
         NeoCpuShadowShapeBaker.AtlasUv uvB = quad.atlasUvs[indexB];
         NeoCpuShadowShapeBaker.AtlasUv uvC = quad.atlasUvs[indexC];
         double denominator = (uvB.v - uvC.v) * (uvA.u - uvC.u) + (uvC.u - uvB.u) * (uvA.v - uvC.v);
         if (Math.abs(denominator) <= 1.0E-6) {
             return null;
         } else {
-            double weightA = ((uvB.v - uvC.v) * (atlasU - uvC.u) + (uvC.u - uvB.u) * (atlasV - uvC.v)) / denominator;
+            double
+            weightA = ((uvB.v - uvC.v) * (atlasU - uvC.u) + (uvC.u - uvB.u) * (atlasV - uvC.v)) / denominator;
             double weightB = ((uvC.v - uvA.v) * (atlasU - uvC.u) + (uvA.u - uvC.u) * (atlasV - uvC.v)) / denominator;
             double weightC = 1.0 - weightA - weightB;
             double epsilon = 1.0E-4;
-            if (!(weightA < -epsilon) && !(weightB < -epsilon) && !(weightC < -epsilon)) {
-                Vec3 vertexA = quad.worldVertices[indexA];
+            if (!(!(weightA < -epsilon) && !(weightB < -epsilon) && !(weightC < -epsilon))) {
+                return null;
+            }
+                Vec3
+                vertexA = quad.worldVertices[indexA];
                 Vec3 vertexB = quad.worldVertices[indexB];
                 Vec3 vertexC = quad.worldVertices[indexC];
                 return new Vec3(
                     vertexA.x * weightA + vertexB.x * weightB + vertexC.x * weightC,
                     vertexA.y * weightA + vertexB.y * weightB + vertexC.y * weightC,
                     vertexA.z * weightA + vertexB.z * weightB + vertexC.z * weightC );
-            } else {
-                return null;
-            }
+
         }
     }
-
-    private static List<NeoCpuShadowShapeBaker.SurfaceRect> subtractSurfaceRectList(
-        List<NeoCpuShadowShapeBaker.SurfaceRect> sourceRects, NeoCpuShadowShapeBaker.SurfaceRect coverRect ) {
-        if (coverRect != null && !sourceRects.isEmpty()) {
+    private static List<NeoCpuShadowShapeBaker.SurfaceRect> subtractSurfaceRectList(List<NeoCpuShadowShapeBaker.SurfaceRect> sourceRects, NeoCpuShadowShapeBaker.SurfaceRect coverRect ) { if (!(coverRect != null && !sourceRects.isEmpty())) {
+            return sourceRects;
+        }
             ArrayList<NeoCpuShadowShapeBaker.SurfaceRect> result = new ArrayList<>(sourceRects.size());
-
             for (NeoCpuShadowShapeBaker.SurfaceRect rect : sourceRects) {
                 subtractSurfaceRect(rect, coverRect, result);
             }
-
             return result;
-        } else {
-            return sourceRects;
-        }
+
     }
 
-    private static void subtractSurfaceRect(
-        NeoCpuShadowShapeBaker.SurfaceRect sourceRect, NeoCpuShadowShapeBaker.SurfaceRect coverRect, List<NeoCpuShadowShapeBaker.SurfaceRect> out ) {
-        double overlapMinU = Math.max(sourceRect.minU, coverRect.minU);
+    private static void subtractSurfaceRect(NeoCpuShadowShapeBaker.SurfaceRect sourceRect, NeoCpuShadowShapeBaker.SurfaceRect coverRect, List<NeoCpuShadowShapeBaker.SurfaceRect> out ) { double overlapMinU = Math.max(sourceRect.minU, coverRect.minU);
         double overlapMaxU = Math.min(sourceRect.maxU, coverRect.maxU);
         double overlapMinV = Math.max(sourceRect.minV, coverRect.minV);
         double overlapMaxV = Math.min(sourceRect.maxV, coverRect.maxV);
-        if (!(overlapMaxU - overlapMinU <= 1.0E-5) && !(overlapMaxV - overlapMinV <= 1.0E-5)) {
+        if (!(!(overlapMaxU - overlapMinU <= 1.0E-5) && !(overlapMaxV - overlapMinV <= 1.0E-5))) {
+ out.add(sourceRect);
+return; }
+
             if (overlapMinV - sourceRect.minV > 1.0E-5) {
                 out.add(new NeoCpuShadowShapeBaker.SurfaceRect(sourceRect.minU, sourceRect.maxU, sourceRect.minV, overlapMinV));
             }
-
             if (sourceRect.maxV - overlapMaxV > 1.0E-5) {
                 out.add(new NeoCpuShadowShapeBaker.SurfaceRect(sourceRect.minU, sourceRect.maxU, overlapMaxV, sourceRect.maxV));
             }
-
             if (overlapMinU - sourceRect.minU > 1.0E-5) {
                 out.add(new NeoCpuShadowShapeBaker.SurfaceRect(sourceRect.minU, overlapMinU, overlapMinV, overlapMaxV));
             }
-
             if (sourceRect.maxU - overlapMaxU > 1.0E-5) {
                 out.add(new NeoCpuShadowShapeBaker.SurfaceRect(overlapMaxU, sourceRect.maxU, overlapMinV, overlapMaxV));
             }
-        } else { out.add(sourceRect); } } private static boolean coversFacePlane(Direction face, double planeCoordinate, AABB box) {
-
-
-
-
-
+         } private static boolean coversFacePlane(Direction face, double planeCoordinate, AABB box) {
 
 
  return switch (face) {
@@ -475,9 +475,9 @@ continue;
     }
 
 
-
-
-
+    private static NeoCpuShadowShapeBaker.SurfaceRect surfaceRect(double minU, double maxU, double minV, double maxV) { return !(!(maxU - minU <= 1.0E-5) && !(maxV - minV <= 1.0E-5)) ?
+ null :
+ new NeoCpuShadowShapeBaker.SurfaceRect(minU, maxU, minV, maxV); }
 
 
     private static record SurfaceRect(double minU, double maxU, double minV, double maxV) { double width() {
@@ -490,7 +490,7 @@ continue;
         } }
 
 
-    private static NeoCpuShadowShapeBaker.SurfaceRect surfaceRect(double minU, double maxU, double minV, double maxV) { return !(maxU - minU <= 1.0E-5) && !(maxV - minV <= 1.0E-5) ? new NeoCpuShadowShapeBaker.SurfaceRect(minU, maxU, minV, maxV) : null; } private static record AtlasUv(double u, double v) { }
+        private static record AtlasUv(double u, double v) { }
 
 
  private static record SpriteRect(int minX, int maxX, int minY, int maxY) { }

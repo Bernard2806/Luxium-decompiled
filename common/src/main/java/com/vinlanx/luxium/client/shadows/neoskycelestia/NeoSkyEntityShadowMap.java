@@ -1,30 +1,30 @@
 package com.vinlanx.luxium.client.shadows.neoskycelestia;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexSorting;
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.mixin.EntityRenderDispatcherAccessor;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestia;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestiaMath;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyDepthFramebuffer;
-import net.minecraft.world.level.Level;
-import org.joml.Matrix3fc;
-import org.joml.Matrix4fc; public final class NeoSkyEntityShadowMap implements AutoCloseable { private final NeoSkyDepthFramebuffer target = new NeoSkyDepthFramebuffer(); private final Matrix4f lightViewRotation = new Matrix4f(); private final Matrix4f lightProjection = new Matrix4f();
+import com.mojang.blaze3d.platform.GlStateManager; import com.mojang.blaze3d.systems.RenderSystem; import com.mojang.blaze3d.vertex.BufferBuilder; import com.mojang.blaze3d.vertex.PoseStack; import com.mojang.blaze3d.vertex.VertexSorting; import com.vinlanx.luxium.Config; import com.vinlanx.luxium.mixin.EntityRenderDispatcherAccessor; import net.minecraft.client.Minecraft; import net.minecraft.client.renderer.MultiBufferSource; import net.minecraft.client.renderer.MultiBufferSource.BufferSource; import net.minecraft.client.renderer.entity.EntityRenderDispatcher; import net.minecraft.util.Mth; import net.minecraft.world.entity.Entity; import net.minecraft.world.phys.AABB; import net.minecraft.world.phys.Vec3; import org.joml.Matrix3f; import org.joml.Matrix4f; import org.joml.Quaternionf; import org.joml.Vector3f; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestia; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestiaMath; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyDepthFramebuffer; import net.minecraft.world.level.Level; import org.joml.Matrix3fc; import org.joml.Matrix4fc;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public final class NeoSkyEntityShadowMap implements AutoCloseable {
+ private final NeoSkyDepthFramebuffer target = new NeoSkyDepthFramebuffer();
+ private final Matrix4f lightViewRotation = new Matrix4f();
+ private final Matrix4f lightProjection = new Matrix4f();
     private final Matrix4f lightFromMainView = new Matrix4f();
     private Vec3 eye = Vec3.ZERO;
     private int resolution;

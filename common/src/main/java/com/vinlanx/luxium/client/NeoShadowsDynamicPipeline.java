@@ -163,55 +163,60 @@ continue;
 
     List<NeoShadowsTypes.ShadowPolygon> buildRealtimeDynamicShadowPolygons(
         ClientLevel level, BlockPos center, @Nullable NeoShadowsTypes.RealtimeStaticShadowOutput output, DynamicShadowMeshCapture.Snapshot snapshot ) {
-        if (output != null && !output.receiverPlaneGroups.isEmpty()) {
-            NeoShadowsTypes.GeometryBuildState state = new NeoShadowsTypes.GeometryBuildState(
-                this.engine, level, center, ExposedFaceService.get(), true, snapshot );
-            NeoShadowsTypes.BuildScratch scratch = new NeoShadowsTypes.BuildScratch();
 
+
+        if (!(output != null && !output.receiverPlaneGroups.isEmpty())) {
+            return Collections.emptyList();
+        }
+            NeoShadowsTypes.GeometryBuildState
+            state = new NeoShadowsTypes.GeometryBuildState(
+                this.engine, level, center, ExposedFaceService.get
+
+
+ (), true, snapshot );
+            NeoShadowsTypes.BuildScratch
+
+
+            scratch = new NeoShadowsTypes.BuildScratch();
             for (NeoShadowsTypes.ReceiverPlaneGroup group : output.receiverPlaneGroups) {
                 if (scratch.shadowPolygons.size() >= 12288) {
                     break;
                 }
-
                 this.addDynamicCasterShadows(group, state, scratch);
             }
 
             return scratch.shadowPolygons.isEmpty() ? Collections.emptyList() : List.copyOf(scratch.shadowPolygons);
-        } else {
-            return Collections.emptyList();
-        }
+
     }
 
     void addDynamicCasterShadows(NeoShadowsTypes.ReceiverPlaneGroup group, NeoShadowsTypes.GeometryBuildState state, NeoShadowsTypes.BuildScratch scratch) {
-        double maxDist = Math.min(LightRtMath.getMaxDistance(group.sourceEmission), 30.0);
-
+        double
+        maxDist = Math.min(LightRtMath.getMaxDistance(group.sourceEmission), 30.0);
         for (NeoShadowsTypes.DynamicCaster caster : state.dynamicCasters) {
             if (scratch.shadowPolygons.size() >= 12288) {
                 return;
             }
+            if (!caster.canAffect(group.source, state.center, maxDist)) {
+ continue; }
 
-            if (!(caster.canAffect(group.source, state.center, maxDist)
-                && group.mayOverlapProjectedBounds(group.source, caster)
-                && this.blocksAnyReceiverSample(group, caster))) {
- continue;
- }
+ if (!group.mayOverlapProjectedBounds(group.source, caster)) {
+ continue; }
+
+ if (!this.blocksAnyReceiverSample(group, caster)) {
+ continue; }
+
 
                 if (!caster.quads.isEmpty()) {
                     boolean added = false;
-
                     for (Vec3[] quad : caster.quads) {
                         if (scratch.shadowPolygons.size() >= 12288) {
                             return;
                         }
-
                         if (!(NeoShadowsStaticPipeline.facesSource(quad, group.source))) {
 continue;
 }
-
                             added |= this.engine.staticPipeline.addProjectedQuadShadow(group, quad, scratch);
-
                     }
-
                     if (added) {
                         scratch.occluderHitCount++;
                         continue;
@@ -220,26 +225,21 @@ continue;
 
                 List<NeoShadowsTypes.UvPoint> projected = NeoShadowsProjection.collectProjectedBoxPoints(
                     group.plane, group.source, caster.boxCorners, scratch.projectedPointBuf );
-                List<NeoShadowsTypes.UvPoint> polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected, scratch);
+                List<NeoShadowsTypes.UvPoint>
+
+
+
+polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected, scratch);
                 if (!(polygon != null)) {
  continue;
  }
-
                     this.engine.staticPipeline.addPlaneShadowPolygons(group, polygon, scratch);
                     scratch.occluderHitCount++;
-
-
         }
     }
 
     boolean blocksAnyReceiverSample(NeoShadowsTypes.ReceiverPlaneGroup group, NeoShadowsTypes.DynamicCaster caster) {
         double[]
-
-
-
-
-
-
         samples = group.receiverSamples;
         for (int index = 0; index < samples.length; index += 3) {
             if (caster.intersectsSegment(group.source.x, group.source.y, group.source.z, samples[index], samples[index + 1], samples[index + 2])) {

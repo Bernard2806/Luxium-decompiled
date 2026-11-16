@@ -20,13 +20,13 @@ final class ResolutionControls {
  ().map(monitor::getVideoModeIndex).orElse(-1);
         OptionInstance<Integer> resolution = new OptionInstance<>(
             "options.fullscreen.resolution", OptionInstance.noTooltip(),
-            (caption, index) -> (Component)(monitor == null
-                    ? Component.translatable("options.fullscreen.unavailable") : Options.genericValueLabel(
-                        caption, index == -1 ? Component.translatable("options.fullscreen.current") : Component.literal(monitor.getMode(index).toString()) )),
-            new IntRange(-1, monitor
+            (caption, index) -> { if (monitor == null)
+                    { return Component.translatable("options.fullscreen.unavailable"); }
 
-
-== null ? -1 : monitor.getModeCount() - 1),
+return Options.genericValueLabel(caption, index == -1 ? Component.translatable
+ ("options.fullscreen.current") : Component.literal
+ (monitor.getMode(index).toString())); },
+            new IntRange(-1, monitor == null ? -1 : monitor.getModeCount() - 1),
             selected,
             index -> { if (monitor != null) {
                     window.setPreferredFullscreenVideoMode(index == -1 ? Optional.empty

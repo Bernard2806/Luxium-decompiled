@@ -1,42 +1,42 @@
 package com.vinlanx.luxium.client.reflections;
 
-import com.mojang.blaze3d.platform.NativeImage;
-import com.vinlanx.luxium.client.ReflectionSystem;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrayList;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Stream;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
-import com.vinlanx.luxium.client.reflections.RainHeightmap;
-import com.vinlanx.luxium.client.reflections.RainPuddleSurface;
-import com.vinlanx.luxium.client.reflections.ReflectionMaterial;
-import com.vinlanx.luxium.client.reflections.ReflectionMaterialRegistry;
-import java.nio.file.FileVisitOption;
-import java.nio.file.LinkOption;
-import java.nio.file.OpenOption; public final class RainPuddleManager { private static final Logger LOGGER = LogManager.getLogger (); private static final RainPuddleManager INSTANCE = new RainPuddleManager();
+import com.mojang.blaze3d.platform.NativeImage; import com.vinlanx.luxium.client.ReflectionSystem; import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap; import it.unimi.dsi.fastutil.longs.LongArrayList; import java.io.IOException; import java.io.InputStream; import java.nio.file.Files; import java.nio.file.Path; import java.util.ArrayList; import java.util.Comparator; import java.util.HashMap; import java.util.LinkedHashMap; import java.util.List; import java.util.Locale; import java.util.Map; import java.util.concurrent.ThreadLocalRandom; import java.util.stream.Stream; import net.minecraft.client.Minecraft; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.core.BlockPos; import net.minecraft.core.Direction; import net.minecraft.resources.ResourceKey; import net.minecraft.resources.ResourceLocation; import net.minecraft.server.packs.resources.Resource; import net.minecraft.server.packs.resources.ResourceManager; import net.minecraft.world.level.Level; import net.minecraft.world.level.block.state.BlockState; import org.apache.logging.log4j.LogManager; import org.apache.logging.log4j.Logger; import org.jetbrains.annotations.Nullable; import com.vinlanx.luxium.client.reflections.RainHeightmap; import com.vinlanx.luxium.client.reflections.RainPuddleSurface; import com.vinlanx.luxium.client.reflections.ReflectionMaterial; import com.vinlanx.luxium.client.reflections.ReflectionMaterialRegistry; import java.nio.file.FileVisitOption; import java.nio.file.LinkOption; import java.nio.file.OpenOption;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public final class RainPuddleManager { private static final Logger LOGGER = LogManager.getLogger ();
+private static final RainPuddleManager INSTANCE = new RainPuddleManager();
+
     private static final String RAIN_RESOURCE_ROOT = "rain";
     private static final String PNG_SUFFIX = ".png"; private static final Path DEV_RAIN_DIR = Path.of("src", "main", "resources", "assets", "luxium", "rain");
     private static final int MIN_PUDDLE_SIZE = 1;
@@ -103,20 +103,20 @@ puddles = this.puddlesFor(level);
             }
         }
     }
-
-    @Nullable public synchronized RainPuddleSurface getActiveSurface(@Nullable ClientLevel level, BlockPos pos) {
-        if (level == null) {
+    @Nullable public synchronized RainPuddleSurface getActiveSurface(@Nullable ClientLevel level, BlockPos pos) { if (level == null) {
             return null;
         } else {
-            Long2ObjectOpenHashMap<RainPuddleSurface> puddles = this.puddlesByDimension.get(level.dimension());
-            return puddles == null ? null : puddles.get(pos.asLong());
+            Long2ObjectOpenHashMap<RainPuddleSurface>
+puddles = this.puddlesByDimension.get(level.dimension());
+            if (puddles == null) {
+ return null; }
+
+
+ return puddles.get(pos.asLong());
         }
     }
 
-    public synchronized void removeIfUnsupported(@Nullable ClientLevel level, BlockPos pos, BlockState state) {
-
-
-        if (level == null) {
+    public synchronized void removeIfUnsupported(@Nullable ClientLevel level, BlockPos pos, BlockState state) { if (level == null) {
             return;
         }
 
@@ -147,7 +147,12 @@ puddles = this.puddlesFor(level);
     }
 
     @Nullable private RainPuddleSurface buildSurface(Minecraft mc, ClientLevel level, BlockPos center, RainHeightmap heightmap, int sizeBlocks) {
-        int minX = center.getX() - (sizeBlocks - 1) / 2;
+        int
+
+
+
+
+        minX = center.getX() - (sizeBlocks - 1) / 2;
         int minZ = center.getZ() - (sizeBlocks - 1) / 2;
         LongArrayList covered = new LongArrayList(sizeBlocks * sizeBlocks);
 
@@ -159,24 +164,19 @@ puddles = this.puddlesFor(level);
                 if (!(material != null && material.shouldReflectFace(mc, candidate, candidateState, Direction.UP))) {
 continue;
 }
-
                     covered.add(candidate.asLong());
 
             }
         }
+        if (covered.isEmpty()) {
+return null; }
 
-        return covered.isEmpty() ? null : new RainPuddleSurface(heightmap, sizeBlocks, minX, minZ, covered.toLongArray());
+
+ return new RainPuddleSurface(heightmap, sizeBlocks, minX, minZ, covered.toLongArray());
     }
 
     private void removePlacementAt(Long2ObjectOpenHashMap<RainPuddleSurface> puddles, long blockKey) {
-        RainPuddleSurface
-
-
-
-
-
-
-        existing = (RainPuddleSurface)puddles.get(blockKey);
+        RainPuddleSurface existing = (RainPuddleSurface)puddles.get(blockKey);
         if (existing == null) {
             return;
         }

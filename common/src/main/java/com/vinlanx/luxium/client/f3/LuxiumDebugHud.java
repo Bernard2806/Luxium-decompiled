@@ -17,11 +17,19 @@ public final class LuxiumDebugHud {
     private LuxiumDebugHud() { }
 
     public static void render(Minecraft minecraft, GuiGraphics graphics, float partialTick, int screenWidth, int screenHeight) {
-        Config.Client config = Config.CLIENT;
-        if (config.debugHudEnabled.get() && !minecraft.options.hideGui) {
-            long now = System.nanoTime();
-            int metrics = (config.debugHudFps.get() ? 1 : 0) | (config.debugHudMemory.get() ? 2 : 0) | (config.debugHudAllocated.get() ? 4 : 0);
-            if (lastUpdate == 0L || metrics != lastMetrics || now - lastUpdate >= (long)(config.debugHudUpdateSeconds.get() * 1.0E9)) {
+        Config.Client
+        config = Config.CLIENT;
+        if (!(config.debugHudEnabled.get() && !minecraft.options.hideGui)) {
+            lastUpdate = 0L;
+ return;
+        }
+            long now = System.nanoTime
+ ();
+            int metrics = (config.debugHudFps.get() ? 1 : 0) | (config.debugHudMemory.get
+() ? 2 : 0) | (config.debugHudAllocated.get
+() ? 4 : 0);
+            if (lastUpdate == 0L || metrics != lastMetrics || now - lastUpdate >= (long)(config.debugHudUpdateSeconds.get
+() * 1.0E9)) {
                 lastUpdate = now;
                 lastMetrics = metrics;
                 lineCount = 0;
@@ -29,7 +37,6 @@ public final class LuxiumDebugHud {
                 if (config.debugHudFps.get()) {
                     addLine(minecraft, "FPS: " + minecraft.getFps());
                 }
-
                 if (config.debugHudMemory.get() || config.debugHudAllocated.get()) {
                     Runtime runtime = Runtime.getRuntime();
                     long total = runtime.totalMemory();
@@ -37,17 +44,14 @@ public final class LuxiumDebugHud {
                     if (config.debugHudMemory.get()) {
                         addLine(minecraft, "RAM: " + (total - runtime.freeMemory()) / 1048576L + "/" + max / 1048576L + " MB");
                     }
-
                     if (config.debugHudAllocated.get()) {
                         addLine(minecraft, "Allocated: " + total / 1048576L + "/" + max / 1048576L + " MB");
                     }
                 }
             }
 
-            if (!(lineCount != 0)) {
- return;
+            if (!(lineCount != 0)) { return;
  }
-
                 float scale = config.debugHudTextScale.get().floatValue();
                 Config.DebugHudPosition position = config.debugHudPosition.get();
                 boolean right = position == Config.DebugHudPosition.TOP_RIGHT || position == Config.DebugHudPosition.BOTTOM_RIGHT;
@@ -56,22 +60,18 @@ public final class LuxiumDebugHud {
                 float height = (float)(lineCount * 10) * scale;
                 float x = right ? (float)(screenWidth - 4 - config.debugHudOffsetX.get()) - width : (float)(4 + config.debugHudOffsetX.get());
                 float y = bottom ? (float)(screenHeight - 4 - config.debugHudOffsetY.get()) - height : (float)(4 + config.debugHudOffsetY.get());
+
                 graphics.pose().pushPose();
                 graphics.pose().translate(x, y, 0.0F);
                 graphics.pose().scale(scale, scale, 1.0F);
-
                 for (int index = 0; index < lineCount; index++) {
                     graphics.drawString(minecraft.font, lines[index], 0, index * 10, -1, true);
                 }
-
                 graphics.pose().popPose();
-
-        } else {
-            lastUpdate = 0L;
-        }
     }
 
-    private static void addLine(Minecraft minecraft, String text) { lines[lineCount++] = text;
+    private static void addLine(Minecraft minecraft, String text) {
+ lines[lineCount++] = text;
         textWidth = Math.max(textWidth, minecraft.font.width(text));
     }
     }

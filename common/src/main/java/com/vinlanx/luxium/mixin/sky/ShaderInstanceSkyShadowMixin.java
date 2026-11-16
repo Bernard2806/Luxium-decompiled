@@ -111,8 +111,13 @@ this.luxium$receiverShaderResolved = true; }
 
     @Inject(
         method = {"apply"},
-        at = {@At("HEAD")} ) private void luxium$bindSkyShadowState(CallbackInfo ci) {
-        if (!this.name.equals("luxium:entity_shadow_solid") && !this.name.equals("luxium:entity_shadow_cutout")) {
+        at = {@At("HEAD")} ) private void luxium$bindSkyShadowState(CallbackInfo ci) { if (!(!this.name.equals("luxium:entity_shadow_solid") && !this.name.equals
+("luxium:entity_shadow_cutout"))) { if (NeoSkyCelestia.get
+().isRenderingEntityShadowPass()) { NeoSkyCelestia.get
+ ().bindEntityShadowTarget(); }
+
+return; }
+
             if (!(this.luxium$isReceiverShader() && LuxiumGpuShaderFeatures.receiverBindingEnabled())) {
 return;
 }
@@ -121,57 +126,38 @@ return;
                 if (!this.luxium$uniformsResolved) {
                     this.luxium$resolveUniforms(shader);
                 }
-
                 if (!(this.luxium$shadowEnabled != null || this.luxium$skyLightEnabled != null || this.luxium$entityShadowCasterPass != null)) {
+
  return;
  }
-
-                    if (!LuxiumGpuShaderFeatures.neoSkyEntityReceiverEnabled() && !NeoShadowsEngine.isGpuShadowAtlasCapturePass()) {
+                    if (!LuxiumGpuShaderFeatures.neoSkyEntityReceiverEnabled() && !NeoShadowsEngine.isGpuShadowAtlasCapturePass
+()) {
                         if (!this.luxium$skyUniformsDisabled) {
-                            if (this.luxium$shadowEnabled != null) {
-                                this.luxium$shadowEnabled.set(0);
-                            }
-
-                            if (this.luxium$entityShadowEnabled != null) {
-                                this.luxium$entityShadowEnabled.set(0);
-                            }
-
-                            if (this.luxium$entityShadowCasterPass != null) {
-                                this.luxium$entityShadowCasterPass.set(0);
-                            }
-
-                            if (this.luxium$skyLightEnabled != null) {
-                                this.luxium$skyLightEnabled.set(0);
-                            }
-
-                            this.luxium$skyUniformsDisabled = true;
+                            if (this.luxium$shadowEnabled != null) { this.luxium$shadowEnabled.set(0);
+                            } if (this.luxium$entityShadowEnabled != null) { this.luxium$entityShadowEnabled.set(0);
+                            } if (this.luxium$entityShadowCasterPass != null) { this.luxium$entityShadowCasterPass.set(0);
+                            } if (this.luxium$skyLightEnabled != null) { this.luxium$skyLightEnabled.set(0);
+                            } this.luxium$skyUniformsDisabled = true;
                             this.luxium$lastUploadedState = null;
                         }
-                    } else {
+                    return; }
+
                         this.luxium$skyUniformsDisabled = false;
-                        if (TemporalFrameSystem.isFirstPersonOverlayPass()) {
-                            if (this.luxium$shadowEnabled != null) {
-                                this.luxium$shadowEnabled.set(0);
+                        if (TemporalFrameSystem.isFirstPersonOverlayPass
+()) {
+                            if (this.luxium$shadowEnabled != null) { this.luxium$shadowEnabled.set(0);
+                            } if (this.luxium$entityShadowEnabled != null) { this.luxium$entityShadowEnabled.set(0);
+                            } if (this.luxium$entityShadowCasterPass != null) { this.luxium$entityShadowCasterPass.set(0);
+                            } if (this.luxium$skyLightEnabled != null) { this.luxium$skyLightEnabled.set(0);
                             }
-
-                            if (this.luxium$entityShadowEnabled != null) {
-                                this.luxium$entityShadowEnabled.set(0);
-                            }
-
-                            if (this.luxium$entityShadowCasterPass != null) {
-                                this.luxium$entityShadowCasterPass.set(0);
-                            }
-
-                            if (this.luxium$skyLightEnabled != null) {
-                                this.luxium$skyLightEnabled.set(0);
-                            }
-
                             this.luxium$lastUploadedState = null;
                             this.luxium$lastUploadedActive = false;
                             this.luxium$lastUploadedCasterPass = false;
                             this.luxium$lastUploadedVanillaBlockLightInSunShadows = Float.NaN;
-                        } else {
-                            NeoSkyCelestia system = NeoSkyCelestia.get();
+                        return; }
+                            NeoSkyCelestia system = NeoSkyCelestia.get
+
+ ();
                             NeoSkyCelestiaFrameState state = system.frameState();
                             boolean active = system.isMainPassActive();
                             boolean receiverShadowsEnabled = Config.isFeatureEnabled(Config.CLIENT.skyEntityReceiverShadowsEnabled);
@@ -180,132 +166,126 @@ return;
                             if (skyEntityCasterPass) {
                                 system.bindEntityShadowTarget();
                             }
-
                             float vanillaBlockLightInSunShadows = state.moonLight()
-                                ? 0.0F : Config.CLIENT.vanillaBlockLightInSunShadows.get().floatValue() * 0.01F;
+                                ? 0.0F : Config.CLIENT.vanillaBlockLightInSunShadows.get
+().floatValue() * 0.01F;
                             if (!(this.luxium$lastUploadedState != state
                                 || this.luxium$lastUploadedActive != active
                                 || this.luxium$lastUploadedCasterPass != casterPass
-                                || this.luxium$lastUploadedReceiverShadowsEnabled != receiverShadowsEnabled
-                                || Float.compare(this.luxium$lastUploadedVanillaBlockLightInSunShadows, vanillaBlockLightInSunShadows) != 0)) {
+                                || this.luxium$lastUploadedReceiverShadowsEnabled != receiverShadowsEnabled || Float.compare(this.luxium$lastUploadedVanillaBlockLightInSunShadows, vanillaBlockLightInSunShadows) != 0)) {
  return;
  }
-
                                 this.luxium$lastUploadedState = state;
                                 this.luxium$lastUploadedActive = active;
                                 this.luxium$lastUploadedCasterPass = casterPass;
                                 this.luxium$lastUploadedReceiverShadowsEnabled = receiverShadowsEnabled;
                                 this.luxium$lastUploadedVanillaBlockLightInSunShadows = vanillaBlockLightInSunShadows;
-                                boolean enabled = active && state.enabled() && receiverShadowsEnabled;
+                                boolean
+                                enabled = active && state.enabled() && receiverShadowsEnabled;
                                 boolean skyLightEnabled = active && state.skyLightEnabled() && receiverShadowsEnabled;
+
                                 shader.setSampler("LuxiumBlockOnlyLightSampler", state.blockOnlyLightTexture());
                                 shader.setSampler("LuxiumShadowMap0", state.nearDepthTexture());
                                 shader.setSampler("LuxiumShadowMap1", state.farDepthTexture());
                                 shader.setSampler("LuxiumEntityShadowMap", state.entityDepthTexture());
+
                                 if (this.luxium$nearMatrix != null) {
                                     this.luxium$nearMatrix.set(state.nearLightFromView());
                                 }
-
                                 if (this.luxium$farMatrix != null) {
                                     this.luxium$farMatrix.set(state.farLightFromView());
                                 }
-
                                 if (this.luxium$entityMatrix != null) {
                                     this.luxium$entityMatrix.set(state.entityLightFromView());
                                 }
-
                                 if (this.luxium$cascadeData != null) {
-                                    this.luxium$cascadeData.set(state.nearRadius(), state.farRadius(), state.nearTexelSize(), state.farTexelSize());
+                                    this.luxium$cascadeData.set(state.nearRadius
+(), state.farRadius
+ (), state.nearTexelSize
+ (), state.farTexelSize
+ ());
                                 }
-
                                 if (this.luxium$biasData != null) {
-                                    this.luxium$biasData.set(state.baseBiasNear(), state.baseBiasFar(), state.slopeBias(), state.cascadeBlendStart());
+                                    this.luxium$biasData.set(state.baseBiasNear
+(), state.baseBiasFar
+ (), state.slopeBias
+ (), state.cascadeBlendStart
+ ());
                                 }
-
                                 if (this.luxium$entityShadowData != null) {
-                                    this.luxium$entityShadowData.set(state.entityTexelSize(), state.entityBaseBias(), state.slopeBias(), state.entityRadius());
+                                    this.luxium$entityShadowData.set(state.entityTexelSize
+(), state.entityBaseBias
+ (), state.slopeBias
+ (), state.entityRadius
+ ());
                                 }
-
                                 if (this.luxium$shadowEnabled != null) {
                                     this.luxium$shadowEnabled.set(enabled ? 1 : 0);
                                 }
-
                                 if (this.luxium$entityShadowEnabled != null) {
                                     this.luxium$entityShadowEnabled.set(active && receiverShadowsEnabled && state.entityShadowEnabled() ? 1 : 0);
                                 }
-
                                 if (this.luxium$entityShadowCasterPass != null) {
                                     this.luxium$entityShadowCasterPass.set(casterPass ? 1 : 0);
                                 }
-
                                 if (this.luxium$skyLightEnabled != null) {
                                     this.luxium$skyLightEnabled.set(skyLightEnabled ? 1 : 0);
                                 }
-
                                 if (this.luxium$filterSamples != null) {
                                     this.luxium$filterSamples.set(state.filterSamples());
                                 }
-
                                 if (this.luxium$lightDirection != null) {
-                                    this.luxium$lightDirection.set(state.lightDirection().x, state.lightDirection().y, state.lightDirection().z);
+                                    this.luxium$lightDirection.set(state.lightDirection
+().x, state.lightDirection
+ ().y, state.lightDirection
+ ().z);
                                 }
-
                                 if (this.luxium$directColor != null) {
-                                    this.luxium$directColor.set(state.directColor().x, state.directColor().y, state.directColor().z);
+                                    this.luxium$directColor.set(state.directColor
+().x, state.directColor
+ ().y, state.directColor
+ ().z);
                                 }
-
                                 if (this.luxium$skyAmbientColor != null) {
-                                    this.luxium$skyAmbientColor.set(state.skyAmbientColor().x, state.skyAmbientColor().y, state.skyAmbientColor().z);
+                                    this.luxium$skyAmbientColor.set(state.skyAmbientColor
+().x, state.skyAmbientColor
+ ().y, state.skyAmbientColor
+ ().z);
                                 }
-
                                 if (this.luxium$groundAmbientColor != null) {
-                                    this.luxium$groundAmbientColor
-                                        .set(state.groundAmbientColor().x, state.groundAmbientColor().y, state.groundAmbientColor().z);
+                                    this.luxium$groundAmbientColor .set(state.groundAmbientColor
+().x, state.groundAmbientColor
+ ().y, state.groundAmbientColor
+ ().z);
                                 }
-
                                 if (this.luxium$directStrength != null) {
                                     this.luxium$directStrength.set(state.directStrength() * 0.7F);
                                 }
-
                                 if (this.luxium$ambientStrength != null) {
                                     this.luxium$ambientStrength.set(state.ambientStrength());
                                 }
-
                                 if (this.luxium$vanillaBlockLightInSunShadows != null) {
-                                    this.luxium$vanillaBlockLightInSunShadows.set(vanillaBlockLightInSunShadows);
-                                }
+ this.luxium$vanillaBlockLightInSunShadows.set(vanillaBlockLightInSunShadows); }
 
-                        }
-                    }
+} @Inject(method = {"apply"}, at = {@At("TAIL")} ) private void luxium$bindLocalShadowState(CallbackInfo ci) {
 
 
-        } else {
-            if (NeoSkyCelestia.get().isRenderingEntityShadowPass()) {
-                NeoSkyCelestia.get().bindEntityShadowTarget();
-            }
-        }
-    }
 
-    @Inject(
-        method = {"apply"},
-        at = {@At("TAIL")} ) private void luxium$bindLocalShadowState(CallbackInfo ci) {
-        if (!(this.luxium$isReceiverShader() && (LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled() || LuxiumGpuShaderFeatures.localReceiverEnabled()))) {
-return;
-}
-
+ if (!(this.luxium$isReceiverShader() && (LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled
+() || LuxiumGpuShaderFeatures.localReceiverEnabled
+ ()))) { return;
+ }
             ShaderInstance shader = (ShaderInstance)(Object)this;
             int program = shader.getId();
-            if (!(program > 0 && GL20.glGetProgrami(program, 35714) != 0)) {
- return;
- }
 
+            if (!(program > 0 && GL20.glGetProgrami(program, 35714) != 0)) { return;
+ }
                 if (LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled()) {
                     if (!this.luxium$neoGpuLocationsResolved) {
                         if (this.luxium$neoGpuFastSamplerLocs == null) {
                             this.luxium$neoGpuFastSamplerLocs = new int[6];
                             Arrays.fill(this.luxium$neoGpuFastSamplerLocs, -1);
                         }
-
                         this.luxium$neoGpuEnabledLoc = GL20.glGetUniformLocation(program, "LuxiumNeoGpuVanillaEnabled");
                         this.luxium$neoGpuSamplerLoc = GL20.glGetUniformLocation(program, "LuxiumNeoGpuVanillaVolume");
                         this.luxium$neoGpuFastEnabledLoc = GL20.glGetUniformLocation(program, "LuxiumNeoGpuFastShadowsEnabled");
@@ -320,58 +300,30 @@ return;
                         this.luxium$neoGpuSizeLoc = GL20.glGetUniformLocation(program, "LuxiumNeoGpuVanillaSize");
                         this.luxium$neoGpuLocationsResolved = true;
                     }
-
                     if (TemporalFrameSystem.isFirstPersonOverlayPass()) {
-                        if (this.luxium$neoGpuEnabledLoc >= 0) {
-                            GL20.glUniform1i(this.luxium$neoGpuEnabledLoc, 0);
-                        }
 
-                        if (this.luxium$neoGpuFastEnabledLoc >= 0) {
-                            GL20.glUniform1i(this.luxium$neoGpuFastEnabledLoc, 0);
+                        if (this.luxium$neoGpuEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$neoGpuEnabledLoc, 0);
+                        } if (this.luxium$neoGpuFastEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$neoGpuFastEnabledLoc, 0);
+                        } if (this.luxium$neoGpuFineScaleLoc >= 0) { GL20.glUniform1i(this.luxium$neoGpuFineScaleLoc, 1);
                         }
-
-                        if (this.luxium$neoGpuFineScaleLoc >= 0) {
-                            GL20.glUniform1i(this.luxium$neoGpuFineScaleLoc, 1);
-                        }
-                    } else {
-                        NeoGpuVanillaFrameState neoGpu = NeoGpuVanilla.frameState();
-                        boolean neoGpuActive = NeoGpuVanilla.isMainPassActive() && neoGpu.enabled() && !NeoShadowsEngine.isAnyShadowCapturePass();
+                    } else { NeoGpuVanillaFrameState neoGpu = NeoGpuVanilla.frameState();
+                        boolean neoGpuActive = NeoGpuVanilla.isMainPassActive() && neoGpu.enabled() && !NeoShadowsEngine.isAnyShadowCapturePass
+();
                         boolean neoGpuFastActive = neoGpuActive && neoGpu.fastShadowsEnabled();
-                        if (this.luxium$neoGpuEnabledLoc >= 0) {
-                            GL20.glUniform1i(this.luxium$neoGpuEnabledLoc, neoGpuActive ? 1 : 0);
-                        }
-
-                        if (this.luxium$neoGpuFastEnabledLoc >= 0) {
-                            GL20.glUniform1i(this.luxium$neoGpuFastEnabledLoc, neoGpuFastActive ? 1 : 0);
-                        }
-
-                        if (this.luxium$neoGpuFineScaleLoc >= 0) {
-                            GL20.glUniform1i(this.luxium$neoGpuFineScaleLoc, neoGpuActive ? neoGpu.fineScale() : 1);
-                        }
-
-                        if (neoGpuActive) {
+                        if (this.luxium$neoGpuEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$neoGpuEnabledLoc, neoGpuActive ? 1 : 0);
+                        } if (this.luxium$neoGpuFastEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$neoGpuFastEnabledLoc, neoGpuFastActive ? 1 : 0);
+                        } if (this.luxium$neoGpuFineScaleLoc >= 0) { GL20.glUniform1i(this.luxium$neoGpuFineScaleLoc,
+neoGpuActive ? neoGpu.fineScale() : 1);
+                        } if (neoGpuActive) {
                             luxium$bindTexture(9, neoGpu.volumeTexture());
-                            if (this.luxium$neoGpuSamplerLoc >= 0) {
-                                GL20.glUniform1i(this.luxium$neoGpuSamplerLoc, 9);
-                            }
-
-                            if (this.luxium$neoGpuMinLoc >= 0) {
-                                GL20.glUniform3f(this.luxium$neoGpuMinLoc, neoGpu.minX(), neoGpu.minY(), neoGpu.minZ());
-                            }
-
-                            if (this.luxium$neoGpuSizeLoc >= 0) {
-                                GL20.glUniform3f(this.luxium$neoGpuSizeLoc, neoGpu.sizeX(), neoGpu.sizeY(), neoGpu.sizeZ());
-                            }
-
-                            if (neoGpuFastActive) {
-                                int[] textures = new int[]{
-                                    neoGpu.fastLightPX(),
-                                    neoGpu.fastLightNX(),
-                                    neoGpu.fastLightPY(),
-                                    neoGpu.fastLightNY(),
-                                    neoGpu.fastLightPZ(),
-                                    neoGpu.fastLightNZ() };
-
+                            if (this.luxium$neoGpuSamplerLoc >= 0) { GL20.glUniform1i(this.luxium$neoGpuSamplerLoc, 9);
+                            } if (this.luxium$neoGpuMinLoc >= 0) { GL20.glUniform3f(this.luxium$neoGpuMinLoc, neoGpu.minX
+ (), neoGpu.minY(), neoGpu.minZ());
+                            } if (this.luxium$neoGpuSizeLoc >= 0) { GL20.glUniform3f(this.luxium$neoGpuSizeLoc, neoGpu.sizeX
+ (), neoGpu.sizeY(), neoGpu.sizeZ());
+                            } if (neoGpuFastActive) {
+                                int[] textures = new int[]{ neoGpu.fastLightPX(), neoGpu.fastLightNX(), neoGpu.fastLightPY(),
+                                    neoGpu.fastLightNY(), neoGpu.fastLightPZ(), neoGpu.fastLightNZ() };
                                 for (int i = 0; i < 6; i++) {
                                     luxium$bindTexture3D(10 + i, textures[i]);
                                     if (this.luxium$neoGpuFastSamplerLocs[i] >= 0) {
@@ -381,20 +333,17 @@ return;
                             }
                         }
                     }
-
                     GlStateManager._activeTexture(33984);
                 }
 
-                if (!(LuxiumGpuShaderFeatures.localReceiverEnabled())) {
-return;
-}
-
+                if (!(LuxiumGpuShaderFeatures.localReceiverEnabled())) { return;
+ }
                     if (!this.luxium$localLocationsResolved) {
+
                         if (this.luxium$localBakedHardSamplerLocs == null) {
                             this.luxium$localBakedHardSamplerLocs = new int[6];
                             Arrays.fill(this.luxium$localBakedHardSamplerLocs, -1);
                         }
-
                         this.luxium$localEnabledLoc = GL20.glGetUniformLocation(program, "LuxiumLocalShadowEnabled");
                         this.luxium$localReplaceLoc = GL20.glGetUniformLocation(program, "LuxiumLocalReplaceBlockLight");
                         this.luxium$localSoftLoc = GL20.glGetUniformLocation(program, "LuxiumLocalSoftShadows");
@@ -418,17 +367,68 @@ return;
                     }
 
                     if (TemporalFrameSystem.isFirstPersonOverlayPass()) {
-                        if (this.luxium$localEnabledLoc >= 0) {
-                            GL20.glUniform1i(this.luxium$localEnabledLoc, 0);
-                        }
 
-                        if (this.luxium$localReplaceLoc >= 0) {
-                            GL20.glUniform1i(this.luxium$localReplaceLoc, 0);
-                        }
+                        if (this.luxium$localEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$localEnabledLoc, 0);
+                        } if (this.luxium$localReplaceLoc >= 0) { GL20.glUniform1i(this.luxium$localReplaceLoc, 0);
+                        } if (this.luxium$localCountLoc >= 0) { GL20.glUniform1i(this.luxium$localCountLoc, 0);
+                        } if (this.luxium$localSoftLoc >= 0) { GL20.glUniform1i(this.luxium$localSoftLoc, 0); }
+ if (this.luxium$localModeLoc >= 0) { GL20.glUniform1i(this.luxium$localModeLoc, 0); }
+ if (this.luxium$localSpreadLoc >= 0) { GL20.glUniform1f(this.luxium$localSpreadLoc, 0.0F); }
+ if (this.luxium$localBakedHardEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$localBakedHardEnabledLoc, 0); }
+ GlStateManager._activeTexture(33984);
+return; } GpuShadowFrameState state = GpuNeoShadows.frameState
 
-                        if (this.luxium$localCountLoc >= 0) {
-                            GL20.glUniform1i(this.luxium$localCountLoc, 0);
-                        } if (this.luxium$localSoftLoc >= 0) { GL20.glUniform1i(this.luxium$localSoftLoc, 0); } if (this.luxium$localModeLoc >= 0) { GL20.glUniform1i(this.luxium$localModeLoc, 0); } if (this.luxium$localSpreadLoc >= 0) { GL20.glUniform1f(this.luxium$localSpreadLoc, 0.0F); } if (this.luxium$localBakedHardEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$localBakedHardEnabledLoc, 0); } GlStateManager._activeTexture(33984); } else { GpuShadowFrameState state = GpuNeoShadows.frameState(); boolean active = GpuNeoShadows.isMainPassActive() && state.enabled() && !NeoShadowsEngine.isAnyShadowCapturePass(); boolean bakedHardActive = active && GpuNeoShadows.isBakedHardReceiverReady(); if (this.luxium$localEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$localEnabledLoc, active ? 1 : 0); } if (this.luxium$localReplaceLoc >= 0) { GL20.glUniform1i(this.luxium$localReplaceLoc, active && state.replaceBlockLight() ? 1 : 0); } if (this.luxium$localCountLoc >= 0) { GL20.glUniform1i(this.luxium$localCountLoc, active && !bakedHardActive ? state.lightCount() : 0); } if (this.luxium$localSoftLoc >= 0) { GL20.glUniform1i(this.luxium$localSoftLoc, !bakedHardActive && state.softShadows() ? 1 : 0); } if (this.luxium$localModeLoc >= 0) { GL20.glUniform1i(this.luxium$localModeLoc, state.shadowMode()); } if (this.luxium$localSpreadLoc >= 0) { GL20.glUniform1f(this.luxium$localSpreadLoc, state.spreadOcclusionStrength()); } if (this.luxium$localBakedHardEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$localBakedHardEnabledLoc, bakedHardActive ? 1 : 0); } if (!(active)) { return; } if (!bakedHardActive) { luxium$bindTexture(7, state.atlasTexture()); luxium$bindTexture(8, state.lightGridTexture()); if (this.luxium$localAtlasLoc >= 0) { GL20.glUniform1i(this.luxium$localAtlasLoc, 7); } if (this.luxium$localGridLoc >= 0) { GL20.glUniform1i(this.luxium$localGridLoc, 8); } } if (bakedHardActive) { for (int ix = 0; ix < 6; ix++) { int textureUnit = 9 + ix; luxium$bindTexture3D(textureUnit, GpuNeoShadows.bakedHardTexture(ix)); if (this.luxium$localBakedHardSamplerLocs[ix] >= 0) { GL20.glUniform1i(this.luxium$localBakedHardSamplerLocs[ix], textureUnit); } } if (this.luxium$localBakedHardMinLoc >= 0) { GL20.glUniform3f(this.luxium$localBakedHardMinLoc, GpuNeoShadows.bakedHardMinX(), GpuNeoShadows.bakedHardMinY(), GpuNeoShadows.bakedHardMinZ() ); } if (this.luxium$localBakedHardSizeLoc >= 0) { GL20.glUniform3f(this.luxium$localBakedHardSizeLoc, GpuNeoShadows.bakedHardSizeX(), GpuNeoShadows.bakedHardSizeY(), GpuNeoShadows.bakedHardSizeZ() ); } } if (!bakedHardActive && this.luxium$lastLocalVersion != state.version()) { if (this.luxium$localLightsLoc >= 0) { GL20.glUniform4fv(this.luxium$localLightsLoc, state.lights()); } if (this.luxium$localRectsLoc >= 0) { GL20.glUniform4fv(this.luxium$localRectsLoc, state.atlasRects()); } this.luxium$lastLocalVersion = state.version(); } GlStateManager._activeTexture(33984); } } @Unique private static int luxium$uniformLocation(int program, String name) { int location = GL20.glGetUniformLocation(program, name + "[0]");
+
+ (); boolean active = GpuNeoShadows.isMainPassActive
+ () && state.enabled() && !NeoShadowsEngine.isAnyShadowCapturePass
+(); boolean
+bakedHardActive = active && GpuNeoShadows.isBakedHardReceiverReady();
+if (this.luxium$localEnabledLoc >= 0) { GL20.glUniform1i(this.luxium$localEnabledLoc, active ? 1 : 0); }
+ if (this.luxium$localReplaceLoc >= 0) { GL20.glUniform1i(this.luxium$localReplaceLoc, active
+&& state.replaceBlockLight() ? 1 : 0); }
+ if (this.luxium$localCountLoc >= 0) { GL20.glUniform1i(this.luxium$localCountLoc, active
+&& !bakedHardActive ? state.lightCount() : 0); }
+ if (this.luxium$localSoftLoc >= 0) { GL20.glUniform1i(this.luxium$localSoftLoc, !bakedHardActive
+ && state.softShadows() ? 1 : 0); }
+ if (this.luxium$localModeLoc >= 0) { GL20.glUniform1i(this.luxium$localModeLoc, state.shadowMode()); }
+if (this.luxium$localSpreadLoc >= 0) { GL20.glUniform1f(this.luxium$localSpreadLoc, state.spreadOcclusionStrength()); }
+
+if (this.luxium$localBakedHardEnabledLoc >= 0) {
+ GL20.glUniform1i(this.luxium$localBakedHardEnabledLoc, bakedHardActive ? 1 : 0); }
+
+ if (!(active)) { return; }
+ if (!bakedHardActive) {
+luxium$bindTexture(7, state.atlasTexture()); luxium$bindTexture(8, state.lightGridTexture());
+if (this.luxium$localAtlasLoc >= 0) { GL20.glUniform1i(this.luxium$localAtlasLoc, 7); }
+ if (this.luxium$localGridLoc >= 0) { GL20.glUniform1i(this.luxium$localGridLoc, 8); } }
+
+ if (bakedHardActive) { for (int
+ ix = 0; ix < 6; ix++) { int
+ textureUnit = 9 + ix;
+ luxium$bindTexture3D(textureUnit, GpuNeoShadows.bakedHardTexture(ix));
+if (this.luxium$localBakedHardSamplerLocs[ix] >= 0) {
+ GL20.glUniform1i(this.luxium$localBakedHardSamplerLocs[ix], textureUnit); } }
+
+
+ if (this.luxium$localBakedHardMinLoc >= 0) {
+ GL20.glUniform3f(this.luxium$localBakedHardMinLoc, GpuNeoShadows.bakedHardMinX
+ (), GpuNeoShadows.bakedHardMinY(), GpuNeoShadows.bakedHardMinZ() ); }
+
+if (this.luxium$localBakedHardSizeLoc >= 0) {
+ GL20.glUniform3f(this.luxium$localBakedHardSizeLoc, GpuNeoShadows.bakedHardSizeX
+ (), GpuNeoShadows.bakedHardSizeY(), GpuNeoShadows.bakedHardSizeZ() ); } }
+
+
+ if (!bakedHardActive && this.luxium$lastLocalVersion != state.version()) {
+if (this.luxium$localLightsLoc >= 0) { GL20.glUniform4fv(this.luxium$localLightsLoc, state.lights()); }
+if (this.luxium$localRectsLoc >= 0) { GL20.glUniform4fv(this.luxium$localRectsLoc, state.atlasRects()); }
+this.luxium$lastLocalVersion = state.version(); }
+
+GlStateManager._activeTexture(33984);
+} @Unique private static int luxium$uniformLocation(int program, String name) { int
+
+
+ location = GL20.glGetUniformLocation(program, name + "[0]");
         return location >= 0 ? location : GL20.glGetUniformLocation(program, name);
     }
     @Unique private static void luxium$bindTexture(int unit, int textureId) {

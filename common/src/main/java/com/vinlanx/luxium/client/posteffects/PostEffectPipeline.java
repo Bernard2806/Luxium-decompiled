@@ -209,17 +209,17 @@ return;
         return deferredTonemapCompositeEffects;
     }
 
-    // $VF: Could not verify finally blocks. A semaphore variable has been added to preserve control flow.
-    // Please report this to the Vineflower issue tracker, at https://github.com/Vineflower/vineflower/issues with a copy of the class file (if you have the rights to distribute it!)
-    public static int getDeferredEffectsTextureId() { return deferredEffectsTextureId;
-    } public static boolean flushDeferredTonemapForSceneConsumer() {
+
+    public static int getDeferredEffectsTextureId() { return deferredEffectsTextureId; }
+
+    public static boolean flushDeferredTonemapForSceneConsumer() {
         if (!deferredTonemap && !deferredEffectsComposite) {
             return false;
         } else {
             Minecraft mc = Minecraft.getInstance();
             RenderTarget main = mc.getMainRenderTarget();
             ShaderInstance shader = deferredTonemap ? tonemap.getShader() : ShaderManager.getPostEffectCompositeShader();
-            if (main != null && shader != null && main.viewWidth > 0 && main.viewHeight > 0) {
+            if (!(main != null && shader != null && main.viewWidth > 0 && main.viewHeight > 0)) { return false; }
                 Matrix4f previousProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
                 VertexSorting previousVertexSorting = RenderSystem.getVertexSorting();
                 int[] savedTextures = saveShaderTextures();
@@ -278,7 +278,7 @@ return;
                         RenderSystem.activeTexture(33984);
                         main.bindWrite(true);
                         RenderSystem.viewport(0, 0, main.viewWidth, main.viewHeight);
-                    } } if (main.filterMode != previousSceneFilter) { main.setFilterMode(previousSceneFilter); } modelViewStack.popPose(); RenderSystem.applyModelViewMatrix(); RenderSystem.setProjectionMatrix(previousProjection, previousVertexSorting); GlStateManager._disableBlend(); RenderSystem.defaultBlendFunc(); GlStateManager._depthMask(true); GlStateManager._enableDepthTest(); RenderSystem.depthFunc(515); RenderSystem.setShaderColor(savedShaderColor[0], savedShaderColor[1], savedShaderColor[2], savedShaderColor[3]); for (int i = 0; i < savedTextures.length; i++) { RenderSystem.setShaderTexture(i, savedTextures[i]); } RenderSystem.activeTexture(33984); main.bindWrite(true); RenderSystem.viewport(0, 0, main.viewWidth, main.viewHeight); return var16; } else { return false; } } }
+                    } } if (main.filterMode != previousSceneFilter) { main.setFilterMode(previousSceneFilter); } modelViewStack.popPose(); RenderSystem.applyModelViewMatrix(); RenderSystem.setProjectionMatrix(previousProjection, previousVertexSorting); GlStateManager._disableBlend(); RenderSystem.defaultBlendFunc(); GlStateManager._depthMask(true); GlStateManager._enableDepthTest(); RenderSystem.depthFunc(515); RenderSystem.setShaderColor(savedShaderColor[0], savedShaderColor[1], savedShaderColor[2], savedShaderColor[3]); for (int i = 0; i < savedTextures.length; i++) { RenderSystem.setShaderTexture(i, savedTextures[i]); } RenderSystem.activeTexture(33984); main.bindWrite(true); RenderSystem.viewport(0, 0, main.viewWidth, main.viewHeight); return var16; } }
 
     public static void clearDeferredTonemap() {
 

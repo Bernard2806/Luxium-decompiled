@@ -1,83 +1,83 @@
 package com.vinlanx.luxium.client;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.shaders.FogShape;
-import com.mojang.blaze3d.shaders.Uniform;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexSorting;
-import com.mojang.blaze3d.vertex.VertexBuffer.Usage;
-import com.mojang.blaze3d.vertex.VertexFormat.Mode;
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.client.posteffects.Hdr;
-import com.vinlanx.luxium.client.reflections.RainPuddleManager;
-import com.vinlanx.luxium.client.reflections.RainPuddleSurface;
-import com.vinlanx.luxium.client.reflections.ReflectionMaterial;
-import com.vinlanx.luxium.client.reflections.ReflectionMaterialRegistry;
-import com.vinlanx.luxium.mixin.CameraAccessor;
-import com.vinlanx.luxium.mixin.LevelRendererAccessor;
-import com.vinlanx.luxium.mixin.MinecraftAccessor;
-import com.vinlanx.luxium.platform.LuxiumPlatform;
-import com.vinlanx.luxium.platform.RenderFrame;
-import com.vinlanx.luxium.rtx.TorchRtxState;
-import com.vinlanx.luxium.rtx.soasnottointerfere.ExposedFaceService;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import net.minecraft.client.Camera;
-import net.minecraft.client.CloudStatus;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.client.renderer.FogRenderer.FogMode;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.client.renderer.RenderType.CompositeState;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.joml.Vector4f;
-import org.lwjgl.opengl.GL30;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.vinlanx.luxium.client.NeoShadowsEngine;
-import com.vinlanx.luxium.client.ShaderManager;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.Position;
-import net.minecraft.core.Vec3i;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
-import org.joml.Matrix3fc;
-import org.joml.Matrix4fc;
-import org.joml.Vector3fc; public final class ReflectionSystem { private static final ReflectionSystem INSTANCE = new ReflectionSystem(); private static final int MAX_RENDERED_PLANES = 4; private static final float FACE_EPSILON = 0.0015F; private static final int BOOTSTRAP_SCAN_RADIUS = 24; private static final int BOOTSTRAP_VERTICAL_RADIUS = 24; private static final int PROBE_FACE = 64; private static final long PROBE_UPDATE_MS = 1000L; private volatile boolean enabled = false;
+import com.mojang.blaze3d.pipeline.RenderTarget; import com.mojang.blaze3d.platform.GlStateManager; import com.mojang.blaze3d.platform.NativeImage; import com.mojang.blaze3d.shaders.FogShape; import com.mojang.blaze3d.shaders.Uniform; import com.mojang.blaze3d.systems.RenderSystem; import com.mojang.blaze3d.vertex.BufferBuilder; import com.mojang.blaze3d.vertex.DefaultVertexFormat; import com.mojang.blaze3d.vertex.PoseStack; import com.mojang.blaze3d.vertex.VertexBuffer; import com.mojang.blaze3d.vertex.VertexConsumer; import com.mojang.blaze3d.vertex.VertexSorting; import com.mojang.blaze3d.vertex.VertexBuffer.Usage; import com.mojang.blaze3d.vertex.VertexFormat.Mode; import com.vinlanx.luxium.Config; import com.vinlanx.luxium.client.posteffects.Hdr; import com.vinlanx.luxium.client.reflections.RainPuddleManager; import com.vinlanx.luxium.client.reflections.RainPuddleSurface; import com.vinlanx.luxium.client.reflections.ReflectionMaterial; import com.vinlanx.luxium.client.reflections.ReflectionMaterialRegistry; import com.vinlanx.luxium.mixin.CameraAccessor; import com.vinlanx.luxium.mixin.LevelRendererAccessor; import com.vinlanx.luxium.mixin.MinecraftAccessor; import com.vinlanx.luxium.platform.LuxiumPlatform; import com.vinlanx.luxium.platform.RenderFrame; import com.vinlanx.luxium.rtx.TorchRtxState; import com.vinlanx.luxium.rtx.soasnottointerfere.ExposedFaceService; import java.io.IOException; import java.util.ArrayList; import java.util.HashMap; import java.util.List; import java.util.Map; import net.minecraft.client.Camera; import net.minecraft.client.CloudStatus; import net.minecraft.client.Minecraft; import net.minecraft.client.renderer.FogRenderer; import net.minecraft.client.renderer.GameRenderer; import net.minecraft.client.renderer.LevelRenderer; import net.minecraft.client.renderer.LightTexture; import net.minecraft.client.renderer.MultiBufferSource; import net.minecraft.client.renderer.RenderStateShard; import net.minecraft.client.renderer.RenderType; import net.minecraft.client.renderer.ShaderInstance; import net.minecraft.client.renderer.FogRenderer.FogMode; import net.minecraft.client.renderer.MultiBufferSource.BufferSource; import net.minecraft.client.renderer.RenderType.CompositeState; import net.minecraft.client.renderer.culling.Frustum; import net.minecraft.client.renderer.texture.AbstractTexture; import net.minecraft.client.renderer.texture.DynamicTexture; import net.minecraft.core.BlockPos; import net.minecraft.core.Direction; import net.minecraft.core.Direction.Axis; import net.minecraft.resources.ResourceLocation; import net.minecraft.server.packs.resources.ResourceManager; import net.minecraft.util.Mth; import net.minecraft.world.entity.Entity; import net.minecraft.world.level.ChunkPos; import net.minecraft.world.level.block.Blocks; import net.minecraft.world.level.block.state.BlockState; import net.minecraft.world.phys.AABB; import net.minecraft.world.phys.Vec3; import org.jetbrains.annotations.Nullable; import org.joml.Matrix3f; import org.joml.Matrix4f; import org.joml.Vector3f; import org.joml.Vector4f; import org.lwjgl.opengl.GL30; import com.mojang.blaze3d.vertex.VertexFormat; import com.vinlanx.luxium.client.NeoShadowsEngine; import com.vinlanx.luxium.client.ShaderManager; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.core.Position; import net.minecraft.core.Vec3i; import net.minecraft.world.level.BlockGetter; import net.minecraft.world.level.Level; import org.joml.Matrix3fc; import org.joml.Matrix4fc; import org.joml.Vector3fc;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public final class ReflectionSystem { private static final ReflectionSystem INSTANCE = new ReflectionSystem();
+
+
+
+
+
+
+
+
+
+ private static final int MAX_RENDERED_PLANES = 4; private static final float FACE_EPSILON = 0.0015F; private static final int BOOTSTRAP_SCAN_RADIUS = 24; private static final int BOOTSTRAP_VERTICAL_RADIUS = 24; private static final int PROBE_FACE = 64; private static final long PROBE_UPDATE_MS = 1000L; private volatile boolean enabled = false;
     private boolean initialized = false;
     private boolean bilinearFilteringEnabled = true;
     private int recursionDepth = 0;
@@ -523,7 +523,7 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
                     viewProjection.transform(clip);
                     if (clip.w <= 1.0E-4F) {
                         crossesNearPlane = true;
-                    } else {
+                        continue; }
                         float
                         ndcX = Mth.clamp(clip.x / clip.w, -1.0F, 1.0F);
                         float ndcY = Mth.clamp(clip.y / clip.w, -1.0F, 1.0F);
@@ -532,7 +532,7 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
                         minY = Math.min(minY, ndcY);
                         maxY = Math.max(maxY, ndcY);
                         projected = true;
-                    }
+
                 } AABB bounds = plane.getBounds();
                 for (int xi = 0; xi < 2; xi++) {
                     for (int yi = 0; yi < 2; yi++) {
@@ -545,7 +545,7 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
                                 viewProjection.transform(clip);
                             if (clip.w <= 1.0E-4F) {
                                 crossesNearPlane = true;
-                            } else {
+                                continue; }
                                 float
                                 ndcX = Mth.clamp(clip.x / clip.w, -1.0F, 1.0F);
                                 float ndcY = Mth.clamp(clip.y / clip.w, -1.0F, 1.0F);
@@ -554,7 +554,7 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
                                 minY = Math.min(minY, ndcY);
                                 maxY = Math.max(maxY, ndcY);
                                 projected = true;
-                            }
+
                         }
                     }
                 } if (!projected || maxX <= minX || maxY <= minY) { return null;
@@ -596,49 +596,49 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
 
     private boolean computeFeedMatrices(
         ReflectionSystem.MirrorPlane plane, Vec3 viewerPos, Vec3 mainCameraPos, Matrix4f outMirrorLinear, Matrix4f outProj, Vec3[] outVirtCam ) {
-        double signedDist = viewerPos.subtract(plane.planePoint).dot(plane.normal);
+        double
+        signedDist = viewerPos.subtract(plane.planePoint).dot(plane.normal);
         if (signedDist < 0.02) {
             return false;
         } else {
-            Vec3 virtualCamPos = reflectPoint(viewerPos, plane.planePoint, plane.normal);
-            Vector3f dir = new Vector3f((float)(-plane.normal.x), (float)(-plane.normal.y), (float)(-plane.normal.z));
-            Vector3f up = plane.face.getAxis() == Axis.Y ? new Vector3f(0.0F, 0.0F, 1.0F) : new Vector3f(0.0F, 1.0F, 0.0F);
+            Vec3
+            virtualCamPos = reflectPoint(viewerPos, plane.planePoint, plane.normal);
+            Vector3f
+            dir = new Vector3f((float)(-plane.normal.x), (float)(-plane.normal.y), (float)(-plane.normal.z));
+            Vector3f up = plane.face.getAxis
+() == Axis.Y ?
+new Vector3f(0.0F, 0.0F, 1.0F) :
+ new Vector3f(0.0F, 1.0F, 0.0F);
             Matrix4f lookRot = new Matrix4f().setLookAlong(dir, up);
             outMirrorLinear.set(lookRot).mul(axisReflectionMatrix(plane.face.getAxis()));
-            float minX = Float.POSITIVE_INFINITY;
-            float maxX = Float.NEGATIVE_INFINITY;
-            float minY = Float.POSITIVE_INFINITY;
-            float maxY = Float.NEGATIVE_INFINITY;
+            float
+            minX = Float.POSITIVE_INFINITY; float maxX = Float.NEGATIVE_INFINITY;
+            float minY = Float.POSITIVE_INFINITY; float maxY = Float.NEGATIVE_INFINITY;
             Vector3f corner = new Vector3f();
-
             for (int k = 0; k < 4; k++) {
                 plane.getFeedRectCorner(k, mainCameraPos, 24.0F, corner);
                 corner.sub((float)virtualCamPos.x, (float)virtualCamPos.y, (float)virtualCamPos.z);
                 outMirrorLinear.transformPosition(corner);
-                minX = Math.min(minX, corner.x);
-                maxX = Math.max(maxX, corner.x);
-                minY = Math.min(minY, corner.y);
-                maxY = Math.max(maxY, corner.y);
+                minX = Math.min(minX, corner.x); maxX = Math.max(maxX, corner.x);
+                minY = Math.min(minY, corner.y); maxY = Math.max(maxY, corner.y);
             }
 
             float near = (float)signedDist;
             float margin = 0.03F * Math.max(maxX - minX, maxY - minY) + 0.05F;
-            minX -= margin;
-            maxX += margin;
-            minY -= margin;
-            maxY += margin;
-            if (!(maxX - minX < 1.0E-4F) && !(maxY - minY < 1.0E-4F)) {
+            minX -= margin; maxX += margin;
+            minY -= margin; maxY += margin;
+
+            if (!(!(maxX - minX < 1.0E-4F) && !(maxY - minY < 1.0E-4F))) {
+                return false;
+            }
+
                 outProj.setFrustum(minX, maxX, minY, maxY, near, 1536.0F);
                 outVirtCam[0] = virtualCamPos;
                 return true;
-            } else {
-                return false;
-            }
+
         }
     }
-
-    public float sampleProbeGloss(BlockPos pos, Vec3 normal) {
-        if (!this.enabled || this.probeCenter == null) { return 0.0f; }
+    public float sampleProbeGloss(BlockPos pos, Vec3 normal) { if (!this.enabled || this.probeCenter == null) { return 0.0f; }
         if (pos.distSqr((Vec3i)this.probeCenter) > 1024.0) { return 0.0f;
         }
         Vec3 view = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
@@ -676,30 +676,29 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
         if (this.initialized) {
             for (ReflectionSystem.PlaneRenderCache cache : this.planeRenderCaches) {
                 boolean sizeChanged = cache.targets[0].width != targetWidth || cache.targets[0].height != targetHeight;
+
                 if (sizeChanged) {
                     cache.targets[0].resize(targetWidth, targetHeight, Minecraft.ON_OSX);
                     cache.targets[1].resize(targetWidth, targetHeight, Minecraft.ON_OSX);
                     cache.invalidate();
                     cache.textureRef.setGlId(cache.targets[0].getColorTextureId());
                 }
-
                 if (sizeChanged || this.bilinearFilteringEnabled != bilinearFiltering) {
                     configureReflectionTexture(cache.targets[0], bilinearFiltering);
                     configureReflectionTexture(cache.targets[1], bilinearFiltering);
                 }
             }
-
             this.bilinearFilteringEnabled = bilinearFiltering;
-        } else {
+        return; }
+
             this.initialized = true;
             this.bilinearFilteringEnabled = bilinearFiltering;
-            for (int i = 0; i < 4; i++) { RenderTarget[] targets = new RenderTarget[2]; for (int d = 0; d < targets.length; d++) { targets[d] = new RenderTarget(true)
-
-
-
- {
-                    };
-                    targets[d].createBuffers(targetWidth, targetHeight, Minecraft.ON_OSX);
+            for (int
+            i = 0; i < 4; i++) { RenderTarget[]
+ targets = new RenderTarget[2]; for (int
+ d = 0; d < targets.length; d++) {
+targets[d] = new RenderTarget(true) {
+                    }; targets[d].createBuffers(targetWidth, targetHeight, Minecraft.ON_OSX);
                     targets[d].setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
                     targets[d].clear(Minecraft.ON_OSX);
                     configureReflectionTexture(targets[d], bilinearFiltering);
@@ -708,21 +707,22 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
                 ReflectionSystem.GlTextureRef textureRef = new ReflectionSystem.GlTextureRef(targets[0].getColorTextureId());
                 ResourceLocation textureLocation = new ResourceLocation("luxium", "dynamic/planar_reflect_" + i);
                 mc.getTextureManager().register(textureLocation, textureRef);
-                this.planeRenderCaches
-                    .add(
+
+                this.planeRenderCaches .add(
                         new ReflectionSystem.PlaneRenderCache(
                             targets,
-                            textureRef,
-                            buildReflectType(textureLocation),
+                            textureRef, buildReflectType(textureLocation),
                             buildPolishedAndesiteReflectType(textureLocation),
                             buildMetalReflectType(textureLocation) ) );
             }
+
 
             this.probeTexture = new DynamicTexture(192, 128, true);
             this.probeLoc = new ResourceLocation("luxium", "dynamic/probe");
             mc.getTextureManager().register(this.probeLoc, this.probeTexture);
             this.probeRenderType = buildReflectType(this.probeLoc);
-        } } private static int getReflectionTargetSize(int fullSize) { double
+         } private static int getReflectionTargetSize(int fullSize) { double
+
 
  scale = Mth.clamp(Config.CLIENT.reflectionRenderScale.get(), 0.1, 1.0);
         return Math.max(1, Mth.ceil((float)((double)fullSize * scale)));
@@ -747,23 +747,23 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
             || base.getY() != this.lastPlaneScanBlockY
             || base.getZ() != this.lastPlaneScanBlockZ
             || configuredDistance != this.lastPlaneScanDistance;
-        if (!(activeAreaMoved || now - this.lastPlaneScanMs >= scanIntervalMs)) {
- return;
- }
-
-            this.lastPlaneScanMs = now;
+        if (!(activeAreaMoved || now - this.lastPlaneScanMs >= scanIntervalMs)) { return;
+ } this.lastPlaneScanMs = now;
             this.lastPlaneScanBlockX = base.getX();
             this.lastPlaneScanBlockY = base.getY();
             this.lastPlaneScanBlockZ = base.getZ();
             this.lastPlaneScanDistance = configuredDistance;
-            Map<ReflectionSystem.PlaneKey, ReflectionSystem.MirrorPlane> planes = new HashMap<>();
+            Map<ReflectionSystem.PlaneKey, ReflectionSystem.MirrorPlane>
+ planes = new HashMap<>();
             Map<Long, long[]> snapshot = TorchRtxState.get().getReflectiveSnapshotView();
             ExposedFaceService exposedFaceService = ExposedFaceService.get();
             RainPuddleManager rainPuddleManager = RainPuddleManager.get();
             if (snapshot.isEmpty()) {
                 this.activePlanes.clear();
-            } else {
-                int centerChunkX = base.getX() >> 4;
+            return; }
+                int
+
+                centerChunkX = base.getX() >> 4;
                 int centerChunkZ = base.getZ() >> 4;
                 double mirrorScanRadius = getMirrorScanRadius();
                 double faceInclusionRadius = mirrorScanRadius + 0.875;
@@ -791,56 +791,56 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
  }
 
                                         for (Direction face : Direction.values()) {
-                                            if (!((exposedMask & 1 << face.ordinal()) != 0
-                                                && !(faceCenter(pos, face).distanceToSqr(cameraPos) > faceInclusionRadiusSq)
-                                                && material.shouldReflectFace(mc, pos, state, face))) {
- continue;
- }
+                                            if (!((exposedMask & 1 << face.ordinal()) != 0)) {
+ continue; }
 
-                                                ReflectionSystem.PlaneKey key = ReflectionSystem.PlaneKey.of(pos, face);
+
+ if (!(!(faceCenter(pos, face).distanceToSqr(cameraPos) > faceInclusionRadiusSq))) {
+ continue; }
+
+
+ if (!material.shouldReflectFace(mc, pos, state, face)) {
+ continue; }
+
+                                                ReflectionSystem.PlaneKey
+                                                key = ReflectionSystem.PlaneKey.of(pos, face);
                                                 ReflectionSystem.MirrorPlane plane = planes.computeIfAbsent(
-                                                    key, k ->
-
-
-
-
-
-                                                    new ReflectionSystem.MirrorPlane(face, planePointForFace(pos, face)) );
+                                                    key, k -> new ReflectionSystem.MirrorPlane(face, planePointForFace(pos, face)) );
                                                 boolean usePolishedShader = state.is(Blocks.POLISHED_ANDESITE);
                                                 boolean useMetalShader = state.is(Blocks.IRON_BLOCK);
                                                 RainPuddleSurface rainPuddleSurface = face == Direction.UP
-                                                    ? rainPuddleManager.getActiveSurface(mc.level, pos) : null;
+                                                    ? rainPuddleManager.getActiveSurface(mc.level, pos) :
+null;
                                                 plane.addFace(pos, face, material, usePolishedShader, useMetalShader, cameraPos, rainPuddleSurface);
 
                                         }
 
 
                             }
+                    } } this.activePlanes.clear();
+                if (!(!planes.isEmpty())) { return; } List<ReflectionSystem.MirrorPlane>
 
-                    }
-                }
+sorted = new ArrayList<>(planes.values());
+sorted.sort((a, b) -> { int
+ byFaceCount = Integer.compare(b.faces.size(), a.faces.size());
+                        if (byFaceCount != 0) { return byFaceCount;
+                        } else { int byDistance = Double.compare(a.minDistanceSq, b.minDistanceSq);
+                            if (byDistance != 0) { return byDistance;
+                            } else { int byFace = Integer.compare(a.face.get3DDataValue(), b.face.get3DDataValue());
+if (byFace != 0) { return byFace; }
+ return Double.compare(planeCoordinateValue(a), planeCoordinateValue(b)); } } });
 
-                this.activePlanes.clear();
-                if (!(!planes.isEmpty())) {
-return;
-}
 
-                    List<ReflectionSystem.MirrorPlane> sorted = new ArrayList<>(planes.values());
-                    sorted.sort((a, b) -> {
-                        int byFaceCount = Integer.compare(b.faces.size(), a.faces.size());
-                        if (byFaceCount != 0) {
-                            return byFaceCount;
-                        } else {
-                            int byDistance = Double.compare(a.minDistanceSq, b.minDistanceSq);
-                            if (byDistance != 0) {
-                                return byDistance;
-                            } else { int byFace = Integer.compare(a.face.get3DDataValue(), b.face.get3DDataValue()); return byFace != 0 ? byFace : Double.compare(planeCoordinateValue(a), planeCoordinateValue(b)); } } }); if (sorted.size() > 4) { sorted = new ArrayList<>(sorted.subList(0, 4)); } sorted.sort((a, b) -> Long.compare(computePlaneIdentity(a), computePlaneIdentity(b)));
+ if (sorted.size() > 4) {
+ sorted = new ArrayList<>(sorted.subList(0, 4)); }
+
+ sorted.sort((a, b) -> Long.compare(computePlaneIdentity(a), computePlaneIdentity(b)));
+
                     this.activePlanes.addAll(sorted);
-
-            }
-
     }
-    private static double getMirrorScanRadius() { return (double)Mth.clamp(Config.CLIENT.reflectionDistance.get(), 5, 200);
+    private static double getMirrorScanRadius() {
+
+ return (double)Mth.clamp(Config.CLIENT.reflectionDistance.get(), 5, 200);
     }
 
     private static double computeScaledDistanceMul() {
@@ -957,68 +957,68 @@ return;
         Frustum frustum = levelRenderer.luxium$getCullingFrustum();
         levelRenderer.luxium$setupRender(this.reflectionCamera, frustum, false, true);
         levelRenderer.luxium$compileChunks(this.reflectionCamera);
-        Vec3 cameraPos = this.reflectionCamera.getPosition();
+        Vec3
+        cameraPos = this.reflectionCamera.getPosition();
         double cameraX = cameraPos.x;
         double cameraY = cameraPos.y;
         double cameraZ = cameraPos.z;
-        float renderDistance = this.frameGameRenderer.getRenderDistance();
-        boolean foggy = mc.level.effects().isFoggyAt(Mth.floor(cameraX), Mth.floor(cameraZ)) || mc.gui.getBossOverlay().shouldCreateWorldFog();
+        float
+        renderDistance = this.frameGameRenderer.getRenderDistance();
+        boolean foggy = mc.level.effects().isFoggyAt(Mth.floor(cameraX), Mth.floor(cameraZ)) || mc.gui.getBossOverlay
+().shouldCreateWorldFog();
         FogRenderer.setupColor(
-            this.reflectionCamera,
-            this.framePartialTick,
-            mc.level,
-            mc.options.getEffectiveRenderDistance(),
-            this.frameGameRenderer.getDarkenWorldAmount(this.framePartialTick) );
+            this.reflectionCamera, this.framePartialTick, mc.level, mc.options.getEffectiveRenderDistance(), this.frameGameRenderer.getDarkenWorldAmount(this.framePartialTick) );
         FogRenderer.levelFogColor();
         FogRenderer.setupFog(this.reflectionCamera, FogMode.FOG_SKY, renderDistance, foggy, this.framePartialTick);
+
         RenderSystem.setShader(GameRenderer::getPositionShader);
-        mc.levelRenderer
-            .renderSky(poseStack, projectionMatrix, this.framePartialTick, this.reflectionCamera, foggy, () ->
+        mc.levelRenderer .renderSky(poseStack, projectionMatrix, this.framePartialTick, this.reflectionCamera, foggy, () ->
+
  FogRenderer.setupFog(this.reflectionCamera, FogMode.FOG_SKY, renderDistance, foggy, this.framePartialTick) );
-        FogRenderer.setupFog(this.reflectionCamera, FogMode.FOG_TERRAIN, Math.max(renderDistance, 32.0F), foggy, this.framePartialTick);
+
+        FogRenderer.setupFog(this.reflectionCamera, FogMode.FOG_TERRAIN, Math.max
+ (renderDistance, 32.0F), foggy, this.framePartialTick);
+
         levelRenderer.luxium$renderChunkLayer(RenderType.solid(), poseStack, cameraX, cameraY, cameraZ, projectionMatrix);
         levelRenderer.luxium$renderChunkLayer(RenderType.cutoutMipped(), poseStack, cameraX, cameraY, cameraZ, projectionMatrix);
         levelRenderer.luxium$renderChunkLayer(RenderType.cutout(), poseStack, cameraX, cameraY, cameraZ, projectionMatrix);
+
         mc.getEntityRenderDispatcher().prepare(mc.level, this.reflectionCamera, mc.crosshairPickEntity);
         BufferSource buffers = mc.renderBuffers().bufferSource();
-
         for (Entity entity : mc.level.entitiesForRendering()) {
-            if (!(mc.getEntityRenderDispatcher().shouldRender(entity, frustum, cameraX, cameraY, cameraZ)
-                && (entity != this.reflectionCamera.getEntity() || this.reflectionCamera.isDetached()))) {
-continue;
-}
+            if (!mc.getEntityRenderDispatcher().shouldRender(entity, frustum, cameraX, cameraY, cameraZ)) {
+                continue; }
 
-                double x = Mth.lerp((double)this.framePartialTick, entity.xOld, entity.getX()) - cameraX;
+            if (!(entity != this.reflectionCamera.getEntity() || this.reflectionCamera.isDetached())) {
+                continue; }
+
+                double
+                x = Mth.lerp((double)this.framePartialTick, entity.xOld, entity.getX()) - cameraX;
                 double y = Mth.lerp((double)this.framePartialTick, entity.yOld, entity.getY()) - cameraY;
                 double z = Mth.lerp((double)this.framePartialTick, entity.zOld, entity.getZ()) - cameraZ;
                 float yaw = Mth.lerp(this.framePartialTick, entity.yRotO, entity.getYRot());
-                mc.getEntityRenderDispatcher()
-                    .render(
+                mc.getEntityRenderDispatcher() .render(
                         entity,
-                        x,
-                        y,
-                        z,
-                        yaw,
-                        this.framePartialTick,
-                        poseStack,
-                        buffers,
-                        mc.getEntityRenderDispatcher().getPackedLightCoords(entity, this.framePartialTick) );
-
+                        x, y, z, yaw, this.framePartialTick, poseStack, buffers, mc.getEntityRenderDispatcher().getPackedLightCoords(entity, this.framePartialTick) );
         }
-
         buffers.endBatch();
+
         levelRenderer.luxium$renderChunkLayer(RenderType.translucent(), poseStack, cameraX, cameraY, cameraZ, projectionMatrix);
         levelRenderer.luxium$renderChunkLayer(RenderType.tripwire(), poseStack, cameraX, cameraY, cameraZ, projectionMatrix);
-        LuxiumPlatform.get()
-            .renderParticles(mc.particleEngine, poseStack, buffers, this.frameLightTexture, this.reflectionCamera, this.framePartialTick, frustum);
+        LuxiumPlatform.get() .renderParticles(mc.particleEngine, poseStack, buffers, this.frameLightTexture, this.reflectionCamera, this.framePartialTick, frustum);
+
         buffers.endBatch();
+
         this.renderPlanar(mc, poseStack, buffers);
+
         if (mc.options.getCloudsType() != CloudStatus.OFF) {
             mc.levelRenderer.renderClouds(poseStack, projectionMatrix, this.framePartialTick, cameraX, cameraY, cameraZ);
         }
+
     }
 
-    private static void flushSharedRenderBuffers(Minecraft mc) { mc.renderBuffers().bufferSource().endBatch();
+    private static void flushSharedRenderBuffers(Minecraft mc) {
+ mc.renderBuffers().bufferSource().endBatch();
         mc.renderBuffers().crumblingBufferSource().endBatch();
         mc.renderBuffers().outlineBufferSource().endOutlineBatch();
     }
@@ -1162,18 +1162,18 @@ buffer.drawWithShader(modelView, projection, shader);
     }
 
     private static float sampleMaskedAlpha(float baseAlpha, @Nullable RainPuddleSurface rainPuddleSurface, BlockPos pos, float faceU, float faceV) {
-        return rainPuddleSurface == null ? baseAlpha : baseAlpha * rainPuddleSurface.sample(pos, faceU, faceV);
+
+
+
+
+        if (rainPuddleSurface == null) {
+ return baseAlpha; }
+
+ return baseAlpha * rainPuddleSurface.sample(pos, faceU, faceV);
     }
 
     private static double facePointX(BlockPos pos, Direction face, float s) {
-        double
-
-
-
-
-
-
-        minX = (double)pos.getX();
+        double minX = (double)pos.getX();
         double maxX = minX + 1.0;
         double e = 0.0015F;
 
@@ -1445,18 +1445,18 @@ buffer.drawWithShader(modelView, projection, shader);
  {
  this.face = face;
  this.coordinate = coordinate;
- } static ReflectionSystem.PlaneKey of(BlockPos pos, Direction face) { int coord = switch (face) { case UP -> pos.getY() + 1; case DOWN -> pos.getY(); case SOUTH -> pos.getZ() + 1; case NORTH -> pos.getZ(); case WEST -> pos.getX(); case EAST -> pos.getX() + 1; }; return new ReflectionSystem.PlaneKey(face, coord); } public boolean equals(Object o) {
+ } static ReflectionSystem.PlaneKey of(BlockPos pos, Direction face) { int
 
 
+ coord = switch (face) { case EAST ->
+ pos.getX() + 1; case WEST ->
+ pos.getX(); case UP ->
+ pos.getY() + 1; case DOWN ->
+ pos.getY(); case SOUTH ->
+ pos.getZ() + 1; case NORTH ->
+ pos.getZ(); };
 
-
-
-
-
-
-
-
-
+return new ReflectionSystem.PlaneKey(face, coord); } public boolean equals(Object o) {
 
 
 
@@ -1464,7 +1464,7 @@ buffer.drawWithShader(modelView, projection, shader);
             if (!(o instanceof PlaneKey k)) { return false; }
             return this.face == k.face && this.coordinate == k.coordinate; } @Override public int hashCode() {
 
- return 31 * this.face.hashCode() + this.coordinate; } } private static final class CachedPlaneMesh implements AutoCloseable { @Nullable final VertexBuffer defaultBuffer; @Nullable final VertexBuffer polishedBuffer; @Nullable final VertexBuffer metalBuffer; CachedPlaneMesh(ReflectionSystem.MirrorPlane plane)
+ return 31 * this.face.hashCode() + this.coordinate; } } private static final class MirrorFace { final BlockPos blockPos; final Direction face; final ReflectionMaterial material; final boolean usePolishedShader; final boolean useMetalShader; @Nullable final RainPuddleSurface rainPuddleSurface;
 
 
 
@@ -1474,6 +1474,8 @@ buffer.drawWithShader(modelView, projection, shader);
 
 
 
+ final float[] warpedU = new float[4];
+ final float[] warpedV = new float[4]; MirrorFace(BlockPos p, Direction f, ReflectionMaterial material, boolean usePolishedShader, boolean useMetalShader, @Nullable RainPuddleSurface rainPuddleSurface, Vec3 cameraPos )
 
 
 
@@ -1481,28 +1483,26 @@ buffer.drawWithShader(modelView, projection, shader);
 
 
 
+ {
+ this.blockPos = p.immutable();
+this.face = f;
+ this.material = material;
+ this.usePolishedShader = usePolishedShader;
+ this.useMetalShader = useMetalShader;
+ this.rainPuddleSurface = rainPuddleSurface; for (int
 
+ vertex = 0; vertex < 4; vertex++) { float u = vertex == 0
+ || vertex == 3 ? 0.0F : 1.0F; float v = vertex
+ <= 1 ? 0.0F : 1.0F; float
+ worldX = (float)ReflectionSystem.facePointX(p, f, u); float
+ worldY = (float)ReflectionSystem.facePointY(p, f, v); float
+ worldZ = (float)ReflectionSystem.facePointZ(p, f, u, v);
+ this.warpedU[vertex] = material.warpU(u, v, worldX, worldY, worldZ, p, f, vertex, cameraPos);
+ this.warpedV[vertex] = material.warpV(u, v, worldX, worldY, worldZ, p, f, vertex, cameraPos); }
 
+ } }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    private static final class CachedPlaneMesh implements AutoCloseable { @Nullable final VertexBuffer defaultBuffer; @Nullable final VertexBuffer polishedBuffer; @Nullable final VertexBuffer metalBuffer; CachedPlaneMesh(ReflectionSystem.MirrorPlane plane)
 
 
 
@@ -1534,19 +1534,19 @@ buffer.drawWithShader(modelView, projection, shader);
             }
         }
 
-        private static void emitFace(BufferBuilder builder, ReflectionSystem.MirrorPlane plane, ReflectionSystem.MirrorFace face) {
-            for (int vertex = 0; vertex < 4; vertex++) {
-                float u = vertex != 0 && vertex != 3 ? 1.0F : 0.0F;
+        private static void emitFace(BufferBuilder builder, ReflectionSystem.MirrorPlane plane, ReflectionSystem.MirrorFace face) { for (int vertex = 0; vertex < 4; vertex++) {
+                float u = vertex == 0 || vertex == 3 ? 0.0F : 1.0F;
                 float v = vertex <= 1 ? 0.0F : 1.0F;
                 float mask = ReflectionSystem.sampleMaskedAlpha(1.0F, face.rainPuddleSurface, face.blockPos, u, v);
                 emitMeshVertex(
-                    builder,
-                    plane,
-                    face,
-                    ReflectionSystem.facePointX(face.blockPos, face.face, u),
+                    builder, plane, face, ReflectionSystem.facePointX(face.blockPos, face.face, u),
                     ReflectionSystem.facePointY(face.blockPos, face.face, v),
                     ReflectionSystem.facePointZ(face.blockPos, face.face, u, v),
-                    face.warpedU[vertex], face.warpedV[vertex], mask ); } } private static void emitMeshVertex(BufferBuilder builder, ReflectionSystem.MirrorPlane plane, ReflectionSystem.MirrorFace face, double x, double y, double z, float u, float v, float mask ) { Vec3
+                    face.warpedU[vertex], face.warpedV[vertex], mask ); }
+
+ } private static void emitMeshVertex(BufferBuilder builder, ReflectionSystem.MirrorPlane plane, ReflectionSystem.MirrorFace face, double x, double y, double z, float u, float v, float mask ) { Vec3
+
+
 
  origin = plane.meshOrigin;
             builder.vertex(x - origin.x, y - origin.y, z - origin.z)
@@ -1558,13 +1558,13 @@ buffer.drawWithShader(modelView, projection, shader);
         }
 
         private static int categoryOf(ReflectionSystem.MirrorFace face) {
-            if (face.usePolishedShader) {
-                return 1;
-            } else {
-                return face.useMetalShader ? 2 : 0;
+            if (face.usePolishedShader) { return 1;
+            } else { if (face.useMetalShader) { return 2; }
+ return 0;
             }
         }
         @Override public void close() {
+
  closeBuffer(this.defaultBuffer);
             closeBuffer(this.polishedBuffer);
             closeBuffer(this.metalBuffer);
@@ -1573,9 +1573,9 @@ buffer.drawWithShader(modelView, projection, shader);
         private static void closeBuffer(@Nullable VertexBuffer buffer) {
             if (buffer != null) { buffer.close();
             } }
-    }
+    } private static final class MirrorPlane { final Direction face; final Vec3 normal; final Vec3 planePoint;
 
-    private static final class MirrorFace { final BlockPos blockPos; final Direction face; final ReflectionMaterial material; final boolean usePolishedShader; final boolean useMetalShader; @Nullable final RainPuddleSurface rainPuddleSurface; final float[] warpedU = new float[4]; final float[] warpedV = new float[4]; MirrorFace(BlockPos p, Direction f, ReflectionMaterial material, boolean usePolishedShader, boolean useMetalShader, @Nullable RainPuddleSurface rainPuddleSurface, Vec3 cameraPos ) { this.blockPos = p.immutable(); this.face = f; this.material = material; this.usePolishedShader = usePolishedShader; this.useMetalShader = useMetalShader; this.rainPuddleSurface = rainPuddleSurface; for (int vertex = 0; vertex < 4; vertex++) { float u = vertex != 0 && vertex != 3 ? 1.0F : 0.0F; float v = vertex <= 1 ? 0.0F : 1.0F; float worldX = (float)ReflectionSystem.facePointX(p, f, u); float worldY = (float)ReflectionSystem.facePointY(p, f, v); float worldZ = (float)ReflectionSystem.facePointZ(p, f, u, v); this.warpedU[vertex] = material.warpU(u, v, worldX, worldY, worldZ, p, f, vertex, cameraPos); this.warpedV[vertex] = material.warpV(u, v, worldX, worldY, worldZ, p, f, vertex, cameraPos); } } } private static final class MirrorPlane { final Direction face; final Vec3 normal; final Vec3 planePoint;
+
 
 
 
@@ -1762,5 +1762,6 @@ this.mesh = null; }
         GlTextureRef(int glId)
 
 { this.id = glId; }
-        void setGlId(int glId) { this.id = glId; } @Override public void load(ResourceManager manager) throws IOException { } }
+        void setGlId(int glId) { this.id = glId; } @Override public void load(ResourceManager manager) throws IOException {
+ } }
     }

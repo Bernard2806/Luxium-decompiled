@@ -1,50 +1,50 @@
 package com.vinlanx.luxium.mixin;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.vinlanx.luxium.client.NeoShadowsEngine;
-import com.vinlanx.luxium.client.ReflectionSystem;
-import com.vinlanx.luxium.client.ShaderManager;
-import com.vinlanx.luxium.client.BlockLightTest.BlockLightTest;
-import com.vinlanx.luxium.client.posteffects.Hdr;
-import com.vinlanx.luxium.client.posteffects.PostEffectPipeline;
-import com.vinlanx.luxium.client.postprocess.PostProcessStateGuard;
-import com.vinlanx.luxium.client.shaders.LuxiumGpuShaderFeatures;
-import com.vinlanx.luxium.client.shadows.GpuNeoShadows;
-import com.vinlanx.luxium.client.shadows.GpuShadowCache;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestia;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyFrameCache;
-import com.vinlanx.luxium.client.ssr.ScreenSpaceReflectionSystem;
-import com.vinlanx.luxium.client.tfrpluslsr.LsrSystem;
-import com.vinlanx.luxium.client.tfrpluslsr.TemporalFrameSystem;
-import com.vinlanx.luxium.rtx.Coloredlight;
-import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
-import java.util.Set;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceProvider;
-import org.joml.Matrix4f;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.At.Shift;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import com.vinlanx.luxium.mixin.LightTextureAccessor;
-import org.joml.Matrix4fc;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable; @Mixin({GameRenderer.class}) public abstract class GameRendererMixin { @Inject(method = {"getRendertypeEntitySolidShader"}, at = {@At("HEAD")}, cancellable = true ) private static void luxium$entitySolidCaster(CallbackInfoReturnable<ShaderInstance> cir) { if (NeoSkyCelestia.get ().isRenderingEntityShadowPass()) {
+import com.mojang.blaze3d.vertex.PoseStack; import com.vinlanx.luxium.client.NeoShadowsEngine; import com.vinlanx.luxium.client.ReflectionSystem; import com.vinlanx.luxium.client.ShaderManager; import com.vinlanx.luxium.client.BlockLightTest.BlockLightTest; import com.vinlanx.luxium.client.posteffects.Hdr; import com.vinlanx.luxium.client.posteffects.PostEffectPipeline; import com.vinlanx.luxium.client.postprocess.PostProcessStateGuard; import com.vinlanx.luxium.client.shaders.LuxiumGpuShaderFeatures; import com.vinlanx.luxium.client.shadows.GpuNeoShadows; import com.vinlanx.luxium.client.shadows.GpuShadowCache; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestia; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyFrameCache; import com.vinlanx.luxium.client.ssr.ScreenSpaceReflectionSystem; import com.vinlanx.luxium.client.tfrpluslsr.LsrSystem; import com.vinlanx.luxium.client.tfrpluslsr.TemporalFrameSystem; import com.vinlanx.luxium.rtx.Coloredlight; import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla; import java.io.ByteArrayInputStream; import java.io.InputStream; import java.nio.charset.StandardCharsets; import java.util.Optional; import java.util.Set; import net.minecraft.client.Camera; import net.minecraft.client.Minecraft; import net.minecraft.client.renderer.GameRenderer; import net.minecraft.client.renderer.LevelRenderer; import net.minecraft.client.renderer.LightTexture; import net.minecraft.client.renderer.ShaderInstance; import net.minecraft.resources.ResourceLocation; import net.minecraft.server.packs.resources.Resource; import net.minecraft.server.packs.resources.ResourceManager; import net.minecraft.server.packs.resources.ResourceProvider; import org.joml.Matrix4f; import org.spongepowered.asm.mixin.Mixin; import org.spongepowered.asm.mixin.Unique; import org.spongepowered.asm.mixin.injection.At; import org.spongepowered.asm.mixin.injection.Inject; import org.spongepowered.asm.mixin.injection.ModifyVariable; import org.spongepowered.asm.mixin.injection.Redirect; import org.spongepowered.asm.mixin.injection.At.Shift; import org.spongepowered.asm.mixin.injection.callback.CallbackInfo; import com.vinlanx.luxium.mixin.LightTextureAccessor; import org.joml.Matrix4fc; import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@Mixin({GameRenderer.class}) public abstract class GameRendererMixin {
+
+
+
+@Inject(method = {"getRendertypeEntitySolidShader"}, at = {@At("HEAD")}, cancellable = true ) private static void luxium$entitySolidCaster(CallbackInfoReturnable<ShaderInstance> cir) { if (NeoSkyCelestia.get ().isRenderingEntityShadowPass()) {
 cir.setReturnValue(ShaderManager.getEntityShadowCasterShader(true)); }
 
 } @Inject(method = {"getRendertypeEntityCutoutShader", "getRendertypeEntityCutoutNoCullShader", "getRendertypeEntityTranslucentShader", "getRendertypeEntityTranslucentCullShader", "getRendertypeArmorCutoutNoCullShader"}, at = {@At("HEAD")}, cancellable = true ) private static void luxium$entityCutoutCaster(CallbackInfoReturnable<ShaderInstance> cir) { if (NeoSkyCelestia.get
@@ -65,17 +65,17 @@ LUXIUM$ENTITY_RECEIVER_DEFINITIONS = Set.of(new ResourceLocation("minecraft", "s
         method = {"reloadShaders"},
         at = @At("HEAD"),
         argsOnly = true ) private ResourceProvider luxium$selectEntityReceiverShaders(ResourceProvider resourceProvider) {
-        LuxiumGpuShaderFeatures.refreshNow();
+        LuxiumGpuShaderFeatures.refreshNow
+
+
+
+        ();
         LuxiumGpuShaderFeatures.recordEntityShaderSelection();
         ResourceManager resourceManager = Minecraft.getInstance().getResourceManager();
-        if (BlockLightTest.enabled() && !LuxiumGpuShaderFeatures.neoSkyEntityReceiverEnabled() && !LuxiumGpuShaderFeatures.receiverShadersEnabled()) {
+        if (BlockLightTest.enabled
+() && !LuxiumGpuShaderFeatures.neoSkyEntityReceiverEnabled() && !LuxiumGpuShaderFeatures.receiverShadersEnabled
+()) {
             return resourceLocation -> {
-
-
-
-
-
-
  if (!LUXIUM$ENTITY_RECEIVER_DEFINITIONS.contains(resourceLocation)) {
                     return resourceProvider.getResource(resourceLocation);
                 } else { Resource definition = luxium$entityReceiverDefinition(resourceProvider, resourceLocation);
@@ -92,9 +92,9 @@ LUXIUM$ENTITY_RECEIVER_DEFINITIONS = Set.of(new ResourceLocation("minecraft", "s
                                 return var3;
                             } ) );
                 }
-            };
-        } else if (LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled()) { return resourceLocation -> {
+            }; } else if (LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled()) {
 
+return resourceLocation -> {
  if (!LUXIUM$ENTITY_RECEIVER_DEFINITIONS.contains(resourceLocation)) {
                     return resourceProvider.getResource(resourceLocation);
                 } else {
@@ -109,14 +109,14 @@ LUXIUM$ENTITY_RECEIVER_DEFINITIONS = Set.of(new ResourceLocation("minecraft", "s
                                 }
 
                                 return var3;
-                            } ) ); } }; } else { return LuxiumGpuShaderFeatures.localReceiverEnabled() ? resourceLocation ->
-
- LUXIUM$ENTITY_RECEIVER_DEFINITIONS.contains(resourceLocation)
+                            } ) ); } }; } else { if (LuxiumGpuShaderFeatures.localReceiverEnabled
+()) {
+return resourceLocation -> LUXIUM$ENTITY_RECEIVER_DEFINITIONS.contains(resourceLocation)
                         ? Optional.of(luxium$entityReceiverDefinition(resourceProvider, resourceLocation)) : resourceProvider.getResource
- (resourceLocation) : resourceLocation -> {
+ (resourceLocation); }
 
 
-
+return resourceLocation -> {
                     if (!LUXIUM$ENTITY_RECEIVER_DEFINITIONS.contains(resourceLocation)) {
                         return resourceProvider.getResource(resourceLocation);
                     } else if (!LuxiumGpuShaderFeatures.neoSkyEntityReceiverEnabled

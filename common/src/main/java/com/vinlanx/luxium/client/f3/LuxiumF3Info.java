@@ -21,15 +21,15 @@ LUXIUM_INFO = List.of("", ChatFormatting.RED + "Luxium v" + LuxiumPlatform.get
         if (!(Minecraft.getInstance().options.renderDebug)) { return;
  }
             int targetIndex = 0;
-            for (int blankLines = 0; targetIndex
+            int blankLines = 0;
 
- < right.size();
-
-
-
-targetIndex++) { String line = right.get(targetIndex); if (line == null || line.isEmpty()) { blankLines++; } if (blankLines == 3) { break;
-                }
+            while (targetIndex < right.size()) {
+                String line = right.get(targetIndex);
+                if (line == null || line.isEmpty()) { blankLines++; }
+                if (blankLines == 3) { break; }
+                targetIndex++;
             }
+
             right.addAll(targetIndex, LUXIUM_INFO);
     }
     }

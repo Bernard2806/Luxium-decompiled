@@ -37,20 +37,20 @@ public final class skyvolumetrigodrays {
         if (!isEnabled()) {
             return false;
         } else {
-            NeoSkyCelestia system = NeoSkyCelestia.get();
+            NeoSkyCelestia system = NeoSkyCelestia.get
+ ();
             NeoSkyCelestiaFrameState state = system.frameState();
-            return !hasShadowData(system, state)
-                ? false : state.directStrength() > 1.0E-4F
+            if (!hasShadowData(system, state)) {
+ return false; }
+
+
+ return state.directStrength() > 1.0E-4F
                     && Config.CLIENT.skyVolumetricGodRaysIntensity.get().floatValue() > 1.0E-4F
                     && Config.CLIENT.skyVolumetricGodRaysDensity.get().floatValue() > 1.0E-4F;
         }
     }
 
-    private static boolean hasShadowData(NeoSkyCelestia system, NeoSkyCelestiaFrameState state) {
-
-
-
-        return system.isMainPassActive() && state.enabled
+    private static boolean hasShadowData(NeoSkyCelestia system, NeoSkyCelestiaFrameState state) { return system.isMainPassActive() && state.enabled
  () && state.nearDepthTexture
  () > 0 && state.farDepthTexture
  () > 0;
@@ -140,11 +140,15 @@ public final class skyvolumetrigodrays {
         }
     }
 
-    private static float updateAutoAdaptation() {
-        boolean enabled = Config.isFeatureEnabled(Config.CLIENT.skyVolumetricGodRaysAutoAdaptation);
+    private static float updateAutoAdaptation() { boolean enabled = Config.isFeatureEnabled(Config.CLIENT.skyVolumetricGodRaysAutoAdaptation);
         Minecraft minecraft = Minecraft.getInstance();
-        if (enabled && minecraft.level != null) {
-            long nowNs = System.nanoTime();
+
+        if (!(enabled && minecraft.level != null)) {
+            resetAutoAdaptation();
+            return 0.0F;
+        }
+            long nowNs = System.nanoTime
+ ();
             boolean levelChanged = adaptationLevel != minecraft.level;
             if (levelChanged) {
                 adaptationLevel = minecraft.level;
@@ -155,6 +159,7 @@ public final class skyvolumetrigodrays {
             }
 
             if (!autoAdaptationWasEnabled) {
+
                 adaptationSmoothed = 0.0F;
                 lastSkylightSampleGameTime = Long.MIN_VALUE;
                 lastAdaptationUpdateNs = nowNs;
@@ -163,8 +168,13 @@ public final class skyvolumetrigodrays {
 
             long gameTime = minecraft.level.getGameTime();
             if (lastSkylightSampleGameTime == Long.MIN_VALUE || gameTime < lastSkylightSampleGameTime || gameTime - lastSkylightSampleGameTime >= 2L) {
-                int skyLight = sampleCameraSkylight();
-                int fullAdaptationSkylight = Mth.clamp(Config.CLIENT.skyVolumetricGodRaysFullAdaptationSkylight.get(), 0, 15);
+                int skyLight = sampleCameraSkylight
+
+ ();
+                int
+                fullAdaptationSkylight = Mth.clamp(Config.CLIENT.skyVolumetricGodRaysFullAdaptationSkylight.get
+(), 0, 15);
+
                 if (fullAdaptationSkylight >= 15) {
                     adaptationTarget = 1.0F;
                 } else {
@@ -178,11 +188,14 @@ public final class skyvolumetrigodrays {
                 lastAdaptationUpdateNs = nowNs;
                 return adaptationSmoothed;
             } else {
-                float dt = (float)((double)(nowNs - lastAdaptationUpdateNs) * 1.0E-9);
+                float
+                dt = (float)((double)(nowNs - lastAdaptationUpdateNs) * 1.0E-9);
                 lastAdaptationUpdateNs = nowNs;
                 dt = Mth.clamp(dt, 0.0F, 0.25F);
+
                 if (dt > 0.0F) {
-                    float alpha = 1.0F - (float)Math.exp((double)(-6.0F * dt / 0.5F));
+                    float
+                    alpha = 1.0F - (float)Math.exp((double)(-6.0F * dt / 0.5F));
                     adaptationSmoothed = adaptationSmoothed + (adaptationTarget - adaptationSmoothed) * alpha;
                     if (Math.abs(adaptationTarget - adaptationSmoothed) < 1.0E-4F) {
                         adaptationSmoothed = adaptationTarget;
@@ -191,22 +204,9 @@ public final class skyvolumetrigodrays {
 
                 return Mth.clamp(adaptationSmoothed, 0.0F, 1.0F);
             }
-        } else {
-            resetAutoAdaptation();
-            return 0.0F;
-        }
+
     }
-
-    private static void resetAutoAdaptation() {
-
-
-
-
-
-
-
-
-        adaptationLevel = null;
+    private static void resetAutoAdaptation() { adaptationLevel = null;
         lastSkylightSampleGameTime = Long.MIN_VALUE;
         lastAdaptationUpdateNs = 0L;
         adaptationTarget = 0.0F;

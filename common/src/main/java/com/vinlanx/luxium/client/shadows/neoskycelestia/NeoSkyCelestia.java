@@ -1,41 +1,41 @@
 package com.vinlanx.luxium.client.shadows.neoskycelestia;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.client.NeoShadowsEngine;
-import com.vinlanx.luxium.client.ReflectionSystem;
-import com.vinlanx.luxium.client.clouds.LuxiumCloudRenderer;
-import com.vinlanx.luxium.client.shaders.LuxiumGpuShaderFeatures;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.embeddium.NeoSkyEmbeddiumShadowBridge;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.lightmap.NeoSkyCelestiaLightLut;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.lightmap.NeoSkyLightTextureExtension;
-import com.vinlanx.luxium.client.sunmoonapi.CelestialPath;
-import com.vinlanx.luxium.mixin.LevelRendererAccessor;
-import com.vinlanx.luxium.platform.LuxiumPlatform;
-import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderer;
-import net.minecraft.client.Camera;
-import net.minecraft.client.CloudStatus;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryStack;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCascade;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestiaFrameState;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestiaLighting;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestiaMath;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyEntityShadowMap;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyFrameCache;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyShadowRenderLists;
-import java.nio.FloatBuffer;
-import org.joml.Matrix4fc;
-import org.joml.Vector3fc; public final class NeoSkyCelestia { private static final NeoSkyCelestia INSTANCE = new NeoSkyCelestia(); private static final boolean OCULUS_LOADED = LuxiumPlatform.get().externalShadersLoaded(); private final NeoSkyCascade near = new NeoSkyCascade("near"); private final NeoSkyCascade far = new NeoSkyCascade("far"); private final NeoSkyEntityShadowMap entityShadows = new NeoSkyEntityShadowMap();
+import com.mojang.blaze3d.platform.GlStateManager; import com.mojang.blaze3d.systems.RenderSystem; import com.mojang.blaze3d.vertex.PoseStack; import com.vinlanx.luxium.Config; import com.vinlanx.luxium.client.NeoShadowsEngine; import com.vinlanx.luxium.client.ReflectionSystem; import com.vinlanx.luxium.client.clouds.LuxiumCloudRenderer; import com.vinlanx.luxium.client.shaders.LuxiumGpuShaderFeatures; import com.vinlanx.luxium.client.shadows.neoskycelestia.embeddium.NeoSkyEmbeddiumShadowBridge; import com.vinlanx.luxium.client.shadows.neoskycelestia.lightmap.NeoSkyCelestiaLightLut; import com.vinlanx.luxium.client.shadows.neoskycelestia.lightmap.NeoSkyLightTextureExtension; import com.vinlanx.luxium.client.sunmoonapi.CelestialPath; import com.vinlanx.luxium.mixin.LevelRendererAccessor; import com.vinlanx.luxium.platform.LuxiumPlatform; import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderer; import net.minecraft.client.Camera; import net.minecraft.client.CloudStatus; import net.minecraft.client.Minecraft; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.client.renderer.LightTexture; import net.minecraft.client.renderer.ShaderInstance; import net.minecraft.world.phys.Vec3; import org.joml.Matrix4f; import org.joml.Vector3f; import org.lwjgl.opengl.GL11; import org.lwjgl.system.MemoryStack; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCascade; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestiaFrameState; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestiaLighting; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestiaMath; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyEntityShadowMap; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyFrameCache; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyShadowRenderLists; import java.nio.FloatBuffer; import org.joml.Matrix4fc; import org.joml.Vector3fc;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public final class NeoSkyCelestia { private static final NeoSkyCelestia INSTANCE = new NeoSkyCelestia();
+ private static final boolean OCULUS_LOADED = LuxiumPlatform.get().externalShadersLoaded();
+
+private final NeoSkyCascade near = new NeoSkyCascade("near");
+ private final NeoSkyCascade far = new NeoSkyCascade("far");
+ private final NeoSkyEntityShadowMap entityShadows = new NeoSkyEntityShadowMap();
     private final NeoSkyEmbeddiumShadowBridge embeddium = new NeoSkyEmbeddiumShadowBridge();
     private final NeoSkyCelestiaLightLut celestialLightLut = new NeoSkyCelestiaLightLut();
     private NeoSkyCelestiaFrameState frameState;
@@ -62,14 +62,21 @@ import org.joml.Vector3fc; public final class NeoSkyCelestia { private static fi
     }
 
     public void prepareForMainWorldRender(Minecraft mc, Camera camera, float partialTick, Matrix4f mainProjection, Matrix4f mainViewRotation) {
-        RenderSystem.assertOnRenderThread();
+        RenderSystem.assertOnRenderThread
+
+
+
+
+        ();
         this.mainPassActive = false;
         this.inlineTerrainPass = false;
         this.cloudPartialTick = partialTick;
         this.ensureFallbackDepthTexture();
+
         if (!this.canRun(mc)) {
             this.publishDisabledState(mc);
-        } else {
+        return; }
+
             if (this.boundLevel != mc.level) {
                 this.onWorldChanged(mc.level);
             }
@@ -83,16 +90,20 @@ import org.joml.Vector3fc; public final class NeoSkyCelestia { private static fi
             boolean wantsShadows = wantsLighting && this.isGpuModeSelected() && horizonVisibility > 0.005F;
             if (!wantsShadows && !wantsLighting) {
                 this.publishDisabledState(mc);
-            } else {
-                Vec3 cameraPosition = camera.getPosition();
+            return; }
+                Vec3
+
+                cameraPosition = camera.getPosition();
                 long now = System.nanoTime();
                 boolean wantsEntityShadows = wantsShadows && Config.isFeatureEnabled(Config.CLIENT.skyEntityShadowsEnabled);
-                double nearMovementThreshold = Math.max(1.5, (double)this.near.radius() * 16.0 / (double)this.near.resolution());
-                long nearUpdateIntervalNanos = Math.max(10000000L, (long)(Config.CLIENT.skyShadowNearUpdateIntervalSeconds.get() * 1.0E9));
-                boolean buildNear = wantsShadows && this.near.shouldBuild(cameraPosition, toLight, nearMovementThreshold, 0.0, nearUpdateIntervalNanos, now);
-                boolean buildFar = wantsShadows
-                    && this.far
-                        .shouldBuild(
+                double nearMovementThreshold = Math.max(1.5, (double)this.near.radius
+() * 16.0 / (double)this.near.resolution());
+                long nearUpdateIntervalNanos = Math.max(10000000L, (long)(Config.CLIENT.skyShadowNearUpdateIntervalSeconds.get
+() * 1.0E9));
+                boolean
+                buildNear = wantsShadows && this.near.shouldBuild(cameraPosition, toLight, nearMovementThreshold, 0.0, nearUpdateIntervalNanos, now);
+                boolean
+                buildFar = wantsShadows && this.far .shouldBuild(
                             cameraPosition,
                             toLight,
                             4.0,
@@ -101,37 +112,49 @@ import org.joml.Vector3fc; public final class NeoSkyCelestia { private static fi
                             now );
                 long nearGenerationBefore = this.near.generation();
                 long farGenerationBefore = this.far.generation();
+
                 if (buildNear || buildFar) {
                     this.rebuilding = true;
 
-                    try {
-                        Matrix4f sharedLightRotation = NeoSkyCelestiaMath.buildLightViewRotation(toLight);
+                    try { Matrix4f sharedLightRotation = NeoSkyCelestiaMath.buildLightViewRotation(toLight);
+
                         if (buildNear) {
                             this.near.prepareReceiver(cameraPosition, toLight, sharedLightRotation);
                         }
-
                         if (buildFar) {
                             this.far.prepareReceiver(cameraPosition, toLight, sharedLightRotation);
                         }
 
                         NeoSkyEmbeddiumShadowBridge.PreparedRenderLists prepared = this.embeddium.prepareRenderLists(this.near, buildNear, this.far, buildFar);
-                        if (prepared == null) {
-                            if (buildNear) {
-                                this.near.markDirty();
-                            }
 
-                            if (buildFar) {
-                                this.far.markDirty();
+                        if (prepared == null) {
+                            if (buildNear) { this.near.markDirty();
+                            } if (buildFar) { this.far.markDirty();
                             }
                         } else {
                             if (buildNear) {
-                                this.near.finalizeCasterVolume(prepared.nearCasterFront(), computeAuxiliaryCasterFront(mc, this.near));
-                                this.rebuildPreparedCascade(this.near, toLight, now, prepared.renderer(), prepared.near(), prepared.nearIncomplete());
-                            }
+                                this.near.finalizeCasterVolume(prepared.nearCasterFront
+(), computeAuxiliaryCasterFront
+(mc, this.near));
+                                this.rebuildPreparedCascade(this.near, toLight, now, prepared.renderer
 
+
+
+ (), prepared.near
+ (), prepared.nearIncomplete
+ ());
+                            }
                             if (buildFar) {
-                                this.far.finalizeCasterVolume(prepared.farCasterFront(), computeAuxiliaryCasterFront(mc, this.far));
-                                this.rebuildPreparedCascade(this.far, toLight, now, prepared.renderer(), prepared.far(), prepared.farIncomplete());
+                                this.far.finalizeCasterVolume(prepared.farCasterFront
+(), computeAuxiliaryCasterFront
+(mc, this.far));
+                                this.rebuildPreparedCascade(this.far, toLight, now, prepared.renderer
+
+
+
+ (), prepared.far
+ (), prepared.farIncomplete
+ ());
                             }
                         }
                     } finally {
@@ -140,12 +163,13 @@ import org.joml.Vector3fc; public final class NeoSkyCelestia { private static fi
                     }
                 }
 
-                this.entityShadows.configure(Config.CLIENT.skyEntityShadowResolution.get(), (float)Config.CLIENT.skyEntityShadowRadius.get().intValue());
+                this.entityShadows.configure(Config.CLIENT.skyEntityShadowResolution.get
+(), (float)Config.CLIENT.skyEntityShadowRadius.get
+().intValue());
                 if (wantsEntityShadows && this.entityShadows.shouldUpdate(now)) {
                     this.rebuilding = true;
 
-                    try {
-                        this.entityShadows.render(mc, cameraPosition, toLight, partialTick, now);
+                    try { this.entityShadows.render(mc, cameraPosition, toLight, partialTick, now);
                     } finally {
                         this.rebuilding = false;
                         restoreKnownMainRenderState(mc);
@@ -159,16 +183,23 @@ import org.joml.Vector3fc; public final class NeoSkyCelestia { private static fi
                 this.nearLightFromWorldRelative.set(this.near.lightFromMainView()).mul(mainViewRotation);
                 this.farLightFromWorldRelative.set(this.far.lightFromMainView()).mul(mainViewRotation);
                 this.entityLightFromWorldRelative.set(this.entityShadows.lightFromMainView()).mul(mainViewRotation);
-                int blockOnlyTexture = getBlockOnlyTexture(mc.gameRenderer.lightTexture());
+                int
+                blockOnlyTexture = getBlockOnlyTexture(mc.gameRenderer.lightTexture());
                 boolean cascadesReady = wantsShadows && this.near.ready() && this.far.ready() && blockOnlyTexture > 0;
-                boolean shadowMapUpdated = this.near.generation() != nearGenerationBefore || this.far.generation() != farGenerationBefore;
-                float sunShadowBlockVisibility = Config.CLIENT.vanillaBlockLightInSunShadows.get().floatValue() * 0.01F * lighting.sunInfluence();
+                boolean shadowMapUpdated = this.near.generation() != nearGenerationBefore || this.far.generation
+() != farGenerationBefore;
+                float sunShadowBlockVisibility = Config.CLIENT.vanillaBlockLightInSunShadows.get().floatValue() * 0.01F * lighting.sunInfluence
+
+ ();
                 int celestialLightLutTexture = this.celestialLightLut.textureId();
                 if (wantsLighting && (shadowMapUpdated || celestialLightLutTexture <= 0)) {
-                    celestialLightLutTexture = this.celestialLightLut.update(mc.gameRenderer.lightTexture(), lighting, cascadesReady, sunShadowBlockVisibility);
+                    celestialLightLutTexture = this.celestialLightLut.update(mc.gameRenderer.lightTexture
+(), lighting, cascadesReady, sunShadowBlockVisibility);
                 }
 
-                boolean shadowsReady = cascadesReady && celestialLightLutTexture > 0;
+                boolean
+
+                shadowsReady = cascadesReady && celestialLightLutTexture > 0;
                 boolean lightReady = wantsLighting && celestialLightLutTexture > 0;
                 this.frameState = new NeoSkyCelestiaFrameState(
                     shadowsReady,
@@ -205,41 +236,10 @@ import org.joml.Vector3fc; public final class NeoSkyCelestia { private static fi
                     this.far.generation(),
                     this.entityShadows.generation() );
                 this.mainPassActive = shadowsReady || lightReady;
-            }
-        }
     }
 
     private void rebuildPreparedCascade(
         NeoSkyCascade cascade, Vec3 toLight, long now, ChunkRenderer renderer, NeoSkyShadowRenderLists lists, boolean incompleteCoverage ) {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -543,41 +543,41 @@ return;
     }
 
     private static float computeAuxiliaryCasterFront(Minecraft mc, NeoSkyCascade cascade) {
-        if (mc != null && mc.level != null && Config.isFeatureEnabled(Config.CLIENT.skyCloudShadowsEnabled) && mc.options.getCloudsType() != CloudStatus.OFF) {
-            float cloudHeight = mc.level.effects().getCloudHeight();
+        if (!(mc != null && mc.level != null && Config.isFeatureEnabled
+ (Config.CLIENT.skyCloudShadowsEnabled) && mc.options.getCloudsType
+() != CloudStatus.OFF)) {
+            return Float.NaN;
+        }
+            float
+            cloudHeight = mc.level.effects().getCloudHeight();
             if (!Float.isFinite(cloudHeight)) {
                 return Float.NaN;
-            } else if (Config.isFeatureEnabled(Config.CLIENT.cloudsEnabled)) {
-                return LuxiumCloudRenderer.get()
-                    .computeCustomShadowCasterFront(
-                        cascade.center(), cascade.toLight(), cascade.lightViewRotation(), cascade.projectionRadius(), mc.options.getCloudsType() );
+            } else
+
+            if (Config.isFeatureEnabled(Config.CLIENT.cloudsEnabled)) {
+                return LuxiumCloudRenderer.get() .computeCustomShadowCasterFront(
+                        cascade.center(), cascade.toLight
+ (), cascade.lightViewRotation
+ (), cascade.projectionRadius
+ (), mc.options.getCloudsType
+() );
             } else {
-                Vec3 center = cascade.center();
+                Vec3
+                center = cascade.center();
                 Vec3 toLight = cascade.toLight();
                 if (toLight.y <= 0.0) {
                     return Float.NaN;
                 } else {
-                    double cloudCasterReach = ((double)cloudHeight - center.y) / toLight.y;
-                    double receiverFront = (double)cascade.projectionRadius() * (Math.abs(toLight.x) + Math.abs(toLight.z));
+                    double
+                    cloudCasterReach = ((double)cloudHeight - center.y) / toLight.y;
+                    double
+                    receiverFront = (double)cascade.projectionRadius() * (Math.abs
+(toLight.x) + Math.abs(toLight.z));
                     return (float)(cloudCasterReach + receiverFront + 16.0);
                 }
             }
-        } else {
-            return Float.NaN;
-        }
-    }
 
-    private void publishDisabledState(Minecraft mc) {
-
-
-
-
-
-
-
-
-
-        this.ensureFallbackDepthTexture();
+    } private void publishDisabledState(Minecraft mc) { this.ensureFallbackDepthTexture();
         this.frameState = NeoSkyCelestiaFrameState.disabled(this.celestialLightLut.textureId
 (), this.fallbackDepthTexture);
         this.mainPassActive = false;

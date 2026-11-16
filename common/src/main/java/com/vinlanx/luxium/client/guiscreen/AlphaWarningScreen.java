@@ -39,25 +39,27 @@ public class AlphaWarningScreen extends Screen {
     }
 
     @Override protected void init() {
-        this.continueButton = Button.builder(Component.translatable("screen.luxium.alpha_warning.continue"), btn ->
 
-
+        this.continueButton = Button.builder(Component.translatable
+("screen.luxium.alpha_warning.continue"), btn ->
 this.acknowledge())
             .bounds(0, 0, 136, 20)
             .build();
         this.continueButton.active = false;
         this.addRenderableWidget(this.continueButton);
-        this.youtubeButton = Button.builder(Component.translatable("screen.luxium.alpha_warning.youtube"), btn ->
 
-
+        this.youtubeButton = Button.builder(Component.translatable
+("screen.luxium.alpha_warning.youtube"), btn ->
 this.openYoutube())
             .bounds(0, 0, 62, 20)
             .build();
         this.addRenderableWidget(this.youtubeButton);
+
         this.layoutControls();
     }
 
     @Override public void tick() {
+
         this.ticksOpen++;
         this.backgroundRenderer.tick();
         if (this.ticksOpen >= 200) {
@@ -70,7 +72,8 @@ this.openYoutube())
     }
 
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTick) {
-        int h = this.height;
+        int
+        h = this.height;
 
         this.backgroundRenderer.render(gfx, this.width, h, mouseX, mouseY, partialTick);
 
@@ -124,10 +127,7 @@ this.openYoutube())
     }
 
     private void layoutControls() {
-        int
-
-
-        buttonHeight = 20;
+        int buttonHeight = 20;
         int gap = 6;
         if (this.width >= 220) {
             int youtubeWidth = Mth.clamp((int)(this.width / 8), (int)62, (int)76);
@@ -208,10 +208,12 @@ this.openYoutube())
     }
 
     @Override public void onClose() {
-        Minecraft.getInstance().setScreen(null);
+        Minecraft.getInstance
+        ().setScreen(null);
     }
 
     @Override public boolean isPauseScreen() {
+
         return false;
     }
     }

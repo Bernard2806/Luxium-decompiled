@@ -16,18 +16,14 @@ public final class luxiumMod {
     private luxiumMod() { }
 
     public static void onClientTick() {
-        if (!(LuxiumPlatform.incompatibilityScreen() == null)) {
- return;
- }
+        if (!(LuxiumPlatform.incompatibilityScreen() == null)) { return;
+ } if (!(!warningScheduled)) { return; }
+                if (!(AlphaWarningScreen.shouldShow())) { return; }
+                    Minecraft mc = Minecraft.getInstance
+ ();
+                    if (!(mc.screen instanceof TitleScreen)) { return; }
 
-            if (!warningScheduled) {
-                if (AlphaWarningScreen.shouldShow()) {
-                    Minecraft mc = Minecraft.getInstance();
-                    if (!(mc.screen instanceof TitleScreen)) {
- return; } warningScheduled = true; mc.execute(() -> mc.setScreen(new AlphaWarningScreen()));
-
-                }
-            }
-
+ warningScheduled = true;
+ mc.execute(() -> mc.setScreen(new AlphaWarningScreen()));
     }
     }

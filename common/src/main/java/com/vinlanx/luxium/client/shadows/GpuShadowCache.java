@@ -207,15 +207,14 @@ this.entries.values()) {
     }
 
     public void refreshDynamicCasters(ClientLevel level, BlockPos center, Vec3 cameraPos) {
-        if (!(level != null && center != null && cameraPos != null)) {
+        if (!(level != null && center != null && cameraPos != null)) { return;
+ } if (!(Config.isFeatureEnabled(Config.CLIENT.gpuShadowsEnabled) && GpuNeoShadows.entityShadowCastersEnabled()
+                && !Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled) && GpuNeoShadows.usesCubemapShadows())) {
+                this.clearDynamicTracking(level != this.trackedDynamicLevel || this.trackedDynamicCenter != null);
  return;
- }
-
-            if (Config.isFeatureEnabled(Config.CLIENT.gpuShadowsEnabled)
-                && GpuNeoShadows.entityShadowCastersEnabled()
-                && !Config.isFeatureEnabled(Config.CLIENT.neoCpuShadowsEnabled)
-                && GpuNeoShadows.usesCubemapShadows()) {
-                long nowMs = System.currentTimeMillis();
+            }
+                long nowMs = System.currentTimeMillis
+ ();
                 long intervalMs = this.getDynamicUpdateIntervalMs();
                 boolean levelChanged = this.trackedDynamicLevel != level;
                 boolean centerChanged = this.trackedDynamicCenter == null || !this.trackedDynamicCenter.equals(center);
@@ -228,6 +227,7 @@ this.entries.values()) {
                     Long2ObjectOpenHashMap<AABB> nextCasters = new Long2ObjectOpenHashMap<>();
                     this.scanDynamicCasters(level, center, cameraPos, scanRadiusSq, nextCasters);
                     this.lastDynamicScanMs = nowMs;
+
                     if (levelChanged) {
                         for (GpuShadowCache.Entry entry : this.entries.values()) {
                             markAllFacesDirty(entry, false);
@@ -244,10 +244,10 @@ this.entries.values()) {
                     this.trackedDynamicCasters.putAll(nextCasters);
                     this.trackedDynamicLevel = level;
                     this.trackedDynamicCenter = center.immutable();
+             } public void stageVisibleEntries(ClientLevel level, long[] sourceKeys, int[] emissions, int limit) {
 
-            } else {
-                this.clearDynamicTracking(level != this.trackedDynamicLevel || this.trackedDynamicCenter != null);
-            } } public void stageVisibleEntries(ClientLevel level, long[] sourceKeys, int[] emissions, int limit) { if (sourceKeys == null || emissions == null || limit <= 0) { return;
+
+ if (sourceKeys == null || emissions == null || limit <= 0) { return;
         }
         int max = Math.min(limit, Math.min(sourceKeys.length, emissions.length));
         if (max <= 0) { return; }
@@ -1119,14 +1119,14 @@ this.trackedDynamicCasters.keySet()) {
  >= 32 ? 512 : 16 * p;
         capturePixels = nearestPowerOfTwo(Math.max(16, Math.min(512, capturePixels)));
 
-        for (int wanted = Math.max(1, Math.min(40, requestedSources)); capturePixels
- > 16;
-
-
-
- capturePixels >>= 1) { int grid = Math.max(1, 4096 / capturePixels); int capacity = grid * grid / 6; if (capacity >= wanted) { break;
-            }
-        } return capturePixels;
+        int wanted = Math.max(1, Math.min(40, requestedSources));
+        while (capturePixels > 16) {
+            int grid = Math.max(1, 4096 / capturePixels);
+            int capacity = grid * grid / 6;
+            if (capacity >= wanted) { break; }
+            capturePixels >>= 1;
+        }
+        return capturePixels;
     }
 
     private static int nearestPowerOfTwo(int value) {

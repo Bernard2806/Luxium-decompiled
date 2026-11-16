@@ -64,41 +64,33 @@ public final class KawaseBloomRenderer {
     private KawaseBloomRenderer() { }
 
     public static void render(RenderFrame event) {
-        if (!(event.getStage() == RenderFrame.Stage.AFTER_PARTICLES)) {
-return;
-}
-
-            if (!Config.isFeatureEnabled(Config.CLIENT.kawaseBloomEnabled)) {
+        if (!(event.getStage() == RenderFrame.Stage.AFTER_PARTICLES)) { return;
+ } if (!Config.isFeatureEnabled(Config.CLIENT.kawaseBloomEnabled)) {
                 releaseResources();
-            } else if (!ReflectionSystem.isRenderingWorldPass() && !NeoShadowsEngine.isAnyShadowCapturePass()) {
-                Minecraft mc = Minecraft.getInstance();
+                return;
+            } else if (!(!ReflectionSystem.isRenderingWorldPass
+() && !NeoShadowsEngine.isAnyShadowCapturePass())) { return; }
+                Minecraft mc = Minecraft.getInstance
+ ();
                 RenderTarget main = mc.getMainRenderTarget();
                 int depthTexture = SharedPostResources.getDepthTextureId();
                 if (!(mc.level != null
                     && mc.player != null
-                    && main != null
-                    && main.viewWidth > 0
-                    && main.viewHeight > 0
-                    && main.getColorTextureId() > 0
-                    && depthTexture > 0)) {
- return;
+                    && main != null && main.viewWidth > 0 && main.viewHeight > 0 && main.getColorTextureId() > 0
+                    && depthTexture > 0)) { return;
  }
 
                     ShaderInstance sourceShader = ShaderManager.getKawaseSourceShader();
                     ShaderInstance downShader = ShaderManager.getKawaseDownShader();
                     ShaderInstance upShader = ShaderManager.getKawaseUpShader();
                     ShaderInstance compositeShader = ShaderManager.getKawaseCompositeShader();
-                    if (!(sourceShader != null && downShader != null && upShader != null && compositeShader != null)) {
- return;
+                    if (!(sourceShader != null && downShader != null && upShader != null && compositeShader != null)) { return;
  }
-
                         int levels = Mth.clamp(Config.CLIENT.kawaseBloomLevels.get(), 2, 7);
                         ensureTargets(main.viewWidth, main.viewHeight, levels);
                         updateSourceVolume(event.getCamera().getPosition());
-                        if (!(sourceAtlas > 0 && sourceTarget != null)) {
- return;
+                        if (!(sourceAtlas > 0 && sourceTarget != null)) { return;
  }
-
                             Matrix4f previousProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
                             VertexSorting previousSorting = RenderSystem.getVertexSorting();
                             float[] previousColor = RenderSystem.getShaderColor();
@@ -112,8 +104,10 @@ return;
                                 Matrix4f viewRotation = VIEW_ROTATION.set(event.getPoseStack().last().pose());
                                 Matrix4f inverseViewProjection = NeoSkyFrameCache.copyInverseViewProjection(
                                     event.getProjectionMatrix(), viewRotation, INVERSE_VIEW_PROJECTION );
-                                Matrix4f inverseProjection = NeoSkyFrameCache.copyInverseProjection(event.getProjectionMatrix(), INVERSE_PROJECTION);
+                                Matrix4f inverseProjection = NeoSkyFrameCache.copyInverseProjection(event.getProjectionMatrix
+(), INVERSE_PROJECTION);
                                 Vec3 camera = event.getCamera().getPosition();
+
                                 sourceShader.setSampler("SceneSampler", main.getColorTextureId());
                                 sourceShader.setSampler("DepthSampler", depthTexture);
                                 setMatrix(sourceShader, "InverseViewProjection", inverseViewProjection);
@@ -121,10 +115,16 @@ return;
                                 set3f(
                                     sourceShader,
                                     "VolumeMinRelative",
-                                    (float)((double)volumeMinX - camera.x), (float)((double)volumeMinY - camera.y), (float)((double)volumeMinZ - camera.z) ); set1f(sourceShader, "VolumeSize", (float)volumeSize); set1f(sourceShader, "SourceAtlasSize", (float)atlasSize); set1f(sourceShader, "SourceTilesPerRow", (float)atlasTilesPerRow); set1f(sourceShader, "Threshold", Config.CLIENT.kawaseBloomThreshold.get().floatValue()); sourceTarget.bindWrite(true); draw(sourceShader, sourceTarget.viewWidth, sourceTarget.viewHeight, false, () -> bindSourceVolume(sourceShader));
-                                RenderTarget input = sourceTarget;
+                                    (float)((double)volumeMinX - camera.x), (float)((double)volumeMinY - camera.y), (float)((double)volumeMinZ - camera.z) );
+ set1f(sourceShader, "VolumeSize", (float)volumeSize);
+set1f(sourceShader, "SourceAtlasSize", (float)atlasSize);
+set1f(sourceShader, "SourceTilesPerRow", (float)atlasTilesPerRow);
+set1f(sourceShader, "Threshold", Config.CLIENT.kawaseBloomThreshold.get().floatValue());
+sourceTarget.bindWrite(true);
+draw(sourceShader, sourceTarget.viewWidth, sourceTarget.viewHeight, false, () -> bindSourceVolume(sourceShader));
+                                RenderTarget
+                                input = sourceTarget;
                                 float radius = Config.CLIENT.kawaseBloomRadius.get().floatValue();
-
                                 for (int level = 0; level < levels; level++) {
                                     TextureTarget output = DOWN_TARGETS[level];
                                     downShader.setSampler("InputSampler", input.getColorTextureId());
@@ -169,10 +169,10 @@ return;
                                 main.bindWrite(true);
                                 RenderSystem.viewport(0, 0, main.viewWidth, main.viewHeight);
                             }
+            } public static void releaseResources() {
 
 
-
-            } } public static void releaseResources() { KawaseBloomRenderer.destroyTarget(sourceTarget);
+ KawaseBloomRenderer.destroyTarget(sourceTarget);
         sourceTarget = null;
         for (int i = 0; i < 7; ++i) {
             KawaseBloomRenderer.destroyTarget(DOWN_TARGETS[i]);

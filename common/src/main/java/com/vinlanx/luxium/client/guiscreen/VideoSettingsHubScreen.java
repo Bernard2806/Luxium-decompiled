@@ -1,32 +1,32 @@
 package com.vinlanx.luxium.client.guiscreen;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat.Mode;
-import com.vinlanx.luxium.client.ShaderManager;
-import com.vinlanx.luxium.client.ConfigScreen.LuxiumConfigScreen;
-import java.util.function.Supplier;
-import net.minecraft.Util;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.layouts.FrameLayout;
-import net.minecraft.client.gui.layouts.GridLayout;
-import net.minecraft.client.gui.layouts.GridLayout.RowHelper;
-import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.gui.screens.ConfirmLinkScreen;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.gui.layouts.LayoutElement; public class VideoSettingsHubScreen extends Screen { private static final Component TITLE = Component.translatable("options.videoTitle"); private static final Component VIDEO_SETTINGS = Component.translatable("options.video");
+import com.mojang.blaze3d.platform.GlStateManager; import com.mojang.blaze3d.systems.RenderSystem; import com.mojang.blaze3d.vertex.BufferBuilder; import com.mojang.blaze3d.vertex.BufferUploader; import com.mojang.blaze3d.vertex.DefaultVertexFormat; import com.mojang.blaze3d.vertex.Tesselator; import com.mojang.blaze3d.vertex.VertexFormat.Mode; import com.vinlanx.luxium.client.ShaderManager; import com.vinlanx.luxium.client.ConfigScreen.LuxiumConfigScreen; import java.util.function.Supplier; import net.minecraft.Util; import net.minecraft.client.gui.GuiGraphics; import net.minecraft.client.gui.components.AbstractWidget; import net.minecraft.client.gui.components.Button; import net.minecraft.client.gui.layouts.FrameLayout; import net.minecraft.client.gui.layouts.GridLayout; import net.minecraft.client.gui.layouts.GridLayout.RowHelper; import net.minecraft.client.gui.narration.NarrationElementOutput; import net.minecraft.client.gui.screens.ConfirmLinkScreen; import net.minecraft.client.gui.screens.Screen; import net.minecraft.client.renderer.ShaderInstance; import net.minecraft.network.chat.CommonComponents; import net.minecraft.network.chat.Component; import net.minecraft.resources.ResourceLocation; import com.mojang.blaze3d.vertex.VertexFormat; import net.minecraft.client.gui.components.events.GuiEventListener; import net.minecraft.client.gui.layouts.LayoutElement;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public class VideoSettingsHubScreen extends Screen { private static final Component TITLE = Component.translatable("options.videoTitle");
+private static final Component VIDEO_SETTINGS = Component.translatable("options.video");
     private static final Component LUXIUM = Component.literal("Luxium");
     private static final String YOUTUBE_URL = "https://www.youtube.com/@Vinlanx";
     private final Screen parent;
@@ -41,41 +41,41 @@ import net.minecraft.client.gui.layouts.LayoutElement; public class VideoSetting
     }
 
     @Override protected void init() {
-        GridLayout layout = new GridLayout();
+        GridLayout
+        layout = new GridLayout();
         layout.defaultCellSetting().paddingHorizontal(5).paddingBottom(4).alignHorizontallyCenter();
         RowHelper rowHelper = layout.createRowHelper(2);
-        rowHelper.addChild(Button.builder(VIDEO_SETTINGS, button ->
 
+        rowHelper.addChild(Button.builder(VIDEO_SETTINGS, button -> {
+this.minecraft.setScreen(this.videoScreenFactory.get());
+}).width(150).build());
+        rowHelper.addChild(Button.builder(LUXIUM, button -> {
+this.minecraft.setScreen(new LuxiumConfigScreen(this));
+}).width(150).build());
+        rowHelper.addChild(Button.builder(CommonComponents.GUI_DONE, button -> {
+this.onClose();
+}).width(200).build(), 2, rowHelper.newCellSettings().paddingTop(6));
 
-this.minecraft.setScreen(this.videoScreenFactory.get())).width(150).build());
-        rowHelper.addChild(Button.builder(LUXIUM, button ->
-
-this.minecraft.setScreen(new LuxiumConfigScreen(this))).width(150).build());
-        rowHelper.addChild(Button.builder(CommonComponents.GUI_DONE, button ->
-
-this.onClose()).width(200).build(), 2, rowHelper.newCellSettings().paddingTop(6));
         layout.arrangeElements();
         FrameLayout.alignInRectangle(layout, 0, this.height / 6, this.width, this.height, 0.5F, 0.0F);
-        layout.visitWidgets(x$0 -> {
-            AbstractWidget var10000 = this.addRenderableWidget(x$0);
-        });
+        layout.visitWidgets(this::addRenderableWidget);
+
         this.youTubeButton = this.addRenderableWidget(new VideoSettingsHubScreen.YouTubeButton(8, 8, this::openYouTube));
     }
 
     @Override public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+
         this.renderBackground(guiGraphics);
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, 20, 16777215);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override public void onClose() {
+
         this.minecraft.setScreen(this.parent);
     }
 
     private void openYouTube() {
-
-
-
         this.minecraft.setScreen(new ConfirmLinkScreen(confirmed -> {
             if (confirmed) {
                 Util.getPlatform().openUri("https://www.youtube.com/@Vinlanx");
@@ -99,10 +99,12 @@ this.onClose()).width(200).build(), 2, rowHelper.newCellSettings().paddingTop(6)
         }
 
         @Override public void onClick(double mouseX, double mouseY) {
+
             this.action.run();
         }
 
         protected void renderWidget(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+
             this.hover = YouTubeButton.animate(this.hover, this.isHovered() ? 1.0f : 0.0f, 0.18f);
             ShaderInstance shader = ShaderManager.getYouShader();
             if (shader == null) {
@@ -115,9 +117,7 @@ this.onClose()).width(200).build(), 2, rowHelper.newCellSettings().paddingTop(6)
             float centerY = (float)this.getY() + (float)this.getHeight() / 2.0f;
             float glowTime = (float)(System.nanoTime() % 4000000000L) / 1.0E9f;
 
-            RenderSystem.setShader(() ->
-
-shader);
+            RenderSystem.setShader(() -> shader);
             RenderSystem.setShaderTexture((int)0, (ResourceLocation)TEXTURE);
             shader.setSampler("Sampler0", RenderSystem.getShaderTexture((int)0));
             if (shader.MODEL_VIEW_MATRIX != null) { shader.MODEL_VIEW_MATRIX.set(RenderSystem.getModelViewMatrix()); }
@@ -142,12 +142,12 @@ shader);
 
             shader.clear();
             GlStateManager._enableDepthTest();
-        } @Override protected void updateWidgetNarration(NarrationElementOutput output) { this.defaultButtonNarrationText(output); } private static float animate(float current, float target, float speed) { float
+        } @Override protected void updateWidgetNarration(NarrationElementOutput output) {
 
 
 
-
-
+ this.defaultButtonNarrationText(output);
+} private static float animate(float current, float target, float speed) { float
 
 
  next = current + (target - current) * speed;

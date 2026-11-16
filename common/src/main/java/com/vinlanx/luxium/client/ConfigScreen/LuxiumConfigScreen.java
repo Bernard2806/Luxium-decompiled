@@ -91,12 +91,12 @@ public final class LuxiumConfigScreen extends Screen {
     }
 
     @Override protected void init() {
+
         this.calculateLayout();
         this.buildControls();
     }
 
     private void calculateLayout() {
-
         this.compactLayout = this.width < 520 || this.height < 380;
         int horizontalMargin = this.compactLayout ? 8 : 24;
         int verticalMargin = this.compactLayout ? 40 : 72;
@@ -122,14 +122,14 @@ public final class LuxiumConfigScreen extends Screen {
             if (row.isHeader()) {
                 this.controls.add(new LuxiumConfigScreen.ControlRow(row, null, y));
                 y += 38;
-            } else {
+                continue; }
                 ConfigOption<?>
 option = row.option();
                 AbstractWidget widget = this.createWidget(option, controlWidth);
                 this.addWidget(widget);
                 this.controls.add(new LuxiumConfigScreen.ControlRow(row, widget, y));
                 y += 32;
-            } }
+        }
         this.resetPageButton = this.addWidget(new ConfigWidgets.ActionButton(0, 0, 104, Component.literal
  ("RESET PAGE"), this::resetPage));
         this.resetAllButton = this.addWidget(new ConfigWidgets.ActionButton(0, 0, 94, Component.literal
@@ -159,6 +159,7 @@ option = row.option();
     }
 
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+
         this.scroll += (this.targetScroll - this.scroll) * 0.28;
         this.sidebarScroll += (this.sidebarTargetScroll - this.sidebarScroll) * 0.28;
         this.tabAnimation += (1.0f - this.tabAnimation) * 0.22f;
@@ -185,7 +186,6 @@ option = row.option();
     }
 
     private void renderTitle(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) { int youtubeWidth = this
-
  .compactLayout ? 72 : 96;
         this.youTubeButton.setWidth(youtubeWidth);
         this.youTubeButton.setX(this.panelX);
@@ -284,7 +284,7 @@ option = row.option();
         this.hoveredOption = null;
         if (this.resolutionSlider != null) {
             this.renderResolutionContent(graphics, mouseX, mouseY, partialTick, left, right, top, bottom);
-        } else {
+        return; }
             int labelX = left + 24;
             int controlRight = right - 24;
 
@@ -347,7 +347,7 @@ option = row.option();
                 this.previewOption = this.hoveredOption;
                 this.syncPreviewWithConfig();
                 this.previewAnimation = 0.0F;
-            } int contentHeight = this.controls.isEmpty() ? 0 : this.controls.get(this.controls.size() - 1).baseY + 32 - top; int viewport = bottom - top; if (contentHeight > viewport) { int thumbHeight = Math.max(24, viewport * viewport / contentHeight); int thumbY = top + (int)((double)(viewport - thumbHeight) * this.scroll / (double)(contentHeight - viewport)); graphics.fill(right - 5, top, right - 2, top + viewport, 855638016); graphics.fill(right - 5, thumbY, right - 2, thumbY + thumbHeight, 1442840575); } int actionsY = this.panelY + this.panelHeight - 34; graphics.fill(left, actionsY - 8, right, this.panelY + this.panelHeight, this.dimmedColor(Integer.MIN_VALUE)); graphics.fill(left, actionsY - 8, right, actionsY - 7, 872415231); this.resetAllButton.setX(right - this.resetAllButton.getWidth()); this.resetAllButton.setY(actionsY); this.resetPageButton.setX(this.resetAllButton.getX() - this.resetPageButton.getWidth() - 8); this.resetPageButton.setY(actionsY); this.resetPageButton.visible = true; this.resetAllButton.visible = true; this.resetPageButton.render(graphics, mouseX, mouseY, partialTick); this.resetAllButton.render(graphics, mouseX, mouseY, partialTick); } } private void renderResolutionContent(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, int left, int right, int top, int bottom) { int
+            } int contentHeight = this.controls.isEmpty() ? 0 : this.controls.get(this.controls.size() - 1).baseY + 32 - top; int viewport = bottom - top; if (contentHeight > viewport) { int thumbHeight = Math.max(24, viewport * viewport / contentHeight); int thumbY = top + (int)((double)(viewport - thumbHeight) * this.scroll / (double)(contentHeight - viewport)); graphics.fill(right - 5, top, right - 2, top + viewport, 855638016); graphics.fill(right - 5, thumbY, right - 2, thumbY + thumbHeight, 1442840575); } int actionsY = this.panelY + this.panelHeight - 34; graphics.fill(left, actionsY - 8, right, this.panelY + this.panelHeight, this.dimmedColor(Integer.MIN_VALUE)); graphics.fill(left, actionsY - 8, right, actionsY - 7, 872415231); this.resetAllButton.setX(right - this.resetAllButton.getWidth()); this.resetAllButton.setY(actionsY); this.resetPageButton.setX(this.resetAllButton.getX() - this.resetPageButton.getWidth() - 8); this.resetPageButton.setY(actionsY); this.resetPageButton.visible = true; this.resetAllButton.visible = true; this.resetPageButton.render(graphics, mouseX, mouseY, partialTick); this.resetAllButton.render(graphics, mouseX, mouseY, partialTick); } private void renderResolutionContent(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, int left, int right, int top, int bottom) { int
 
 
 
@@ -504,6 +504,7 @@ option = row.option();
     }
 
     @Override public boolean mouseClicked(double mouseX, double mouseY, int button) {
+
         if (button != 0) {
             return super.mouseClicked(mouseX, mouseY, button);
         } else {
@@ -517,61 +518,57 @@ option = row.option();
                     return true;
                 }
             }
-
             int footerY = this.panelY + this.panelHeight - 72;
             int toggleWidth = this.compactLayout ? 58 : 64;
             int toggleX = this.panelX + this.sidebarWidth - toggleWidth - 8;
             if (inside(mouseX, mouseY, toggleX, footerY + 7, toggleWidth, 20)) {
                 this.blurEnabled = mouseX >= (double)toggleX + (double)toggleWidth / 2.0;
                 return true;
-            } else if (inside(mouseX, mouseY, toggleX, footerY + 37, toggleWidth, 20)) {
+            } else
+            if (inside(mouseX, mouseY, toggleX, footerY + 37, toggleWidth, 20)) {
                 this.dimmingEnabled = mouseX >= (double)toggleX + (double)toggleWidth / 2.0;
                 return true;
             } else {
-                int tabHeight = this.sidebarTabHeight();
+                int
+                tabHeight = this.sidebarTabHeight();
                 int sidebarTop = this.panelY + 8;
                 int sidebarBottom = this.panelY + this.panelHeight - 72;
                 int y = sidebarTop - (int)this.sidebarScroll;
-
                 for (LuxiumConfigScreen.SidebarEntry entry : this.sidebarEntries()) {
-                    if (mouseY >= (double)sidebarTop && mouseY < (double)sidebarBottom && inside(mouseX, mouseY, this.panelX, y, this.sidebarWidth, tabHeight)) {
+                    if (mouseY >= (double)sidebarTop && mouseY < (double)sidebarBottom && inside
+ (mouseX, mouseY, this.panelX, y, this.sidebarWidth, tabHeight)) {
                         if (entry.isFolder()) {
                             String id = entry.folder().id();
-                            if (!this.expandedFolders.add(id)) {
-                                this.expandedFolders.remove(id);
-                            }
-
-                            return true;
+                            if (!this.expandedFolders.add(id)) { this.expandedFolders.remove(id);
+                            } return true;
                         }
-
                         ConfigScreenModel.Category item = entry.category();
                         this.category = item;
                         this.buildControls();
                         this.previewOption = null;
                         return true;
                     }
-
                     y += tabHeight;
                 }
-
                 return super.mouseClicked(mouseX, mouseY, button);
             }
         }
     }
 
-    @Override public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        int sidebarTop = this.panelY + 8;
+    @Override public boolean mouseScrolled(double mouseX, double mouseY, double delta) { int sidebarTop = this.panelY + 8;
         int sidebarBottom = this.panelY + this.panelHeight - 72;
         if (inside(mouseX, mouseY, this.panelX, sidebarTop, this.sidebarWidth, sidebarBottom - sidebarTop)) {
             int contentHeight = this.sidebarEntries().size() * this.sidebarTabHeight();
             int viewport = sidebarBottom - sidebarTop;
-            this.sidebarTargetScroll = Mth.clamp(this.sidebarTargetScroll - delta * 28.0, 0.0, (double)Math.max(0, contentHeight - viewport));
+            this.sidebarTargetScroll = Mth.clamp(this.sidebarTargetScroll - delta * 28.0, 0.0, (double)Math.max
+(0, contentHeight - viewport));
             return true;
         } else {
             int left = this.panelX + this.sidebarWidth;
             int right = this.panelX + this.panelWidth - this.previewWidth;
             if (inside(mouseX, mouseY, left, this.panelY, right - left, this.panelHeight)) {
-                int contentHeight = this.controls.isEmpty() ? 0 : this.controls.get(this.controls.size() - 1).baseY + 32 - this.contentTop();
+                int contentHeight = this.controls.isEmpty() ? 0 : this.controls.get
+(this.controls.size() - 1).baseY + 32 - this.contentTop();
                 int viewport = this.panelHeight - 66;
                 this.targetScroll = Mth.clamp(this.targetScroll - delta * 42.0, 0.0, (double)Math.max(0, contentHeight - viewport));
                 return true;
@@ -581,28 +578,31 @@ option = row.option();
         }
     }
 
-    @Override public void tick() {
-        if (this.minecraft.level == null) {
+    @Override public void tick() { if (this.minecraft.level == null) {
             this.menuBackgroundRenderer.tick();
         }
-
         for (LuxiumConfigScreen.ControlRow row : this.controls) {
-            if (row.widget instanceof EditBox box) {
-                box.tick();
-            }
-        } } @Override public void onClose() { this.rebuildRendererIfChanged(); this.minecraft.setScreen(this.parent); } @Override public void removed() { this.rebuildRendererIfChanged(); if (this.categories.stream().anyMatch(item ->
+            if (row.widget instanceof EditBox box) { box.tick();
+            } }
+            } @Override public void onClose() {
 
 
 
+ this.rebuildRendererIfChanged();
+this.minecraft.setScreen(this.parent);
+} @Override public void removed() {
 
-"resolution".equals(item.id()))) {
+
+
+ this.rebuildRendererIfChanged();
+if (this.categories.stream().anyMatch(item -> "resolution".equals(item.id()))) {
             this.minecraft.getWindow().changeFullscreenVideoMode();
         }
-
         this.glassRenderer.close();
     }
 
-    private void rebuildRendererIfChanged() { LuxiumGpuShaderFeatures.refreshNow();
+    private void rebuildRendererIfChanged() { LuxiumGpuShaderFeatures.refreshNow
+ ();
         boolean geometryChanged = this.loadedOpaqueIceEnabled != Config.CLIENT.opaqueIceEnabled.get();
         boolean receiverShadersEnabled = LuxiumGpuShaderFeatures.receiverShadersEnabled();
         boolean waterStateChanged = this.loadedWaterEnabled != Config.CLIENT.waterEnabled.get();
@@ -653,11 +653,11 @@ option = row.option();
     }
 
     @Override public boolean isPauseScreen() {
+
         return true;
     }
 
     private void resetPage() {
-
         ConfigScreenModel.reset(this.category);
         this.previewOption = null;
         this.buildControls();
@@ -755,7 +755,7 @@ option = row.option();
                 for (ConfigScreenModel.Category item : folder.categories()) {
                     entries.add(LuxiumConfigScreen.SidebarEntry.category(item, false));
                 }
-            } else {
+                continue; }
 
                 entries.add(LuxiumConfigScreen.SidebarEntry.folder(folder));
                 if (this.expandedFolders.contains(folder.id())) {
@@ -763,7 +763,7 @@ option = row.option();
                         entries.add(LuxiumConfigScreen.SidebarEntry.category(item, true));
                     }
                 }
-            } }
+        }
         return entries;
     }
 

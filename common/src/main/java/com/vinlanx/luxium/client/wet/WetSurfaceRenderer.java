@@ -78,11 +78,9 @@ return;
         if (!(event.getStage() == RenderFrame.Stage.AFTER_TRANSLUCENT_BLOCKS)) {
 return;
 }
-
             if (!(Config.isFeatureEnabled(Config.CLIENT.wetEnabled) && terrainDepthReady)) {
  return;
  }
-
                 if (!(!ReflectionSystem.isRenderingWorldPass() && !NeoShadowsEngine.isAnyShadowCapturePass())) {
 return;
 }
@@ -91,14 +89,14 @@ return;
                     if (!(mc.level != null && mc.player != null)) {
  return;
  }
-
                         ShaderInstance shader = ShaderManager.getWetSurfaceShader();
                         if (!(shader != null && terrainDepthTarget != null)) {
  return;
  }
 
                             RenderTarget main = mc.getMainRenderTarget();
-                            if (!(main != null && main.width > 0 && main.height > 0 && main.getColorTextureId() > 0 && main.getDepthTextureId() > 0)) {
+                            if (!(main != null && main.width > 0 && main.height > 0 && main.getColorTextureId
+ () > 0 && main.getDepthTextureId() > 0)) {
  return;
  }
 
@@ -107,34 +105,36 @@ return;
                                 int sceneColor = SharedPostResources.getColorTextureId();
                                 int sceneDepth = SharedPostResources.getDepthTextureId();
                                 int terrainDepth = terrainDepthTarget.getDepthTextureId();
-                                if (sceneColor > 0 && sceneDepth > 0 && terrainDepth > 0) {
+                                if (!(sceneColor > 0 && sceneDepth > 0 && terrainDepth > 0)) {
+ main.bindWrite(true);
+return; }
+
+
                                     mc.getTextureManager().bindForSetup(MICRO_NORMAL);
                                     AbstractTexture microTexture = mc.getTextureManager().getTexture(MICRO_NORMAL);
                                     int microNormal = microTexture.getId();
                                     if (microNormal <= 0) {
                                         main.bindWrite(true);
-                                    } else {
-                                        Vec3 camera = event.getCamera().getPosition();
+                                    return; }
+                                        Vec3
+
+                                        camera = event.getCamera().getPosition();
                                         Matrix4f viewRotation = event.getPoseStack().last().pose();
-                                        Matrix4f viewProj = NeoSkyFrameCache.copyViewProjection(event.getProjectionMatrix(), viewRotation, VIEW_PROJ);
+                                        Matrix4f viewProj = NeoSkyFrameCache.copyViewProjection(event.getProjectionMatrix
+(), viewRotation, VIEW_PROJ);
                                         Matrix4f invViewProj = NeoSkyFrameCache.copyInverseViewProjection(
                                             event.getProjectionMatrix(), viewRotation, INV_VIEW_PROJ );
                                         SsrSettings ssr = ScreenSpaceReflectionSystem.settings(SsrConsumer.WET);
                                         NeoSkyCelestiaLighting.State lighting = NeoSkyFrameCache.lighting(mc.level, event.getPartialTick());
                                         boolean hasSkyEnvironment = mc.level.dimensionType().hasSkyLight();
                                         float time = ((float)mc.level.getGameTime() + event.getPartialTick()) / 20.0F % 4096.0F;
+
                                         renderFullscreen(
                                             shader,
-                                            main,
-                                            sceneColor,
-                                            sceneDepth,
-                                            terrainDepth,
-                                            microNormal,
-                                            viewProj,
-                                            invViewProj,
-                                            camera,
-                                            time,
-                                            ssr, lighting, hasSkyEnvironment ); } } else { main.bindWrite(true); } } private static void ensureTerrainDepthTarget(RenderTarget main) { if (terrainDepthTarget == null) {
+                                            main, sceneColor, sceneDepth, terrainDepth, microNormal, viewProj, invViewProj, camera, time, ssr, lighting, hasSkyEnvironment ); } private static void ensureTerrainDepthTarget(RenderTarget main) {
+
+
+ if (terrainDepthTarget == null) {
             terrainDepthTarget = new TextureTarget(main.width, main.height, true, Minecraft.ON_OSX);
             terrainDepthTarget.setFilterMode(9728);
         } else if (terrainDepthTarget.width != main.width || terrainDepthTarget.height != main.height) {

@@ -43,35 +43,35 @@ public final class PostProcessSwapChain {
     }
 
     private static boolean swapColors(RenderTarget main) {
-        if (scratch != null && scratch.width == main.width && scratch.height == main.height) {
-            RenderTargetAccessor mainAccess = (RenderTargetAccessor)main;
+        if (!(scratch != null && scratch.width == main.width && scratch.height == main.height)) {
+            main.bindWrite(true);
+            return false;
+        }
+            RenderTargetAccessor
+            mainAccess = (RenderTargetAccessor)main;
             RenderTargetAccessor scratchAccess = (RenderTargetAccessor)scratch;
             int oldMain = mainAccess.luxium$getColorTextureIdRaw();
             int newMain = scratchAccess.luxium$getColorTextureIdRaw();
-            if (oldMain > 0 && newMain > 0 && oldMain != newMain) {
+            if (!(oldMain > 0 && newMain > 0 && oldMain != newMain)) {
+                main.bindWrite(true);
+                return false;
+            }
+
                 mainAccess.luxium$setColorTextureIdRaw(newMain);
                 scratchAccess.luxium$setColorTextureIdRaw(oldMain);
                 Hdr.onColorTexturesSwapped(main, scratch);
                 int mainFilter = main.filterMode;
                 main.filterMode = scratch.filterMode;
                 scratch.filterMode = mainFilter;
+
                 attachColor(main.frameBufferId, newMain);
                 attachColor(scratch.frameBufferId, oldMain);
                 main.bindWrite(true);
                 return true;
-            } else {
-                main.bindWrite(true);
-                return false;
-            }
-        } else {
-            main.bindWrite(true);
-            return false;
-        }
+
+
     }
-
-    public static int scratchTextureId() {
-
-        return scratch != null ? scratch.getColorTextureId() : -1;
+    public static int scratchTextureId() { return scratch != null ? scratch.getColorTextureId() : -1;
     }
 
     private static void ensure(RenderTarget main) {

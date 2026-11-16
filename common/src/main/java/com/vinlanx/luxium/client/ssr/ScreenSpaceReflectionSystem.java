@@ -61,8 +61,11 @@ public final class ScreenSpaceReflectionSystem {
     }
 
     private static SsrSettings waterSettings() {
-        if (Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && Config.isFeatureEnabled(Config.CLIENT.waterSsrEnabled)) {
-            int[] budget = qualityBudget();
+        if (!(Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && Config.isFeatureEnabled(Config.CLIENT.waterSsrEnabled))) {
+            return SsrSettings.disabled();
+        }
+            int[] budget = qualityBudget
+ ();
             return new SsrSettings(
                 true,
                 budget[0],
@@ -71,13 +74,10 @@ public final class ScreenSpaceReflectionSystem {
                 clamp(Config.CLIENT.waterSsrThickness.get().floatValue(), 0.02F, 2.0F),
                 clamp(Config.CLIENT.waterSsrEdgeFade.get().floatValue(), 0.01F, 0.4F),
                 clamp(Config.CLIENT.waterSsrStrength.get().floatValue(), 0.0F, 2.0F) );
-        } else {
-            return SsrSettings.disabled();
-        }
+
     }
 
-    private static SsrSettings puddleSettings() {
- if (!Config.isFeatureEnabled(Config.CLIENT.puddleSsrEnabled)) {
+    private static SsrSettings puddleSettings() { if (!Config.isFeatureEnabled(Config.CLIENT.puddleSsrEnabled)) {
             return SsrSettings.disabled();
         } else {
             int[] budget = qualityBudget
@@ -93,9 +93,11 @@ public final class ScreenSpaceReflectionSystem {
         }
     }
 
-    private static SsrSettings wetSettings() {
-        if (Config.isFeatureEnabled(Config.CLIENT.wetEnabled) && Config.isFeatureEnabled(Config.CLIENT.wetSsrEnabled)) {
-            int[] budget = qualityBudget();
+    private static SsrSettings wetSettings() { if (!(Config.isFeatureEnabled(Config.CLIENT.wetEnabled) && Config.isFeatureEnabled(Config.CLIENT.wetSsrEnabled))) {
+            return SsrSettings.disabled();
+        }
+            int[] budget = qualityBudget
+ ();
             return new SsrSettings(
                 true,
                 budget[0],
@@ -104,9 +106,7 @@ public final class ScreenSpaceReflectionSystem {
                 clamp(Config.CLIENT.wetSsrThickness.get().floatValue(), 0.02F, 2.0F),
                 clamp(Config.CLIENT.wetSsrEdgeFade.get().floatValue(), 0.01F, 0.4F),
                 clamp(Config.CLIENT.wetSsrStrength.get().floatValue(), 0.0F, 2.0F) );
-        } else {
-            return SsrSettings.disabled();
-        }
+
     } private static int[] qualityBudget() { float
 
  quality = clamp(Config.CLIENT.ssrQuality.get().floatValue(), 0.25F, 1.0F);

@@ -57,41 +57,7 @@ public final class NeoCpuEntityShadows {
     }
 
     public static NeoCpuEntityShadows.CaptureState updateState(@Nullable ClientLevel level, BlockPos center, float partialTick) {
-        if (isActive() && level != null) {
-            long nowMs = System.currentTimeMillis();
-            long intervalMs = getUpdateIntervalMs();
-            boolean levelChanged = trackedLevel != level;
-            boolean centerChanged = shouldForceRefresh(center);
-            boolean scanElapsed = nowMs - lastStateScanMs >= intervalMs;
-            boolean captureElapsed = nowMs - lastCaptureMs >= intervalMs;
-            if (!levelChanged && !centerChanged && !scanElapsed && !captureElapsed) {
-                return currentState;
-            } else {
-                long sceneFingerprint = lastSceneFingerprint;
-                boolean sceneChanged = levelChanged || centerChanged;
-                if (sceneChanged || scanElapsed) {
-                    long nextSceneFingerprint = scanDynamicSceneFingerprint(level, center);
-                    lastStateScanMs = nowMs;
-                    sceneChanged |= sceneFingerprint != nextSceneFingerprint;
-                    sceneFingerprint = nextSceneFingerprint;
-                }
-
-                lastSceneFingerprint = sceneFingerprint;
-                if (!sceneChanged && !captureElapsed) {
-                    trackedLevel = level;
-                    lastCenter = center.immutable();
-                    return currentState;
-                } else {
-                    double radius = LightRtMath.getEntityShadowRadius(15) + 30.0 + 4.0;
-                    DynamicShadowMeshCapture.Snapshot snapshot = DynamicShadowMeshCapture.capture(level, center, radius, 160, partialTick);
-                    currentState = buildState(snapshot);
-                    trackedLevel = level;
-                    lastCenter = center.immutable();
-                    lastCaptureMs = nowMs;
-                    return currentState;
-                }
-            }
-        } else {
+        if (!(isActive() && level != null)) {
             currentState = NeoCpuEntityShadows.CaptureState.empty();
             trackedLevel = level;
             lastCenter = center.immutable();
@@ -100,16 +66,50 @@ public final class NeoCpuEntityShadows {
             lastSceneFingerprint = 0L;
             return currentState;
         }
-    }
+            long nowMs = System.currentTimeMillis
+ ();
+            long intervalMs = getUpdateIntervalMs();
+            boolean levelChanged = trackedLevel != level;
+            boolean centerChanged = shouldForceRefresh(center);
+            boolean scanElapsed = nowMs - lastStateScanMs >= intervalMs;
+            boolean captureElapsed = nowMs - lastCaptureMs >= intervalMs;
+            if (!levelChanged && !centerChanged && !scanElapsed && !captureElapsed) {
+                return currentState;
+            } else {
+                long
+                sceneFingerprint = lastSceneFingerprint;
+                boolean sceneChanged = levelChanged || centerChanged;
+                if (sceneChanged || scanElapsed) {
+                    long nextSceneFingerprint = scanDynamicSceneFingerprint(level, center);
+                    lastStateScanMs = nowMs;
+                    sceneChanged |= sceneFingerprint != nextSceneFingerprint;
+                    sceneFingerprint = nextSceneFingerprint;
+                }
+                lastSceneFingerprint = sceneFingerprint;
+                if (!sceneChanged && !captureElapsed) {
+                    trackedLevel = level;
+                    lastCenter = center.immutable();
+                    return currentState;
+                } else {
+                    double
+                    radius = LightRtMath.getEntityShadowRadius(15) + 30.0 + 4.0;
+                    DynamicShadowMeshCapture.Snapshot
 
-    private static long scanDynamicSceneFingerprint(ClientLevel level, BlockPos center) {
-        Vec3
+                    snapshot = DynamicShadowMeshCapture.capture(level, center, radius, 160, partialTick);
 
 
 
 
 
-        centerPos = Vec3.atCenterOf(center);
+                    currentState = buildState(snapshot);
+                    trackedLevel = level;
+                    lastCenter = center.immutable();
+                    lastCaptureMs = nowMs;
+                    return currentState;
+                }
+            }
+
+    } private static long scanDynamicSceneFingerprint(ClientLevel level, BlockPos center) { Vec3 centerPos = Vec3.atCenterOf(center);
         double radius = LightRtMath.getEntityShadowRadius(15) + 30.0 + 4.0;
         double
 
@@ -264,16 +264,23 @@ continue;
     }
 
     private static NeoCpuEntityShadows.CaptureState buildState(DynamicShadowMeshCapture.Snapshot snapshot) {
-        if (snapshot.level != null && !snapshot.casters.isEmpty()) {
-            ArrayList<NeoCpuEntityShadows.Caster> casters = new ArrayList<>(Math.min(snapshot.casters.size(), 160));
+        if (!(snapshot.level != null && !snapshot.casters.isEmpty())) {
+            return NeoCpuEntityShadows.CaptureState.empty();
+        }
+            ArrayList<NeoCpuEntityShadows.Caster>
+casters = new ArrayList<>(Math.min(snapshot.casters.size(), 160));
             long hash = 1469598103934665603L;
-
             for (DynamicShadowMeshCapture.CapturedCaster captured : snapshot.casters) {
-                if (!(captured != null && captured.bounds != null && !isOversizedCaster(captured.bounds))) {
-continue;
-}
+                if (!(captured != null && captured.bounds != null)) {
+ continue; }
 
-                    List<Vec3[]> quads = captured.quads != null && !captured.quads.isEmpty() ? List.copyOf(captured.quads) : Collections.emptyList();
+ if (isOversizedCaster(captured.bounds)) {
+continue; }
+
+                    List<Vec3[]> quads = captured.quads == null
+ || captured.quads.isEmpty() ? Collections.emptyList
+ () : List.copyOf
+ (captured.quads);
                     NeoCpuShadowTypes.Box box = new NeoCpuShadowTypes.Box(
                         captured.bounds.minX,
                         captured.bounds.minY,
@@ -292,12 +299,10 @@ continue;
                     hash = mixFingerprint(hash, Double.doubleToLongBits(captured.bounds.maxY));
                     hash = mixFingerprint(hash, Double.doubleToLongBits(captured.bounds.maxZ));
                     hash = mixFingerprint(hash, (long)quads.size());
-
                     for (Vec3[] quad : quads) {
                         if (!(quad != null && quad.length != 0)) {
  continue;
  }
-
                             Vec3 first = quad[0];
                             hash = mixFingerprint(hash, Double.doubleToLongBits(first.x));
                             hash = mixFingerprint(hash, Double.doubleToLongBits(first.y));
@@ -308,19 +313,14 @@ continue;
                                 hash = mixFingerprint(hash, Double.doubleToLongBits(opposite.y));
                                 hash = mixFingerprint(hash, Double.doubleToLongBits(opposite.z));
                             }
-
                     }
-
                     if (casters.size() >= 160) {
                         break;
                     }
-
             }
 
             return casters.isEmpty() ? NeoCpuEntityShadows.CaptureState.empty() : new NeoCpuEntityShadows.CaptureState(hash, List.copyOf(casters));
-        } else {
-            return NeoCpuEntityShadows.CaptureState.empty();
-        }
+
     }
 
     private static boolean isOversizedCaster(AABB bounds) { double dx = bounds.getXsize();

@@ -28,30 +28,55 @@ public final class NeoSkyCelestiaLighting {
     }
 
     public static NeoSkyCelestiaLighting.State calculate(ClientLevel level, float partialTick, CelestialPath.State celestialPath) {
-        if (level != null && level.dimensionType().hasSkyLight()) {
-            boolean moon = celestialPath.usingMoon();
+        if (!(level != null && level.dimensionType().hasSkyLight())) {
+            return NeoSkyCelestiaLighting.State.disabled();
+        }
+            boolean
+            moon = celestialPath.usingMoon();
             Vec3 sunDirection = celestialPath.sunDirection();
             Vec3 activeDirection = celestialPath.activeDirection();
-            float sunElevation = (float)sunDirection.y;
+            float
+            sunElevation = (float)sunDirection.y;
             float activeElevation = Math.max(0.0F, (float)activeDirection.y);
-            float nightToTwilight = smoothstep(-0.18F, 0.04F, sunElevation);
-            float twilightToDay = smoothstep(0.02F, 0.32F, sunElevation);
-            float directColorBlend = smoothstep(-0.08F, 0.08F, sunElevation);
-            float directVisibility = smoothstep(0.0F, 0.14F, activeElevation);
+            float
+            nightToTwilight = smoothstep(-0.18F, 0.04F, sunElevation);
+            float
+
+
+            twilightToDay = smoothstep(0.02F, 0.32F, sunElevation);
+            float
+
+
+            directColorBlend = smoothstep(-0.08F, 0.08F, sunElevation);
+            float
+
+
+            directVisibility = smoothstep(0.0F, 0.14F, activeElevation);
             float sunInfluence = smoothstep(0.0F, 0.14F, sunElevation);
             float highAngle = smoothstep(0.25F, 0.85F, Math.max(0.0F, sunElevation));
-            float weather = Mth.clamp(level.getRainLevel(partialTick) * 0.65F + level.getThunderLevel(partialTick) * 0.35F, 0.0F, 1.0F);
+            float
+            weather = Mth.clamp(level.getRainLevel(partialTick) * 0.65F + level.getThunderLevel
+ (partialTick) * 0.35F, 0.0F, 1.0F);
             float weatherDirect = Mth.lerp(weather, 1.0F, 0.3F);
             float weatherAmbient = Mth.lerp(weather, 1.0F, 0.62F);
-            Vector3f sunZenithColor = colorFromConfig(Config.CLIENT.skyLightSunZenithColor.get());
+            Vector3f
+            sunZenithColor = colorFromConfig(Config.CLIENT.skyLightSunZenithColor.get());
             Vector3f sunsetColor = colorFromConfig(Config.CLIENT.skyLightSunsetColor.get());
             Vector3f moonColor = colorFromConfig(Config.CLIENT.skyLightMoonColor.get());
             Vector3f sunDirectColor = mix(sunsetColor, sunZenithColor, highAngle);
             Vector3f directColor = mix(moonColor, sunDirectColor, directColorBlend);
-            Vector3f skyAmbient = mix(mix(NIGHT_SKY, SUNSET_SKY, nightToTwilight), DAY_SKY, twilightToDay);
-            Vector3f groundAmbient = mix(mix(NIGHT_GROUND, SUNSET_GROUND, nightToTwilight), DAY_GROUND, twilightToDay);
+            Vector3f
+            skyAmbient = mix(mix
+(NIGHT_SKY, SUNSET_SKY, nightToTwilight), DAY_SKY, twilightToDay);
+            Vector3f
+
+            groundAmbient = mix(mix
+(NIGHT_GROUND, SUNSET_GROUND, nightToTwilight), DAY_GROUND, twilightToDay);
             float directBaseStrength;
             float globalDirectScale;
+
+
+
             if (moon) {
                 directBaseStrength = Config.CLIENT.skyLightMoonBaseStrength.get().floatValue() * 0.01F;
                 globalDirectScale = Config.CLIENT.skyLightMoonStrength.get().floatValue() * 0.01F;
@@ -61,9 +86,9 @@ public final class NeoSkyCelestiaLighting {
                 directBaseStrength = Mth.lerp(highAngle, sunsetBaseStrength, zenithBaseStrength);
                 globalDirectScale = Config.CLIENT.skyLightSunStrength.get().floatValue() * 0.01F;
             }
-
             float directStrength = directBaseStrength * directVisibility * weatherDirect * globalDirectScale;
-            float twilightAmbientStrength = Mth.lerp(nightToTwilight, 0.72F, 0.82F);
+            float
+            twilightAmbientStrength = Mth.lerp(nightToTwilight, 0.72F, 0.82F);
             float dayAmbientStrength = Mth.lerp(highAngle, 0.82F, 0.98F);
             float ambientStrength = Mth.lerp(twilightToDay, twilightAmbientStrength, dayAmbientStrength)
                 * weatherAmbient
@@ -88,7 +113,8 @@ public final class NeoSkyCelestiaLighting {
             return new NeoSkyCelestiaLighting.State(
                 Config.isFeatureEnabled(Config.CLIENT.skyLightEnabled),
                 moon,
-                new Vector3f((float)activeDirection.x, (float)activeDirection.y, (float)activeDirection.z).normalize(),
+                new Vector3f((float)activeDirection.x, (float)activeDirection.y, (float)activeDirection.z).normalize
+(),
                 directColor,
                 skyAmbient,
                 groundAmbient,
@@ -98,36 +124,10 @@ public final class NeoSkyCelestiaLighting {
                 ambientStrength,
                 directVisibility,
                 sunInfluence );
-        } else {
-            return NeoSkyCelestiaLighting.State.disabled();
-        }
+
     }
 
-    private static Vector3f applyShadowTemperature(Vector3f ambient, Vector3f directColor, float strength, int bias) {
-        float
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        amount = Mth.clamp(strength, 0.0F, 1.0F);
+    private static Vector3f applyShadowTemperature(Vector3f ambient, Vector3f directColor, float strength, int bias) { float amount = Mth.clamp(strength, 0.0F, 1.0F);
         float manualShift = Mth.clamp((float)bias / 100.0F, -1.0F, 1.0F) * 0.55F;
         if (amount <= 0.0F && Math.abs(manualShift) <= 1.0E-5F) {
             return new Vector3f(ambient);

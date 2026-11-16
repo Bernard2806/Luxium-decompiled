@@ -432,10 +432,10 @@ if (selectedKey == Long.MIN_VALUE) {
 return; }
 
 if (!this.pendingSectionCaptures.remove(selectedKey, selectedPriority)) {
- processed--; } else
+ processed--;
+ continue; }
 
-
-if (!this.ensureSectionCapturedNow(level, selectedKey)) {
+ if (!this.ensureSectionCapturedNow(level, selectedKey)) {
 
  this.pendingSectionCaptures.merge(selectedKey, selectedPriority, Math::min);
  return; } }
@@ -616,7 +616,7 @@ if (faceMask == 0) {
 
  state = level.getBlockState(pos); ExposedFaceService.ReceiverShapeTemplate
  template = this.resolveReceiverShapeTemplate(state, level, pos);
- return template.computeFaceMask(state, level, pos); } private byte getCompleteExposedFaceMask(ClientLevel level, long blockKey, BlockState state, BlockPos pos, ExposedFaceService.ReceiverShapeTemplate template) { long sectionKey = sectionKeyForBlock(blockKey); return this.fullyCapturedSections.containsKey(sectionKey) ? this.getExposedFaceMask(level, blockKey) : template.computeFaceMask(state, level, pos); } private boolean hasReceiverGeometry(BlockState state, BlockGetter level, BlockPos pos) {
+ return template.computeFaceMask(state, level, pos); } private byte getCompleteExposedFaceMask(ClientLevel level, long blockKey, BlockState state, BlockPos pos, ExposedFaceService.ReceiverShapeTemplate template) { long
 
 
 
@@ -624,30 +624,30 @@ if (faceMask == 0) {
 
 
 
+ sectionKey = sectionKeyForBlock(blockKey);
+if (this.fullyCapturedSections.containsKey(sectionKey)) {
+return this.getExposedFaceMask(level, blockKey); }
+
+ return template.computeFaceMask(state, level, pos); } private boolean hasReceiverGeometry(BlockState state, BlockGetter level, BlockPos pos) {
 
 
 
+ return !this.resolveReceiverShapeTemplate(state, level, pos).isEmpty(); } private ExposedFaceService.ReceiverShapeTemplate resolveReceiverShapeTemplate(BlockState state, BlockGetter level, BlockPos pos) {
 
 
 
+ if (!(!state.isAir() && state.getRenderShape() != RenderShape.INVISIBLE)) {
+return ExposedFaceService.ReceiverShapeTemplate.EMPTY; } ExposedFaceService.ReceiverShapeTemplate
 
 
- return !this.resolveReceiverShapeTemplate(state, level, pos).isEmpty(); } private ExposedFaceService.ReceiverShapeTemplate resolveReceiverShapeTemplate(BlockState state, BlockGetter level, BlockPos pos) { if (!state.isAir() && state.getRenderShape() != RenderShape.INVISIBLE) { ExposedFaceService.ReceiverShapeTemplate cached = this.receiverShapeCache.get(state); if (cached != null) { return cached; } else { ExposedFaceService.ReceiverShapeTemplate built = buildReceiverShapeTemplate(state, level, pos); ExposedFaceService.ReceiverShapeTemplate existing = this.receiverShapeCache.putIfAbsent(state, built); return existing != null ? existing : built; } } else { return ExposedFaceService.ReceiverShapeTemplate.EMPTY; } } private static ExposedFaceService.ReceiverShapeTemplate buildReceiverShapeTemplate(BlockState state, BlockGetter level, BlockPos pos) { VoxelShape
+ cached = this.receiverShapeCache.get(state);
+if (cached != null) {
+ return cached; } else { ExposedFaceService.ReceiverShapeTemplate
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+ built = buildReceiverShapeTemplate(state, level, pos); ExposedFaceService.ReceiverShapeTemplate
+ existing = this.receiverShapeCache.putIfAbsent(state, built);
+return existing != null ? existing : built; } } private static ExposedFaceService.ReceiverShapeTemplate buildReceiverShapeTemplate(BlockState state, BlockGetter level, BlockPos pos) { VoxelShape
 
 
 
@@ -702,44 +702,44 @@ if (!(!(bounds.width() <= 1.0E-6) && !(bounds.height() <= 1.0E-6))) {
 
 
 
- return surfaces.isEmpty() ? ExposedFaceService.ReceiverShapeTemplate.EMPTY : new ExposedFaceService.ReceiverShapeTemplate(surfaces); } } } private static List<ExposedFaceService.SurfaceRect> subtractSurfaceRectList(List<ExposedFaceService.SurfaceRect> sourceRects, @Nullable ExposedFaceService.SurfaceRect coverRect ) { if (coverRect != null && !sourceRects.isEmpty()) { List<ExposedFaceService.SurfaceRect> result = new ArrayList<>(sourceRects.size()); for (ExposedFaceService.SurfaceRect rect : sourceRects) { subtractSurfaceRect(rect, coverRect, result); } return result; } else { return sourceRects; } } private static void subtractSurfaceRect(ExposedFaceService.SurfaceRect sourceRect, ExposedFaceService.SurfaceRect coverRect, List<ExposedFaceService.SurfaceRect> out ) { double overlapMinU = Math.max(sourceRect.minU, coverRect.minU); double overlapMaxU = Math.min(sourceRect.maxU, coverRect.maxU); double overlapMinV = Math.max(sourceRect.minV, coverRect.minV); double overlapMaxV = Math.min(sourceRect.maxV, coverRect.maxV); if (!(overlapMaxU - overlapMinU <= 1.0E-6) && !(overlapMaxV - overlapMinV <= 1.0E-6)) { if (overlapMinV - sourceRect.minV > 1.0E-6) { out.add(new ExposedFaceService.SurfaceRect(sourceRect.minU, sourceRect.maxU, sourceRect.minV, overlapMinV)); } if (sourceRect.maxV - overlapMaxV > 1.0E-6) { out.add(new ExposedFaceService.SurfaceRect(sourceRect.minU, sourceRect.maxU, overlapMaxV, sourceRect.maxV)); } if (overlapMinU - sourceRect.minU > 1.0E-6) { out.add(new ExposedFaceService.SurfaceRect(sourceRect.minU, overlapMinU, overlapMinV, overlapMaxV)); } if (sourceRect.maxU - overlapMaxU > 1.0E-6) { out.add(new ExposedFaceService.SurfaceRect(overlapMaxU, sourceRect.maxU, overlapMinV, overlapMaxV)); } } else { out.add(sourceRect); } } private static boolean coversFacePlane(Direction face, double planeCoordinate, AABB box) {
+ return surfaces.isEmpty() ? ExposedFaceService.ReceiverShapeTemplate.EMPTY : new ExposedFaceService.ReceiverShapeTemplate(surfaces); } } } private static List<ExposedFaceService.SurfaceRect> subtractSurfaceRectList(List<ExposedFaceService.SurfaceRect> sourceRects, @Nullable ExposedFaceService.SurfaceRect coverRect ) {
 
 
 
+ if (!(coverRect != null && !sourceRects.isEmpty())) {
+return sourceRects; } List<ExposedFaceService.SurfaceRect>
+
+
+result = new ArrayList<>(sourceRects.size()); for (ExposedFaceService.SurfaceRect rect :
+sourceRects) {
+subtractSurfaceRect(rect, coverRect, result);
+ }
+ return result; } private static void subtractSurfaceRect(ExposedFaceService.SurfaceRect sourceRect, ExposedFaceService.SurfaceRect coverRect, List<ExposedFaceService.SurfaceRect> out ) { double
 
 
 
+ overlapMinU = Math.max(sourceRect.minU, coverRect.minU); double
+overlapMaxU = Math.min(sourceRect.maxU, coverRect.maxU); double
+overlapMinV = Math.max(sourceRect.minV, coverRect.minV); double
+overlapMaxV = Math.min(sourceRect.maxV, coverRect.maxV);
+ if (!(!(overlapMaxU - overlapMinU <= 1.0E-6) && !(overlapMaxV - overlapMinV <= 1.0E-6))) {
+ out.add(sourceRect);
+return; }
 
 
+if (overlapMinV - sourceRect.minV > 1.0E-6) {
+ out.add(new ExposedFaceService.SurfaceRect(sourceRect.minU, sourceRect.maxU, sourceRect.minV, overlapMinV)); }
 
+ if (sourceRect.maxV - overlapMaxV > 1.0E-6) {
+ out.add(new ExposedFaceService.SurfaceRect(sourceRect.minU, sourceRect.maxU, overlapMaxV, sourceRect.maxV)); }
 
+if (overlapMinU - sourceRect.minU > 1.0E-6) {
+ out.add(new ExposedFaceService.SurfaceRect(sourceRect.minU, overlapMinU, overlapMinV, overlapMaxV)); }
 
+ if (sourceRect.maxU - overlapMaxU > 1.0E-6) {
+ out.add(new ExposedFaceService.SurfaceRect(overlapMaxU, sourceRect.maxU, overlapMinV, overlapMaxV)); }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ } private static boolean coversFacePlane(Direction face, double planeCoordinate, AABB box) {
 
 
  return switch (face) { case UP ->
@@ -774,14 +774,14 @@ if (!(!(bounds.width() <= 1.0E-6) && !(bounds.height() <= 1.0E-6))) {
  return switch (face) { case UP, DOWN ->
  surfaceRect(box.minX, box.maxX, box.minZ, box.maxZ); case NORTH, SOUTH ->
  surfaceRect(box.minX, box.maxX, box.minY, box.maxY); case WEST, EAST ->
- surfaceRect(box.minZ, box.maxZ, box.minY, box.maxY); }; } @Nullable private static ExposedFaceService.SurfaceRect surfaceRect(double minU, double maxU, double minV, double maxV) { return !(maxU - minU <= 1.0E-6) && !(maxV - minV <= 1.0E-6) ? new ExposedFaceService.SurfaceRect(minU, maxU, minV, maxV) : null; } private static ExposedFaceService.ReceiverSurfaceBounds toLocalFaceBounds(Direction face, ExposedFaceService.SurfaceRect rect) {
+ surfaceRect(box.minZ, box.maxZ, box.minY, box.maxY); }; } @Nullable private static ExposedFaceService.SurfaceRect surfaceRect(double minU, double maxU, double minV, double maxV) {
 
 
 
 
-
-
-
+ return !(!(maxU - minU <= 1.0E-6) && !(maxV - minV <= 1.0E-6)) ?
+ null :
+ new ExposedFaceService.SurfaceRect(minU, maxU, minV, maxV); } private static ExposedFaceService.ReceiverSurfaceBounds toLocalFaceBounds(Direction face, ExposedFaceService.SurfaceRect rect) {
 
 
 
@@ -841,10 +841,10 @@ this.completedSectionBuilds .add(new ExposedFaceService.BuiltSectionCommit(secti
  previous = this.sectionFaces.get(sectionKey);
 if (previous != null && previous.sameContent(nextData)) { return false; } else {
  this.scheduleSectionBuild(sectionKey, nextData, false);
- return true; } } private ExposedFaceService.SectionFaceSnapshot buildFaceSnapshot(ExposedFaceService.SectionFaceData sectionData) { if (sectionData != null && !sectionData.isEmpty()) { long[] renderableSolidBits = new long[64]; byte[] faceMasks = new byte[4096]; boolean anyCandidateReceivers = false; for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry : sectionData.facesByBlock.long2ByteEntrySet()) { byte faceMask = entry.getByteValue(); if (!(faceMask != 0)) {
+ return true; } } private ExposedFaceService.SectionFaceSnapshot buildFaceSnapshot(ExposedFaceService.SectionFaceData sectionData) { if (!(sectionData != null && !sectionData.isEmpty())) { return ExposedFaceService.SectionFaceSnapshot.empty(); } long[] renderableSolidBits = new long[64]; byte[] faceMasks = new byte[4096]; boolean anyCandidateReceivers = false; for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry : sectionData.facesByBlock.long2ByteEntrySet()) { byte faceMask = entry.getByteValue(); if (!(faceMask != 0)) {
  continue;
  }
- long blockKey = entry.getLongKey(); int localIndex = sectionLocalIndex(BlockPos.getX(blockKey) & 15, BlockPos.getY(blockKey) & 15, BlockPos.getZ(blockKey) & 15); renderableSolidBits[localIndex >>> 6] = renderableSolidBits[localIndex >>> 6] | 1L << (localIndex & 63); faceMasks[localIndex] = faceMask; anyCandidateReceivers = true; } return anyCandidateReceivers ? new ExposedFaceService.SectionFaceSnapshot(renderableSolidBits, faceMasks, true) : ExposedFaceService.SectionFaceSnapshot.empty(); } else { return ExposedFaceService.SectionFaceSnapshot.empty(); } } private ExposedFaceService.SectionReceiverSnapshot buildReceiverSnapshot(ExposedFaceService.SectionFaceData sectionData) { if (sectionData != null && !sectionData.isEmpty()) { HashMap<Long, Long> faceCells = new HashMap<>(); ArrayList<ExposedFaceService.ReceiverRect> rects = new ArrayList<>(); for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry : sectionData.facesByBlock.long2ByteEntrySet()) { long blockKey = entry.getLongKey(); byte faceMask = entry.getByteValue(); if (!(faceMask != 0)) {
+ long blockKey = entry.getLongKey(); int localIndex = sectionLocalIndex(BlockPos.getX(blockKey) & 15, BlockPos.getY(blockKey) & 15, BlockPos.getZ(blockKey) & 15); renderableSolidBits[localIndex >>> 6] = renderableSolidBits[localIndex >>> 6] | 1L << (localIndex & 63); faceMasks[localIndex] = faceMask; anyCandidateReceivers = true; } return anyCandidateReceivers ? new ExposedFaceService.SectionFaceSnapshot(renderableSolidBits, faceMasks, true) : ExposedFaceService.SectionFaceSnapshot.empty(); } private ExposedFaceService.SectionReceiverSnapshot buildReceiverSnapshot(ExposedFaceService.SectionFaceData sectionData) { if (!(sectionData != null && !sectionData.isEmpty())) { return ExposedFaceService.SectionReceiverSnapshot.empty(); } HashMap<Long, Long> faceCells = new HashMap<>(); ArrayList<ExposedFaceService.ReceiverRect> rects = new ArrayList<>(); for (it.unimi.dsi.fastutil.longs.Long2ByteMap.Entry entry : sectionData.facesByBlock.long2ByteEntrySet()) { long blockKey = entry.getLongKey(); byte faceMask = entry.getByteValue(); if (!(faceMask != 0)) {
  continue;
  }
  int localX = BlockPos.getX(blockKey) & 15; int localY = BlockPos.getY(blockKey) & 15; int localZ = BlockPos.getZ(blockKey) & 15; for (Direction face : FACES) { if (!((faceMask & 1 << face.ordinal()) != 0)) {
@@ -853,7 +853,7 @@ if (previous != null && previous.sameContent(nextData)) { return false; } else {
  int cellU = localCellU(face, localX, localZ); int cellV = localCellV(face, localY, localZ); int planeCoordinate = planeCoordinateForFace(face, localX, localY, localZ); faceCells.put(receiverCellKey(face.ordinal(), planeCoordinate, cellU, cellV), blockKey); } } HashSet<Long> visited = new HashSet<>(faceCells.size()); for (java.util.Map.Entry<Long, Long> entryx : faceCells.entrySet()) { long packedCell = entryx.getKey(); if (!(visited.add(packedCell))) {
 continue;
 }
- int faceOrdinal = unpackFaceOrdinal(packedCell); int planeCoordinate = unpackPlaneCoordinate(packedCell); int startCellU = unpackCellU(packedCell); int startCellV = unpackCellV(packedCell); int width = 1; while (faceCells.containsKey(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + width, startCellV)) && !visited.contains(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + width, startCellV)) ) { width++; } int height = 1; while (true) { int nextV = startCellV + height; boolean rowMatches = true; for (int offsetU = 0; offsetU < width; offsetU++) { long nextKey = receiverCellKey(faceOrdinal, planeCoordinate, startCellU + offsetU, nextV); if (!faceCells.containsKey(nextKey) || visited.contains(nextKey)) { rowMatches = false; break; } } if (!rowMatches) { for (int offsetV = 0; offsetV < height; offsetV++) { for (int offsetUx = 0; offsetUx < width; offsetUx++) { visited.add(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + offsetUx, startCellV + offsetV)); } } rects.add(new ExposedFaceService.ReceiverRect(Direction.from3DDataValue(faceOrdinal), planeCoordinate, startCellU, startCellU + width, startCellV, startCellV + height, entryx.getValue() ) ); break; } height++; } } return rects.isEmpty() ? ExposedFaceService.SectionReceiverSnapshot.empty() : new ExposedFaceService.SectionReceiverSnapshot(rects); } else { return ExposedFaceService.SectionReceiverSnapshot.empty(); } } private static long receiverCellKey(int faceOrdinal, int planeCoordinate, int cellU, int cellV) {
+ int faceOrdinal = unpackFaceOrdinal(packedCell); int planeCoordinate = unpackPlaneCoordinate(packedCell); int startCellU = unpackCellU(packedCell); int startCellV = unpackCellV(packedCell); int width = 1; while (faceCells.containsKey(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + width, startCellV)) && !visited.contains(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + width, startCellV)) ) { width++; } int height = 1; while (true) { int nextV = startCellV + height; boolean rowMatches = true; for (int offsetU = 0; offsetU < width; offsetU++) { long nextKey = receiverCellKey(faceOrdinal, planeCoordinate, startCellU + offsetU, nextV); if (!faceCells.containsKey(nextKey) || visited.contains(nextKey)) { rowMatches = false; break; } } if (!rowMatches) { for (int offsetV = 0; offsetV < height; offsetV++) { for (int offsetUx = 0; offsetUx < width; offsetUx++) { visited.add(receiverCellKey(faceOrdinal, planeCoordinate, startCellU + offsetUx, startCellV + offsetV)); } } rects.add(new ExposedFaceService.ReceiverRect(Direction.from3DDataValue(faceOrdinal), planeCoordinate, startCellU, startCellU + width, startCellV, startCellV + height, entryx.getValue() ) ); break; } height++; } } return rects.isEmpty() ? ExposedFaceService.SectionReceiverSnapshot.empty() : new ExposedFaceService.SectionReceiverSnapshot(rects); } private static long receiverCellKey(int faceOrdinal, int planeCoordinate, int cellU, int cellV) {
         long
 
 
@@ -1032,17 +1032,17 @@ continue;
 
 
  notifySystemsChanged(null);
-} private static void notifySystemsChanged(@Nullable LongOpenHashSet changedBlocks) { ReflectionSystem.get().markWorldDirty(); if (changedBlocks != null && !changedBlocks.isEmpty()) { NeoShadowsEngine.markWorldDirty(changedBlocks); } else { NeoShadowsEngine.markWorldDirty(); } Minecraft.getInstance().execute(TorchRtxState.get()::requestReflectiveSnapshotRefresh); } private static int sectionLocalIndex(int localX, int localY, int localZ) {
+} private static void notifySystemsChanged(@Nullable LongOpenHashSet changedBlocks) { ReflectionSystem.get
 
 
+ ().markWorldDirty();
+if (!(changedBlocks != null && !changedBlocks.isEmpty())) { NeoShadowsEngine.markWorldDirty
+ (); } else {
 
+ NeoShadowsEngine.markWorldDirty(changedBlocks); } Minecraft.getInstance
 
-
-
-
-
-
-
+ ().execute(TorchRtxState.get()::requestReflectiveSnapshotRefresh);
+} private static int sectionLocalIndex(int localX, int localY, int localZ) {
 
 
  return localY << 8 | localZ << 4 | localX; } private static boolean isCacheActive() {
@@ -1305,7 +1305,7 @@ this.rects = List.copyOf(rects);
 
 
 
- return this.surfaceKey; } } private static long computeSurfaceKey(long blockKey, Direction face, double planeCoordinate, ExposedFaceService.ReceiverSurfaceBounds bounds) { long hash = 1469598103934665603L; hash = mixSurfaceKey(hash, blockKey); hash = mixSurfaceKey(hash, (long)face.ordinal()); hash = mixSurfaceKey(hash, Double.doubleToLongBits(planeCoordinate)); hash = mixSurfaceKey(hash, Double.doubleToLongBits(bounds.minU)); hash = mixSurfaceKey(hash, Double.doubleToLongBits(bounds.maxU)); hash = mixSurfaceKey(hash, Double.doubleToLongBits(bounds.minV)); return mixSurfaceKey(hash, Double.doubleToLongBits(bounds.maxV)); } private static long mixSurfaceKey(long hash, long value) {
+ return this.surfaceKey; } } private static long computeSurfaceKey(long blockKey, Direction face, double planeCoordinate, ExposedFaceService.ReceiverSurfaceBounds bounds) { long
 
 
 
@@ -1324,15 +1324,15 @@ this.rects = List.copyOf(rects);
 
 
 
-
-
-
-
-
-
-
-
-
+ hash = 1469598103934665603L;
+ hash = mixSurfaceKey(hash, blockKey);
+hash = mixSurfaceKey(hash, (long)face.ordinal());
+hash = mixSurfaceKey(hash, Double.doubleToLongBits(planeCoordinate));
+hash = mixSurfaceKey(hash, Double.doubleToLongBits(bounds.minU));
+hash = mixSurfaceKey(hash, Double.doubleToLongBits(bounds.maxU));
+hash = mixSurfaceKey(hash, Double.doubleToLongBits(bounds.minV));
+hash = mixSurfaceKey(hash, Double.doubleToLongBits(bounds.maxV));
+ return hash; } private static long mixSurfaceKey(long hash, long value) {
 
 
 
@@ -1418,32 +1418,32 @@ anyBoundaryFaces = true;
 
 
 
- return this.hasBoundaryFaces; } private boolean sameGeometry(ExposedFaceService.ReceiverShapeTemplate other) { if (other != null && this.surfaces.length == other.surfaces.length) { for (int i = 0; i < this.surfaces.length; i++) { ExposedFaceService.ReceiverSurfaceTemplate a = this.surfaces[i]; ExposedFaceService.ReceiverSurfaceTemplate b = other.surfaces[i]; if (a.face != b.face || a.boundaryFace != b.boundaryFace || Double.doubleToLongBits(a.planeCoordinate) != Double.doubleToLongBits(b.planeCoordinate) || Double.doubleToLongBits(a.bounds.minU) != Double.doubleToLongBits(b.bounds.minU) || Double.doubleToLongBits(a.bounds.maxU) != Double.doubleToLongBits(b.bounds.maxU) || Double.doubleToLongBits(a.bounds.minV) != Double.doubleToLongBits(b.bounds.minV) || Double.doubleToLongBits(a.bounds.maxV) != Double.doubleToLongBits(b.bounds.maxV)) { return false; } } return true; } else { return false; } } private byte computeFaceMask(BlockState state, BlockGetter level, BlockPos pos) {
+ return this.hasBoundaryFaces; } private boolean sameGeometry(ExposedFaceService.ReceiverShapeTemplate other) {
 
 
 
+ if (!(other != null && this.surfaces.length == other.surfaces.length)) {
+return false; } for (int
+
+ i = 0; i < this.surfaces.length; i++) { ExposedFaceService.ReceiverSurfaceTemplate
+ a = this.surfaces[i]; ExposedFaceService.ReceiverSurfaceTemplate
+ b = other.surfaces[i];
+if (a.face != b.face || a.boundaryFace != b.boundaryFace || Double.doubleToLongBits
+
+ (a.planeCoordinate) != Double.doubleToLongBits
+ (b.planeCoordinate) || Double.doubleToLongBits
+ (a.bounds.minU) != Double.doubleToLongBits
+ (b.bounds.minU) || Double.doubleToLongBits
+ (a.bounds.maxU) != Double.doubleToLongBits
+ (b.bounds.maxU) || Double.doubleToLongBits
+ (a.bounds.minV) != Double.doubleToLongBits
+ (b.bounds.minV) || Double.doubleToLongBits
+ (a.bounds.maxV) != Double.doubleToLongBits
+ (b.bounds.maxV)) {
+return false; } }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ return true; } private byte computeFaceMask(BlockState state, BlockGetter level, BlockPos pos) {
 
 
 

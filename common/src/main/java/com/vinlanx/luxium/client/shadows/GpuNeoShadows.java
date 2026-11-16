@@ -139,14 +139,29 @@ public final class GpuNeoShadows { public static final int MAX_LIGHTS = 32; priv
 
     public static void prepareMainWorldRender(Minecraft mc, Camera camera, Matrix4f projection, Matrix4f view) {
         mainPassActive = false;
-        if (isUsable(mc) && stagedSources.length != 0) {
-            Vec3 cameraPos = camera.getPosition();
+        if (!(isUsable(mc) && stagedSources.length != 0)) { TorchRtxState.get
+ ().clearGpuDirectSources();
+clearFrame(false);
+return; }
+            Vec3
+
+            cameraPos = camera.getPosition();
             GpuShadowCache cache = GpuShadowCache.get();
             int lightLimit = getActiveLightLimit();
             boolean hardBake = isHardShadowBakeEnabled();
-            long hardBakeInputSignature = hardBake ? hardBakeSignature(cache, stagedSources, stagedEmissions, lightLimit) : Long.MIN_VALUE;
-            int hardBakeDirtyFaces = hardBake ? cache.countDirtyFacesForSources(stagedSources, lightLimit) : 0;
-            if (!hardBake || !BAKED_HARD_VOLUME.isReady() || hardBakeDirtyFaces <= 0 && !BAKED_HARD_VOLUME.matches(cameraPos, hardBakeInputSignature)) {
+            long hardBakeInputSignature = hardBake ? hardBakeSignature
+ (cache, stagedSources, stagedEmissions, lightLimit) : Long
+ .MIN_VALUE;
+            int hardBakeDirtyFaces = hardBake ? cache.countDirtyFacesForSources
+ (stagedSources, lightLimit) :
+0;
+
+            if (!(!hardBake || !BAKED_HARD_VOLUME.isReady() || hardBakeDirtyFaces <= 0 && !BAKED_HARD_VOLUME.matches
+(cameraPos, hardBakeInputSignature))) {
+                publishBakedHardOnly(cameraPos);
+return; }
+
+
                 Arrays.fill(LIGHT_POS_RADIUS_BUF, 0.0F);
                 Arrays.fill(LIGHT_COLOR_INTENSITY_BUF, 0.0F);
                 Arrays.fill(LIGHT_GEOMETRY_BUF, 0.0F);
@@ -156,7 +171,8 @@ public final class GpuNeoShadows { public static final int MAX_LIGHTS = 32; priv
                 Arrays.fill(VISIBLE_GPU_WEIGHTS_BUF, 0.0F);
                 Arrays.fill(VISIBLE_VISIBILITY_SLOTS_BUF, -1);
                 int lightCount;
-                if (usesCubemapShadows()) {
+                if (usesCubemapShadows
+ ()) {
                     lightCount = cache.collectVisibleEntries(
                         stagedSources,
                         stagedEmissions,
@@ -164,37 +180,30 @@ public final class GpuNeoShadows { public static final int MAX_LIGHTS = 32; priv
                         cameraPos.x,
                         cameraPos.y,
                         cameraPos.z,
-                        LIGHT_POS_RADIUS_BUF,
-                        LIGHT_ATLAS_RECT_BUF,
-                        VISIBLE_SOURCE_KEYS_BUF,
-                        VISIBLE_EMISSIONS_BUF,
-                        LIGHT_GEOMETRY_BUF );
-                } else {
-                    lightCount = collectSpreadEntries(
+                        LIGHT_POS_RADIUS_BUF, LIGHT_ATLAS_RECT_BUF, VISIBLE_SOURCE_KEYS_BUF, VISIBLE_EMISSIONS_BUF, LIGHT_GEOMETRY_BUF ); } else { lightCount = collectSpreadEntries(
                         stagedSources,
                         stagedEmissions,
                         lightLimit,
                         cameraPos.x,
                         cameraPos.y,
-                        cameraPos.z,
-                        LIGHT_POS_RADIUS_BUF,
-                        VISIBLE_SOURCE_KEYS_BUF,
-                        VISIBLE_EMISSIONS_BUF );
-                }
-
-                if (lightCount <= 0) {
+                        cameraPos.z, LIGHT_POS_RADIUS_BUF, VISIBLE_SOURCE_KEYS_BUF, VISIBLE_EMISSIONS_BUF ); } if (lightCount <= 0) {
                     TorchRtxState.get().clearGpuDirectSources();
                     clearFrame(false);
-                } else {
-                    Config.GpuLocalShadowMode mode = getShadowMode();
+                return; }
+                    Config.GpuLocalShadowMode mode = getShadowMode
+
+ ();
                     if (mode == Config.GpuLocalShadowMode.FAST_SPREAD) {
                         NEO_FLOOD_VISIBILITY_ATLAS.update(
                             TorchRtxState.get().getEngine(), VISIBLE_SOURCE_KEYS_BUF, lightCount, lightLimit, VISIBLE_VISIBILITY_SLOTS_BUF );
                     }
 
-                    float searchRadius = (float)getLightSearchRadius();
-                    float blendStart = searchRadius * 0.8F;
+                    float searchRadius = (float)getLightSearchRadius
 
+
+
+();
+                    float blendStart = searchRadius * 0.8F;
                     for (int i = 0; i < lightCount; i++) {
                         int lightBase = i * 4;
                         float x = LIGHT_POS_RADIUS_BUF[lightBase];
@@ -203,10 +212,15 @@ public final class GpuNeoShadows { public static final int MAX_LIGHTS = 32; priv
                         float cameraDistance = (float)Math.sqrt((double)(x * x + y * y + z * z));
                         float gpuWeight = 1.0F - smoothstep(blendStart, searchRadius, cameraDistance);
                         VISIBLE_GPU_WEIGHTS_BUF[i] = gpuWeight;
-                        long sourceKey = VISIBLE_SOURCE_KEYS_BUF[i];
+                        long
+                        sourceKey = VISIBLE_SOURCE_KEYS_BUF[i];
                         GpuLocalLightResolver.resolve(mc.level, sourceKey, VISIBLE_EMISSIONS_BUF[i], LIGHT_COLOR_INTENSITY_BUF, lightBase);
-                        GpuLocalLightResolver.SourceGeometry geometry = GpuLocalLightResolver.resolveGeometry(mc.level, sourceKey);
-                        int rectBase = i * 24;
+                        GpuLocalLightResolver.SourceGeometry
+
+                        geometry = GpuLocalLightResolver.resolveGeometry
+ (mc.level, sourceKey);
+                        int
+                        rectBase = i * 24;
                         LIGHT_ATLAS_RECT_BUF[rectBase + 2] = LIGHT_COLOR_INTENSITY_BUF[lightBase];
                         LIGHT_ATLAS_RECT_BUF[rectBase + 3] = LIGHT_COLOR_INTENSITY_BUF[lightBase + 1];
                         LIGHT_ATLAS_RECT_BUF[rectBase + 6] = LIGHT_COLOR_INTENSITY_BUF[lightBase + 2];
@@ -214,27 +228,23 @@ public final class GpuNeoShadows { public static final int MAX_LIGHTS = 32; priv
                         GpuLocalLightResolver.writeGeometryMetadata(geometry, LIGHT_ATLAS_RECT_BUF, rectBase);
                         if (mode == Config.GpuLocalShadowMode.FAST_SPREAD) {
                             int visibilitySlot = VISIBLE_VISIBILITY_SLOTS_BUF[i];
-                            LIGHT_ATLAS_RECT_BUF[rectBase + 19] = visibilitySlot >= 0 ? (float)visibilitySlot + 1.0F : 0.0F;
+                            LIGHT_ATLAS_RECT_BUF[rectBase + 19] = visibilitySlot
+ >= 0 ? (float)visibilitySlot + 1.0F : 0.0F;
                         }
                     }
 
                     if (hardBake) {
+
                         if (hardBakeDirtyFaces == 0 && lightCount > 0) {
                             int faceBudget = Math.max(1, Config.CLIENT.gpuHardShadowCaptureBudget.get());
                             int layerBudget = Math.max(24, Math.min(768, faceBudget * 4));
                             BAKED_HARD_VOLUME.update(
                                 cameraPos,
                                 lightCount,
-                                LIGHT_POS_RADIUS_BUF,
-                                LIGHT_GEOMETRY_BUF,
-                                LIGHT_COLOR_INTENSITY_BUF,
-                                LIGHT_ATLAS_RECT_BUF,
-                                cache.getAtlasTextureId(),
+                                LIGHT_POS_RADIUS_BUF, LIGHT_GEOMETRY_BUF, LIGHT_COLOR_INTENSITY_BUF, LIGHT_ATLAS_RECT_BUF, cache.getAtlasTextureId(),
                                 hardBakeInputSignature,
                                 layerBudget );
-                        }
-
-                        if (BAKED_HARD_VOLUME.isReady()) {
+                        } if (BAKED_HARD_VOLUME.isReady()) {
                             publishBakedHardOnly(cameraPos);
                             return;
                         }
@@ -242,36 +252,28 @@ public final class GpuNeoShadows { public static final int MAX_LIGHTS = 32; priv
 
                     int width = mc.getMainRenderTarget().viewWidth;
                     int height = mc.getMainRenderTarget().viewHeight;
-                    if (width > 0 && height > 0) {
+                    if (!(width > 0 && height > 0)) {
+                        TorchRtxState.get().clearGpuDirectSources();
+                        clearFrame(false);
+return;
+                    }
+
                         LIGHT_GRID.update(width, height, lightCount, LIGHT_POS_RADIUS_BUF, projection, view);
-                        TorchRtxState.get().setGpuDirectSources(VISIBLE_SOURCE_KEYS_BUF, VISIBLE_GPU_WEIGHTS_BUF, lightCount);
+                        TorchRtxState.get
+                        ().setGpuDirectSources(VISIBLE_SOURCE_KEYS_BUF, VISIBLE_GPU_WEIGHTS_BUF, lightCount);
+
                         resourcesAllocated = true;
 
-                        int shaderMode =
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                        switch (mode) {
+                        int shaderMode = switch (mode) {
                             case FAST_SPREAD -> 0;
                             case CUBEMAP_HARD -> 1;
                             case CUBEMAP_SOFT -> 2;
                         };
                         boolean softShadows = mode == Config.GpuLocalShadowMode.CUBEMAP_SOFT;
-                        float spreadStrength = (float)Math.max(0.0, Math.min(1.0, Config.CLIENT.gpuSpreadOcclusionStrength.get()));
-                        long version = ++frameVersion;
+                        float spreadStrength = (float)Math.max(0.0, Math.min
+ (1.0, Config.CLIENT.gpuSpreadOcclusionStrength.get()));
+                        long
+                        version = ++frameVersion;
                         frameState = new GpuShadowFrameState(
                             true,
                             softShadows,
@@ -279,18 +281,16 @@ public final class GpuNeoShadows { public static final int MAX_LIGHTS = 32; priv
                             shaderMode,
                             spreadStrength,
                             lightCount,
-                            usesCubemapShadows() ? cache.getAtlasTextureId() : NEO_FLOOD_VISIBILITY_ATLAS.getTextureId(),
+                            usesCubemapShadows() ? cache.getAtlasTextureId
+ () : NEO_FLOOD_VISIBILITY_ATLAS.getTextureId
+ (),
                             LIGHT_GRID.getTextureId(),
                             version,
                             Arrays.copyOf(LIGHT_POS_RADIUS_BUF, LIGHT_POS_RADIUS_BUF.length),
                             Arrays.copyOf(LIGHT_ATLAS_RECT_BUF, LIGHT_ATLAS_RECT_BUF.length) );
-                    } else {
-                        TorchRtxState.get().clearGpuDirectSources();
-                        clearFrame(false);
-                    }
-                }
-            } else {
-                publishBakedHardOnly(cameraPos); } } else { TorchRtxState.get().clearGpuDirectSources(); clearFrame(false); } } public static boolean hasStagedLights() {
+              } public static boolean hasStagedLights() {
+
+
  return isActive() && stagedSources.length > 0;
     }
 

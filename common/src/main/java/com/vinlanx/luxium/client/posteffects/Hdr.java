@@ -84,11 +84,11 @@ public final class Hdr {
     }
 
     public static boolean hasHdrColor(RenderTarget target) {
-        if (target instanceof HdrColorTarget state && state.luxium$getColorFormat() != 32856) {
-            return true;
-        }
+        return target instanceof HdrColorTarget state
+            && state.luxium$getColorFormat() != 32856;
 
-        return false;
+
+
     } public static void releaseResources() { RenderSystem.assertOnRenderThread();
         PostProcessSwapChain.releasePendingScene();
         RenderTarget main = Minecraft.getInstance().getMainRenderTarget();
@@ -128,59 +128,44 @@ public final class Hdr {
     }
 
     public static void onColorTexturesSwapped(RenderTarget first, RenderTarget second) {
-        if (first instanceof HdrColorTarget a && second instanceof HdrColorTarget b) {
+        if (!(first instanceof HdrColorTarget a && second instanceof HdrColorTarget b)) { return; }
             int format = a.luxium$getColorFormat();
             a.luxium$setColorFormat(b.luxium$getColorFormat());
             b.luxium$setColorFormat(format);
-            if (hasHdrColor(first)) {
-                HDR_TARGETS.add(first);
-            } else {
-                HDR_TARGETS.remove(first);
-            }
+            if (hasHdrColor(first)) { HDR_TARGETS.add(first);
+            } else { HDR_TARGETS.remove(first);
+            } if (hasHdrColor(second)) { HDR_TARGETS.add(second);
+            } else { HDR_TARGETS.remove(second);
+            } return;
 
-            if (hasHdrColor(second)) {
-                HDR_TARGETS.add(second);
-            } else {
-                HDR_TARGETS.remove(second);
-            }
-
-            return;
-        }
     }
-
-    private static boolean configureColorFormat(RenderTarget target, int format) {
-        RenderSystem.assertOnRenderThread();
-        boolean restored = format != 32856 && target != null && PostProcessSwapChain.restoreHdrScene(target);
-        if (target != null
-            && target.width > 0
-            && target.height > 0
-            && target.getColorTextureId() > 0
-            && target instanceof HdrColorTarget state
-            && state.luxium$getColorFormat() != format) {
+    private static boolean configureColorFormat(RenderTarget target, int format) { RenderSystem.assertOnRenderThread();
+        boolean restored = format != 32856 && target != null && PostProcessSwapChain.restoreHdrScene
+ (target);
+        if (!(target != null
+            && target.width > 0 && target.height > 0 && target.getColorTextureId() > 0 && target instanceof HdrColorTarget state
+            && state.luxium$getColorFormat() != format)) {
+        return restored;
+    }
             int previousTexture = GL11.glGetInteger(32873);
             int previousUnpackBuffer = GL11.glGetInteger(35055);
             int previousUnpackAlignment = GL11.glGetInteger(3317);
 
-            try {
-                GL15.glBindBuffer(35052, 0);
+            try { GL15.glBindBuffer(35052, 0);
                 GL11.glPixelStorei(3317, 1);
                 GlStateManager._bindTexture(target.getColorTextureId());
-                GL11.glTexImage2D(3553, 0, format, target.width, target.height, 0, format == 35898 ? 6407 : 6408, format == 32856 ? 5121 : 5131, 0L);
+                GL11.glTexImage2D(3553, 0, format, target.width, target.height, 0, format
+
+ == 35898 ? 6407 : 6408, format
+ == 32856 ? 5121 : 5131, 0L);
                 state.luxium$setColorFormat(format);
-                if (format != 32856) {
-                    HDR_TARGETS.add(target);
-                } else {
-                    HDR_TARGETS.remove(target);
+                if (format != 32856) { HDR_TARGETS.add(target);
+                } else { HDR_TARGETS.remove(target);
                 }
-            } finally {
-                GlStateManager._bindTexture(previousTexture);
+            } finally { GlStateManager._bindTexture(previousTexture);
                 GL11.glPixelStorei(3317, previousUnpackAlignment);
                 GL15.glBindBuffer(35052, previousUnpackBuffer);
             }
-
             return true;
         }
-
-        return restored;
-    }
     }

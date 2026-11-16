@@ -83,20 +83,40 @@ public final class TemporalFrameSystem {
 
     public static boolean beginRealFrame(Minecraft mc) {
         syntheticThisFrame = false;
-        if (Config.isFeatureEnabled(Config.CLIENT.tfrEnabled) && mc.level != null) {
-            RenderTarget nativeTarget = mc.getMainRenderTarget();
-            if (nativeTarget != null && nativeTarget.width > 0 && nativeTarget.height > 0) {
-                int sourceWidth = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? LsrSystem.expectedWidth(nativeTarget.width) : nativeTarget.width;
-                int sourceHeight = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? LsrSystem.expectedHeight(nativeTarget.height) : nativeTarget.height;
+
+        if (!(Config.isFeatureEnabled(Config.CLIENT.tfrEnabled) && mc.level != null)) {
+            if (historyValid || historyLevel != mc.level) {
+                invalidateHistory();
+            }
+            if (!Config.isFeatureEnabled(Config.CLIENT.tfrEnabled)) {
+                releaseTargets();
+            }
+            return false;
+        }
+            RenderTarget
+            nativeTarget = mc.getMainRenderTarget();
+            if (!(nativeTarget != null && nativeTarget.width > 0 && nativeTarget.height > 0)) {
+                invalidateHistory();
+                return false;
+            }
+                int sourceWidth = Config.isFeatureEnabled
+ (Config.CLIENT.lsrEnabled) ? LsrSystem.expectedWidth
+ (nativeTarget.width) : nativeTarget.width;
+                int sourceHeight = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? LsrSystem.expectedHeight
+ (nativeTarget.height) : nativeTarget.height;
+
                 ensureSceneTarget(sourceWidth, sourceHeight);
                 TextureTarget scene = sceneTarget;
                 if (scene == null) {
                     invalidateHistory();
                     return false;
                 } else {
+
                     Hdr.configureColorTarget(scene, Hdr.isEnabled());
+
                     nativeMainTarget = nativeTarget;
                     worldPassActive = true;
+
                     ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(scene);
                     scene.setClearColor(0.0F, 0.0F, 0.0F, 0.0F);
                     scene.clear(Minecraft.ON_OSX);
@@ -104,41 +124,27 @@ public final class TemporalFrameSystem {
                     RenderSystem.viewport(0, 0, scene.viewWidth, scene.viewHeight);
                     return true;
                 }
-            } else {
-                invalidateHistory();
-                return false;
-            }
-        } else {
-            if (historyValid || historyLevel != mc.level) {
-                invalidateHistory();
-            }
-
-            if (!Config.isFeatureEnabled(Config.CLIENT.tfrEnabled)) {
-                releaseTargets();
-            }
-
-            return false;
-        }
-    }
-
-    public static void rebindWorldTarget() {
 
 
-
-
-        if (!worldPassActive || sceneTarget == null) { return; }
+    } public static void rebindWorldTarget() { if (!worldPassActive || sceneTarget == null) { return; }
         sceneTarget.bindWrite(true);
         RenderSystem.viewport((int)0, (int)0, (int)TemporalFrameSystem.sceneTarget.viewWidth, (int)TemporalFrameSystem.sceneTarget.viewHeight);
     }
 
     public static void finishRealFrame(Minecraft mc, Camera camera, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
-        TextureTarget source = sceneTarget;
+        TextureTarget
+        source = sceneTarget;
         RenderTarget destination = nativeMainTarget;
-        if (worldPassActive && source != null && destination != null) {
+        if (!(worldPassActive && source != null && destination != null)) {
+            abortRealFrame(mc);
+return;
+        }
+
             ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(destination);
             worldPassActive = false;
             destination.bindWrite(true);
             RenderSystem.viewport(0, 0, destination.viewWidth, destination.viewHeight);
+
             if (Config.isFeatureEnabled(Config.CLIENT.lsrEnabled)) {
                 preparedHistoryValid = prepareLsrHistory();
             } else {
@@ -147,17 +153,21 @@ public final class TemporalFrameSystem {
 
             previousViewProjection.set(projectionMatrix).mul(viewMatrix);
             previousInverseViewProjection.set(previousViewProjection).invert();
-            Vec3 cameraPos = camera.getPosition();
+            Vec3
+            cameraPos = camera.getPosition();
             previousCameraX = cameraPos.x;
             previousCameraY = cameraPos.y;
             previousCameraZ = cameraPos.z;
             previousYaw = camera.getYRot();
             previousPitch = camera.getXRot();
+
             historyLevel = mc.level;
             historyValid = true;
             syntheticFramesSinceReal = 0;
-            ShaderInstance finalShader = ShaderManager.getTemporalReprojectionShader();
-            boolean presented = finalShader != null && renderFinalComposite(finalShader, destination, false);
+            ShaderInstance finalShader = ShaderManager.getTemporalReprojectionShader
+ ();
+            boolean presented = finalShader != null && renderFinalComposite
+ (finalShader, destination, false);
             if (!presented) {
                 blitSceneFallback(source, destination);
             }
@@ -165,20 +175,10 @@ public final class TemporalFrameSystem {
             nativeMainTarget = null;
             destination.bindWrite(true);
             RenderSystem.viewport(0, 0, destination.viewWidth, destination.viewHeight);
-        } else {
-            abortRealFrame(mc);
-        }
     }
 
     public static void abortRealFrame(Minecraft mc) {
-        RenderTarget
-
-
-
-
-
-
-        destination = nativeMainTarget;
+        RenderTarget destination = nativeMainTarget;
         if (destination != null) {
             ((MinecraftAccessor)mc).luxium$setMainRenderTargetField(destination);
             destination.bindWrite(true);
@@ -190,27 +190,51 @@ public final class TemporalFrameSystem {
     }
 
     public static boolean tryRenderSynthetic(Minecraft mc, Camera camera, Matrix4f projectionMatrix, Matrix4f viewMatrix) {
+
         syntheticThisFrame = false;
         currentViewMatrix.set(viewMatrix);
-        if (Config.isFeatureEnabled(Config.CLIENT.tfrEnabled) && mc.level != null) {
-            RenderTarget main = mc.getMainRenderTarget();
+
+        if (!(Config.isFeatureEnabled(Config.CLIENT.tfrEnabled) && mc.level != null)) {
+            if (historyValid || historyLevel != mc.level) {
+                invalidateHistory();
+            }
+            if (!Config.isFeatureEnabled(Config.CLIENT.tfrEnabled)) {
+                releaseTargets();
+            }
+            return false;
+        }
+            RenderTarget
+            main = mc.getMainRenderTarget();
             TextureTarget scene = sceneTarget;
             ShaderInstance finalShader = ShaderManager.getTemporalReprojectionShader();
             if (main == null || scene == null || finalShader == null || main.width <= 0 || main.height <= 0) {
+
                 return false;
-            } else if (!historyValid || historyLevel != mc.level) {
+            } else
+
+            if (!historyValid || historyLevel != mc.level) {
                 return false;
-            } else if (Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) && !preparedHistoryValid) {
+            } else
+            if (Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) && !preparedHistoryValid) {
                 return false;
             } else {
-                int expectedWidth = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? LsrSystem.expectedWidth(main.width) : main.width;
-                int expectedHeight = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? LsrSystem.expectedHeight(main.height) : main.height;
+                int expectedWidth = Config.isFeatureEnabled
+ (Config.CLIENT.lsrEnabled) ? LsrSystem.expectedWidth
+ (main.width) : main.width;
+                int expectedHeight = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) ? LsrSystem.expectedHeight
+ (main.height) : main.height;
                 if (scene.width != expectedWidth || scene.height != expectedHeight) {
                     invalidateHistory();
                     return false;
-                } else if (syntheticFramesSinceReal < 1 && !isCameraCut(camera)) {
+                } else
+
+                if (!(syntheticFramesSinceReal < 1 && !isCameraCut(camera))) {
+                    return false;
+                }
+
                     currentViewProjection.set(projectionMatrix).mul(viewMatrix);
-                    boolean cameraMoved = hasMeaningfulCameraMotion(camera);
+                    boolean
+                    cameraMoved = hasMeaningfulCameraMotion(camera);
                     if (cameraMoved) {
                         ShaderInstance motionShader = ShaderManager.getTemporalMotionShader();
                         if (motionShader == null) {
@@ -233,38 +257,14 @@ public final class TemporalFrameSystem {
                     if (!renderFinalComposite(finalShader, main, cameraMoved)) {
                         return false;
                     } else {
+
                         syntheticFramesSinceReal++;
                         syntheticThisFrame = true;
                         return true;
                     }
-                } else {
-                    return false;
-                }
+
             }
-        } else {
-            if (historyValid || historyLevel != mc.level) {
-                invalidateHistory();
-            }
-
-            if (!Config.isFeatureEnabled(Config.CLIENT.tfrEnabled)) {
-                releaseTargets();
-            }
-
-            return false;
-        }
-    }
-
-    public static void beginFirstPersonOverlay(Minecraft mc) {
-
-
-
-
-
-
-
-
-
-        firstPersonOverlayPass = false;
+    } public static void beginFirstPersonOverlay(Minecraft mc) { firstPersonOverlayPass = false;
         if (!(Config.isFeatureEnabled(Config.CLIENT.tfrEnabled))) {
 return;
 }

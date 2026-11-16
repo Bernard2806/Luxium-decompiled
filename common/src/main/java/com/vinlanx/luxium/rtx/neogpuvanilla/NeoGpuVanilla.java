@@ -64,12 +64,15 @@ public final class NeoGpuVanilla {
 
     public static void prepareShadowAtlas(Minecraft mc, Camera camera) {
         if (!isConfiguredEnabled()) {
-            if (trackedLevel != null || VOLUME.hasResources()) {
-                releaseResources();
-            }
-
+            if (trackedLevel != null || VOLUME.hasResources()) { releaseResources();
+            } clearFrame();
+ return;
+        } else if (!(isActive
+() && mc.level != null && camera != null)) {
             clearFrame();
-        } else if (isActive() && mc.level != null && camera != null) {
+            return;
+        }
+
             if (trackedLevel != mc.level) {
                 trackedLevel = mc.level;
                 stagedSources = new long[0];
@@ -93,48 +96,50 @@ public final class NeoGpuVanilla {
             }
 
             GpuShadowCache cache = GpuShadowCache.get();
-            int configuredLimit = Math.max(1, Math.min(40, Config.CLIENT.neoGpuVanillaMaxSources.get()));
+            int configuredLimit = Math.max(1, Math.min(40, Config.CLIENT.neoGpuVanillaMaxSources.get
+()));
             int limit = Math.min(configuredLimit, cache.getSourceCapacity());
             double distance = (double)Config.CLIENT.neoGpuVanillaDistance.get().intValue();
             TorchRtxState registry = TorchRtxState.get();
-            Vec3 selectionOrigin = new Vec3((double)VOLUME.buildAnchorX() + 24.0, (double)VOLUME.buildAnchorY() + 16.0, (double)VOLUME.buildAnchorZ() + 24.0);
+            Vec3
+            selectionOrigin = new Vec3((double)VOLUME.buildAnchorX
+() + 24.0, (double)VOLUME.buildAnchorY
+() + 16.0, (double)VOLUME.buildAnchorZ
+() + 24.0);
             stagedSources = registry.getClosestSources(selectionOrigin, distance * distance, limit);
             stagedEmissions = new int[stagedSources.length];
-
             for (int i = 0; i < stagedSources.length; i++) {
                 stagedEmissions[i] = registry.getSourceEmission(stagedSources[i]);
             }
-
-            long nextSourceSignature = signature(stagedSources, stagedEmissions, 0, 0, 0, Config.CLIENT.neoGpuVanillaCaptureResolution.get());
+            long nextSourceSignature = signature(stagedSources, stagedEmissions, 0, 0, 0, Config.CLIENT.neoGpuVanillaCaptureResolution.get
+());
             if (nextSourceSignature != stagedSourceSignature) {
                 stagedSourceSignature = nextSourceSignature;
-                if (!sourceSetChangePending) {
-                    sourceSetChangeAgeFrames = 0;
+                if (!sourceSetChangePending) { sourceSetChangeAgeFrames = 0;
                 }
-
                 sourceSetChangePending = false;
                 sourceSetQuietFrames = 0;
                 sourceSetChangeAgeFrames = 0;
             }
-
             stagedSignature = signature(
-                stagedSources,
-                stagedEmissions,
-                VOLUME.buildAnchorX(),
-                VOLUME.buildAnchorY(),
-                VOLUME.buildAnchorZ(),
+                stagedSources, stagedEmissions, VOLUME.buildAnchorX(), VOLUME.buildAnchorY(), VOLUME.buildAnchorZ(),
                 Config.CLIENT.neoGpuVanillaCaptureResolution.get() );
             cache.stageVisibleEntries(mc.level, stagedSources, stagedEmissions, limit);
-        } else {
-            clearFrame();
-        } } public static boolean hasStagedLights() {
+         } public static boolean hasStagedLights() {
+
+
  return isActive() && stagedSources.length > 0;
     }
 
     public static void prepareMainWorldRender(Minecraft mc, Camera camera) {
         mainPassActive = false;
-        if (isActive() && mc.level != null && camera != null) {
-            GpuShadowCache cache = GpuShadowCache.get();
+        if (!(isActive() && mc.level != null && camera != null)) {
+ publishCurrentFrame(camera);
+return; }
+            GpuShadowCache cache = GpuShadowCache.get
+
+ ();
+
             pendingVanillaSettleFrames = 0;
             sourceSetChangePending = false;
             sourceSetQuietFrames = 0;
@@ -145,47 +150,42 @@ public final class NeoGpuVanilla {
             Arrays.fill(ATLAS_RECTS, 0.0F);
             Arrays.fill(VISIBLE_KEYS, 0L);
             Arrays.fill(VISIBLE_EMISSIONS, 0);
-            int count = cache.collectNeoGpuVanillaEntries(
+            int
+            count = cache.collectNeoGpuVanillaEntries(
                 stagedSources,
-                stagedEmissions,
-                stagedSources.length,
-                (double)VOLUME.buildAnchorX(),
-                (double)VOLUME.buildAnchorY(),
-                (double)VOLUME.buildAnchorZ(),
+                stagedEmissions, stagedSources.length, (double)VOLUME.buildAnchorX(), (double)VOLUME.buildAnchorY(), (double)VOLUME.buildAnchorZ(),
                 SOURCE_DATA,
                 ATLAS_RECTS,
-                VISIBLE_KEYS,
-                VISIBLE_EMISSIONS,
-                SOURCE_GEOMETRY );
-            boolean capturePending = false;
-
+                VISIBLE_KEYS, VISIBLE_EMISSIONS, SOURCE_GEOMETRY ); boolean capturePending = false;
             for (int i = 0; i < count; i++) {
                 SOURCE_DATA[i * 4 + 3] = (float)VISIBLE_EMISSIONS[i];
                 GpuLocalLightResolver.resolve(mc.level, VISIBLE_KEYS[i], VISIBLE_EMISSIONS[i], SOURCE_COLORS, i * 4);
                 int flags = Math.round(SOURCE_GEOMETRY[i * 4 + 3]);
-                if ((flags & 128) != 0) {
-                    capturePending = true;
+                if ((flags & 128) != 0) { capturePending = true;
                 }
             }
-
             long contentGeneration = cache.getNeoGpuVanillaContentGeneration(stagedSources, stagedSources.length);
-            boolean wantsBake = stagedSignature != bakedSignature
+            boolean
+            wantsBake = stagedSignature != bakedSignature
                 || contentGeneration != observedContentGeneration
                 || requestedVanillaGeneration != bakedVanillaGeneration
                 || !VOLUME.isReady();
+
             if (wantsBake) {
                 int atlasTexture = count > 0 ? cache.getAtlasTextureId() : 0;
                 if (VOLUME.bake(mc.level, atlasTexture, count, SOURCE_DATA, SOURCE_GEOMETRY, SOURCE_COLORS, ATLAS_RECTS)) {
+
                     bakedSignature = stagedSignature;
                     observedContentGeneration = contentGeneration;
                     bakedVanillaGeneration = requestedVanillaGeneration;
                 }
             }
-
             NeoGpuVanillaGpuDebug.tick(
-                stagedSources.length,
-                cache.countPendingNeoGpuVanillaFaces(stagedSources, stagedSources.length),
-                Config.CLIENT.neoGpuVanillaCaptureResolution.get() ); publishCurrentFrame(camera); } else { publishCurrentFrame(camera); } } public static void beginMainWorldRender() {
+                stagedSources.length, cache.countPendingNeoGpuVanillaFaces(stagedSources, stagedSources.length),
+                Config.CLIENT.neoGpuVanillaCaptureResolution.get() );
+publishCurrentFrame(camera);
+} public static void beginMainWorldRender() {
+
 
  mainPassActive = frameState.enabled();
     }
@@ -321,20 +321,17 @@ public final class NeoGpuVanilla {
     }
 
     private static void publishCurrentFrame(Camera camera) {
-        if (camera != null && VOLUME.isReady()) {
-            Vec3 cameraPos = camera.getPosition();
+        if (!(camera != null && VOLUME.isReady())) {
+frameState = NeoGpuVanillaFrameState.disabled(++frameVersion);
+return; }
+            Vec3
+            cameraPos = camera.getPosition();
             boolean fast = Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaFastShadowsEnabled) && VOLUME.fastShadowsReady();
-            frameState = new NeoGpuVanillaFrameState(
-                true,
-                VOLUME.receiverTextureId(),
+            frameState = new NeoGpuVanillaFrameState(true, VOLUME.receiverTextureId(),
                 VOLUME.receiverScale(),
-                fast,
-                VOLUME.fastLightTextureId(0),
-                VOLUME.fastLightTextureId(1),
-                VOLUME.fastLightTextureId(2),
-                VOLUME.fastLightTextureId(3),
-                VOLUME.fastLightTextureId(4),
-                VOLUME.fastLightTextureId(5),
+                fast, VOLUME.fastLightTextureId(0), VOLUME.fastLightTextureId(1),
+                VOLUME.fastLightTextureId(2), VOLUME.fastLightTextureId(3),
+                VOLUME.fastLightTextureId(4), VOLUME.fastLightTextureId(5),
                 (float)((double)VOLUME.anchorX() - cameraPos.x),
                 (float)((double)VOLUME.anchorY() - cameraPos.y),
                 (float)((double)VOLUME.anchorZ() - cameraPos.z),
@@ -342,12 +339,17 @@ public final class NeoGpuVanilla {
                 32.0F,
                 48.0F,
                 ++frameVersion );
-        } else { frameState = NeoGpuVanillaFrameState.disabled(++frameVersion); } } private static void clearFrame() { mainPassActive = false;
+         } private static void clearFrame() {
+
+
+ mainPassActive = false;
         frameState = NeoGpuVanillaFrameState.disabled(++frameVersion);
     }
 
     private static long signature(long[] keys, int[] emissions, int anchorX, int anchorY, int anchorZ, int captureResolution) {
-        long h = -7046029254386353131L;
+        long
+
+        h = -7046029254386353131L;
         h = mix(h, (long)anchorX);
         h = mix(h, (long)anchorY);
         h = mix(h, (long)anchorZ);
@@ -356,9 +358,9 @@ public final class NeoGpuVanilla {
         h = mix(h, Double.doubleToLongBits(Config.CLIENT.neoGpuVanillaFastShadowStrength.get()));
         h = mix(h, Double.doubleToLongBits(Config.CLIENT.neoGpuVanillaFastDiffuseWrap.get()));
         int count = Math.min(keys.length, emissions.length);
-        long xor = 0L;
+        long
+        xor = 0L;
         long sum = 0L;
-
         for (int i = 0; i < count; i++) {
             long element = keys[i] ^ -7046029254386353131L * ((long)emissions[i] + 1L);
             element ^= element >>> 30;
@@ -369,16 +371,14 @@ public final class NeoGpuVanilla {
             xor ^= element;
             sum += Long.rotateLeft(element, emissions[i] & 63);
         }
-
         h = mix(h, (long)count);
         h = mix(h, xor);
-        return mix(h, sum);
+        h = mix(h, sum);
+ return h;
     }
 
     private static long mix(long hash, long value) {
-        long
-
-        v = value * -4417276706812531889L;
+        long v = value * -4417276706812531889L;
         v ^= v >>> 29;
         hash ^= v;
         hash *= 1609587929392839161L;

@@ -1,26 +1,26 @@
 package com.vinlanx.luxium.client;
 
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.client.neocpu.NeoCpuShadowsEngine;
-import com.vinlanx.luxium.client.shadows.GpuNeoShadows;
-import com.vinlanx.luxium.rtx.LightRtMath;
-import com.vinlanx.luxium.rtx.TorchRtxState;
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Consumer;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import org.jetbrains.annotations.Nullable;
-import com.vinlanx.luxium.client.DynamicShadowMeshCapture;
-import com.vinlanx.luxium.client.NeoShadowsEngine;
-import com.vinlanx.luxium.client.NeoShadowsRenderPipeline;
-import com.vinlanx.luxium.client.NeoShadowsTypes;
-import it.unimi.dsi.fastutil.longs.LongCollection;
-import net.minecraft.core.Position; final class NeoShadowsRuntime { private final NeoShadowsEngine engine; NeoShadowsRuntime(NeoShadowsEngine engine) { this.engine = engine; }
+import com.vinlanx.luxium.Config; import com.vinlanx.luxium.client.neocpu.NeoCpuShadowsEngine; import com.vinlanx.luxium.client.shadows.GpuNeoShadows; import com.vinlanx.luxium.rtx.LightRtMath; import com.vinlanx.luxium.rtx.TorchRtxState; import it.unimi.dsi.fastutil.longs.LongIterator; import it.unimi.dsi.fastutil.longs.LongOpenHashSet; import java.util.Collections; import java.util.List; import java.util.function.Consumer; import net.minecraft.client.Camera; import net.minecraft.client.Minecraft; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.core.BlockPos; import org.jetbrains.annotations.Nullable; import com.vinlanx.luxium.client.DynamicShadowMeshCapture; import com.vinlanx.luxium.client.NeoShadowsEngine; import com.vinlanx.luxium.client.NeoShadowsRenderPipeline; import com.vinlanx.luxium.client.NeoShadowsTypes; import it.unimi.dsi.fastutil.longs.LongCollection; import net.minecraft.core.Position;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+final class NeoShadowsRuntime { private final NeoShadowsEngine engine;
+    NeoShadowsRuntime(NeoShadowsEngine engine) {
+
+        this.engine = engine;
+    }
 
     void onWorldDirty(@Nullable LongOpenHashSet changedBlocks) {
         if (!this.engine.isSelected()) {

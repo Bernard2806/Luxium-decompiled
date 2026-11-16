@@ -38,35 +38,29 @@ DUST_SPRITES[i] = new ResourceLocation("minecraft", "generic_" + i); }
     private ExplosionRenderer() { }
 
     public static void render(RenderFrame event) {
-        if (!(event.getStage() == RenderFrame.Stage.AFTER_PARTICLES)) {
-return;
-}
-
-            if (!(!ReflectionSystem.isRenderingWorldPass() && !NeoShadowsEngine.isAnyShadowCapturePass())) {
-return;
-}
-
-                Minecraft mc = Minecraft.getInstance();
-                if (!(mc.level != null && mc.player != null)) {
- return;
+        if (!(event.getStage() == RenderFrame.Stage.AFTER_PARTICLES)) { return;
+ } if (!(!ReflectionSystem.isRenderingWorldPass() && !NeoShadowsEngine.isAnyShadowCapturePass())) { return;
+ } Minecraft mc = Minecraft.getInstance();
+                if (!(mc.level != null && mc.player != null)) { return;
  }
-
                     float dt = frameDelta();
                     ExplosionWorld world = ExplosionWorld.get();
                     world.requestStep(dt);
                     ExplosionRenderSnapshot snapshot = world.snapshot();
                     synchronized (snapshot) {
-                        if (snapshot.totalCount != 0) {
+                        if (!(snapshot.totalCount != 0)) { return; }
                             ShaderInstance shader = ExplosionShader.get();
-                            if (shader != null) {
-                                Vec3 camera = event.getCamera().getPosition();
+                            if (!(shader != null)) { return; }
+                                Vec3
+                                camera = event.getCamera().getPosition();
                                 Vector3f up = event.getCamera().getUpVector();
                                 Vector3f right = new Vector3f(event.getCamera().getLeftVector()).negate();
                                 PoseStack poseStack = event.getPoseStack();
                                 poseStack.pushPose();
                                 poseStack.translate(-camera.x, -camera.y, -camera.z);
                                 Matrix4f pose = poseStack.last().pose();
-                                int savedTexture0 = RenderSystem.getShaderTexture(0);
+                                int
+                                savedTexture0 = RenderSystem.getShaderTexture(0);
                                 float[] savedColor = RenderSystem.getShaderColor();
                                 RenderSystem.enableDepthTest();
                                 RenderSystem.depthMask(false);
@@ -74,8 +68,7 @@ return;
                                 RenderSystem.enableBlend();
                                 RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
 
-                                try {
-                                    drawBatch(mc, shader, snapshot, 0, snapshot.smokeCount, pose, right, up, false);
+                                try { drawBatch(mc, shader, snapshot, 0, snapshot.smokeCount, pose, right, up, false);
                                     drawBatch(mc, shader, snapshot, snapshot.smokeCount, snapshot.totalCount, pose, right, up, true);
                                 } finally {
                                     shader.clear();
@@ -88,7 +81,14 @@ return;
                                     RenderSystem.setShaderTexture(0, savedTexture0);
                                     RenderSystem.activeTexture(33984);
                                     poseStack.popPose();
-                                } } } } } private static void drawBatch(Minecraft mc, ShaderInstance shader, ExplosionRenderSnapshot snapshot, int start, int end, Matrix4f pose, Vector3f right, Vector3f up, boolean emissive ) { if (!(start < end)) { return;
+                                }
+                                }
+                                } private static void drawBatch(Minecraft mc, ShaderInstance shader, ExplosionRenderSnapshot snapshot, int start, int end, Matrix4f pose, Vector3f right, Vector3f up, boolean emissive ) {
+
+
+
+
+ if (!(start < end)) { return;
  } if (shader.getUniform("EmissivePass") != null) { shader.getUniform("EmissivePass").set(emissive ? 1.0F : 0.0F);
             } if (shader.MODEL_VIEW_MATRIX != null) { shader.MODEL_VIEW_MATRIX.set(RenderSystem.getModelViewMatrix());
             } if (shader.PROJECTION_MATRIX != null) { shader.PROJECTION_MATRIX.set(RenderSystem.getProjectionMatrix());

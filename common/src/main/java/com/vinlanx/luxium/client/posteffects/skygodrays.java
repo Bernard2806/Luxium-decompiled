@@ -95,33 +95,33 @@ cloudOcclusionTexture != 0 ? cloudOcclusionTexture : depthTexture);
 
     @Nullable private static skygodrays.CelestialScreenPos projectCelestialToScreen(
         Matrix4f modelViewMatrix, Matrix4f projectionMatrix, boolean useMoon, float partialTick ) {
-        Vector4f clip = new Vector4f(0.0F, useMoon ? -100.0F : 100.0F, 0.0F, 1.0F);
+        Vector4f clip = new Vector4f(0.0F,
+ useMoon ? -100.0F : 100.0F, 0.0F, 1.0F);
         clip.mul(modelViewMatrix);
         clip.mul(projectionMatrix);
-        if (clip.w <= 0.0F) {
-            return null;
+        if (clip.w <= 0.0F) { return null;
         } else {
             float ndcX = clip.x / clip.w;
             float ndcY = clip.y / clip.w;
             float screenX = (ndcX + 1.0F) * 0.5F;
             float screenY = (ndcY + 1.0F) * 0.5F;
-            if (!(screenX < -0.25F) && !(screenX > 1.25F) && !(screenY < -0.25F) && !(screenY > 1.25F)) {
-                float distFromCenter = (float)Math.sqrt((double)(ndcX * ndcX + ndcY * ndcY));
+            if (!(!(screenX < -0.25F) && !(screenX > 1.25F) && !(screenY < -0.25F) && !(screenY > 1.25F))) {
+ return null; }
+                float
+
+                distFromCenter = (float)Math.sqrt((double)(ndcX * ndcX + ndcY * ndcY));
                 float fade = 1.0F - Mth.clamp((distFromCenter - 0.8F) / 0.5F, 0.0F, 1.0F);
                 skygodrays.CelestialLook look = buildCelestialLook(useMoon, partialTick);
                 fade *= look.horizonFade;
-                return fade <= 0.0F
-                    ? null : new skygodrays.CelestialScreenPos(
+                if (fade <= 0.0F) { return null; }
+
+ return new skygodrays.CelestialScreenPos(
                         screenX,
                         screenY,
                         fade,
                         look.color,
                         look.rayStrength,
-                        look.haloStrength, look.discStrength, look.haloRadius, look.discRadius, look.centerSuppression, useMoon ); } else { return null; } } } private static skygodrays.CelestialLook buildCelestialLook(boolean useMoon, float partialTick) { Minecraft mc = Minecraft.getInstance
-
-
-
- ();
+                        look.haloStrength, look.discStrength, look.haloRadius, look.discRadius, look.centerSuppression, useMoon ); } } private static skygodrays.CelestialLook buildCelestialLook(boolean useMoon, float partialTick) { Minecraft mc = Minecraft.getInstance ();
         CelestialPath.State celestialPath = NeoSkyFrameCache.celestial(mc.level, partialTick);
         float elevation = (float)celestialPath.elevation(useMoon);
         float visible = smoothstep(0.0F, 0.12F, elevation);

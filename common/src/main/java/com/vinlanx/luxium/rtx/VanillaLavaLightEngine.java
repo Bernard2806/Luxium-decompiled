@@ -1,30 +1,30 @@
 package com.vinlanx.luxium.rtx;
 
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
-import it.unimi.dsi.fastutil.longs.LongIterator;
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
-import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.chunk.LevelChunkSection;
-import net.minecraft.world.level.lighting.BlockLightEngine;
-import net.minecraft.world.level.lighting.LightEngine;
-import org.jetbrains.annotations.Nullable;
-import com.vinlanx.luxium.rtx.LuxiumBlockLightEngineExtension;
-import com.vinlanx.luxium.rtx.LuxiumLightEngineExtension;
-import it.unimi.dsi.fastutil.longs.LongCollection;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.chunk.LightChunkGetter; public final class VanillaLavaLightEngine { private static final VanillaLavaLightEngine INSTANCE = new VanillaLavaLightEngine();
+import com.vinlanx.luxium.Config; import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanilla; import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap; import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue; import it.unimi.dsi.fastutil.longs.LongIterator; import it.unimi.dsi.fastutil.longs.LongOpenHashSet; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.core.BlockPos; import net.minecraft.core.SectionPos; import net.minecraft.core.BlockPos.MutableBlockPos; import net.minecraft.tags.FluidTags; import net.minecraft.world.level.ChunkPos; import net.minecraft.world.level.Level; import net.minecraft.world.level.LightLayer; import net.minecraft.world.level.block.state.BlockState; import net.minecraft.world.level.chunk.LevelChunk; import net.minecraft.world.level.chunk.LevelChunkSection; import net.minecraft.world.level.lighting.BlockLightEngine; import net.minecraft.world.level.lighting.LightEngine; import org.jetbrains.annotations.Nullable; import com.vinlanx.luxium.rtx.LuxiumBlockLightEngineExtension; import com.vinlanx.luxium.rtx.LuxiumLightEngineExtension; import it.unimi.dsi.fastutil.longs.LongCollection; import net.minecraft.world.level.BlockGetter; import net.minecraft.world.level.chunk.LightChunkGetter;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public final class VanillaLavaLightEngine { private static final VanillaLavaLightEngine INSTANCE = new VanillaLavaLightEngine();
+
+
+
     private static final int MAX_COMPLETED_SECTIONS_PER_TICK = 3;
     private static final long SECTION_SCAN_BUDGET_NANOS = 1250000L;
     private static final int SCAN_DEADLINE_CHECK_MASK = 63;
@@ -268,31 +268,28 @@ import net.minecraft.world.level.chunk.LightChunkGetter; public final class Vani
 
     private boolean scanSectionSlice(VanillaLavaLightEngine.PendingSectionScan scan, long deadline) {
         ClientLevel level = this.currentLevel;
-        if (level != null && this.loadedChunks.contains(scan.chunkKey)) {
+        if (!(level != null && this.loadedChunks.contains(scan.chunkKey))) { return true;
+        }
             LevelChunk chunk = level.getChunkSource().getChunkNow(scan.chunkX, scan.chunkZ);
-            if (chunk == null) {
-                return true;
-            } else {
-                int sectionIndex = scan.sectionY - level.getMinSection();
+            if (chunk == null) { return true;
+            } else { int sectionIndex = scan.sectionY - level.getMinSection();
                 LevelChunkSection[] sections = chunk.getSections();
-                if (sectionIndex >= 0 && sectionIndex < sections.length) {
+                if (!(sectionIndex >= 0 && sectionIndex < sections.length)) { return true;
+                }
                     LevelChunkSection section = sections[sectionIndex];
                     if (!scan.paletteChecked) {
                         scan.paletteChecked = true;
-                        if (section.hasOnlyAir() || !section.maybeHas(statex ->
-statex.getFluidState().is(FluidTags.LAVA))) {
+                        if (section.hasOnlyAir() || !section.maybeHas
+(statex -> statex.getFluidState().is(FluidTags.LAVA))) {
                             scan.noLavaPossible = true;
                             return true;
                         }
                     }
-
-                    if (scan.noLavaPossible) {
-                        return true;
+                    if (scan.noLavaPossible) { return true;
                     } else {
                         int baseX = scan.chunkX << 4;
                         int baseY = scan.sectionY << 4;
                         int baseZ = scan.chunkZ << 4;
-
                         while (scan.cursor < 4096) {
                             int index = scan.cursor++;
                             int localX = index & 15;
@@ -303,33 +300,36 @@ statex.getFluidState().is(FluidTags.LAVA))) {
                                 scan.foundSources.add(BlockPos.asLong(baseX + localX, baseY + localY, baseZ + localZ));
                             }
 
-                            if ((index & 63) == 63 && System.nanoTime() >= deadline) {
+                            if ((index & 63) == 63 && System.nanoTime
+ () >= deadline) {
                                 return false;
                             }
                         }
-
                         return true;
                     }
-                } else {
-                    return true;
-                }
-            }
-        } else {
-            return true;
-        }
-    }
 
-    private void publishCompletedSectionScan(VanillaLavaLightEngine.PendingSectionScan scan) {
-        LongOpenHashSet previous = this.lavaSourcesBySection.remove(scan.sectionKey);
-        if (!scan.noLavaPossible && !scan.foundSources.isEmpty()) {
-            LongOpenHashSet immutableWorkingSet = new LongOpenHashSet(scan.foundSources);
+            }
+    } private void publishCompletedSectionScan(VanillaLavaLightEngine.PendingSectionScan scan) { LongOpenHashSet previous = this.lavaSourcesBySection.remove(scan.sectionKey);
+        if (!(!scan.noLavaPossible && !scan.foundSources.isEmpty())) {
+
+if (previous != null) { this.enqueueAll(previous); }
+return; }
+            LongOpenHashSet
+
+            immutableWorkingSet = new LongOpenHashSet(scan.foundSources);
             this.lavaSourcesBySection.put(scan.sectionKey, immutableWorkingSet);
             this.enqueueAll(immutableWorkingSet);
             if (previous != null) {
                 LongIterator iterator = previous.iterator();
-
                 while (iterator.hasNext()) {
-                    long key = iterator.nextLong(); if (!immutableWorkingSet.contains(key)) { this.enqueueSourceCheck(key); } } } } else { if (previous != null) { this.enqueueAll(previous); } } } private void enqueueAll(LongOpenHashSet values) { LongIterator iterator = values.iterator();
+                    long key = iterator.nextLong();
+if (!immutableWorkingSet.contains(key)) { this.enqueueSourceCheck(key); }
+} }
+
+} private void enqueueAll(LongOpenHashSet values) { LongIterator
+
+
+ iterator = values.iterator();
         while (iterator.hasNext()) { this.enqueueSourceCheck(iterator.nextLong());
         } }
 

@@ -1,62 +1,62 @@
 package com.vinlanx.luxium.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.Testing.TestFlashLight;
-import com.vinlanx.luxium.client.NeoShadowsEngine;
-import com.vinlanx.luxium.client.ReflectionSystem;
-import com.vinlanx.luxium.client.ShaderManager;
-import com.vinlanx.luxium.client.Sky;
-import com.vinlanx.luxium.client.clouds.LuxiumCloudRenderer;
-import com.vinlanx.luxium.client.posteffects.skygodrays;
-import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestia;
-import com.vinlanx.luxium.client.sunmoonapi.CelestialPath;
-import com.vinlanx.luxium.client.water.WaterSurfaceRenderer;
-import com.vinlanx.luxium.client.water.WaterSurfaceState;
-import com.vinlanx.luxium.mixin.sky.SodiumWorldRendererAccessor;
-import com.vinlanx.luxium.platform.LuxiumPlatform;
-import com.vinlanx.luxium.rtx.EntityShadowManager;
-import com.vinlanx.luxium.rtx.TorchRtxState;
-import com.vinlanx.luxium.rtx.VanillaLavaLightEngine;
-import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanillaCutoutPrepass;
-import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
-import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
-import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderMatrices;
-import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
-import me.jellysquid.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
-import me.jellysquid.mods.sodium.client.world.WorldRendererExtended;
-import net.minecraft.client.Camera;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.At.Shift;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import net.minecraft.world.level.BlockGetter;
-import org.joml.Matrix4fc;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args; @Mixin(value = {LevelRenderer.class}, priority = 1100 ) public abstract class LevelRendererMixin {
+import com.mojang.blaze3d.systems.RenderSystem; import com.mojang.blaze3d.vertex.PoseStack; import com.vinlanx.luxium.Config; import com.vinlanx.luxium.Testing.TestFlashLight; import com.vinlanx.luxium.client.NeoShadowsEngine; import com.vinlanx.luxium.client.ReflectionSystem; import com.vinlanx.luxium.client.ShaderManager; import com.vinlanx.luxium.client.Sky; import com.vinlanx.luxium.client.clouds.LuxiumCloudRenderer; import com.vinlanx.luxium.client.posteffects.skygodrays; import com.vinlanx.luxium.client.shadows.neoskycelestia.NeoSkyCelestia; import com.vinlanx.luxium.client.sunmoonapi.CelestialPath; import com.vinlanx.luxium.client.water.WaterSurfaceRenderer; import com.vinlanx.luxium.client.water.WaterSurfaceState; import com.vinlanx.luxium.mixin.sky.SodiumWorldRendererAccessor; import com.vinlanx.luxium.platform.LuxiumPlatform; import com.vinlanx.luxium.rtx.EntityShadowManager; import com.vinlanx.luxium.rtx.TorchRtxState; import com.vinlanx.luxium.rtx.VanillaLavaLightEngine; import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanillaCutoutPrepass; import me.jellysquid.mods.sodium.client.gl.device.RenderDevice; import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer; import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderMatrices; import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager; import me.jellysquid.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses; import me.jellysquid.mods.sodium.client.world.WorldRendererExtended; import net.minecraft.client.Camera; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.client.renderer.GameRenderer; import net.minecraft.client.renderer.LevelRenderer; import net.minecraft.client.renderer.LightTexture; import net.minecraft.client.renderer.MultiBufferSource; import net.minecraft.client.renderer.RenderType; import net.minecraft.client.renderer.ShaderInstance; import net.minecraft.core.BlockPos; import net.minecraft.util.Mth; import net.minecraft.world.entity.Entity; import net.minecraft.world.level.BlockAndTintGetter; import net.minecraft.world.level.LightLayer; import net.minecraft.world.level.block.state.BlockState; import net.minecraft.world.phys.Vec3; import org.joml.Matrix4f; import org.spongepowered.asm.mixin.Mixin; import org.spongepowered.asm.mixin.Shadow; import org.spongepowered.asm.mixin.Unique; import org.spongepowered.asm.mixin.injection.At; import org.spongepowered.asm.mixin.injection.Constant; import org.spongepowered.asm.mixin.injection.Inject; import org.spongepowered.asm.mixin.injection.ModifyArgs; import org.spongepowered.asm.mixin.injection.ModifyConstant; import org.spongepowered.asm.mixin.injection.ModifyVariable; import org.spongepowered.asm.mixin.injection.At.Shift; import org.spongepowered.asm.mixin.injection.callback.CallbackInfo; import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable; import net.minecraft.world.level.BlockGetter; import org.joml.Matrix4fc; import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@Mixin(value = {LevelRenderer.class}, priority = 1100 ) public abstract class LevelRendererMixin {
+
+
+
+
+
     @Shadow private int ticks;
     @Unique private boolean luxium$neoCutoutPrepassArmed;
 

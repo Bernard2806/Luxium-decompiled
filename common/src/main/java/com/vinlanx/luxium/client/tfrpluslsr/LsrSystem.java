@@ -56,7 +56,9 @@ public final class LsrSystem {
         PostEffectPipeline.clearDeferredTonemap();
         if (isEnabled() && mc.level != null) {
             RenderTarget nativeTarget = mc.getMainRenderTarget();
-            if (nativeTarget != null && nativeTarget.width > 0 && nativeTarget.height > 0) {
+            if (!(nativeTarget != null && nativeTarget.width > 0 && nativeTarget.height > 0)) {
+                return false;
+            }
                 int width = expectedWidth(nativeTarget.width);
                 int height = expectedHeight(nativeTarget.height);
                 ensureLowResTarget(width, height);
@@ -75,9 +77,7 @@ public final class LsrSystem {
                     RenderSystem.viewport(0, 0, lowRes.viewWidth, lowRes.viewHeight);
                     return true;
                 }
-            } else {
-                return false;
-            }
+
         } else {
             if (!isEnabled() && lowResWorldTarget != null) {
                 lowResWorldTarget.destroyBuffers();

@@ -1,36 +1,36 @@
 package com.vinlanx.luxium.rtx.neogpuvanilla;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.TextureUtil;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexSorting;
-import com.mojang.blaze3d.vertex.VertexFormat.Mode;
-import com.vinlanx.luxium.Config;
-import com.vinlanx.luxium.client.ShaderManager;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.LightLayer;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL21;
-import org.lwjgl.opengl.GL30;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanillaGpuDebug;
-import net.minecraft.core.BlockPos;
-import org.joml.Matrix4fc; final class NeoGpuVanillaVolume {
+import com.mojang.blaze3d.platform.GlStateManager; import com.mojang.blaze3d.platform.TextureUtil; import com.mojang.blaze3d.systems.RenderSystem; import com.mojang.blaze3d.vertex.BufferBuilder; import com.mojang.blaze3d.vertex.BufferUploader; import com.mojang.blaze3d.vertex.DefaultVertexFormat; import com.mojang.blaze3d.vertex.Tesselator; import com.mojang.blaze3d.vertex.VertexSorting; import com.mojang.blaze3d.vertex.VertexFormat.Mode; import com.vinlanx.luxium.Config; import com.vinlanx.luxium.client.ShaderManager; import java.nio.ByteBuffer; import java.nio.ByteOrder; import java.nio.FloatBuffer; import java.nio.IntBuffer; import net.minecraft.client.multiplayer.ClientLevel; import net.minecraft.client.renderer.ShaderInstance; import net.minecraft.core.BlockPos.MutableBlockPos; import net.minecraft.util.Mth; import net.minecraft.util.RandomSource; import net.minecraft.world.level.LightLayer; import org.joml.Matrix4f; import org.joml.Vector3f; import org.lwjgl.opengl.GL11; import org.lwjgl.opengl.GL12; import org.lwjgl.opengl.GL21; import org.lwjgl.opengl.GL30; import com.mojang.blaze3d.vertex.VertexFormat; import com.vinlanx.luxium.rtx.neogpuvanilla.NeoGpuVanillaGpuDebug; import net.minecraft.core.BlockPos; import org.joml.Matrix4fc;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+final class NeoGpuVanillaVolume {
+
+
+
     static final int SIZE_X = 48;
     static final int SIZE_Y = 32;
     static final int SIZE_Z = 48;
@@ -186,7 +186,7 @@ import org.joml.Matrix4fc; final class NeoGpuVanillaVolume {
             ShaderInstance resolveShader = ShaderManager.getNeoGpuVanillaResolveShader();
             boolean fastEnabled = Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaFastShadowsEnabled);
             ShaderInstance fastShader = fastEnabled ? ShaderManager.getNeoGpuVanillaFastResolveShader() : null;
-            if (coarseShader != null && resolveShader != null && (!fastEnabled || fastShader != null)) {
+            if (!(coarseShader != null && resolveShader != null && (!fastEnabled || fastShader != null))) { return false; }
                 this.ensureResources();
                 this.uploadVanillaLight(level);
                 this.uploadSourceMetadata(sourceCount, sourceData, sourceGeometry, sourceColors, atlasRects);
@@ -354,7 +354,7 @@ import org.joml.Matrix4fc; final class NeoGpuVanillaVolume {
                     this.activeAnchorZ = this.buildAnchorZ;
                     this.bakedSourceCount = sourceCount;
                     this.ready = true;
-                    this.revision++; var50 = true; } finally { GL30.glBindFramebuffer(36160, oldFramebuffer); GL11.glViewport(oldViewportX, oldViewportY, oldViewportW, oldViewportH); if (oldDepth) { GL11.glEnable(2929); } else { GL11.glDisable(2929); } if (oldCull) { GL11.glEnable(2884); } else { GL11.glDisable(2884); } if (oldBlend) { GL11.glEnable(3042); } else { GL11.glDisable(3042); } if (oldScissor) { GL11.glEnable(3089); } else { GL11.glDisable(3089); } if (oldDither) { GL11.glEnable(3024); } else { GL11.glDisable(3024); } if (oldFramebufferSrgb) { GL11.glEnable(36281); } else { GL11.glDisable(36281); } RenderSystem.setProjectionMatrix(oldProjection, oldSorting); GlStateManager._activeTexture(33984); } return var50; } else { return false; } } } float sampleLightFactor(double worldX, double worldY, double worldZ) { if (!this.isReady()) { return 0.0f; }
+                    this.revision++; var50 = true; } finally { GL30.glBindFramebuffer(36160, oldFramebuffer); GL11.glViewport(oldViewportX, oldViewportY, oldViewportW, oldViewportH); if (oldDepth) { GL11.glEnable(2929); } else { GL11.glDisable(2929); } if (oldCull) { GL11.glEnable(2884); } else { GL11.glDisable(2884); } if (oldBlend) { GL11.glEnable(3042); } else { GL11.glDisable(3042); } if (oldScissor) { GL11.glEnable(3089); } else { GL11.glDisable(3089); } if (oldDither) { GL11.glEnable(3024); } else { GL11.glDisable(3024); } if (oldFramebufferSrgb) { GL11.glEnable(36281); } else { GL11.glDisable(36281); } RenderSystem.setProjectionMatrix(oldProjection, oldSorting); GlStateManager._activeTexture(33984); } return var50; } } float sampleLightFactor(double worldX, double worldY, double worldZ) { if (!this.isReady()) { return 0.0f; }
         int x = Mth.floor((double)worldX) - this.activeAnchorX;
         int y = Mth.floor((double)worldY) - this.activeAnchorY;
         int z = Mth.floor((double)worldZ) - this.activeAnchorZ;
