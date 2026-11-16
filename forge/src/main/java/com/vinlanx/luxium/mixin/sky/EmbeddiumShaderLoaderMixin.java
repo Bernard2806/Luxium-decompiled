@@ -22,95 +22,93 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable; @M
         method = {"getShaderSource"},
         at = {@At("HEAD")},
         cancellable = true ) private static void luxium$replaceTerrainShaders(ResourceLocation name, CallbackInfoReturnable<String> cir) {
+
         if (!("sodium".equals(name.getNamespace()))) {
 return;
 }
 
-            boolean waterPassNow = Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && EmbeddiumWaterShaderCompileContext.isWaterPass();
-            if (!BlockLightTest.enabled()
-                || LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled()
-                || waterPassNow
-                || !"blocks/block_layer_opaque.vsh".equals(name.getPath()) && !"blocks/block_layer_opaque.fsh".equals(name.getPath())) {
-                boolean receiverShaders = LuxiumGpuShaderFeatures.receiverShadersEnabled();
+            boolean waterPassNow = Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && EmbeddiumWaterShaderCompileContext.isWaterPass
+ ();
+            if (!(!BlockLightTest.enabled() || LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled()
+                || waterPassNow || !"blocks/block_layer_opaque.vsh".equals(name.getPath()) && !"blocks/block_layer_opaque.fsh".equals
+(name.getPath()))) {
+                ResourceLocation source = new ResourceLocation(
+                    "luxium", "shaders/embeddium/block_layer_blocklighttest." + (name.getPath
+().endsWith(".vsh") ? "vsh" : "fsh") );
+                try { try (InputStream stream = Minecraft.getInstance().getResourceManager().getResourceOrThrow
+(source).open()) {
+                        cir.setReturnValue(IOUtils.toString(stream, StandardCharsets.UTF_8));
+                    } } catch (IOException exception) {
+                    throw new IllegalStateException("Failed to load BlockLightTest shader " + source, exception);
+                }
+                return;
+            }
+                boolean receiverShaders = LuxiumGpuShaderFeatures.receiverShadersEnabled
+ ();
                 boolean waterPass = waterPassNow;
                 boolean neoGpuVanilla = receiverShaders && LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled();
                 boolean localReceiver = receiverShaders && LuxiumGpuShaderFeatures.localReceiverEnabled();
-                boolean neoSky = LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled() && !neoGpuVanilla && !localReceiver && !waterPassNow;
-                boolean neoSkyForward = neoSky && EmbeddiumWaterShaderCompileContext.isTranslucentPass();
+                boolean neoSky = LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled() && !neoGpuVanilla && !localReceiver && !waterPass;
+                boolean
+                neoSkyForward = neoSky && EmbeddiumWaterShaderCompileContext.isTranslucentPass();
                 boolean neoSkyInline = neoSky && !neoSkyForward;
-                if (!(receiverShaders || waterPassNow || neoSky || "blocks/block_layer_opaque.vsh".equals(name.getPath()))) {
+                if (!(receiverShaders || waterPass || neoSky || "blocks/block_layer_opaque.vsh".equals
+ (name.getPath()))) {
 return;
 }
 
-                    ResourceLocation replacement;
-                    if ("blocks/block_layer_opaque.vsh".equals(name.getPath())) {
+                    ResourceLocation replacement; if ("blocks/block_layer_opaque.vsh".equals(name.getPath())) {
                         replacement = new ResourceLocation(
-                            "luxium",
-                            waterPassNow
+                            "luxium", waterPass
                                 ? "shaders/embeddium/block_layer_water.vsh" : (
                                     neoSkyForward
                                         ? "shaders/embeddium/block_layer_neoskycelestia_forward.vsh" : (
                                             neoSkyInline
                                                 ? "shaders/embeddium/block_layer_neoskycelestia.vsh" : (
                                                     receiverShaders
-                                                        ? "shaders/embeddium/block_layer_opaque.vsh" : "shaders/embeddium/block_layer_plantswave.vsh" ) ) ) );
-                    } else {
-                        if (!"blocks/block_layer_opaque.fsh".equals(name.getPath())) {
-                            return;
-                        }
-
+                                                        ? "shaders/embeddium/block_layer_opaque.vsh" :
+                                                        "shaders/embeddium/block_layer_plantswave.vsh" ) ) ) );
+                    } else if ("blocks/block_layer_opaque.fsh".equals(name.getPath())) {
                         replacement = new ResourceLocation(
-                            "luxium",
-                            waterPassNow
+                            "luxium", waterPass
                                 ? "shaders/embeddium/block_layer_water.fsh" : (
                                     neoGpuVanilla
                                         ? "shaders/embeddium/block_layer_neogpuvanilla.fsh" : (
                                             neoSkyForward
                                                 ? "shaders/embeddium/block_layer_neoskycelestia_forward.fsh" : (
                                                     neoSkyInline
-                                                        ? "shaders/embeddium/block_layer_neoskycelestia.fsh" : "shaders/embeddium/block_layer_opaque.fsh" ) ) ) );
-                    }
+                                                        ? "shaders/embeddium/block_layer_neoskycelestia.fsh" :
+                                                        "shaders/embeddium/block_layer_opaque.fsh" ) ) ) );
+                    } else {
+                    return; }
 
                     try {
-                        Resource resource = Minecraft.getInstance().getResourceManager().getResourceOrThrow(replacement);
-
+                        Resource resource = Minecraft.getInstance
+ ().getResourceManager().getResourceOrThrow(replacement);
                         try (InputStream stream = resource.open()) {
                             String source = IOUtils.toString(stream, StandardCharsets.UTF_8);
                             if ((receiverShaders || neoSkyForward) && !waterPass) {
+
                                 source = source.replace(
                                     "#define LUXIUM_ENTITY_SHADOWS_ENABLED 0",
-                                    "#define LUXIUM_ENTITY_SHADOWS_ENABLED " + (Config.isFeatureEnabled(Config.CLIENT.skyEntityShadowsEnabled) ? "1" : "0") );
+                                    "#define LUXIUM_ENTITY_SHADOWS_ENABLED " + (Config.isFeatureEnabled
+(Config.CLIENT.skyEntityShadowsEnabled) ? "1" : "0") );
                             }
-
                             if (receiverShaders && !waterPass && (neoGpuVanilla || localReceiver)) {
+
                                 source = source.replace(
                                     "#define LUXIUM_NGV_CUTOUT_ENABLED 0",
                                     "#define LUXIUM_NGV_CUTOUT_ENABLED "
                                         + (neoGpuVanilla && !Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaCutoutEnabled) ? "0" : "1") );
                             }
-
                             if (BlockLightTest.enabled() && neoSky && name.getPath().endsWith(".vsh")) {
                                 source = source.replaceFirst("#version 330 core", "#version 330 core\n#define LUXIUM_BLOCKLIGHT_TEST 1");
                             }
 
                             cir.setReturnValue(source);
                         }
-                    } catch (IOException var20) {
-                        throw new IllegalStateException("Failed to load Luxium Embeddium shader " + replacement, var20);
+                    } catch (IOException exception) {
+                        throw new IllegalStateException("Failed to load Luxium Embeddium shader " + replacement, exception);
                     }
-
-            } else {
-                ResourceLocation sourcex = new ResourceLocation(
-                    "luxium", "shaders/embeddium/block_layer_blocklighttest." + (name.getPath().endsWith(".vsh") ? "vsh" : "fsh") );
-
-                try {
-                    try (InputStream stream = Minecraft.getInstance().getResourceManager().getResourceOrThrow(sourcex).open()) {
-                        cir.setReturnValue(IOUtils.toString(stream, StandardCharsets.UTF_8));
-                    }
-                } catch (IOException var18) {
-                    throw new IllegalStateException("Failed to load BlockLightTest shader " + sourcex, var18);
-                }
-            }
-
     }
     }

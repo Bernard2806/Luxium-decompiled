@@ -22,27 +22,27 @@ import com.mojang.blaze3d.vertex.PoseStack; import com.vinlanx.luxium.client.gui
 
 public final class ForgePlatform extends LuxiumPlatform {
 
-
-
-    @Override public void registerConfig(ConfigSpec spec) {
-        Builder builder = new Builder();
-
+    @Override public void registerConfig(ConfigSpec spec) { Builder builder = new Builder();
         for (ConfigSpec.ConfigValue<?> value : spec.values()) {
-            if (!value.comment().isEmpty()) {
-                builder.comment(value.comment().split("\n"));
-            }
-
-            if (value instanceof ConfigSpec.BooleanValue bool) {
+            if (!value.comment().isEmpty()) { builder.comment(value.comment().split("\n"));
+            } if (value instanceof ConfigSpec.BooleanValue bool) {
                 bind(bool, builder.define(bool.path(), bool.getDefault()));
             } else if (value instanceof ConfigSpec.IntValue integer) {
                 bind(integer, builder.defineInRange(integer.path(), integer.getDefault(), integer.min(), integer.max()));
             } else if (value instanceof ConfigSpec.DoubleValue decimal) {
                 bind(decimal, builder.defineInRange(decimal.path(), decimal.getDefault(), decimal.min(), decimal.max()));
+            } else if (value instanceof ConfigSpec.EnumValue<?> enumeration) {
+                bindEnum(builder, enumeration);
             } else {
-                if (!(value instanceof ConfigSpec.EnumValue<?> enumeration)) {
-                    throw new IllegalArgumentException("Unsupported config value: " + value.path());
-                }
-                bindEnum(builder, enumeration); } } ForgeConfigSpec nativeSpec = builder.build(); spec.bindSave(nativeSpec::save); ModLoadingContext.get().registerConfig(Type.CLIENT, nativeSpec, "luxium-client.toml"); } private static <T> void bind(ConfigSpec.ConfigValue<T> value, ConfigValue<T> nativeValue) {
+                throw new IllegalArgumentException("Unsupported config value: " + value.path()); }
+
+} ForgeConfigSpec
+nativeSpec = builder.build();
+spec.bindSave(nativeSpec::save); ModLoadingContext.get
+ ().registerConfig(Type.CLIENT, nativeSpec, "luxium-client.toml");
+ } private static <T> void bind(ConfigSpec.ConfigValue<T> value, ConfigValue<T> nativeValue) {
+
+
  value.bind(nativeValue::get, nativeValue::set, nativeValue::save);
     }
 
