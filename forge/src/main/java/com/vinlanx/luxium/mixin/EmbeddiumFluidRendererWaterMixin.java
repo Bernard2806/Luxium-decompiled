@@ -32,7 +32,11 @@ import org.spongepowered.asm.mixin.injection.Redirect;
                 args = {FluidState.class},
                 ret = Material.class ) ) ) private Material luxium$tagWaterMaterial(FluidState state) {
         Material original = DefaultMaterials.forFluidState(state);
-        return Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && state.is(FluidTags.WATER) && original.pass == DefaultTerrainRenderPasses.TRANSLUCENT
-            ? luxium$waterMaterial : original;
+        if (Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && state.is
+ (FluidTags.WATER) && original.pass == DefaultTerrainRenderPasses.TRANSLUCENT) {
+
+return luxium$waterMaterial; }
+
+ return original;
     }
     }

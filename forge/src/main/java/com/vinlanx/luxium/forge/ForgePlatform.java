@@ -1,29 +1,29 @@
 package com.vinlanx.luxium.forge;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.vinlanx.luxium.client.guiscreen.IncompatibleModScreen;
-import com.vinlanx.luxium.client.guiscreen.NOoculus;
-import com.vinlanx.luxium.platform.LuxiumPlatform;
-import com.vinlanx.luxium.platform.config.ConfigSpec;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource.BufferSource;
-import net.minecraft.client.renderer.culling.Frustum;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.Builder;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.fml.ModContainer;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.config.ModConfig.Type; public final class ForgePlatform extends LuxiumPlatform {
+import com.mojang.blaze3d.vertex.PoseStack; import com.vinlanx.luxium.client.guiscreen.IncompatibleModScreen; import com.vinlanx.luxium.client.guiscreen.NOoculus; import com.vinlanx.luxium.platform.LuxiumPlatform; import com.vinlanx.luxium.platform.config.ConfigSpec; import net.minecraft.client.Camera; import net.minecraft.client.Minecraft; import net.minecraft.client.particle.ParticleEngine; import net.minecraft.client.renderer.LightTexture; import net.minecraft.client.renderer.MultiBufferSource.BufferSource; import net.minecraft.client.renderer.culling.Frustum; import net.minecraft.client.renderer.texture.TextureAtlasSprite; import net.minecraft.core.BlockPos; import net.minecraft.world.level.BlockGetter; import net.minecraft.world.level.block.entity.BlockEntity; import net.minecraft.world.level.block.state.BlockState; import net.minecraft.world.phys.AABB; import net.minecraftforge.common.ForgeConfigSpec; import net.minecraftforge.common.ForgeConfigSpec.Builder; import net.minecraftforge.common.ForgeConfigSpec.ConfigValue; import net.minecraftforge.fml.ModContainer; import net.minecraftforge.fml.ModList; import net.minecraftforge.fml.ModLoadingContext; import net.minecraftforge.fml.config.ModConfig.Type;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+public final class ForgePlatform extends LuxiumPlatform {
+
+
+
     @Override public void registerConfig(ConfigSpec spec) {
         Builder builder = new Builder();
 
@@ -52,8 +52,8 @@ import net.minecraftforge.fml.config.ModConfig.Type; public final class ForgePla
     @Override public boolean isModLoaded(String id) {
  return ModList.get().isLoaded(id);
     }
-
-    @Override protected IncompatibleModScreen createIncompatibilityScreen() { return ModList.get().isLoaded("oculus") ? new NOoculus() : null; } @Override public boolean externalShadersLoaded() {
+    @Override protected IncompatibleModScreen createIncompatibilityScreen() { if (ModList.get().isLoaded("oculus")) { return new NOoculus(); }
+ return null; } @Override public boolean externalShadersLoaded() {
 
  return ModList.get().isLoaded("oculus");
     } @Override public String version() {

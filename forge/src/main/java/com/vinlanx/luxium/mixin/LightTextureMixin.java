@@ -33,13 +33,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 class LightTextureMixin implements NeoSkyLightTextureExtension { @Shadow private boolean updateLightTexture; /* Split so the SRG-to-official source remap keeps the literal SRG alias of the original jar. */ @Shadow(aliases={"f_" + "109871_"}) @Final private NativeImage lightPixels; @Shadow private float blockLightRedFlicker; @Shadow @Final private GameRenderer renderer; @Shadow @Final private Minecraft minecraft; @Unique private DynamicTexture luxium$blockOnlyTexture; @Unique private NativeImage luxium$blockOnlyPixels;
     @Unique private boolean luxium$lightmapWasDirty;
     @Unique private long luxium$lightmapRevision;
-    @Shadow private float getDarknessGamma(float partialTick) {
-        throw new AssertionError(); } @Shadow private float calculateDarknessScale(LivingEntity entity, float darknessGamma, float partialTick) {
-        throw new AssertionError(); } @Shadow private float notGamma(float value) {
-        throw new AssertionError();
-    }
 
 
+
+
+    @Shadow private float getDarknessGamma(float partialTick) { throw new AssertionError(); }
+    @Shadow private float calculateDarknessScale(LivingEntity entity, float darknessGamma, float partialTick) { throw new AssertionError(); }
+    @Shadow private float notGamma(float value) { throw new AssertionError(); }
 
 
 

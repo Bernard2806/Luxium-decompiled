@@ -26,15 +26,12 @@ luxium$waterMaterial = new Material(WaterTerrainPass.get
         remap = false,
         require = 1,
         at = @At(
-            value = "INVOKE",
-            remap = false,
-            desc = @Desc(
-                owner = DefaultMaterials.class,
-                value = "forFluidState",
-                args = {FluidState.class},
-                ret = Material.class ) ) ) private Material luxium$tagWaterMaterial(FluidState state) {
-        Material original = DefaultMaterials.forFluidState(state);
-        return Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && state.is(FluidTags.WATER) && original.pass == DefaultTerrainRenderPasses.TRANSLUCENT
-            ? luxium$waterMaterial : original;
+            value = "INVOKE", remap = false, desc = @Desc(owner = DefaultMaterials.class, value = "forFluidState", args = {FluidState.class}, ret = Material.class ) ) ) private Material luxium$tagWaterMaterial(FluidState state) { Material original = DefaultMaterials.forFluidState(state);
+        if (Config.isFeatureEnabled(Config.CLIENT.waterEnabled) && state.is
+ (FluidTags.WATER) && original.pass == DefaultTerrainRenderPasses.TRANSLUCENT) {
+
+return luxium$waterMaterial; }
+
+ return original;
     }
     }

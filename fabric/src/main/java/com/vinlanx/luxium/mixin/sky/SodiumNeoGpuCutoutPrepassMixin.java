@@ -41,39 +41,39 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
         remap = false,
         require = 1,
         at = {@At(
-            value = "INVOKE",
-            remap = false,
-            desc = @Desc(
-                owner = TerrainRenderPass.class,
-                value = "startDrawing" ),
-            shift = Shift.AFTER )} ) private void luxium$configureNeoGpuCutoutDepthState(TerrainRenderPass pass, CallbackInfo ci) {
-        if (WaterTerrainPass.is(pass)) {
+            value = "INVOKE", remap = false, desc = @Desc(owner = TerrainRenderPass.class, value = "startDrawing" ), shift = Shift.AFTER )} ) private void luxium$configureNeoGpuCutoutDepthState(TerrainRenderPass pass, CallbackInfo ci) { if (WaterTerrainPass.is(pass)) {
             switch (WaterSurfaceState.renderMode()) {
+                case 1: case 3: SharedPostResources.bindWaterRenderTarget(); break;
+                case 2: case 4: Minecraft.getInstance().getMainRenderTarget().bindWrite(true); break;
                 case 0:
                     if (this.luxium$preserveWaterCaptureTarget) {
                         this.luxium$restoreWaterCaptureTarget();
                     }
                     break;
-                case 1:
-                case 3:
-                    SharedPostResources.bindWaterRenderTarget();
-                    break;
-                case 2:
-                case 4:
-                    Minecraft.getInstance().getMainRenderTarget().bindWrite(true);
-                    break;
-                default:
-                    throw new IllegalStateException("Unknown water render mode");
+                default: throw new IllegalStateException("Unknown water render mode");
             }
-        } else if (pass == DefaultTerrainRenderPasses.CUTOUT) {
-            if (NeoGpuVanillaCutoutPrepass.isDepthPrepass()) {
+            return;
+        } else
+        if (!(pass == DefaultTerrainRenderPasses.CUTOUT)) {
+return; }
+            if (NeoGpuVanillaCutoutPrepass.isDepthPrepass
+()) {
                 RenderSystem.enableDepthTest();
                 RenderSystem.depthFunc(515);
                 RenderSystem.depthMask(true);
                 RenderSystem.colorMask(false, false, false, false);
                 RenderSystem.disableBlend();
             } else if (NeoGpuVanillaCutoutPrepass.isColorPass()) {
-                RenderSystem.enableDepthTest(); RenderSystem.depthFunc(514); RenderSystem.depthMask(false); RenderSystem.colorMask(true, true, true, true); } } } @Inject(method = {"end"}, at = {@At("RETURN")}, remap = false, require = 1 ) private void luxium$restoreNeoGpuCutoutDepthState(TerrainRenderPass pass, CallbackInfo ci) { if (WaterTerrainPass.is(pass) && this.luxium$preserveWaterCaptureTarget) {
+                RenderSystem.enableDepthTest();
+RenderSystem.depthFunc(514);
+RenderSystem.depthMask(false);
+RenderSystem.colorMask(true, true, true, true); }
+
+ } @Inject(method = {"end"}, at = {@At("RETURN")}, remap = false, require = 1 ) private void luxium$restoreNeoGpuCutoutDepthState(TerrainRenderPass pass, CallbackInfo ci) {
+
+
+
+ if (WaterTerrainPass.is(pass) && this.luxium$preserveWaterCaptureTarget) {
 this.luxium$restoreWaterCaptureTarget();
 this.luxium$preserveWaterCaptureTarget = false; }
 

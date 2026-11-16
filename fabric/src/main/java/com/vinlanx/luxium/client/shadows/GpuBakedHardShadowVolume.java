@@ -66,11 +66,11 @@ class GpuBakedHardShadowVolume {
     }
 
     int textureId(int direction) {
-        return this.isReady() && direction >= 0 && direction < 6 ? this.textures[direction] : -1;
+        if (!this.isReady() || direction < 0 || direction >= 6) { return -1; }
+        return this.textures[direction];
     }
 
-    float minX() {
-        return (float)this.activeAnchorX;
+    float minX() { return (float)this.activeAnchorX;
     } float minY() { return (float)this.activeAnchorY;
     } float minZ() { return (float)this.activeAnchorZ;
     } float sizeX() { return 64.0F;
@@ -78,18 +78,15 @@ class GpuBakedHardShadowVolume {
     } float sizeZ() { return 64.0F;
     }
 
-    boolean matches(Vec3 cameraPos, long signature) {
-        if (this.isReady() && !this.building && cameraPos != null) {
-            int targetAnchorX = snap(Mth.floor(cameraPos.x) - 32, 8);
+    boolean matches(Vec3 cameraPos, long signature) { if (!(this.isReady() && !this.building && cameraPos != null)) { return false;
+        } int targetAnchorX = snap(Mth.floor(cameraPos.x) - 32, 8);
             int targetAnchorY = snap(Mth.floor(cameraPos.y) - 24, 4);
             int targetAnchorZ = snap(Mth.floor(cameraPos.z) - 32, 8);
             return this.activeSignature == signature
                 && this.activeAnchorX == targetAnchorX
                 && this.activeAnchorY == targetAnchorY
                 && this.activeAnchorZ == targetAnchorZ;
-        } else {
-            return false;
-        }
+
     }
 
     void update(
@@ -97,7 +94,10 @@ class GpuBakedHardShadowVolume {
         int sourceCount,
         float[] lightPosRadius,
         float[] sourceGeometry,
-        float[] sourceColors, float[] atlasRects, int shadowAtlasTexture, long signature, int layerBudget ) { if (!(sourceCount > 0 && shadowAtlasTexture > 0)) { return;
+        float[] sourceColors, float[] atlasRects, int shadowAtlasTexture, long signature, int layerBudget ) {
+
+
+ if (!(sourceCount > 0 && shadowAtlasTexture > 0)) { return;
  } ShaderInstance shader = ShaderManager.getGpuHardShadowBakeShader();
             if (!(shader != null)) { return;
  }
@@ -185,12 +185,12 @@ class GpuBakedHardShadowVolume {
                             } if (shader.getUniform("ReceiverScaleY") != null) { shader.getUniform("ReceiverScaleY").set(scaleYForDirection(direction));
                             } if (shader.getUniform("ReceiverScaleZ") != null) { shader.getUniform("ReceiverScaleZ").set(scaleZForDirection(direction));
                             }
-                            while (this.buildLayerCursor < endLayer) {
+                            for (; this.buildLayerCursor < endLayer; this.buildLayerCursor++) {
                                 this.attachLayer(this.buildTexture, this.buildLayerCursor);
                                 if (shader.getUniform("SliceZ") != null) { shader.getUniform("SliceZ").set(this.buildLayerCursor);
                                 } shader.apply();
                                 drawFullscreen(width, height);
-                                shader.clear(); this.buildLayerCursor++;
+                                shader.clear();
                             }
                             budget -= layersThisFrame;
 
@@ -362,15 +362,15 @@ GlStateManager._activeTexture(33984);
     }
 
     private static int scaleXForDirection(int direction) {
-        return direction != 0 && direction != 1 ? 8 : 1;
+        return direction == 0 || direction == 1 ? 1 : 8;
     }
 
     private static int scaleYForDirection(int direction) {
-        return direction != 2 && direction != 3 ? 8 : 1;
+        return direction == 2 || direction == 3 ? 1 : 8;
     }
 
     private static int scaleZForDirection(int direction) {
-        return direction != 4 && direction != 5 ? 8 : 1;
+        return direction == 4 || direction == 5 ? 1 : 8;
     }
 
     private static int snap(int value, int grid) {

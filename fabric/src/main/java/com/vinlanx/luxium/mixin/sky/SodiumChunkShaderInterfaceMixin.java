@@ -114,10 +114,7 @@ luxium$maxFragmentTextureUnits = -1;
 
     @Inject(
         method = {"<init>"},
-        at = {@At("TAIL")},
-        remap = false,
-        require = 1 ) private void luxium$bindShadowUniforms(ShaderBindingContext context, ChunkShaderOptions options, CallbackInfo ci) {
-        boolean waterEnabled = Config.isFeatureEnabled(Config.CLIENT.waterEnabled);
+        at = {@At("TAIL")}, remap = false, require = 1 ) private void luxium$bindShadowUniforms(ShaderBindingContext context, ChunkShaderOptions options, CallbackInfo ci) { boolean waterEnabled = Config.isFeatureEnabled(Config.CLIENT.waterEnabled);
         boolean waterPass = waterEnabled && WaterTerrainPass.is(options.pass());
         if (!waterPass) {
             this.luxium$plantWaveEnabled = context.bindUniform("u_LuxiumPlantWaveEnabled", GlUniformInt::new);
@@ -126,22 +123,17 @@ luxium$maxFragmentTextureUnits = -1;
             this.luxium$plantWaveSettings0 = context.bindUniform("u_LuxiumPlantWaveSettings0", GlUniformFloat4v::new);
             this.luxium$plantWaveSettings1 = context.bindUniform("u_LuxiumPlantWaveSettings1", GlUniformFloat4v::new);
         }
-
         if (!(!BlockLightTest.enabled() || LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled() || waterPass)) {
  return;
- }
-
-            boolean receiverShaders = LuxiumGpuShaderFeatures.receiverShadersEnabled();
+ } boolean receiverShaders = LuxiumGpuShaderFeatures.receiverShadersEnabled();
             boolean neoSky = LuxiumGpuShaderFeatures.neoSkyCelestiaEnabled()
                 && !LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled()
                 && !LuxiumGpuShaderFeatures.localReceiverEnabled()
                 && !waterPass;
             boolean neoSkyForward = neoSky && options.pass().isReverseOrder();
             boolean neoSkyInline = neoSky && !neoSkyForward;
-            if (!(receiverShaders || waterPass || neoSky)) {
- return;
+            if (!(receiverShaders || waterPass || neoSky)) { return;
  }
-
                 if (!(!receiverShaders
                     || !LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled()
                     || !options.pass().supportsFragmentDiscard()
@@ -176,7 +168,10 @@ return;
                         this.luxium$ssrEnabled = context.bindUniform("u_LuxiumSsrEnabled", GlUniformInt::new);
                         this.luxium$ssrTrace = context.bindUniform("u_LuxiumSsrTrace", GlUniformFloat4v::new);
                         this.luxium$ssrResolve = context.bindUniform("u_LuxiumSsrResolve", GlUniformFloat4v::new);
-                    } else if (neoSkyInline) {
+                    return; } else
+
+
+                    if (neoSkyInline) {
                         this.luxium$neoSkyInlineActive = context.bindUniform("u_LuxiumNeoSkyInlineActive", GlUniformInt::new);
                         this.luxium$neoSkyInlineLutSampler = context.bindUniform("u_LuxiumCelestialLut", GlUniformInt::new);
                         this.luxium$neoSkyInlineNearSampler = context.bindUniform("u_LuxiumShadowMap0", GlUniformInt::new);
@@ -192,14 +187,17 @@ return;
                         this.luxium$neoSkyInlineNearWorldMatrix = context.bindUniform("u_LuxiumLightFromWorldRelative0", GlUniformMatrix4f::new);
                         this.luxium$neoSkyInlineFarWorldMatrix = context.bindUniform("u_LuxiumLightFromWorldRelative1", GlUniformMatrix4f::new);
                         this.luxium$neoSkyInlineEntityWorldMatrix = context.bindUniform("u_LuxiumEntityLightFromWorldRelative", GlUniformMatrix4f::new);
-                    } else if (receiverShaders || neoSkyForward) {
+                    return; } else
+
+
+                    if (!(receiverShaders || neoSkyForward)) { return; }
+
                         this.luxium$skyOnlyPermutation = neoSkyForward;
                         if (this.luxium$skyOnlyPermutation) {
                             this.luxium$celestialLutSampler = context.bindUniform("u_LuxiumCelestialLut", GlUniformInt::new);
                         } else {
                             this.luxium$blockOnlySampler = context.bindUniform("u_LuxiumBlockOnlyLightTex", GlUniformInt::new);
                         }
-
                         this.luxium$nearShadowSampler = context.bindUniform("u_LuxiumShadowMap0", GlUniformInt::new);
                         this.luxium$farShadowSampler = context.bindUniform("u_LuxiumShadowMap1", GlUniformInt::new);
                         boolean entityShadowPermutation = Config.isFeatureEnabled(Config.CLIENT.skyEntityShadowsEnabled);
@@ -207,7 +205,6 @@ return;
                             this.luxium$entityShadowSampler = context.bindUniform("u_LuxiumEntityShadowMap", GlUniformInt::new);
                             this.luxium$entityShadowEnabled = context.bindUniform("u_LuxiumEntityShadowEnabled", GlUniformInt::new);
                         }
-
                         this.luxium$enabled = context.bindUniform("u_LuxiumSkyShadowEnabled", GlUniformInt::new);
                         this.luxium$skyLightEnabled = context.bindUniform("u_LuxiumSkyLightEnabled", GlUniformInt::new);
                         this.luxium$filterSamples = context.bindUniform("u_LuxiumFilterSamples", GlUniformInt::new);
@@ -221,7 +218,6 @@ return;
                             this.luxium$skyAmbientColor = context.bindUniform("u_LuxiumSkyAmbientColor", GlUniformFloat3v::new);
                             this.luxium$groundAmbientColor = context.bindUniform("u_LuxiumGroundAmbientColor", GlUniformFloat3v::new);
                         }
-
                         this.luxium$cascadeData = context.bindUniform("u_LuxiumCascadeData", GlUniformFloat4v::new);
                         this.luxium$biasData = context.bindUniform("u_LuxiumBiasData", GlUniformFloat4v::new);
                         this.luxium$nearMatrix = context.bindUniform("u_LuxiumLightFromView0", GlUniformMatrix4f::new);
@@ -230,7 +226,6 @@ return;
                             this.luxium$entityShadowData = context.bindUniform("u_LuxiumEntityShadowData", GlUniformFloat4v::new);
                             this.luxium$entityMatrix = context.bindUniform("u_LuxiumEntityLightFromView", GlUniformMatrix4f::new);
                         }
-
                         if (LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled()) {
                             this.luxium$neoGpuSampler = context.bindUniform("u_LuxiumNeoGpuVanillaVolume", GlUniformInt::new);
                             this.luxium$neoGpuFastEnabled = context.bindUniform("u_LuxiumNeoGpuFastShadowsEnabled", GlUniformInt::new);
@@ -246,7 +241,6 @@ return;
                             this.luxium$neoGpuSize = context.bindUniform("u_LuxiumNeoGpuVanillaSize", GlUniformFloat3v::new);
                             this.luxium$neoGpuDepthPrepass = context.bindUniform("u_LuxiumNeoGpuDepthPrepass", GlUniformInt::new);
                         }
-
                         if (LuxiumGpuShaderFeatures.localReceiverEnabled()) {
                             this.luxium$localAtlasSampler = context.bindUniform("u_LuxiumLocalShadowAtlas", GlUniformInt::new);
                             this.luxium$localSoft = context.bindUniform("u_LuxiumLocalSoftShadows", GlUniformInt::new);
@@ -268,89 +262,52 @@ return;
                         }
                     }
 
-
-
-    }
-
     @Inject(
         method = {"setupState"},
-        at = {@At("TAIL")},
-        remap = false,
-        require = 1 ) private void luxium$setupShadowState(CallbackInfo ci) {
-        this.luxium$configureSamplerUnits();
+        at = {@At("TAIL")}, remap = false, require = 1 ) private void luxium$setupShadowState(CallbackInfo ci) { this.luxium$configureSamplerUnits();
         if (this.luxium$plantWaveEnabled != null) {
             this.luxium$setupPlantWaveState();
         }
-
         if (this.luxium$waterFrame != null) {
             this.luxium$setupWaterState();
         }
-
         if (this.luxium$neoSkyInlineActive != null) {
             this.luxium$setupNeoSkyInlineState();
             GlStateManager._activeTexture(33984);
-        } else if (this.luxium$enabled == null) {
+        return; } else
+
+        if (this.luxium$enabled == null) {
             GlStateManager._activeTexture(33984);
-        } else {
-            boolean neoDepthPrepass = NeoGpuVanillaCutoutPrepass.isDepthPrepass();
+        return; }
+            boolean neoDepthPrepass = NeoGpuVanillaCutoutPrepass.isDepthPrepass
+ ();
             if (this.luxium$neoGpuDepthPrepass != null) {
                 this.luxium$neoGpuDepthPrepass.setInt(neoDepthPrepass ? 1 : 0);
             }
-
             if (neoDepthPrepass) {
                 this.luxium$shadowPass.setInt(0);
-            } else {
-                NeoSkyCelestia skySystem = NeoSkyCelestia.get();
+            return; }
+                NeoSkyCelestia skySystem = NeoSkyCelestia.get
+ ();
                 boolean casterPass = skySystem.isRebuildingShadowMap() || NeoShadowsEngine.isGpuShadowAtlasCapturePass();
                 this.luxium$shadowPass.setInt(casterPass ? 1 : 0);
                 if (casterPass) {
-                    this.luxium$enabled.setInt(0);
-                    this.luxium$skyLightEnabled.setInt(0);
-                    if (this.luxium$entityShadowEnabled != null) {
-                        this.luxium$entityShadowEnabled.setInt(0);
-                    }
+                    this.luxium$enabled.setInt(0); this.luxium$skyLightEnabled.setInt(0);
+                    if (this.luxium$entityShadowEnabled != null) { this.luxium$entityShadowEnabled.setInt(0);
+                    } if (this.luxium$localEnabled != null) { this.luxium$localEnabled.setInt(0);
+                    } if (this.luxium$localReplaceBlockLight != null) { this.luxium$localReplaceBlockLight.setInt(0);
+                    } if (this.luxium$localCount != null) { this.luxium$localCount.setInt(0);
+                    } if (this.luxium$localMode != null) { this.luxium$localMode.setInt(0);
+                    } if (this.luxium$localSoft != null) { this.luxium$localSoft.setInt(0);
+                    } if (this.luxium$localSpreadOcclusion != null) { this.luxium$localSpreadOcclusion.setFloat(0.0F);
+                    } if (this.luxium$localBakedHardEnabled != null) { this.luxium$localBakedHardEnabled.setInt(0);
+                    } if (this.luxium$neoGpuEnabled != null) { this.luxium$neoGpuEnabled.setInt(0);
+                    } if (this.luxium$neoGpuFastEnabled != null) { this.luxium$neoGpuFastEnabled.setInt(0);
+                    } if (this.luxium$neoGpuFineScale != null) { this.luxium$neoGpuFineScale.setInt(1);
+                    } return; }
+                    NeoSkyCelestiaFrameState
 
-                    if (this.luxium$localEnabled != null) {
-                        this.luxium$localEnabled.setInt(0);
-                    }
-
-                    if (this.luxium$localReplaceBlockLight != null) {
-                        this.luxium$localReplaceBlockLight.setInt(0);
-                    }
-
-                    if (this.luxium$localCount != null) {
-                        this.luxium$localCount.setInt(0);
-                    }
-
-                    if (this.luxium$localMode != null) {
-                        this.luxium$localMode.setInt(0);
-                    }
-
-                    if (this.luxium$localSoft != null) {
-                        this.luxium$localSoft.setInt(0);
-                    }
-
-                    if (this.luxium$localSpreadOcclusion != null) {
-                        this.luxium$localSpreadOcclusion.setFloat(0.0F);
-                    }
-
-                    if (this.luxium$localBakedHardEnabled != null) {
-                        this.luxium$localBakedHardEnabled.setInt(0);
-                    }
-
-                    if (this.luxium$neoGpuEnabled != null) {
-                        this.luxium$neoGpuEnabled.setInt(0);
-                    }
-
-                    if (this.luxium$neoGpuFastEnabled != null) {
-                        this.luxium$neoGpuFastEnabled.setInt(0);
-                    }
-
-                    if (this.luxium$neoGpuFineScale != null) {
-                        this.luxium$neoGpuFineScale.setInt(1);
-                    }
-                } else {
-                    NeoSkyCelestiaFrameState sky = skySystem.frameState();
+                    sky = skySystem.frameState();
                     boolean skyActive = skySystem.isMainPassActive();
                     boolean skyShadows = skyActive && sky.enabled();
                     boolean skyLight = skyActive && sky.skyLightEnabled();
@@ -359,66 +316,109 @@ return;
                     if (this.luxium$entityShadowEnabled != null) {
                         this.luxium$entityShadowEnabled.setInt(skyActive && sky.entityShadowEnabled() ? 1 : 0);
                     }
-
                     if (skyShadows || skyLight) {
                         if (this.luxium$skyOnlyPermutation) {
                             bindTexture(2, sky.celestialLightLutTexture());
                         } else {
                             bindTexture(2, sky.blockOnlyLightTexture());
                         }
-
                         bindTexture(3, sky.nearDepthTexture());
                         bindTexture(4, sky.farDepthTexture());
                         if (this.luxium$entityShadowSampler != null) {
                             bindTexture(5, sky.entityDepthTexture());
                         }
-
                         this.luxium$filterSamples.setInt(sky.filterSamples());
-                        this.luxium$cascadeValues[0] = sky.nearRadius();
-                        this.luxium$cascadeValues[1] = sky.farRadius();
-                        this.luxium$cascadeValues[2] = sky.nearTexelSize();
-                        this.luxium$cascadeValues[3] = sky.farTexelSize();
+                        this.luxium$cascadeValues[0] = sky.nearRadius(); this.luxium$cascadeValues[1] = sky.farRadius();
+                        this.luxium$cascadeValues[2] = sky.nearTexelSize(); this.luxium$cascadeValues[3] = sky.farTexelSize();
                         this.luxium$cascadeData.set(this.luxium$cascadeValues);
-                        this.luxium$biasValues[0] = sky.baseBiasNear();
-                        this.luxium$biasValues[1] = sky.baseBiasFar();
-                        this.luxium$biasValues[2] = sky.slopeBias();
-                        this.luxium$biasValues[3] = sky.cascadeBlendStart();
+                        this.luxium$biasValues[0] = sky.baseBiasNear(); this.luxium$biasValues[1] = sky.baseBiasFar();
+                        this.luxium$biasValues[2] = sky.slopeBias(); this.luxium$biasValues[3] = sky.cascadeBlendStart();
                         this.luxium$biasData.set(this.luxium$biasValues);
                         this.luxium$nearMatrix.set((Matrix4fc)sky.nearLightFromView());
-                        this.luxium$farMatrix.set((Matrix4fc)sky.farLightFromView()); if (this.luxium$entityMatrix != null) { this.luxium$entityMatrix.set((Matrix4fc)sky.entityLightFromView()); } if (this.luxium$entityShadowData != null) { this.luxium$entityShadowData.set(new float[]{sky.entityTexelSize(), sky.entityBaseBias(), sky.slopeBias(), sky.entityRadius()}); } if (this.luxium$lightDirection != null) { this.luxium$lightDirection.set(sky.lightDirection().x, sky.lightDirection().y, sky.lightDirection().z); } if (this.luxium$directColor != null) { this.luxium$directColor.set(sky.directColor().x, sky.directColor().y, sky.directColor().z); this.luxium$skyAmbientColor.set(sky.skyAmbientColor().x, sky.skyAmbientColor().y, sky.skyAmbientColor().z); this.luxium$groundAmbientColor.set(sky.groundAmbientColor().x, sky.groundAmbientColor().y, sky.groundAmbientColor().z); this.luxium$directStrength.setFloat(sky.directStrength()); this.luxium$ambientStrength.setFloat(sky.ambientStrength()); this.luxium$vanillaBlockLightInSunShadows .setFloat(sky.moonLight() ? 0.0F : Config.CLIENT.vanillaBlockLightInSunShadows.get().floatValue() * 0.01F); } } NeoGpuVanillaFrameState neoGpu = NeoGpuVanilla.frameState(); boolean neoGpuActive = NeoGpuVanilla.isMainPassActive() && neoGpu.enabled(); boolean neoGpuFastActive = neoGpuActive && neoGpu.fastShadowsEnabled(); if (this.luxium$neoGpuEnabled != null) { this.luxium$neoGpuEnabled.setInt(neoGpuActive ? 1 : 0); } if (this.luxium$neoGpuFastEnabled != null) { this.luxium$neoGpuFastEnabled.setInt(neoGpuFastActive ? 1 : 0); } if (this.luxium$neoGpuFineScale != null) { this.luxium$neoGpuFineScale.setInt(neoGpuActive ? neoGpu.fineScale() : 1); } if (neoGpuActive) { bindTexture(9, neoGpu.volumeTexture()); if (this.luxium$neoGpuMin != null) { this.luxium$neoGpuMin.set(neoGpu.minX(), neoGpu.minY(), neoGpu.minZ()); } if (this.luxium$neoGpuSize != null) { this.luxium$neoGpuSize.set(neoGpu.sizeX(), neoGpu.sizeY(), neoGpu.sizeZ()); } if (neoGpuFastActive) { int[] textures = new int[]{ neoGpu.fastLightPX(), neoGpu.fastLightNX(), neoGpu.fastLightPY(), neoGpu.fastLightNY(), neoGpu.fastLightPZ(), neoGpu.fastLightNZ() }; for (int i = 0; i < 6; i++) { bindTexture3D(10 + i, textures[i]); } } } if (this.luxium$localEnabled == null) { GlStateManager._activeTexture(33984); } else { GpuShadowFrameState local = GpuNeoShadows.frameState(); boolean localActive = GpuNeoShadows.isMainPassActive() && local.enabled(); boolean bakedHardActive = localActive && GpuNeoShadows.isBakedHardReceiverReady(); this.luxium$localEnabled.setInt(localActive ? 1 : 0); this.luxium$localReplaceBlockLight.setInt(localActive && local.replaceBlockLight() ? 1 : 0); this.luxium$localCount.setInt(localActive && !bakedHardActive ? local.lightCount() : 0); if (this.luxium$localSoft != null) { this.luxium$localSoft.setInt(!bakedHardActive && local.softShadows() ? 1 : 0); } if (this.luxium$localMode != null) { this.luxium$localMode.setInt(local.shadowMode()); } this.luxium$localSpreadOcclusion.setFloat(local.spreadOcclusionStrength()); if (this.luxium$localBakedHardEnabled != null) { this.luxium$localBakedHardEnabled.setInt(bakedHardActive ? 1 : 0); } if (bakedHardActive) { for (int i = 0; i < 6; i++) { bindTexture3D(8 + i, GpuNeoShadows.bakedHardTexture(i)); } if (this.luxium$localBakedHardMin != null) { this.luxium$localBakedHardMin.set(GpuNeoShadows.bakedHardMinX(), GpuNeoShadows.bakedHardMinY(), GpuNeoShadows.bakedHardMinZ()); } if (this.luxium$localBakedHardSize != null) { this.luxium$localBakedHardSize .set(GpuNeoShadows.bakedHardSizeX(), GpuNeoShadows.bakedHardSizeY(), GpuNeoShadows.bakedHardSizeZ()); } } if (localActive && !bakedHardActive) { if (this.luxium$localAtlasSampler != null) { bindTexture(6, local.atlasTexture()); } bindTexture(7, local.lightGridTexture()); int program = GL11.glGetInteger(35725); if (program != this.luxium$localProgram) { this.luxium$localProgram = program; this.luxium$localLightsLocation = uniformLocation(program, "u_LuxiumLocalLights"); this.luxium$localRectsLocation = uniformLocation(program, "u_LuxiumLocalAtlasRect"); this.luxium$localUploadedVersion = Long.MIN_VALUE; } if (this.luxium$localUploadedVersion != local.version()) { if (this.luxium$localLightsLocation >= 0) { GL20.glUniform4fv(this.luxium$localLightsLocation, local.lights()); } if (this.luxium$localRectsLocation >= 0) { GL20.glUniform4fv(this.luxium$localRectsLocation, local.atlasRects()); } this.luxium$localUploadedVersion = local.version(); } } GlStateManager._activeTexture(33984); } } } } } @Unique private void luxium$configureSamplerUnits() {
+                        this.luxium$farMatrix.set((Matrix4fc)sky.farLightFromView());
+if (this.luxium$entityMatrix != null) { this.luxium$entityMatrix.set((Matrix4fc)sky.entityLightFromView()); }
+if (this.luxium$entityShadowData != null) {
+ this.luxium$entityShadowData.set(new float[]{sky.entityTexelSize
+(), sky.entityBaseBias(), sky.slopeBias(), sky.entityRadius()}); }
+
+if (this.luxium$lightDirection != null) {
+ this.luxium$lightDirection.set(sky.lightDirection().x, sky.lightDirection().y, sky.lightDirection().z); }
+
+if (this.luxium$directColor != null) {
+ this.luxium$directColor.set(sky.directColor().x, sky.directColor().y, sky.directColor().z);
+this.luxium$skyAmbientColor.set(sky.skyAmbientColor().x, sky.skyAmbientColor().y, sky.skyAmbientColor().z);
+this.luxium$groundAmbientColor.set(sky.groundAmbientColor().x, sky.groundAmbientColor().y, sky.groundAmbientColor().z);
+this.luxium$directStrength.setFloat(sky.directStrength());
+this.luxium$ambientStrength.setFloat(sky.ambientStrength());
+this.luxium$vanillaBlockLightInSunShadows .setFloat(sky.moonLight() ?
+0.0F : Config.CLIENT.vanillaBlockLightInSunShadows.get
+().floatValue() * 0.01F); } } NeoGpuVanillaFrameState neoGpu = NeoGpuVanilla.frameState
+
+
+
+ (); boolean neoGpuActive = NeoGpuVanilla.isMainPassActive
+ () && neoGpu.enabled(); boolean
+neoGpuFastActive = neoGpuActive && neoGpu.fastShadowsEnabled();
+if (this.luxium$neoGpuEnabled != null) { this.luxium$neoGpuEnabled.setInt(neoGpuActive ? 1 : 0); }
+ if (this.luxium$neoGpuFastEnabled != null) { this.luxium$neoGpuFastEnabled.setInt(neoGpuFastActive ? 1 : 0); }
+ if (this.luxium$neoGpuFineScale != null) { this.luxium$neoGpuFineScale.setInt(neoGpuActive ? neoGpu.fineScale() : 1); }
+ if (neoGpuActive) {
+bindTexture(9, neoGpu.volumeTexture());
+if (this.luxium$neoGpuMin != null) { this.luxium$neoGpuMin.set(neoGpu.minX(), neoGpu.minY(), neoGpu.minZ()); }
+if (this.luxium$neoGpuSize != null) { this.luxium$neoGpuSize.set(neoGpu.sizeX(), neoGpu.sizeY(), neoGpu.sizeZ()); }
+if (neoGpuFastActive) { int[]
+ textures = new int[]{ neoGpu.fastLightPX(), neoGpu.fastLightNX(), neoGpu.fastLightPY(), neoGpu.fastLightNY
+ (), neoGpu.fastLightPZ(), neoGpu.fastLightNZ() }; for (int
+ i = 0; i < 6; i++) {
+bindTexture3D(10 + i, textures[i]); } } }
 
 
 
 
+ if (this.luxium$localEnabled == null) {
+ GlStateManager._activeTexture(33984);
+return; } GpuShadowFrameState local = GpuNeoShadows.frameState
 
 
+ (); boolean localActive = GpuNeoShadows.isMainPassActive
+ () && local.enabled(); boolean
+bakedHardActive = localActive && GpuNeoShadows.isBakedHardReceiverReady();
+this.luxium$localEnabled.setInt(localActive ? 1 : 0);
+ this.luxium$localReplaceBlockLight.setInt(localActive && local.replaceBlockLight() ? 1 : 0);
+ this.luxium$localCount.setInt(localActive && !bakedHardActive ? local.lightCount() : 0);
+if (this.luxium$localSoft != null) { this.luxium$localSoft.setInt(!bakedHardActive && local.softShadows() ? 1 : 0); }
+ if (this.luxium$localMode != null) { this.luxium$localMode.setInt(local.shadowMode()); }
+this.luxium$localSpreadOcclusion.setFloat(local.spreadOcclusionStrength());
+if (this.luxium$localBakedHardEnabled != null) { this.luxium$localBakedHardEnabled.setInt(bakedHardActive ? 1 : 0); }
+ if (bakedHardActive) { for (int
+ i = 0; i < 6; i++) {
+bindTexture3D(8 + i, GpuNeoShadows.bakedHardTexture(i)); }
+
+if (this.luxium$localBakedHardMin != null) { this.luxium$localBakedHardMin.set(GpuNeoShadows.bakedHardMinX
+(), GpuNeoShadows.bakedHardMinY(), GpuNeoShadows.bakedHardMinZ()); }
+if (this.luxium$localBakedHardSize != null) { this.luxium$localBakedHardSize .set(GpuNeoShadows.bakedHardSizeX
+(), GpuNeoShadows.bakedHardSizeY(), GpuNeoShadows.bakedHardSizeZ()); } }
+
+ if (localActive && !bakedHardActive) {
+if (this.luxium$localAtlasSampler != null) {
+ bindTexture(6, local.atlasTexture()); }
+
+bindTexture(7, local.lightGridTexture()); int
+program = GL11.glGetInteger(35725);
+if (program != this.luxium$localProgram) {
+this.luxium$localProgram = program;
+ this.luxium$localLightsLocation = uniformLocation(program, "u_LuxiumLocalLights");
+this.luxium$localRectsLocation = uniformLocation(program, "u_LuxiumLocalAtlasRect");
+this.luxium$localUploadedVersion = Long.MIN_VALUE; }
+
+if (this.luxium$localUploadedVersion != local.version()) {
+if (this.luxium$localLightsLocation >= 0) { GL20.glUniform4fv(this.luxium$localLightsLocation, local.lights()); }
+if (this.luxium$localRectsLocation >= 0) { GL20.glUniform4fv(this.luxium$localRectsLocation, local.atlasRects()); }
+this.luxium$localUploadedVersion = local.version(); } }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ GlStateManager._activeTexture(33984);
+} @Unique private void luxium$configureSamplerUnits() {
 
 
 
@@ -467,15 +467,18 @@ return;
     }
 
     @Unique private void luxium$setupNeoSkyInlineState() {
-        NeoSkyCelestia system = NeoSkyCelestia.get();
+        NeoSkyCelestia system = NeoSkyCelestia.get
+ ();
         boolean active = system.isInlineTerrainPassActive();
         this.luxium$neoSkyInlineActive.setInt(active ? 1 : 0);
         if (!active) {
             this.luxium$neoSkyInlineEnabled.setInt(0);
             this.luxium$neoSkyInlineLightEnabled.setInt(0);
             this.luxium$neoSkyInlineEntityEnabled.setInt(0);
-        } else {
-            NeoSkyCelestiaFrameState sky = system.frameState();
+        return; }
+            NeoSkyCelestiaFrameState
+
+            sky = system.frameState();
             boolean shadows = sky.enabled();
             boolean lighting = sky.skyLightEnabled();
             boolean entity = shadows && sky.entityShadowEnabled();
@@ -484,6 +487,7 @@ return;
             this.luxium$neoSkyInlineEntityEnabled.setInt(entity ? 1 : 0);
             this.luxium$neoSkyInlineFilterSamples.setInt(sky.filterSamples());
             bindTexture(2, sky.celestialLightLutTexture());
+
             if (shadows) {
                 bindTexture(3, sky.nearDepthTexture());
                 bindTexture(4, sky.farDepthTexture());
@@ -510,11 +514,11 @@ return;
                 this.luxium$neoSkyInlineEntityData.set(this.luxium$neoSkyInlineEntityValues);
                 this.luxium$neoSkyInlineEntityWorldMatrix.set((Matrix4fc)system.entityLightFromWorldRelative());
             }
-        }
     }
 
     @Unique private void luxium$setupWaterState() {
-        Minecraft mc = Minecraft.getInstance();
+        Minecraft mc = Minecraft.getInstance
+ ();
         int requestedMode = WaterSurfaceState.renderMode();
         int colorUnit = 2;
         int depthOrHitUnit = 3;
@@ -522,30 +526,32 @@ return;
         int nearShadowUnit = 5;
         int farShadowUnit = 6;
         int maxTextureUnits = luxium$getMaxFragmentTextureUnits();
-        boolean baseSceneReady = requestedMode == 1 && WaterSurfaceState.sceneReady() && maxTextureUnits > depthOrHitUnit;
-        boolean lateSceneReady = requestedMode == 3
+        boolean baseSceneReady = requestedMode == 1 && WaterSurfaceState.sceneReady
+ () && maxTextureUnits > depthOrHitUnit;
+        boolean
+        lateSceneReady = requestedMode == 3
             && mc.getMainRenderTarget().getColorTextureId() > 0
             && ScreenSpaceReflectionSystem.isHitReady(SsrConsumer.WATER)
             && maxTextureUnits > depthOrHitUnit;
-        boolean baseResolvedReady = requestedMode == 2 && WaterSurfaceState.resolvedReady() && maxTextureUnits > colorUnit;
-        boolean lateResolvedReady = requestedMode == 4 && WaterSurfaceState.lateReflectionResolvedReady() && maxTextureUnits > colorUnit;
-        int renderMode = requestedMode;
-        if (requestedMode == 2 && !baseResolvedReady) {
-            renderMode = 0;
-        }
-
-        if (requestedMode == 3 && !lateSceneReady) {
-            renderMode = -1;
-        }
-
-        if (requestedMode == 4 && !lateResolvedReady) {
-            renderMode = -1;
-        }
-
-        this.luxium$waterRenderMode.setInt(renderMode);
+        boolean baseResolvedReady = requestedMode == 2 && WaterSurfaceState.resolvedReady
+ () && maxTextureUnits > colorUnit;
+        boolean
+        lateResolvedReady = requestedMode == 4 && WaterSurfaceState.lateReflectionResolvedReady
+ () && maxTextureUnits > colorUnit;
+        int
+        renderMode = requestedMode;
+        if (requestedMode == 2 && !baseResolvedReady) { renderMode = 0;
+        } if (requestedMode == 3 && !lateSceneReady) { renderMode = -1;
+        } if (requestedMode == 4 && !lateResolvedReady) { renderMode = -1;
+        } this.luxium$waterRenderMode.setInt(renderMode);
         boolean scaledPass = renderMode == 1 || renderMode == 3;
-        int width = scaledPass ? Math.max(SharedPostResources.getWaterRenderWidth(), 1) : Math.max(mc.getMainRenderTarget().width, 1);
-        int height = scaledPass ? Math.max(SharedPostResources.getWaterRenderHeight(), 1) : Math.max(mc.getMainRenderTarget().height, 1);
+        int width = scaledPass ? Math.max
+ (SharedPostResources.getWaterRenderWidth(), 1) : Math.max
+ (mc.getMainRenderTarget().width, 1);
+        int height = scaledPass ? Math.max
+ (SharedPostResources.getWaterRenderHeight(), 1) : Math.max
+ (mc.getMainRenderTarget().height, 1);
+
         if (renderMode == 2 || renderMode == 4) {
             bindTexture(colorUnit, SharedPostResources.getWaterRenderColorTextureId());
         } else if (renderMode == 1 && baseSceneReady) {
@@ -562,21 +568,20 @@ return;
             microTexture = WaterTextureResources.microNormalTextureId();
             microReady = microTexture > 0;
         }
-
         if (microReady) {
             bindTexture(microUnit, microTexture);
         }
-
         this.luxium$waterMicroReady.setInt(microReady ? 1 : 0);
         this.luxium$waterFrameValues[0] = (float)width;
         this.luxium$waterFrameValues[1] = (float)height;
         this.luxium$waterFrameValues[2] = WaterSurfaceState.timeSeconds();
-        this.luxium$waterFrameValues[3] = !baseSceneReady && !lateSceneReady ? 0.0F : 1.0F;
+        this.luxium$waterFrameValues[3] = baseSceneReady || lateSceneReady ? 1.0F : 0.0F;
         this.luxium$waterFrame.set(this.luxium$waterFrameValues);
         this.luxium$waterWaveValues[0] = Config.CLIENT.waterWaveStrength.get().floatValue();
         this.luxium$waterWaveValues[1] = Config.CLIENT.waterWaveScale.get().floatValue();
         this.luxium$waterWaveValues[2] = Config.CLIENT.waterWaveSpeed.get().floatValue();
-        this.luxium$waterWaveValues[3] = Config.isFeatureEnabled(Config.CLIENT.waterDetailWaves) ? Config.CLIENT.waterDetailStrength.get().floatValue() : 0.0F;
+        this.luxium$waterWaveValues[3] = Config.isFeatureEnabled(Config.CLIENT.waterDetailWaves) ? Config.CLIENT.waterDetailStrength.get
+().floatValue() : 0.0F;
         this.luxium$waterWave.set(this.luxium$waterWaveValues);
         this.luxium$waterOpticsValues[0] = Config.CLIENT.waterRefractionStrength.get().floatValue();
         this.luxium$waterOpticsValues[1] = Config.CLIENT.waterAbsorptionStrength.get().floatValue();
@@ -588,9 +593,13 @@ return;
         this.luxium$waterSurfaceValues[2] = Config.CLIENT.waterSpecularStrength.get().floatValue();
         this.luxium$waterSurfaceValues[3] = Config.CLIENT.waterSpecularSharpness.get().floatValue();
         this.luxium$waterSurface.set(this.luxium$waterSurfaceValues);
-        NeoSkyCelestia waterSkySystem = NeoSkyCelestia.get();
+        NeoSkyCelestia waterSkySystem = NeoSkyCelestia.get
+ ();
         NeoSkyCelestiaFrameState waterSky = waterSkySystem.frameState();
-        boolean waterSkyShadows = renderMode == 1 && waterSkySystem.isMainPassActive() && waterSky.enabled() && maxTextureUnits > farShadowUnit;
+        boolean waterSkyShadows = renderMode == 1 && waterSkySystem.isMainPassActive
+ () && waterSky.enabled
+ () && maxTextureUnits > farShadowUnit;
+
         this.luxium$waterSkyShadowEnabled.setInt(waterSkyShadows ? 1 : 0);
         if (waterSkyShadows) {
             bindTexture(nearShadowUnit, waterSky.nearDepthTexture());
@@ -615,12 +624,17 @@ return;
         WaterSurfaceState.Light light = WaterSurfaceState.light(mc.getFrameTime());
         this.luxium$waterLightDir.set(light.direction().x, light.direction().y, light.direction().z);
         float lightStrength = light.strength();
-        this.luxium$waterLightColor.set(light.color().x * lightStrength, light.color().y * lightStrength, light.color().z * lightStrength);
+        this.luxium$waterLightColor.set(light.color
+().x * lightStrength, light.color
+ ().y * lightStrength, light.color
+ ().z * lightStrength);
         this.luxium$waterDepthAware.setInt(Config.isFeatureEnabled(Config.CLIENT.waterDepthAwareRefraction) ? 1 : 0);
         SsrSettings ssr = ScreenSpaceReflectionSystem.settings(SsrConsumer.WATER);
-        boolean traceActive = renderMode == 1 && ScreenSpaceReflectionSystem.isHitTraceActive(SsrConsumer.WATER);
-        boolean colorResolveActive = renderMode == 3 && ScreenSpaceReflectionSystem.isHitReady(SsrConsumer.WATER);
-        this.luxium$ssrEnabled.setInt(!ssr.enabled() || !traceActive && !colorResolveActive ? 0 : 1);
+        boolean traceActive = renderMode == 1 && ScreenSpaceReflectionSystem.isHitTraceActive
+ (SsrConsumer.WATER);
+        boolean colorResolveActive = renderMode == 3 && ScreenSpaceReflectionSystem.isHitReady
+ (SsrConsumer.WATER);
+        this.luxium$ssrEnabled.setInt(ssr.enabled() && (traceActive || colorResolveActive) ? 1 : 0);
         this.luxium$ssrTraceValues[0] = (float)ssr.coarseSteps();
         this.luxium$ssrTraceValues[1] = (float)ssr.refinementSteps();
         this.luxium$ssrTraceValues[2] = ssr.maxDistance();
@@ -635,20 +649,6 @@ return;
     }
 
     @Unique private static int luxium$getMaxFragmentTextureUnits() {
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         if (luxium$maxFragmentTextureUnits < 0) {
             luxium$maxFragmentTextureUnits = Math.max(0, GL11.glGetInteger(34930));

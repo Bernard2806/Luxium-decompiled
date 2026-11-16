@@ -33,14 +33,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
         remap = false,
         require = 1,
         at = @At(
-            value = "INVOKE",
-            ordinal = 0,
-            remap = true,
-            target = "Lcom/mojang/blaze3d/vertex/VertexBuffer;drawWithShader(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/renderer/ShaderInstance;)V" ) ) private void luxium$drawNativeCloudShadow(VertexBuffer buffer, Matrix4f modelView, Matrix4f projection, ShaderInstance nativeShader) {
-        if (!NeoSkyCelestia.get().isRenderingCloudShadowPass()) {
+            value = "INVOKE", ordinal = 0, remap = true, target = "Lcom/mojang/blaze3d/vertex/VertexBuffer;drawWithShader(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/renderer/ShaderInstance;)V" ) ) private void luxium$drawNativeCloudShadow(VertexBuffer buffer, Matrix4f modelView, Matrix4f projection, ShaderInstance nativeShader) { if (!NeoSkyCelestia.get().isRenderingCloudShadowPass()) {
             buffer.drawWithShader(modelView, projection, nativeShader);
-        } else {
-            ShaderInstance caster = GameRenderer.getPositionColorShader();
+        return; }
+            ShaderInstance caster = GameRenderer.getPositionColorShader
+
+
+ ();
             caster.MODEL_VIEW_MATRIX.set(modelView);
             caster.PROJECTION_MATRIX.set(projection);
             caster.COLOR_MODULATOR.set(1.0F, 1.0F, 1.0F, 1.0F);
@@ -53,7 +52,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
             } finally {
                 caster.clear();
             }
-        } } @Redirect(method = {"render"}, remap = false, require = 1, at = @At(value = "INVOKE", ordinal = 1, remap = true, target = "Lcom/mojang/blaze3d/vertex/VertexBuffer;drawWithShader(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/renderer/ShaderInstance;)V" ) ) private void luxium$skipCloudShadowColorDraw(VertexBuffer buffer, Matrix4f modelView, Matrix4f projection, ShaderInstance nativeShader) { if (NeoSkyCelestia.get
+         } @Redirect(method = {"render"}, remap = false, require = 1, at = @At(value = "INVOKE", ordinal = 1, remap = true, target = "Lcom/mojang/blaze3d/vertex/VertexBuffer;drawWithShader(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;Lnet/minecraft/client/renderer/ShaderInstance;)V" ) ) private void luxium$skipCloudShadowColorDraw(VertexBuffer buffer, Matrix4f modelView, Matrix4f projection, ShaderInstance nativeShader) { if (NeoSkyCelestia.get
+
 
 
 

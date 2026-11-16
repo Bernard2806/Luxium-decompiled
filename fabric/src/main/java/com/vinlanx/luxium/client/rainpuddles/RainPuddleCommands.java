@@ -25,26 +25,29 @@ public final class RainPuddleCommands {
 
     private static int place(FabricClientCommandSource source, int size) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null && mc.level != null) {
-            BlockPos target = BlockPos.containing(mc.player.getX(), mc.player.getBoundingBox().minY - 0.05, mc.player.getZ());
-            RainPuddleInstance puddle = RainPuddleManager.get().placeRandom(mc, target, size);
-            if (puddle == null) {
-                source.sendError(Component.literal("Could not place a puddle here or no rain depth maps were found"));
-                return 0;
-            } else {
-                source.sendFeedback(
-                    Component.literal(
-                        "New rain puddle placed: map="
-                            + puddle.depthMap().getPath()
-                            + ", size="
-                            + puddle.sizeBlocks()
-                            + ", surface patches="
-                            + puddle.patchCount() ) );
-                return 1;
-            }
-        } else {
+        if (!(mc.player != null && mc.level != null)) {
             source.sendError(Component.literal("New rain puddles require an active client world"));
             return 0;
         }
+            BlockPos
+            target = BlockPos.containing(mc.player.getX
+(), mc.player.getBoundingBox
+().minY - 0.05, mc.player.getZ
+());
+            RainPuddleInstance puddle = RainPuddleManager.get
+ ().placeRandom(mc, target, size);
+            if (puddle == null) {
+                source.sendError(Component.literal("Could not place a puddle here or no rain depth maps were found"));
+
+                return 0;
+            } else {
+
+                source.sendFeedback(Component.literal(
+                        "New rain puddle placed: map=" + puddle.depthMap().getPath()
+                            + ", size=" + puddle.sizeBlocks()
+                            + ", surface patches=" + puddle.patchCount() ) );
+                return 1;
+            }
+
     }
     }

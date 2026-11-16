@@ -216,26 +216,26 @@ this.level = level;
     } private static final
 
     class QuadCaptureBufferSource implements MultiBufferSource {
-    private final Map<RenderType, DynamicShadowMeshCapture.CapturingVertexConsumer> consumers = new HashMap<>(); @Override public VertexConsumer getBuffer(RenderType renderType) { return this.consumers.computeIfAbsent(renderType, DynamicShadowMeshCapture.CapturingVertexConsumer::new); } @Nullable DynamicShadowMeshCapture.CapturedCaster buildCaster(long id, AABB fallbackBounds) { List<Vec3[]> quads = new ArrayList<>(); for (DynamicShadowMeshCapture.CapturingVertexConsumer consumer : this.consumers.values()) { consumer.appendInto(quads); if (quads.size() >= 192) { break; } } return quads.isEmpty() ? new DynamicShadowMeshCapture.CapturedCaster(id, fallbackBounds, Collections.emptyList()) : new DynamicShadowMeshCapture.CapturedCaster(id, quadBounds(quads).inflate(0.02), List.copyOf(quads)); } private static AABB quadBounds(List<Vec3[]> quads) { double
+    private final Map<RenderType, DynamicShadowMeshCapture.CapturingVertexConsumer> consumers = new HashMap<>(); @Override public VertexConsumer getBuffer(RenderType renderType) {
+
+
+
+ return this.consumers.computeIfAbsent(renderType, DynamicShadowMeshCapture.CapturingVertexConsumer::new); } @Nullable DynamicShadowMeshCapture.CapturedCaster buildCaster(long id, AABB fallbackBounds) { List<Vec3[]>
 
 
 
 
+quads = new ArrayList<>(); for (DynamicShadowMeshCapture.CapturingVertexConsumer consumer :
+this.consumers.values()) {
+consumer.appendInto(quads);
+if (quads.size() >= 192) {
+ break; }
 
+ }
+ if (quads.isEmpty()) {
+return new DynamicShadowMeshCapture.CapturedCaster(id, fallbackBounds, Collections.emptyList()); }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+return new DynamicShadowMeshCapture.CapturedCaster(id, quadBounds(quads).inflate(0.02), List.copyOf(quads)); } private static AABB quadBounds(List<Vec3[]> quads) { double
 
 
 
@@ -285,6 +285,7 @@ return new AABB(minX, minY, minZ, maxX, maxY, maxZ); } } private static final cl
         }
 
         @Override public VertexConsumer vertex(double x, double y, double z) {
+
             this.x = x;
             this.y = y;
             this.z = z;
@@ -292,27 +293,33 @@ return new AABB(minX, minY, minZ, maxX, maxY, maxZ); } } private static final cl
         }
 
         @Override public VertexConsumer color(int red, int green, int blue, int alpha) {
+
             this.a = alpha;
             return this;
         }
 
         @Override public VertexConsumer uv(float u, float v) {
+
             return this;
         }
 
         @Override public VertexConsumer overlayCoords(int u, int v) {
+
             return this;
         }
 
         @Override public VertexConsumer uv2(int u, int v) {
+
             return this;
         }
 
         @Override public VertexConsumer normal(float x, float y, float z) {
+
             return this;
         }
 
         public void endVertex() {
+
             if (!this.capture || this.mode != VertexFormat.Mode.QUADS || this.quads.size() >= 192 || this.capturedVertexCount >= 768) {
                 this.pendingCount = this.mode == VertexFormat.Mode.QUADS && this.pendingCount >= 4 ? 0 : this.pendingCount;
                 return;
@@ -336,13 +343,6 @@ return new AABB(minX, minY, minZ, maxX, maxY, maxZ); } } private static final cl
         }
 
         public void putBulkData(PoseStack.Pose pose, BakedQuad bakedQuad, float[] brightness, float red, float green, float blue, float alpha, int[] lightmap, int overlay, boolean readExistingColor) {
-
-
-
-
-
-
-
 
 
 
@@ -387,6 +387,7 @@ return new AABB(minX, minY, minZ, maxX, maxY, maxZ); } } private static final cl
         }
 
         @Override public void defaultColor(int red, int green, int blue, int alpha) {
+
             this.defaultR = red;
             this.defaultG = green;
             this.defaultB = blue;
@@ -395,13 +396,12 @@ return new AABB(minX, minY, minZ, maxX, maxY, maxZ); } } private static final cl
         }
 
         @Override public void unsetDefaultColor() {
+
             this.useDefaultColor = false;
         }
 
         void appendInto(List<Vec3[]> output) {
-            int
-
-            limit = Math.min(this.quads.size(), 192 - output.size());
+            int limit = Math.min(this.quads.size(), 192 - output.size());
             for (int index = 0; index < limit; index++) {
                 output.add(this.quads.get(index));
             }

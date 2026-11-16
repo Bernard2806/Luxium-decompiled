@@ -25,22 +25,22 @@ public final class ForgeClientEvents { private ForgeClientEvents() { }
     private static RenderFrame frame(RenderLevelStageEvent event) {
         Stage nativeStage = event.getStage();
         RenderFrame.Stage stage;
-        if (nativeStage == Stage.AFTER_SKY) {
-            stage = RenderFrame.Stage.AFTER_SKY;
-        } else if (nativeStage == Stage.AFTER_SOLID_BLOCKS) {
-            stage = RenderFrame.Stage.AFTER_SOLID_BLOCKS;
-        } else if (nativeStage == Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS) {
-            stage = RenderFrame.Stage.AFTER_CUTOUT_MIPPED_BLOCKS;
-        } else if (nativeStage == Stage.AFTER_CUTOUT_BLOCKS) {
-            stage = RenderFrame.Stage.AFTER_CUTOUT_BLOCKS;
-        } else if (nativeStage == Stage.AFTER_ENTITIES) {
-            stage = RenderFrame.Stage.AFTER_ENTITIES;
-        } else if (nativeStage == Stage.AFTER_BLOCK_ENTITIES) {
-            stage = RenderFrame.Stage.AFTER_BLOCK_ENTITIES;
-        } else if (nativeStage == Stage.AFTER_TRANSLUCENT_BLOCKS) {
-            stage = RenderFrame.Stage.AFTER_TRANSLUCENT_BLOCKS;
-        } else if (nativeStage == Stage.AFTER_TRIPWIRE_BLOCKS) {
-            stage = RenderFrame.Stage.AFTER_TRIPWIRE_BLOCKS; } else if (nativeStage == Stage.AFTER_PARTICLES) { stage = RenderFrame.Stage.AFTER_PARTICLES; } else if (nativeStage == Stage.AFTER_WEATHER) { stage = RenderFrame.Stage.AFTER_WEATHER; } else { if (nativeStage != Stage.AFTER_LEVEL) { return null; } stage = RenderFrame.Stage.AFTER_LEVEL; } return new RenderFrame(stage, event.getPoseStack(), event.getProjectionMatrix(), event.getRenderTick(), event.getPartialTick(), event.getCamera(), event.getFrustum() ); } @SubscribeEvent(priority = EventPriority.HIGHEST ) public static void renderHighest(RenderLevelStageEvent event) { RenderFrame
+        if (nativeStage == Stage.AFTER_SKY) { stage = RenderFrame.Stage.AFTER_SKY;
+        } else if (nativeStage == Stage.AFTER_SOLID_BLOCKS) { stage = RenderFrame.Stage.AFTER_SOLID_BLOCKS;
+        } else if (nativeStage == Stage.AFTER_CUTOUT_MIPPED_BLOCKS_BLOCKS) { stage = RenderFrame.Stage.AFTER_CUTOUT_MIPPED_BLOCKS;
+        } else if (nativeStage == Stage.AFTER_CUTOUT_BLOCKS) { stage = RenderFrame.Stage.AFTER_CUTOUT_BLOCKS;
+        } else if (nativeStage == Stage.AFTER_ENTITIES) { stage = RenderFrame.Stage.AFTER_ENTITIES;
+        } else if (nativeStage == Stage.AFTER_BLOCK_ENTITIES) { stage = RenderFrame.Stage.AFTER_BLOCK_ENTITIES;
+        } else if (nativeStage == Stage.AFTER_TRANSLUCENT_BLOCKS) { stage = RenderFrame.Stage.AFTER_TRANSLUCENT_BLOCKS;
+        } else if (nativeStage == Stage.AFTER_TRIPWIRE_BLOCKS) { stage = RenderFrame.Stage.AFTER_TRIPWIRE_BLOCKS; } else
+if (nativeStage == Stage.AFTER_PARTICLES) { stage = RenderFrame.Stage.AFTER_PARTICLES; } else
+if (nativeStage == Stage.AFTER_WEATHER) { stage = RenderFrame.Stage.AFTER_WEATHER; } else
+if (nativeStage == Stage.AFTER_LEVEL) { stage = RenderFrame.Stage.AFTER_LEVEL; } else {
+ return null; }
+ return new RenderFrame(stage, event.getPoseStack(), event.getProjectionMatrix(), event.getRenderTick
+ (), event.getPartialTick(), event.getCamera(), event.getFrustum() ); } @SubscribeEvent(priority = EventPriority.HIGHEST ) public static void renderHighest(RenderLevelStageEvent event) { RenderFrame
+
+
 
 
  frame = frame(event);

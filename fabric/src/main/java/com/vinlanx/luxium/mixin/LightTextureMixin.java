@@ -33,7 +33,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 class LightTextureMixin implements NeoSkyLightTextureExtension {
     @Shadow private boolean updateLightTexture;
     @Shadow(
-        aliases = {"f_109871_"} ) @Final private NativeImage lightPixels; @Shadow private float blockLightRedFlicker; @Shadow @Final private GameRenderer renderer; @Shadow @Final private Minecraft minecraft; @Unique private DynamicTexture luxium$blockOnlyTexture; @Unique private NativeImage luxium$blockOnlyPixels; @Unique private boolean luxium$lightmapWasDirty; @Unique private long luxium$lightmapRevision; @Shadow private float getDarknessGamma(float partialTick) { throw new AssertionError(); } @Shadow private float calculateDarknessScale(LivingEntity entity, float darknessGamma, float partialTick) { throw new AssertionError(); } @Shadow private float notGamma(float value) { throw new AssertionError(); } @Inject(method = {"<init>"}, at = {@At("RETURN")} ) private void luxium$createBlockOnlyLightmap(GameRenderer renderer, Minecraft minecraft, CallbackInfo ci) {
+        aliases = {"f_109871_"} ) @Final private NativeImage lightPixels; @Shadow private float blockLightRedFlicker; @Shadow @Final private GameRenderer renderer; @Shadow @Final private Minecraft minecraft; @Unique private DynamicTexture luxium$blockOnlyTexture; @Unique private NativeImage luxium$blockOnlyPixels; @Unique private boolean luxium$lightmapWasDirty; @Unique private long luxium$lightmapRevision;
+
+
+
+    @Shadow private float getDarknessGamma(float partialTick) { throw new AssertionError(); }
+    @Shadow private float calculateDarknessScale(LivingEntity entity, float darknessGamma, float partialTick) { throw new AssertionError(); }
+    @Shadow private float notGamma(float value) { throw new AssertionError(); }
 
 
 
@@ -41,13 +47,7 @@ class LightTextureMixin implements NeoSkyLightTextureExtension {
 
 
 
-
-
-
-
-
-
-
+    @Inject(method = {"<init>"}, at = {@At("RETURN")} ) private void luxium$createBlockOnlyLightmap(GameRenderer renderer, Minecraft minecraft, CallbackInfo ci) {
  this.luxium$blockOnlyTexture = new DynamicTexture(16, 16, false);
         minecraft.getTextureManager().register("luxium_block_only_light_map", this.luxium$blockOnlyTexture);
         this.luxium$blockOnlyPixels = this.luxium$blockOnlyTexture.getPixels();
@@ -90,26 +90,26 @@ class LightTextureMixin implements NeoSkyLightTextureExtension {
     }
 
     @Override public int neosky$getMainLightPixel(int blockLevel, int skyLevel) {
-        return this.lightPixels == null ? -1 : this.lightPixels.getPixelRGBA(Mth.clamp(blockLevel, 0, 15), Mth.clamp(skyLevel, 0, 15));
+
+        if (this.lightPixels == null) {
+ return -1; }
+
+ return this.lightPixels.getPixelRGBA(Mth.clamp
+(blockLevel, 0, 15), Mth.clamp
+ (skyLevel, 0, 15));
     }
 
     @Override public int neosky$getBlockOnlyLightPixel(int blockLevel, int skyLevel) {
-        return this.luxium$blockOnlyPixels == null ? -1 : this.luxium$blockOnlyPixels.getPixelRGBA(Mth.clamp(blockLevel, 0, 15), Mth.clamp(skyLevel, 0, 15));
+
+        if (this.luxium$blockOnlyPixels == null) {
+ return -1; }
+
+ return this.luxium$blockOnlyPixels.getPixelRGBA(Mth.clamp
+(blockLevel, 0, 15), Mth.clamp
+ (skyLevel, 0, 15));
     }
 
     @Override public long neosky$getLightmapRevision() {
-
-
-
-
-
-
-
-
-
-
-
-
 
         return this.luxium$lightmapRevision;
     }
@@ -225,21 +225,21 @@ class LightTextureMixin implements NeoSkyLightTextureExtension {
     }
 
     @Unique private static void luxium$setColoredBlockLight(Vector3f out, float red, float green, float blue) {
-        if (Coloredlight.isEnabled() && Coloredlight.isWorldRenderActive()) {
-            float intensity = Math.max(red, Math.max(green, blue));
-            out.set(intensity * Coloredlight.getRedMultiplier(), intensity * Coloredlight.getGreenMultiplier(), intensity * Coloredlight.getBlueMultiplier());
-        } else {
+        if (!(Coloredlight.isEnabled
+() && Coloredlight.isWorldRenderActive())) {
             out.set(red, green, blue);
+ return;
         }
+            float
+            intensity = Math.max(red, Math.max(green, blue));
+            out.set(intensity * Coloredlight.getRedMultiplier
+ (), intensity * Coloredlight.getGreenMultiplier
+ (), intensity * Coloredlight.getBlueMultiplier
+ ());
+
     }
 
     @Unique private static void luxium$clampColor(Vector3f color) {
-
-
-
-
-
-
 
         color.set(Mth.clamp
 (color.x(), 0.0F, 1.0F), Mth.clamp

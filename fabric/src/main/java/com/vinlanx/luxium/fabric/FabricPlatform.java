@@ -35,8 +35,8 @@ class FabricPlatform extends LuxiumPlatform {
         } }
     public void close() { this.config.close(); }
 
-    @Override protected IncompatibleModScreen createIncompatibilityScreen() {
-        return FabricLoader.getInstance().isModLoaded("iris") ? new NOiris() : null; } @Override public boolean isModLoaded(String id) {
+    @Override protected IncompatibleModScreen createIncompatibilityScreen() { if (FabricLoader.getInstance().isModLoaded("iris")) { return new NOiris(); }
+ return null; } @Override public boolean isModLoaded(String id) {
 
  return FabricLoader.getInstance().isModLoaded(id); } @Override public boolean externalShadersLoaded() {
  return FabricLoader.getInstance().isModLoaded("iris");
@@ -59,33 +59,24 @@ class FabricPlatform extends LuxiumPlatform {
  engine.render(poseStack, buffers, lightTexture, camera, partialTick);
     }
 
-    @Override public AABB blockEntityRenderBounds(BlockEntity entity) {
-        BlockPos pos = entity.getBlockPos();
-        if (entity instanceof SignBlockEntity) {
-            return new AABB(pos);
-        } else {
-            BlockState state = entity.getBlockState();
+    @Override public AABB blockEntityRenderBounds(BlockEntity entity) { BlockPos pos = entity.getBlockPos();
+        if (entity instanceof SignBlockEntity) { return new AABB(pos);
+        } else { BlockState state = entity.getBlockState();
             Block block = state.getBlock();
-            if (block == Blocks.ENCHANTING_TABLE) {
-                return new AABB(pos, pos.offset(1, 1, 1));
-            } else if (block != Blocks.CHEST && block != Blocks.TRAPPED_CHEST) {
-                if (block != Blocks.STRUCTURE_BLOCK && block != Blocks.BEACON) {
+            if (block == Blocks.ENCHANTING_TABLE) { return new AABB(pos, pos.offset(1, 1, 1));
+            } else if (!(block != Blocks.CHEST && block != Blocks.TRAPPED_CHEST)) { return new AABB(pos.offset(-1, 0, -1), pos.offset(2, 2, 2));
+            } if (block != Blocks.STRUCTURE_BLOCK && block != Blocks.BEACON) {
                     VoxelShape shape = state.getCollisionShape(entity.getLevel(), pos);
-                    if (!shape.isEmpty()) {
-                        return shape.bounds().move(pos);
+                    if (!shape.isEmpty()) { return shape.bounds().move(pos);
                     }
-                }
-
-                return new AABB(
+                } return new AABB(
                     Double.NEGATIVE_INFINITY,
                     Double.NEGATIVE_INFINITY,
                     Double.NEGATIVE_INFINITY,
                     Double.POSITIVE_INFINITY,
                     Double.POSITIVE_INFINITY,
                     Double.POSITIVE_INFINITY );
-            } else {
-                return new AABB(pos.offset(-1, 0, -1), pos.offset(2, 2, 2));
-            }
+
         }
     }
     }

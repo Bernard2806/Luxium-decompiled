@@ -236,43 +236,43 @@ return 1;
 
     private static int executeRain(CommandContext<FabricClientCommandSource> ctx, int size) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.player != null && mc.level != null) {
-            BlockPos targetPos = BlockPos.containing(mc.player.getX(), mc.player.getBoundingBox().minY - 0.05, mc.player.getZ());
-            BlockState state = mc.level.getBlockState(targetPos);
-            ReflectionMaterial material = ReflectionMaterialRegistry.find(state);
-            if (material != null && material.shouldReflectFace(mc, targetPos, state, Direction.UP)) {
-                RainPuddleSurface surface = RainPuddleManager.get().placeRandomPuddle(mc, targetPos, size);
-                if (surface == null) {
-                    ctx.getSource().sendError(Component.literal("No rain heightmaps found or puddle footprint has no reflective neighbors"));
-                    return 0;
-                } else {
-                    ctx.getSource()
-                        .sendFeedback(
-                            Component.literal(
-                                "Rain puddle placed: map="
-                                    + surface.getHeightmap().getDisplayName()
-                                    + ", size="
-                                    + surface.getSpanBlocks()
-                                    + ", reflective blocks="
-                                    + surface.getCoveredBlockCount() ) );
-                    return 1;
-                }
-            } else {
-                ctx.getSource().sendError(Component.literal("Block under player is not a supported reflective top face"));
-                return 0;
-            }
-        } else {
+        if (!(mc.player != null && mc.level != null)) {
             ctx.getSource().sendError(Component.literal("Rain puddles require an active client world"));
             return 0;
         }
-    }
+            BlockPos
+            targetPos = BlockPos.containing(mc.player.getX
+(), mc.player.getBoundingBox
+().minY - 0.05, mc.player.getZ
+());
+            BlockState
+            state = mc.level.getBlockState(targetPos);
+            ReflectionMaterial material = ReflectionMaterialRegistry.find(state);
+            if (!(material != null && material.shouldReflectFace(mc, targetPos, state, Direction.UP))) {
+                ctx.getSource().sendError(Component.literal("Block under player is not a supported reflective top face"));
 
-    private static int executeBlackHole(CommandContext<FabricClientCommandSource> ctx, int radius) {
-        Minecraft mc = Minecraft.getInstance
+
+                return 0;
+            }
+                RainPuddleSurface surface = RainPuddleManager.get
+ ().placeRandomPuddle(mc, targetPos, size);
+                if (surface == null) {
+                    ctx.getSource().sendError(Component.literal("No rain heightmaps found or puddle footprint has no reflective neighbors"));
 
 
+                    return 0;
+                } else {
 
- ();
+                    ctx.getSource() .sendFeedback(Component.literal(
+                                "Rain puddle placed: map=" + surface.getHeightmap().getDisplayName()
+                                    + ", size=" + surface.getSpanBlocks()
+                                    + ", reflective blocks=" + surface.getCoveredBlockCount() ) );
+
+                    return 1;
+                }
+
+
+    } private static int executeBlackHole(CommandContext<FabricClientCommandSource> ctx, int radius) { Minecraft mc = Minecraft.getInstance ();
         if (mc.player == null) {
             ctx.getSource().sendError(Component.literal("Player is not available"));
             return 0;
