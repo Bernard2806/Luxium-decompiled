@@ -1,148 +1,97 @@
-# Estado de la decompilación 2.8.4-pre-alpha
+# 2.8.4-pre-alpha decompilation status
 
-> Archivo de memoria del trabajo en curso en esta rama. Se actualiza en cada avance.
-> Última actualización: 2026-11-03.
+> Working notes for this branch, updated with every step.
+> Last updated: 2026-11-16.
 
-## Porcentaje de coincidencia con el JAR original
+## Match against the original JAR
 
-Medido comparando el JAR fusionado que genera `./gradlew mergeJars` contra
+Measured by comparing the merged JAR built by `./gradlew mergeJars` with
 `Luxium Let there be light-2.8.4-pre-alpha forge-fabric.jar`
 (sha256 `e2edabf0ec2cf9b5a88242c08123c68753ff122db4b97d07e75877b37d5d89d3`).
 
-| Copia | Clases idénticas byte a byte | Métodos idénticos (código + números de línea) |
+| Copy | Byte-identical classes | Identical methods (code + line numbers) |
 |---|---|---|
-| `forge/` | 336 / 421 (79,81 %) | 3633 / 3843 (94,54 %) |
-| `fabric/` | 338 / 425 (79,53 %) | 3625 / 3845 (94,28 %) |
-| **Total** | **674 / 846 (79,67 %)** | **7258 / 7688 (94,41 %)** |
+| `forge/` | 368 / 421 (87.41 %) | 3812 / 3843 (99.19 %) |
+| `fabric/` | 374 / 425 (88.00 %) | 3816 / 3845 (99.25 %) |
+| **Total** | **742 / 846 (87.71 %)** | **7628 / 7688 (99.22 %)** |
 
-- Archivos fuente con todas sus clases idénticas: 148 / 227.
-- Las 1086 entradas del JAR original están presentes, con los mismos nombres.
-- 57 recursos difieren solo por el empaquetado (ver abajo).
+- Source files whose classes are all identical: 176 / 227.
+- 72 classes (36 per copy) already have **every** method identical and differ only in the LocalVariableTable or the constant pool order.
+- All 1086 entries of the original JAR are present, with the same names.
+- 57 resources differ only because of the packaging (see below).
 
-## Cómo está armado el original
+History: 2026-11-03 → 7258 methods (94.41 %), 674 classes. 2026-11-16 → 7628 methods (99.22 %), 742 classes.
 
-- Es una fusión **Forgix 1.2.9** de dos JAR:
-  - `forge/com/vinlanx/...`: build de **ForgeGradle 6**, nombres SRG. 256 clases son idénticas byte a byte a 2.8.0.
-  - `fabric/com/vinlanx/...`: build de **Fabric Loom 1.1.14**, nombres intermediary, con tiny-remapper 0.8.5.
-- 395 clases salen del mismo código fuente en las dos copias: mismo bytecode y mismas líneas una vez traducidos los nombres. Ese código vive en `common/`.
-- Solo Forge: `forge/*`, mixins `Embeddium*` y `Forge*`. Solo Fabric: `fabric/*`, mixins `Sodium*` y `Fabric*`, y `SpriteContentsAccessor`.
-- Mismo nombre pero distinto código en cada loader (hay una copia en `forge/` y otra en `fabric/`): `ModCommands`, `RainPuddleCommands`, `DynamicShadowMeshCapture`, `LightTextureMixin`, `ItemBlockRenderTypesMixin`.
-- El JAR publicado se reempaquetó **después** de Forgix: entradas con fecha fija 1980-02-01, otro orden, y assets sin la reescritura de texto que hace Forgix (Forgix pasa CRLF a LF y agrega un salto de línea final). Por eso hoy difieren 57 recursos, el manifest y los refmaps.
+## How the original was built
 
-## Estructura del proyecto (MultiLoader, nombres Mojang)
+- It is a **Forgix 1.2.9** merge of two JARs:
+  - `forge/com/vinlanx/...`: a **ForgeGradle 6** build with SRG names. 256 classes are byte-identical to 2.8.0.
+  - `fabric/com/vinlanx/...`: a **Fabric Loom 1.1.14** build with intermediary names, remapped with tiny-remapper 0.8.5.
+- 395 classes come from the same source in both copies: same bytecode and same line numbers once the names are translated. That code lives in `common/`.
+- Forge only: `forge/*`, the `Embeddium*` and `Forge*` mixins. Fabric only: `fabric/*`, the `Sodium*` and `Fabric*` mixins, and `SpriteContentsAccessor`.
+- Same name but different code in each loader (one copy in `forge/` and one in `fabric/`): `ModCommands`, `RainPuddleCommands`, `DynamicShadowMeshCapture`, `LightTextureMixin`, `ItemBlockRenderTypesMixin`.
+- The published JAR was repackaged **after** Forgix: entries with a fixed 1980-02-01 timestamp, a different order, and assets without Forgix's text rewriting (Forgix turns CRLF into LF and adds a trailing newline). That is why 57 resources, the manifest and the refmaps still differ.
 
-- `common/src/main/java` y `common/src/main/resources`: se agregan como `srcDir` a los dos loaders.
+## Project layout (MultiLoader, Mojang names)
+
+- `common/src/main/java` and `common/src/main/resources`: added as a `srcDir` to both loaders.
 - `forge/`: ForgeGradle `[6.0,6.2)`, Forge 47.4.10, Embeddium `maven.modrinth:sk9rgfiA:UTbfe5d1`, mixin AP 0.8.5.
-- `fabric/`: Loom 1.1.14, `officialMojangMappings()`, fabric-loader 0.16.14, fabric-api 0.92.2+1.20.1, Sodium `mc1.20.1-0.5.13-fabric`, night-config 3.6.6 con `include`. El access widener en fuentes va en el namespace `named`.
-- Raíz: Forgix 1.2.9. `mergeJars` depende de `:forge:build` y `:fabric:build`.
-- Gradle 8.8 y **JDK 17.0.13** (javac 17.0.14 cambia la concatenación de strings).
+- `fabric/`: Loom 1.1.14, `officialMojangMappings()`, fabric-loader 0.16.14, fabric-api 0.92.2+1.20.1, Sodium `mc1.20.1-0.5.13-fabric`, night-config 3.6.6 with `include`. The access widener in the sources uses the `named` namespace.
+- Root: Forgix 1.2.9. `mergeJars` depends on `:forge:build` and `:fabric:build`.
+- Gradle 8.8 and **JDK 17.0.13** (javac 17.0.14 changes string concatenation).
 
 ```
-JAVA_HOME=/ruta/a/jdk-17.0.13 ./gradlew mergeJars   # -> build/libs/luxium-2.8.4-pre-alpha.jar
+JAVA_HOME=/path/to/jdk-17.0.13 ./gradlew mergeJars   # -> build/libs/luxium-2.8.4-pre-alpha.jar
 ```
 
-## Cómo se obtuvieron las fuentes
+## How the sources were produced
 
-1. Las clases idénticas a 2.8.0 usan las fuentes ya corregidas de la rama `2.8.0-pre-alpha`, pasadas a nombres Mojang con el `remapSrgSources` de esa rama.
-2. El resto empezó como borrador de **Vineflower 1.10.1**, descompilado de clases traducidas a nombres Mojang.
-3. Correcciones automáticas sobre los borradores:
-   - **Trasplante:** si un método no cambió respecto a 2.8.0 (mismo bytecode, incluidas sus lambdas), se usa el texto de 2.8.0 (~300 métodos).
-   - **Early returns:** se deshace la inversión `if (c) { resto }` de Vineflower y se vuelve a `if (!(c)) { return; } resto` (o `continue`) (251 casos).
-   - **Realineado:** cada sentencia se ubica en su número de línea original. Se compila una versión "explotada" del archivo (cada nodo del árbol en su propia línea), se cruzan las `LineNumberTable` con las del original, y se reordenan los miembros de clase según esas líneas.
-4. Arreglos manuales: casts `(Object)this` en mixins, `remap=false` en `GlStateManagerMixin`, imports de clases protegidas de `RenderStateShard`, captura de lambda en `NeoShadowsStaticPipeline`, y se quitó `@Mod.EventBusSubscriber` de `PostProcessStateGuard`.
+1. Classes identical to 2.8.0 reuse the already corrected sources of the `2.8.0-pre-alpha` branch, translated to Mojang names with that branch's `remapSrgSources`.
+2. The rest started as a **Vineflower 1.10.1** draft, decompiled from classes translated to Mojang names.
+3. Automatic fixes on the drafts:
+   - **Transplant:** when a method did not change since 2.8.0 (same bytecode, lambdas included), the 2.8.0 text is used (~300 methods).
+   - **Early returns:** Vineflower's `if (c) { rest }` inversion is undone back to `if (!(c)) { return; } rest` (or `continue`) (251 cases).
+   - **Realignment:** every statement is placed on its original line. An "exploded" copy of the file (each tree node on its own line) is compiled, its `LineNumberTable`s are matched with the original ones, and class members are reordered by those lines.
+4. Fixes from 2026-11-16 (all checked against the original bytecode):
+   - **`align.py` also translates method names** (SRG/intermediary → Mojang) when matching with the original. Before, it did not recognise overridden methods (`init`, `tick`, `render`, `vertex`...) and left them unaligned.
+   - **Headers:** imports are joined on a single line so the class declaration, the implicit constructor and field initialisers land on their original lines.
+   - **`static` blocks split** into several blocks interleaved with methods and nested classes (`Grass`), and initialisations moved back into the constructor as in the original (`NeoShadowsEngine`).
+   - **Loops:** Vineflower `for` loops turned back into `while` (javac adds a line entry at a `while`'s closing brace) and the other way round; loop limits moved from the `for` header into an `if (...) break;`.
+   - **Early exits:** `else` → `continue;`/`return;`, `return c ? a : b` → `if (c) return a; return b;`, inverted `if/else` with `return` (`if (!(c)) { exit } rest`), `!(a && b)` conditions split into several `if (...) continue;`.
+   - **Other:** inverted ternaries, `x = x + y` → `x += y`, local variables Vineflower had removed (`h = ...; return h;`), pattern-matching `instanceof`, `case` order in a `switch`, method references (`this::addRenderableWidget`) instead of lambdas.
+5. Manual fixes: `(Object)this` casts in mixins, `remap=false` in `GlStateManagerMixin`, imports of protected `RenderStateShard` classes, lambda capture in `NeoShadowsStaticPipeline`, and `@Mod.EventBusSubscriber` removed from `PostProcessStateGuard`.
 
-Las herramientas (Python + Java) están fuera del repo, en `~/tools/luxium-decomp-tools/` de la máquina de trabajo: `verify.py`, `align.py`, `transplant.py`, `flips.py`/`FlipIf.java`, `mappings.py`, `classfile.py`, `mdiff.py`, `todo.py`.
+The tools (Python + Java) live outside the repo, in `~/tools/luxium-decomp-tools/` on the working machine: `verify.py`, `align.py`, `transplant.py`, `flips.py`/`FlipIf.java`, `mappings.py`, `classfile.py`, `mdiff.py`, `todo.py`. The ones from the 2026-11-16 session are in `session-2026-11-16/` (`flipret.py`, `tern.py`, `unelse.py`, `tocont.py`, `splitand.py`, `retvar.py`, `ctx.py`, `hk.py`, and `audit.py`/`audit2.py` to check that no inversion changed the semantics, among others).
 
-## Qué falta
+## What is left
 
-- **Código distinto:** ~145 métodos por loader (variables declaradas en otro orden u otros slots, `return`/`goto` reestructurados, casos `176`↔`167`, etc.).
-- **Líneas distintas:** ~70 métodos por loader, con conflictos de orden que el realineador no resuelve.
-- **LocalVariableTable** (nombres como `var32`, orden de las variables): 14 clases por loader tienen todos los métodos exactos pero difieren solo en esto o en el orden del constant pool.
-- **Empaquetado:** reproducir el reempaquetado final (fechas 1980, orden de entradas, assets sin reescribir).
-- **Rama:** README, workflow de release, `scripts/` e índices de `.github/release/` (como en 2.8.0).
+- **Different code:** 31 methods in `forge/` and 29 in `fabric/`, almost all in common files. What remains is the hard part: local variables in other slots or another order (`bake`, `registerConfig`, `copyDepthToAtlas`, `loadHeightmap`...), lambdas capturing in another order (`GameRendererMixin`), try/finally (`EmbeddiumLocalShadowBridge.renderFace`) and loops with several exits (`buildSpriteMask`).
+- **LocalVariableTable / constant pool:** 72 classes have every method exact but differ only there.
+- **Packaging:** reproduce the final repackaging (1980 timestamps, entry order, assets not rewritten).
+- **Branch:** README, release workflow, `scripts/` and `.github/release/` indexes (as in 2.8.0).
 
-### Archivos fuente pendientes
+### Pending source files
 
-Métodos que aún difieren (sumando las dos copias) y clases afectadas:
+Methods that still differ (both copies added up) and affected classes:
 
-| Archivo (`com/vinlanx/luxium/...`) | Métodos | Clases |
+| File (`com/vinlanx/luxium/...`) | Methods | Classes |
 |---|---|---|
-| client/NeoShadowsStaticPipeline | 36 | 2 |
-| client/ReflectionSystem | 26 | 10 |
-| rtx/soasnottointerfere/ExposedFaceService | 24 | 4 |
-| client/DynamicShadowMeshCapture | 22 | 6 |
-| client/guiscreen/VideoSettingsHubScreen | 22 | 4 |
-| client/ConfigScreen/LuxiumConfigScreen | 22 | 2 |
-| client/neocpu/NeoCpuShadowShapeBaker | 20 | 4 |
-| client/clouds/LuxiumCloudRenderer | 14 | 2 |
-| Testing/Grass | 12 | 4 |
-| client/NeoShadowsEngine | 12 | 2 |
-| mixin/GameRendererMixin | 10 | 2 |
-| client/reflections/RainPuddleManager | 10 | 2 |
-| client/guiscreen/AlphaWarningScreen | 10 | 2 |
-| mixin/LightTextureMixin | 9 | 2 |
-| rtx/TorchRtxState | 8 | 2 |
-| rtx/neogpuvanilla/NeoGpuVanilla | 8 | 2 |
-| client/shadows/neoskycelestia/NeoSkyCelestia | 8 | 2 |
-| client/shadows/GpuShadowCache | 8 | 2 |
-| client/guiscreen/IncompatibleModScreen | 8 | 2 |
-| platform/config/ConfigSpec | 6 | 8 |
-| rtx/VanillaLavaLightEngine | 6 | 2 |
-| platform/ClientHooks | 6 | 2 |
-| client/tfrpluslsr/TemporalFrameSystem | 6 | 2 |
-| client/posteffects/PostEffectPipeline | 6 | 2 |
-| client/posteffects/Hdr | 6 | 2 |
-| client/shadows/GpuBakedHardShadowVolume | 6 | 1 |
-| client/shadows/embeddium/EmbeddiumLocalShadowBridge | 4 | 6 |
-| rtx/neogpuvanilla/NeoGpuVanillaVolume | 4 | 2 |
-| mixin/sky/ShaderInstanceSkyShadowMixin | 4 | 2 |
-| client/ssr/ScreenSpaceReflectionSystem | 4 | 2 |
-| client/shadows/neoskycelestia/lightmap/NeoSkyCelestiaLightLut | 4 | 2 |
-| client/posteffects/skyvolumetrigodrays | 4 | 2 |
-| client/NeoShadowsDynamicPipeline | 4 | 2 |
-| client/neocpu/NeoCpuEntityShadows | 4 | 2 |
-| mixin/sky/SodiumChunkShaderInterfaceMixin | 4 | 1 |
-| mixin/sky/EmbeddiumChunkShaderInterfaceMixin | 3 | 1 |
-| forge/ForgePlatform | 3 | 1 |
-| Testing/ExplosionTesting/ExplosionRenderer | 2 | 2 |
-| rtx/neogpuvanilla/NeoGpuVanillaGpuDebug | 2 | 2 |
-| mixin/LevelRendererMixin | 2 | 2 |
-| luxiumMod | 2 | 2 |
-| Config | 2 | 2 |
-| client/wet/WetSurfaceRenderer | 2 | 2 |
-| client/water/WaterSurfaceState | 2 | 2 |
+| client/NeoShadowsStaticPipeline | 14 | 2 |
+| mixin/GameRendererMixin | 6 | 2 |
+| rtx/soasnottointerfere/ExposedFaceService | 6 | 4 |
+| client/guiscreen/IncompatibleModScreen | 4 | 2 |
+| client/posteffects/PostEffectPipeline | 4 | 2 |
+| client/reflections/RainPuddleManager | 4 | 2 |
+| client/shadows/GpuShadowCache | 4 | 2 |
+| Testing/Grass | 2 | 2 |
+| client/ConfigScreen/LuxiumConfigScreen | 2 | 2 |
+| client/NeoShadowsEngine | 2 | 2 |
+| client/clouds/LuxiumCloudRenderer | 2 | 2 |
+| client/neocpu/NeoCpuShadowShapeBaker | 2 | 4 |
+| client/shadows/embeddium/EmbeddiumLocalShadowBridge | 2 | 6 |
 | client/tfrpluslsr/LsrSystem | 2 | 2 |
-| client/shadows/neoskycelestia/NeoSkyEntityShadowMap | 2 | 2 |
-| client/shadows/neoskycelestia/NeoSkyCelestiaLighting | 2 | 2 |
-| client/shadows/GpuNeoShadows | 2 | 2 |
-| client/rainpuddles/RainPuddleRenderer | 2 | 2 |
-| client/postprocess/PostProcessSwapChain | 2 | 2 |
-| client/posteffects/skygodrays | 2 | 2 |
-| client/NeoShadowsRuntime | 2 | 2 |
-| client/NeoShadowsRenderPipeline | 2 | 2 |
-| client/neocpu/NeoCpuShadowsEngine | 2 | 2 |
-| client/kawase/KawaseBloomRenderer | 2 | 2 |
-| client/GodRaySystem | 2 | 2 |
-| client/f3/LuxiumF3Info | 2 | 2 |
-| client/f3/LuxiumDebugHud | 2 | 2 |
-| client/ConfigScreen/ResolutionControls | 2 | 2 |
-| client/BlockLightTest/BlockLightTest | 2 | 2 |
-| fabric/FabricPlatform | 2 | 1 |
-| Testing/ModCommands | 1 | 2 |
-| client/rainpuddles/RainPuddleCommands | 1 | 2 |
-| mixin/SodiumFluidRendererWaterMixin | 1 | 1 |
-| mixin/sky/SodiumNeoGpuCutoutPrepassMixin | 1 | 1 |
-| mixin/sky/SodiumCloudShadowCasterMixin | 1 | 1 |
+| rtx/neogpuvanilla/NeoGpuVanillaVolume | 2 | 2 |
+| forge/ForgePlatform | 1 | 1 |
 | mixin/sky/EmbeddiumShaderLoaderMixin | 1 | 1 |
-| mixin/EmbeddiumFluidRendererWaterMixin | 1 | 1 |
-| forge/ForgeLuxium | 1 | 1 |
-| forge/ForgeClientEvents | 1 | 1 |
-| Testing/TestFlashLight | 0 | 2 |
-| Testing/ExplosionTesting/ExplosionShader | 0 | 2 |
-| client/ShaderManager | 0 | 2 |
-| client/posteffects/fog | 0 | 2 |
-| client/kawase/KawaseSourceRegistry | 0 | 2 |
-| mixin/sky/SodiumShaderLoaderMixin | 0 | 1 |
-| mixin/ModelBlockRendererMixin | 0 | 1 |
-| mixin/EmbeddiumRenderSectionAccessor | 0 | 1 |
-| fabric/FabricConfig | 0 | 1 |
+
+Every method already exact (only LocalVariableTable or constant pool differ): `ReflectionSystem`, `ConfigSpec`, `TorchRtxState`, `VanillaLavaLightEngine`, `NeoSkyCelestia*`, `GpuNeoShadows`, `TemporalFrameSystem`, `skygodrays`, `skyvolumetrigodrays`, `KawaseBloomRenderer`, `NeoShadowsDynamicPipeline`, `NeoShadowsRenderPipeline`, `NeoCpuEntityShadows`, `DynamicShadowMeshCapture`, `ShaderInstanceSkyShadowMixin`, `LevelRendererMixin`, `ExplosionRenderer`, among others.
