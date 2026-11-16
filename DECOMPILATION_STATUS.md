@@ -11,16 +11,17 @@ Measured by comparing the merged JAR built by `./gradlew mergeJars` with
 
 | Copy | Byte-identical classes | Identical methods (code + line numbers) |
 |---|---|---|
-| `forge/` | 368 / 421 (87.41 %) | 3812 / 3843 (99.19 %) |
-| `fabric/` | 374 / 425 (88.00 %) | 3816 / 3845 (99.25 %) |
-| **Total** | **742 / 846 (87.71 %)** | **7628 / 7688 (99.22 %)** |
+| `forge/` | 373 / 421 (88.60 %) | 3843 / 3843 (100 %) |
+| `fabric/` | 377 / 425 (88.71 %) | 3845 / 3845 (100 %) |
+| **Total** | **750 / 846 (88.65 %)** | **7688 / 7688 (100 %)** |
 
-- Source files whose classes are all identical: 176 / 227.
-- 72 classes (36 per copy) already have **every** method identical and differ only in the LocalVariableTable or the constant pool order.
+- Every method now has the original bytecode and line numbers in both copies.
+- Source files whose classes are all identical: 181 / 227.
+- The other 96 classes (48 per copy) differ only outside the code: local variable names/order in the LocalVariableTable (84 classes), constant pool order (81), field order (`Grass`, `NeoShadowsEngine`) and class attributes such as `InnerClasses`/`NestMembers` order (16).
 - All 1086 entries of the original JAR are present, with the same names.
 - 57 resources differ only because of the packaging (see below).
 
-History: 2026-11-03 → 7258 methods (94.41 %), 674 classes. 2026-11-16 → 7628 methods (99.22 %), 742 classes.
+History: 2026-11-03 → 7258 methods (94.41 %), 674 classes. 2026-11-16 → 7628 methods (99.22 %), 742 classes. 2026-11-16 (later) → 7688 methods (100 %), 750 classes.
 
 ## How the original was built
 
@@ -65,33 +66,12 @@ The tools (Python + Java) live outside the repo, in `~/tools/luxium-decomp-tools
 
 ## What is left
 
-- **Different code:** 31 methods in `forge/` and 29 in `fabric/`, almost all in common files. What remains is the hard part: local variables in other slots or another order (`bake`, `registerConfig`, `copyDepthToAtlas`, `loadHeightmap`...), lambdas capturing in another order (`GameRendererMixin`), try/finally (`EmbeddiumLocalShadowBridge.renderFace`) and loops with several exits (`buildSpriteMask`).
-- **LocalVariableTable / constant pool:** 72 classes have every method exact but differ only there.
+- **LocalVariableTable:** local variable names and declaration order. The original names are in the original LVT (it was compiled with `-g`), so most of them can be recovered automatically by matching slot and start pc. Fixing names should also fix most constant pool differences, since names are constant pool entries.
+- **Constant pool / class attributes:** order of constant pool entries, `InnerClasses`/`NestMembers`, and field order in `Grass` and `NeoShadowsEngine`.
 - **Packaging:** reproduce the final repackaging (1980 timestamps, entry order, assets not rewritten).
 - **Branch:** README, release workflow, `scripts/` and `.github/release/` indexes (as in 2.8.0).
 
-### Pending source files
+### Last round of method fixes (2026-11-16)
 
-Methods that still differ (both copies added up) and affected classes:
+The last 60 methods were fixed by restoring what Vineflower had changed: `try`/`finally` blocks that returned from inside (Vineflower stores the result in a `varN` temp and duplicates the `finally` body with a "semaphore" flag), try-with-resources returning from inside the block, `for` loops whose step javac placed after the body (they were `while` loops ending in `x++`) and vice versa (lambda capture order revealed `for` loops), pattern-matching `instanceof` in plain `else if` chains (slot allocation), constants such as `font.lineHeight` that Vineflower folded, locals it had inlined (`useEffectsTarget`, `waterPass`, `validFromStart`, `trackY`/`trackHeight`, `ov_left`, `files`, `planeGroups`), compound assignments (`|=`, `+=`), and inverted `if`/`else` and ternaries.
 
-| File (`com/vinlanx/luxium/...`) | Methods | Classes |
-|---|---|---|
-| client/NeoShadowsStaticPipeline | 14 | 2 |
-| mixin/GameRendererMixin | 6 | 2 |
-| rtx/soasnottointerfere/ExposedFaceService | 6 | 4 |
-| client/guiscreen/IncompatibleModScreen | 4 | 2 |
-| client/posteffects/PostEffectPipeline | 4 | 2 |
-| client/reflections/RainPuddleManager | 4 | 2 |
-| client/shadows/GpuShadowCache | 4 | 2 |
-| Testing/Grass | 2 | 2 |
-| client/ConfigScreen/LuxiumConfigScreen | 2 | 2 |
-| client/NeoShadowsEngine | 2 | 2 |
-| client/clouds/LuxiumCloudRenderer | 2 | 2 |
-| client/neocpu/NeoCpuShadowShapeBaker | 2 | 4 |
-| client/shadows/embeddium/EmbeddiumLocalShadowBridge | 2 | 6 |
-| client/tfrpluslsr/LsrSystem | 2 | 2 |
-| rtx/neogpuvanilla/NeoGpuVanillaVolume | 2 | 2 |
-| forge/ForgePlatform | 1 | 1 |
-| mixin/sky/EmbeddiumShaderLoaderMixin | 1 | 1 |
-
-Every method already exact (only LocalVariableTable or constant pool differ): `ReflectionSystem`, `ConfigSpec`, `TorchRtxState`, `VanillaLavaLightEngine`, `NeoSkyCelestia*`, `GpuNeoShadows`, `TemporalFrameSystem`, `skygodrays`, `skyvolumetrigodrays`, `KawaseBloomRenderer`, `NeoShadowsDynamicPipeline`, `NeoShadowsRenderPipeline`, `NeoCpuEntityShadows`, `DynamicShadowMeshCapture`, `ShaderInstanceSkyShadowMixin`, `LevelRendererMixin`, `ExplosionRenderer`, among others.
