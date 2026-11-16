@@ -26,13 +26,13 @@ import com.mojang.blaze3d.shaders.Uniform; import com.mojang.blaze3d.systems.Ren
 
 
 
-public final class Grass { public static final int BLADES_PER_BLOCK_MIN = 30; private Grass() { }
- public static final int BLADES_PER_BLOCK_MAX = 45; private static final float BLADE_HEIGHT = 0.5F; private static final float TWO_PI = (float) (Math.PI * 2); private static final int COLOR_VARIATION = 12; private static final float WIND_DIR_DRIFT = 0.018F; private static final float WIND_DIR_OFFSET = 0.65F; private static final long ANIMATION_START_NANOS; private static final ResourceLocation TEXTURE; private static final int LIGHT_REFRESH_TICKS = 40; private static final ExecutorService ASYNC; private static final AtomicBoolean asyncBusy; private static final AtomicReference<RenderedBuffer> pendingUpload; private static volatile Grass.ScanData currentScan; private static VertexBuffer grassVbo; private static volatile boolean enabled; private static volatile int renderRadius; private static volatile boolean needsRescan; private static long lastLightRefreshTick; private static float windDirX; private static float windDirZ; private static final int SIN_BITS = 12; private static final int SIN_MASK = 4095; private static final int SIN_SIZE = 4096; private static final float SIN_TO_IDX = 651.8986F; private static final float[]
+public final class Grass { private Grass() { } private static final int SIN_BITS = 12; private static final int SIN_MASK = 4095; private static final int SIN_SIZE = 4096; private static final float SIN_TO_IDX = 651.8986F;
 
 
 
 
- SIN_TABLE = new float[4096];
+
+ private static final float[] SIN_TABLE = new float[4096]; public static final int BLADES_PER_BLOCK_MIN = 30; public static final int BLADES_PER_BLOCK_MAX = 45; private static final float BLADE_HEIGHT = 0.5F; private static final float TWO_PI = (float) (Math.PI * 2); private static final int COLOR_VARIATION = 12; private static final float WIND_DIR_DRIFT = 0.018F; private static final float WIND_DIR_OFFSET = 0.65F; private static final long ANIMATION_START_NANOS; private static final ResourceLocation TEXTURE; private static final int LIGHT_REFRESH_TICKS = 40; private static final ExecutorService ASYNC; private static final AtomicBoolean asyncBusy; private static final AtomicReference<RenderedBuffer> pendingUpload; private static volatile Grass.ScanData currentScan; private static VertexBuffer grassVbo; private static volatile boolean enabled; private static volatile int renderRadius; private static volatile boolean needsRescan; private static long lastLightRefreshTick; private static float windDirX; private static float windDirZ;
 
     static { for (int
  i = 0; i < 4096; i++) {
@@ -191,7 +191,7 @@ mc.gameRenderer.lightTexture().turnOffLightLayer(); RenderSystem.enableCull
 
 ASYNC.submit(() -> { try {
  pendingUpload.set(doFill(snap)); }
-catch (Throwable var5) { var5.printStackTrace(); } finally {
+catch (Throwable t) { t.printStackTrace(); } finally {
  asyncBusy.set(false); }
 });
 }
@@ -232,8 +232,8 @@ catch (Throwable var5) { var5.printStackTrace(); } finally {
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 int bx = origin.getX() + dx; int bz = origin.getZ() + dz;
-                for (int byx = minY; byx <= maxY; byx++) {
-                    BlockPos pos = new BlockPos(bx, byx, bz);
+                for (int by = minY; by <= maxY; by++) {
+                    BlockPos pos = new BlockPos(bx, by, bz);
                     if (!level.getBlockState(pos).is(Blocks.GRASS_BLOCK)) { continue; }
  if (!level.getBlockState(pos.above()).isAir()) { continue; }
 
@@ -254,7 +254,7 @@ catch (Throwable var5) { var5.printStackTrace(); } finally {
                         for (int i = 0; i < bladeCount; i++) {
                             tPx[bladeIdx] = (float)bx + frac(halton2(i) + hOffX);
                             tPz[bladeIdx] = (float)bz + frac(halton3(i) + hOffZ);
-                            tBaseY[bladeIdx] = (float)byx + 1.0F;
+                            tBaseY[bladeIdx] = (float)by + 1.0F;
                             long seed = blockSeed * 31L + (long)i * 197L;
                             float bs = (float)((double)(seed & 4294967295L) / 4.2949673E9F);
                             tPhi1[bladeIdx] = bs * (float) (Math.PI * 2);
@@ -338,14 +338,14 @@ catch (Throwable var5) { var5.printStackTrace(); } finally {
     }
     private static float halton2(int idx) {
         float
-        r = 0.0F; float f = 1.0F; for (int i = idx + 1; i
- > 0; i >>= 1) { f *= 0.5F; r += f * (float)(i & 1); } return r;
+        r = 0.0F; float f = 1.0F; int i = idx + 1;
+        while (i > 0) { f *= 0.5F; r += f * (float)(i & 1); i >>= 1; } return r;
+
     }
-    private static float halton3(int idx) { float
- r = 0.0F; float f = 1.0F; for (int i = idx + 1; i
- > 0; i /= 3) { f /= 3.0F; r += f * (float)(i % 3); } return r;
-    }
-    private static float frac(float x) { return x - (float)Math.floor((double)x);
+    private static float halton3(int idx) { float r = 0.0F; float f = 1.0F; int i = idx + 1;
+        while (i > 0) { f /= 3.0F; r += f * (float)(i % 3); i /= 3; } return r;
+
+    } private static float frac(float x) { return x - (float)Math.floor((double)x);
     }
     private static int bladesForBlock(long seed) { int range = 16;
         return 30 + Math.floorMod(Long.hashCode(seed), range);

@@ -205,13 +205,13 @@ draw(sourceShader, sourceTarget.viewWidth, sourceTarget.viewHeight, false, () ->
                 UP_TARGETS[i] = ensureTarget(UP_TARGETS[i], levelWidth, levelHeight);
             }
         }
-        for (int ix = levels; ix < 7; ix++) {
-            destroyTarget(DOWN_TARGETS[ix]);
-            DOWN_TARGETS[ix] = null;
+        for (int i = levels; i < 7; i++) {
+            destroyTarget(DOWN_TARGETS[i]);
+            DOWN_TARGETS[i] = null;
         }
-        for (int ix = Math.max(0, levels - 1); ix < 7; ix++) {
-            destroyTarget(UP_TARGETS[ix]);
-            UP_TARGETS[ix] = null;
+        for (int i = Math.max(0, levels - 1); i < 7; i++) {
+            destroyTarget(UP_TARGETS[i]);
+            UP_TARGETS[i] = null;
         }
     }
 

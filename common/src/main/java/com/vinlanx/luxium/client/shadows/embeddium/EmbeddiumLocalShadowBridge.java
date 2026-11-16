@@ -150,7 +150,7 @@ capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRend
         @Override public Iterator<ChunkRenderList> iterator(boolean reverse) {
 
             if (!reverse) { return this.lists.iterator();
-            } else { final ListIterator<ChunkRenderList> iterator = this.lists.listIterator(this.lists.size());
+            } final ListIterator<ChunkRenderList> iterator = this.lists.listIterator(this.lists.size());
                 return new Iterator<ChunkRenderList>() {
                     @Override public boolean hasNext() {
 
@@ -162,7 +162,7 @@ capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRend
                         return iterator.previous();
                     }
                 };
-            }
+            
         }
 
         public int regionCount() { return this.lists.size(); } }

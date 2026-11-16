@@ -280,7 +280,7 @@ public final class VanillaLavaLightEngine { private static final VanillaLavaLigh
                     if (!scan.paletteChecked) {
                         scan.paletteChecked = true;
                         if (section.hasOnlyAir() || !section.maybeHas
-(statex -> statex.getFluidState().is(FluidTags.LAVA))) {
+(state -> state.getFluidState().is(FluidTags.LAVA))) {
                             scan.noLavaPossible = true;
                             return true;
                         }

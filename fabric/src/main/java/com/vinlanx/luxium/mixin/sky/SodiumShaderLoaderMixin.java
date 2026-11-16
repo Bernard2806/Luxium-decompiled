@@ -78,8 +78,8 @@ return;
                         }
 
                         cir.setReturnValue(source);
-                    } } catch (IOException var18) {
-                    throw new IllegalStateException("Failed to load Luxium Sodium shader " + replacement, var18);
+                    } } catch (IOException exception) {
+                    throw new IllegalStateException("Failed to load Luxium Sodium shader " + replacement, exception);
                 }
     }
     }

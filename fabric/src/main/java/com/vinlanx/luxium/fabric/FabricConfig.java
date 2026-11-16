@@ -27,9 +27,9 @@ final class FabricConfig implements AutoCloseable {
         this.file.save();
 
         try { FileWatcher.defaultInstance().addWatch(path, () -> Minecraft.getInstance().execute(this::reload));
-        } catch (IOException var5) {
+        } catch (IOException exception) {
             this.file.close();
-            throw new IllegalStateException("Cannot watch Luxium config", var5);
+            throw new IllegalStateException("Cannot watch Luxium config", exception);
         }
     }
 

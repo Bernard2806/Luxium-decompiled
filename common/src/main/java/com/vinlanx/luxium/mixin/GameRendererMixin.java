@@ -78,7 +78,7 @@ LUXIUM$ENTITY_RECEIVER_DEFINITIONS = Set.of(new ResourceLocation("minecraft", "s
             return resourceLocation -> {
  if (!LUXIUM$ENTITY_RECEIVER_DEFINITIONS.contains(resourceLocation)) {
                     return resourceProvider.getResource(resourceLocation);
-                } else { Resource definition = luxium$entityReceiverDefinition(resourceProvider, resourceLocation);
+                } Resource definition = luxium$entityReceiverDefinition(resourceProvider, resourceLocation);
                     return Optional.of(new Resource(definition.source(),
                             () -> { try (InputStream stream = definition.open()) {
                                     String json = new String(stream.readAllBytes(), StandardCharsets.UTF_8)
@@ -91,13 +91,13 @@ LUXIUM$ENTITY_RECEIVER_DEFINITIONS = Set.of(new ResourceLocation("minecraft", "s
 
 
                             } ) );
-                }
+                
             }; } else if (LuxiumGpuShaderFeatures.neoGpuVanillaReceiverEnabled()) {
 
 return resourceLocation -> {
  if (!LUXIUM$ENTITY_RECEIVER_DEFINITIONS.contains(resourceLocation)) {
                     return resourceProvider.getResource(resourceLocation);
-                } else {
+                }
                     Resource receiverDefinition = luxium$entityReceiverDefinition(resourceProvider, resourceLocation);
                     return Optional.of(new Resource(receiverDefinition.source(),
                             () -> { try (InputStream stream = receiverDefinition.open()) {
@@ -108,7 +108,7 @@ return resourceLocation -> {
                                 }
 
 
-                            } ) ); } }; } else { if (LuxiumGpuShaderFeatures.localReceiverEnabled
+                            } ) );  }; } else { if (LuxiumGpuShaderFeatures.localReceiverEnabled
 
 ()) {
 return resourceLocation -> LUXIUM$ENTITY_RECEIVER_DEFINITIONS.contains(resourceLocation)
@@ -128,7 +128,7 @@ return resourceLocation -> {
                             .orElseThrow(() -> new IllegalStateException("Missing vanilla shader resource " + resourceLocation));
 
                         return Optional.of(vanilla);
-                    } else {
+                    }
                         Resource
                         receiverDefinition = luxium$entityReceiverDefinition(resourceProvider, resourceLocation);
                         return Optional.of(new Resource(receiverDefinition.source(),
@@ -143,7 +143,7 @@ return resourceLocation -> {
 
 
                                 } ) );
-                    } }; } } @Unique private static Resource luxium$entityReceiverDefinition(ResourceProvider provider, ResourceLocation location) { String
+                     }; } } @Unique private static Resource luxium$entityReceiverDefinition(ResourceProvider provider, ResourceLocation location) { String
 
 
  path = location.getPath();

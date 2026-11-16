@@ -526,15 +526,15 @@ nearestDirty = entry; }
                             int
                             faceBudget = Math.max(1, Config.CLIENT.gpuHardShadowCaptureBudget.get()); while
 (staticBuildsThisFrame < faceBudget) { GpuShadowCache.Entry
- nearestDirty = null; for (GpuShadowCache.Entry entryx :
+ nearestDirty = null; for (GpuShadowCache.Entry entry :
 this.entries.values()) {
-if (entryx.lastVisibleFrame != this.visibilityFrame || !hasDirtyFaces
- (entryx) || !entryx.staticDirty) { continue; }
- if (nearestDirty == null || entryx.urgentStaticDirty && !nearestDirty.urgentStaticDirty || entryx.urgentStaticDirty == nearestDirty.urgentStaticDirty && entryx.stagedPriority < nearestDirty.stagedPriority) {
+if (entry.lastVisibleFrame != this.visibilityFrame || !hasDirtyFaces
+ (entry) || !entry.staticDirty) { continue; }
+ if (nearestDirty == null || entry.urgentStaticDirty && !nearestDirty.urgentStaticDirty || entry.urgentStaticDirty == nearestDirty.urgentStaticDirty && entry.stagedPriority < nearestDirty.stagedPriority) {
 
 
 
-nearestDirty = entryx; }
+nearestDirty = entry; }
 
  }
  if (nearestDirty == null) { break; } int
@@ -545,24 +545,24 @@ nearestDirty = entryx; }
                              staticBuildsThisFrame++;
                              }
                         } else {
-                            for (GpuShadowCache.Entry entryx : this.entries.values()) {
+                            for (GpuShadowCache.Entry entry : this.entries.values()) {
                                 if (staticBuildsThisFrame >= 1) { break;
-                                } if (!hasDirtyFaces(entryx) || !entryx.staticDirty) { continue; }
-                                this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entryx, entryx.dirtyFaceMask);
+                                } if (!hasDirtyFaces(entry) || !entry.staticDirty) { continue; }
+                                this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entry, entry.dirtyFaceMask);
                                 staticBuildsThisFrame++;
                             }
                         }
 
-                        if (dynamicFacesThisFrame < 24) { for (GpuShadowCache.Entry entryxx :
+                        if (dynamicFacesThisFrame < 24) { for (GpuShadowCache.Entry entry :
 this.entries.values()) {
 if (dynamicFacesThisFrame >= 24) { break; }
- if (!(hasDirtyFaces(entryxx) && !entryxx.staticDirty)) { continue; } int
+ if (!(hasDirtyFaces(entry) && !entry.staticDirty)) { continue; } int
 
- mask = entryxx.dirtyFaceMask; while
+ mask = entry.dirtyFaceMask; while
 (mask != 0
  && dynamicFacesThisFrame < 24) { int face = Integer.numberOfTrailingZeros(mask); int
 singleFaceMask = 1 << face;
- this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entryxx, singleFaceMask);
+ this.rebuildFaces(levelRenderer, partialTick, finishNano, gameRenderer, lightTexture, entry, singleFaceMask);
  mask &= ~singleFaceMask;
  dynamicFacesThisFrame++;
  }
@@ -851,9 +851,9 @@ this.trackedDynamicCasters.keySet()) {
             }
         }
 
-        for (long keyx : nextCasters.keySet()) {
-            if (!this.trackedDynamicCasters.containsKey(keyx)) {
-                this.markEntriesAffectedByCasterBounds(nextCasters.get(keyx));
+        for (long key : nextCasters.keySet()) {
+            if (!this.trackedDynamicCasters.containsKey(key)) {
+                this.markEntriesAffectedByCasterBounds(nextCasters.get(key));
             }
         }
     }
@@ -921,7 +921,7 @@ this.trackedDynamicCasters.keySet()) {
         double maxAxis = Math.max(absX, Math.max(absY, absZ));
         if (maxAxis <= 1.0E-6) {
             return 63;
-        } else {
+        }
             int
             mask = 0;
             double epsilon = maxAxis * 0.12;
@@ -929,7 +929,7 @@ this.trackedDynamicCasters.keySet()) {
             } if (absY + epsilon >= maxAxis) { mask |= dy >= 0.0 ? 4 : 8;
             } if (absZ + epsilon >= maxAxis) { mask |= dz >= 0.0 ? 16 : 32;
             } return mask == 0 ? 63 : mask;
-        }
+        
     }
 
     private long getDynamicUpdateIntervalMs() { int fps = Math.max(1, Config.CLIENT.entityShadowUpdateFpsLimit.get());

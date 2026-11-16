@@ -188,7 +188,7 @@ volatile NeoShadowsTypes.StaticHotPatchOverlay activeStaticHotPatch = NeoShadows
     float lastSkyCaptureYaw = Float.NaN;
     float lastSkyCapturePitch = Float.NaN;
     final Matrix4f lastSkyCaptureProjection = new Matrix4f();
-    final NeoShadowsStaticPipeline staticPipeline;
+
     private NeoShadowsEngine()
 
 
@@ -204,7 +204,7 @@ volatile NeoShadowsTypes.StaticHotPatchOverlay activeStaticHotPatch = NeoShadows
         this.staticPipeline = new NeoShadowsStaticPipeline(this);
         this.runtime = new NeoShadowsRuntime(this);
         this.renderPipeline = new NeoShadowsRenderPipeline(this);
-    } boolean lastSkyCaptureProjectionValid; final NeoShadowsRuntime runtime; final NeoShadowsRenderPipeline renderPipeline; final NeoShadowsDynamicPipeline dynamicPipeline; final NeoShadowsVisibility visibility; final NeoShadowsOcclusionPipeline occlusionPipeline;
+    } boolean lastSkyCaptureProjectionValid; final NeoShadowsRuntime runtime; final NeoShadowsRenderPipeline renderPipeline; final NeoShadowsDynamicPipeline dynamicPipeline; final NeoShadowsVisibility visibility; final NeoShadowsOcclusionPipeline occlusionPipeline; final NeoShadowsStaticPipeline staticPipeline;
 
     public static NeoShadowsEngine get() {
         return INSTANCE;

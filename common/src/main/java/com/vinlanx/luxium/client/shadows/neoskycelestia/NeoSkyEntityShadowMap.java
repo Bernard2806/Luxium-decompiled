@@ -49,10 +49,10 @@ public final class NeoSkyEntityShadowMap implements AutoCloseable {
         int updateFps = Config.CLIENT.skyEntityShadowUpdateFps.get();
         if (updateFps >= 61) {
             return true;
-        } else {
+        }
             long interval = 1000000000L / (long)Mth.clamp(updateFps, 10, 60);
             return !this.ready || nowNanos - this.lastUpdateNanos >= interval;
-        }
+        
     }
 
     public void render(Minecraft mc, Vec3 center, Vec3 toLight, float partialTick, long nowNanos) { Matrix4f rotation = NeoSkyCelestiaMath.buildLightViewRotation(toLight);

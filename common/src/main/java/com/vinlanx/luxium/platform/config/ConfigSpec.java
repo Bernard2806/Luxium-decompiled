@@ -87,10 +87,10 @@ this.save = Objects.requireNonNull(save); }
  return this.min; } public int max() {
  return this.max; } public Integer decode(Object value) {
 
- if (!(value instanceof Number number)) { return null; } else { long
+ if (!(value instanceof Number number)) { return null; } long
  integer = number.longValue();
 return integer >= (long)this.min && integer <= (long)this.max && number.doubleValue() == (double)integer ? (int)integer : null;
-            }
+            
         }
     }
     public static final class DoubleValue extends ConfigSpec.ConfigValue<Double> { private final double min; private final double max; private DoubleValue(List<String> path, String comment, double value, double min, double max) {
@@ -104,9 +104,9 @@ return integer >= (long)this.min && integer <= (long)this.max && number.doubleVa
  return this.min; } public double max() {
  return this.max; } public Double decode(Object value) {
 
- if (!(value instanceof Number number)) { return null; } else { double
+ if (!(value instanceof Number number)) { return null; } double
  result = number.doubleValue();
-return Double.isFinite(result) && result >= this.min && result <= this.max ? result : null; } } }
+return Double.isFinite(result) && result >= this.min && result <= this.max ? result : null;  } }
 
 
 

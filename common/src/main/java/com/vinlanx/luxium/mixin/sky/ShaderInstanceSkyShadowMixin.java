@@ -403,11 +403,11 @@ if (this.luxium$localAtlasLoc >= 0) { GL20.glUniform1i(this.luxium$localAtlasLoc
  if (this.luxium$localGridLoc >= 0) { GL20.glUniform1i(this.luxium$localGridLoc, 8); } }
 
  if (bakedHardActive) { for (int
- ix = 0; ix < 6; ix++) { int
- textureUnit = 9 + ix;
- luxium$bindTexture3D(textureUnit, GpuNeoShadows.bakedHardTexture(ix));
-if (this.luxium$localBakedHardSamplerLocs[ix] >= 0) {
- GL20.glUniform1i(this.luxium$localBakedHardSamplerLocs[ix], textureUnit); } }
+ i = 0; i < 6; i++) { int
+ textureUnit = 9 + i;
+ luxium$bindTexture3D(textureUnit, GpuNeoShadows.bakedHardTexture(i));
+if (this.luxium$localBakedHardSamplerLocs[i] >= 0) {
+ GL20.glUniform1i(this.luxium$localBakedHardSamplerLocs[i], textureUnit); } }
 
 
  if (this.luxium$localBakedHardMinLoc >= 0) {

@@ -115,7 +115,7 @@ pool.execute(() -> { try { int idx; while
 
 
  stripeLatch.await(); }
-catch (InterruptedException var21) { Thread.currentThread
+catch (InterruptedException e) { Thread.currentThread
  ().interrupt();
 break;
 } for (int
@@ -257,7 +257,7 @@ lightingByIndex[i] = this.engine.visibility.resolveFaceLightingCached(torchState
 
 
  latch.await(); }
-catch (InterruptedException var20) { Thread.currentThread
+catch (InterruptedException e) { Thread.currentThread
  ().interrupt();
 }
 } else { for (int
@@ -318,7 +318,7 @@ catch (Throwable var6x) { } finally {
 } try {
 
  finalizeLatch.await(); }
-catch (InterruptedException var19) { Thread.currentThread
+catch (InterruptedException e) { Thread.currentThread
  ().interrupt();
 }
 } else if (rgCount == 1) {
@@ -530,18 +530,18 @@ allSpritesOpaque = false;
  return false; } else { int
 
 
- polygonsBefore = scratch.shadowPolygons.size(); for (BakedQuad quadx :
+ polygonsBefore = scratch.shadowPolygons.size(); for (BakedQuad quad :
 quads) {
 if (scratch.shadowPolygons.size() >= 12288) {
  break; } NeoShadowsTypes.TexturedQuad
 
 
- texturedQuad = NeoShadowsTypes.TexturedQuad.from(quadx, hit.blockPos);
+ texturedQuad = NeoShadowsTypes.TexturedQuad.from(quad, hit.blockPos);
  if (!(texturedQuad != null && texturedQuad.facesSource(group.source))) {
 continue; } TextureAtlasSprite
 
 
- sprite = quadx.getSprite();
+ sprite = quad.getSprite();
 if (!(sprite != null)) {
  continue; } NeoShadowsTypes.SpriteOpaqueMask
 

@@ -461,8 +461,8 @@ return;
 
     private static float smoothstep(float edge0, float edge1, float value) {
         if (edge1 <= edge0) { return value < edge0 ? 0.0F : 1.0F;
-        } else { float t = Math.max(0.0F, Math.min(1.0F, (value - edge0) / (edge1 - edge0)));
+        } float t = Math.max(0.0F, Math.min(1.0F, (value - edge0) / (edge1 - edge0)));
             return t * t * (3.0F - 2.0F * t);
-        }
+        
     }
     }

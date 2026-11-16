@@ -19,8 +19,8 @@ public final class ExplosionShader {
     public static void register(ShaderRegistrar event) {
         try {
             event.registerShader(new ResourceLocation("luxium", "explosion_particle"), DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, value -> particleShader = value ); }
- catch (IOException var2) {
-            LOGGER.error("Failed to load explosion particle shader", var2);
+ catch (IOException exception) {
+            LOGGER.error("Failed to load explosion particle shader", exception);
         }
     }
 

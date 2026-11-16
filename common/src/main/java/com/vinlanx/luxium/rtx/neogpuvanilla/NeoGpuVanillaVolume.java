@@ -150,7 +150,7 @@ final class NeoGpuVanillaVolume {
             this.buildAnchorY = desiredY;
             this.buildAnchorZ = desiredZ;
             return true;
-        } else {
+        }
             int referenceX = this
  .ready ? this.activeAnchorX : this.buildAnchorX;
             int referenceY = this.ready ? this.activeAnchorY : this.buildAnchorY;
@@ -170,7 +170,7 @@ final class NeoGpuVanillaVolume {
                 this.buildAnchorZ = desiredZ;
                 return true;
             }
-        }
+        
     }
 
     void invalidate() { }

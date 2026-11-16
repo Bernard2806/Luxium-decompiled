@@ -153,7 +153,7 @@ return;
         if (index == 0) {
 
             return forward;
-        } else {
+        }
             int
             spreadCount = total - 1;
             int spreadIndex = index - 1;
@@ -169,7 +169,7 @@ return;
 (right.scale(rx)).add
 (up.scale(ux)).normalize
 ();
-        }
+        
     }
 
     private static int computeRayCount(int angleDeg) { double t = (double)Mth.clamp(angleDeg, 1, 180) / 180.0;

@@ -217,7 +217,7 @@ return;
             } else
             if (Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) && !preparedHistoryValid) {
                 return false;
-            } else {
+            }
                 int expectedWidth = Config.isFeatureEnabled
  (Config.CLIENT.lsrEnabled) ? LsrSystem.expectedWidth
  (main.width) : main.width;
@@ -263,7 +263,7 @@ return;
                         return true;
                     }
 
-            }
+            
     } public static void beginFirstPersonOverlay(Minecraft mc) { firstPersonOverlayPass = false;
         if (!(Config.isFeatureEnabled(Config.CLIENT.tfrEnabled))) {
 return;
@@ -412,13 +412,13 @@ return;
         double maxDistance = Config.CLIENT.tfrCameraCutDistance.get();
         if (dx * dx + dy * dy + dz * dz > maxDistance * maxDistance) {
             return true;
-        } else {
+        }
             float
             yawDelta = wrappedDegrees(camera.getYRot() - previousYaw);
             float pitchDelta = wrappedDegrees(camera.getXRot() - previousPitch);
             double angularDelta = Math.sqrt((double)(yawDelta * yawDelta + pitchDelta * pitchDelta));
             return angularDelta > Config.CLIENT.tfrCameraCutAngle.get();
-        }
+        
     }
 
     private static boolean hasMeaningfulCameraMotion(Camera camera) { Vec3 pos = camera.getPosition();
@@ -490,7 +490,7 @@ return;
 
  scene = sceneTarget;
         if (scene == null) { return false;
-        } else {
+        }
             boolean usePrepared = Config.isFeatureEnabled(Config.CLIENT.lsrEnabled) && preparedHistoryValid && preparedHistoryTarget != null;
             RenderTarget colorSource =
             usePrepared ? preparedHistoryTarget : scene;
@@ -510,7 +510,7 @@ syntheticFrame && motion != null ? motion.getColorTextureId() : colorSource.getC
 
             drawFullscreen(shader, destination);
             return true;
-        }
+        
     }
 
     private static void drawFullscreen(ShaderInstance shader, RenderTarget destination) { Matrix4f previousProjection = new Matrix4f(RenderSystem.getProjectionMatrix());

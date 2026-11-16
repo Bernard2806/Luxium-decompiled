@@ -64,182 +64,182 @@ public final class ShaderManager {
                 new ResourceLocation("luxium", "entity_shadow_solid"), DefaultVertexFormat.NEW_ENTITY, shader -> entityShadowSolidShader = shader );
  event.registerShader(
                 new ResourceLocation("luxium", "entity_shadow_cutout"), DefaultVertexFormat.NEW_ENTITY, shader -> entityShadowCutoutShader = shader ); }
- catch (IOException var32) {
-            throw new IllegalStateException("Failed to load entity shadow caster shaders", var32);
+ catch (IOException e) {
+            throw new IllegalStateException("Failed to load entity shadow caster shaders", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "polished_andesite_reflection"), DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, shader -> polishedAndesiteShader = shader ); }
- catch (IOException var31) {
-            LOGGER.error("Failed to load polished-andesite reflection shader", var31);
+ catch (IOException e) {
+            LOGGER.error("Failed to load polished-andesite reflection shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "metal_reflection"), DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, shader -> metalReflectionShader = shader ); }
- catch (IOException var30) {
-            LOGGER.error("Failed to load metal reflection shader", var30);
+ catch (IOException e) {
+            LOGGER.error("Failed to load metal reflection shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "godrays_post"), DefaultVertexFormat.POSITION_TEX, shader -> godRaysPostShader = shader);
-        } catch (IOException var29) {
-            LOGGER.error("Failed to load god rays post shader", var29);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load god rays post shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "skygodrays"), DefaultVertexFormat.POSITION_TEX, shader -> skyGodRaysShader = shader);
-        } catch (IOException var28) {
-            LOGGER.error("Failed to load sky god rays shader", var28);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load sky god rays shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "lensflare"), DefaultVertexFormat.POSITION_TEX, shader -> lensFlareShader = shader);
-        } catch (IOException var27) {
-            LOGGER.error("Failed to load lens flare shader", var27);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load lens flare shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "posteffects_combined"), DefaultVertexFormat.POSITION_TEX, shader -> postEffectsCombinedShader = shader ); }
- catch (IOException var26) {
-            LOGGER.error("Failed to load fused post-effects shader", var26);
+ catch (IOException e) {
+            LOGGER.error("Failed to load fused post-effects shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "sky"), DefaultVertexFormat.POSITION, shader -> skyShader = shader);
-        } catch (IOException var25) {
-            LOGGER.error("Failed to load sky shader", var25);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load sky shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "sky_bake"), DefaultVertexFormat.POSITION, shader -> skyBakeShader = shader);
-        } catch (IOException var24) {
-            LOGGER.error("Failed to load sky bake shader", var24);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load sky bake shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "fog"), DefaultVertexFormat.POSITION_TEX, shader -> fogShader = shader);
-        } catch (IOException var23) {
-            LOGGER.error("Failed to load fog shader", var23);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load fog shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "tonemap"), DefaultVertexFormat.POSITION_TEX, shader -> tonemapShader = shader);
-        } catch (IOException var22) {
-            LOGGER.error("Failed to load tonemap shader", var22);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load tonemap shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "posteffect_composite"), DefaultVertexFormat.POSITION_TEX, shader -> postEffectCompositeShader = shader ); }
- catch (IOException var21) {
-            LOGGER.error("Failed to load post-effect composite shader", var21);
+ catch (IOException e) {
+            LOGGER.error("Failed to load post-effect composite shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "grass"), DefaultVertexFormat.NEW_ENTITY, shader -> grassShader = shader);
-        } catch (IOException var20) {
-            LOGGER.error("Failed to load grass shader", var20);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load grass shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "flood_shadow_composite"), DefaultVertexFormat.POSITION_TEX, shader -> floodShadowCompositeShader = shader ); }
- catch (IOException var19) {
-            LOGGER.error("Failed to load flood shadow composite shader", var19);
+ catch (IOException e) {
+            LOGGER.error("Failed to load flood shadow composite shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "air_distortion"), DefaultVertexFormat.POSITION_TEX, shader -> airDistortionShader = shader);
-        } catch (IOException var18) {
-            LOGGER.error("Failed to load air distortion shader", var18);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load air distortion shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "blackhole"), DefaultVertexFormat.POSITION_TEX, shader -> blackHoleShader = shader);
-        } catch (IOException var17) {
-            LOGGER.error("Failed to load black hole shader", var17);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load black hole shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "cloud_shadow_caster"), DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL, shader -> cloudShadowCasterShader = shader ); }
- catch (IOException var16) {
-            LOGGER.error("Failed to load cloud shadow caster shader", var16);
+ catch (IOException e) {
+            LOGGER.error("Failed to load cloud shadow caster shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "depth_to_distance"), DefaultVertexFormat.POSITION_TEX, shader -> depthToDistanceShader = shader ); }
- catch (IOException var15) {
-            LOGGER.error("Failed to load depth_to_distance shader", var15);
+ catch (IOException e) {
+            LOGGER.error("Failed to load depth_to_distance shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "neogpuvanilla_bake"), DefaultVertexFormat.POSITION_TEX, shader -> neoGpuVanillaBakeShader = shader ); }
- catch (IOException var14) {
-            LOGGER.error("Failed to load NeoGpuVanilla bake shader", var14);
+ catch (IOException e) {
+            LOGGER.error("Failed to load NeoGpuVanilla bake shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "neogpuvanilla_resolve"), DefaultVertexFormat.POSITION_TEX, shader -> neoGpuVanillaResolveShader = shader ); }
- catch (IOException var13) {
-            LOGGER.error("Failed to load NeoGpuVanilla resolve shader", var13);
+ catch (IOException e) {
+            LOGGER.error("Failed to load NeoGpuVanilla resolve shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "neogpuvanilla_fast_resolve"), DefaultVertexFormat.POSITION_TEX, shader -> neoGpuVanillaFastResolveShader = shader ); }
- catch (IOException var12) {
-            LOGGER.error("Failed to load NeoGpuVanilla Fast GPU Shadows resolve shader", var12);
+ catch (IOException e) {
+            LOGGER.error("Failed to load NeoGpuVanilla Fast GPU Shadows resolve shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "gpu_hard_shadow_bake"), DefaultVertexFormat.POSITION_TEX, shader -> gpuHardShadowBakeShader = shader ); }
- catch (IOException var11) {
-            LOGGER.error("Failed to load baked Cubemap Hard receiver shader", var11);
+ catch (IOException e) {
+            LOGGER.error("Failed to load baked Cubemap Hard receiver shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "config_glass"), DefaultVertexFormat.POSITION_TEX, shader -> configGlassShader = shader);
-        } catch (IOException var10) {
-            LOGGER.error("Failed to load config glass shader", var10);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load config glass shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "water_surface"), DefaultVertexFormat.POSITION_TEX, shader -> waterSurfaceShader = shader);
-        } catch (IOException var9) {
-            LOGGER.error("Failed to load water surface shader", var9);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load water surface shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "rain_puddle"), DefaultVertexFormat.POSITION_TEX, shader -> rainPuddleShader = shader);
-        } catch (IOException var8) {
-            LOGGER.error("Failed to load new rain puddle shader", var8);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load new rain puddle shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "wet_surface"), DefaultVertexFormat.POSITION_TEX, shader -> wetSurfaceShader = shader);
-        } catch (IOException var7) {
-            LOGGER.error("Failed to load wet surface shader", var7);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load wet surface shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "lsr_upscale"), DefaultVertexFormat.POSITION_TEX, shader -> lsrUpscaleShader = shader);
-        } catch (IOException var6) {
-            LOGGER.error("Failed to load LSR upscale shader", var6);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load LSR upscale shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "temporal_reprojection"), DefaultVertexFormat.POSITION_TEX, shader -> temporalReprojectionShader = shader ); }
- catch (IOException var5) {
-            LOGGER.error("Failed to load temporal reprojection shader", var5);
+ catch (IOException e) {
+            LOGGER.error("Failed to load temporal reprojection shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "temporal_motion"), DefaultVertexFormat.POSITION_TEX, shader -> temporalMotionShader = shader);
-        } catch (IOException var4) {
-            LOGGER.error("Failed to load temporal motion shader", var4);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load temporal motion shader", e);
         }
 
         try {
             event.registerShader(new ResourceLocation("luxium", "temporal_prepare"), DefaultVertexFormat.POSITION_TEX, shader -> temporalPrepareShader = shader);
-        } catch (IOException var3) {
-            LOGGER.error("Failed to load temporal prepare shader", var3);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load temporal prepare shader", e);
         }
 
         registerFullscreen(event, "kawase_source", shader -> kawaseSourceShader = shader);
@@ -250,8 +250,8 @@ public final class ShaderManager {
         try {
 
             event.registerShader(new ResourceLocation("luxium", "youshader"), DefaultVertexFormat.POSITION_TEX, shader -> youShader = shader);
-        } catch (IOException var2) {
-            LOGGER.error("Failed to load youshader shader", var2);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load youshader shader", e);
         }
 
     }
@@ -401,8 +401,8 @@ public final class ShaderManager {
         try {
 
             event.registerShader(new ResourceLocation("luxium", name), DefaultVertexFormat.POSITION_TEX, setter);
-        } catch (IOException var4) {
-            LOGGER.error("Failed to load {} shader", name, var4);
+        } catch (IOException e) {
+            LOGGER.error("Failed to load {} shader", name, e);
             setter.accept(null);
         }
     }

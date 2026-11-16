@@ -407,9 +407,9 @@ if (this.luxium$localSoft != null) { this.luxium$localSoft.setInt(!bakedHardActi
 this.luxium$localSpreadOcclusion.setFloat(local.spreadOcclusionStrength());
 if (this.luxium$localBakedHardEnabled != null) { this.luxium$localBakedHardEnabled.setInt(bakedHardActive ? 1 : 0); }
  if (bakedHardActive) { for (int
- ix = 0; ix < 6; ix++) {
-bindTexture3D(8 + ix, GpuNeoShadows.bakedHardTexture(ix));
-if (this.luxium$localBakedHardSamplers[ix] != null) { this.luxium$localBakedHardSamplers[ix].setInt(8 + ix); } }
+ i = 0; i < 6; i++) {
+bindTexture3D(8 + i, GpuNeoShadows.bakedHardTexture(i));
+if (this.luxium$localBakedHardSamplers[i] != null) { this.luxium$localBakedHardSamplers[i].setInt(8 + i); } }
 
  if (this.luxium$localBakedHardMin != null) { this.luxium$localBakedHardMin.set(GpuNeoShadows.bakedHardMinX
 (), GpuNeoShadows.bakedHardMinY(), GpuNeoShadows.bakedHardMinZ()); }

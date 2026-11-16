@@ -342,12 +342,12 @@ public final class TorchRtxState { private static final TorchRtxState INSTANCE =
             observer = mc.gameRenderer.getMainCamera().getPosition();
         }
         if (observer == null) { return false;
-        } else {
+        }
             double dx = (double)pos.getX() + 0.5 - observer.x;
             double dy = (double)pos.getY() + 0.5 - observer.y;
             double dz = (double)pos.getZ() + 0.5 - observer.z;
             return dx * dx + dy * dy + dz * dz <= 4096.0;
-        }
+        
     }
 
     public void trackBlockTransition(ClientLevel level, BlockPos pos, BlockState oldState, BlockState newState, boolean immediate, boolean geometryChanged) {
@@ -478,9 +478,9 @@ public final class TorchRtxState { private static final TorchRtxState INSTANCE =
             discovered.defaultReturnValue((byte)0);
 
             chunk.findBlockLightSources((pos, state) -> {
-                int emissionx = LuxiumPlatform.get ().lightEmission(state, level, pos);
-                if (emissionx > 0 && shouldRegisterRtxSource(level, state)) {
-                    discovered.put(pos.asLong(), (byte)emissionx);
+                int emission = LuxiumPlatform.get ().lightEmission(state, level, pos);
+                if (emission > 0 && shouldRegisterRtxSource(level, state)) {
+                    discovered.put(pos.asLong(), (byte)emission);
                 }
             });
             LongOpenHashSet
@@ -1361,10 +1361,10 @@ section = sections[sectionIndex];
 if (!(section != null && !section.hasOnlyAir())) { return 0; } boolean
 
  maybeLight = task.scanLight && section.maybeHas
- (statex -> LuxiumPlatform.get().lightEmission(statex, task.level, BlockPos.ZERO) != 0);
+ (state -> LuxiumPlatform.get().lightEmission(state, task.level, BlockPos.ZERO) != 0);
                 boolean maybeReflective = task.scanReflective
                     && shouldScanReflectiveSources()
-                    && section.maybeHas(statex -> ReflectionMaterialRegistry.find(statex) != null);
+                    && section.maybeHas(state -> ReflectionMaterialRegistry.find(state) != null);
                 if (!maybeLight && !maybeReflective) { return 0;
                 } else {
                     int baseX = task.chunk.getPos().getMinBlockX();
@@ -1656,7 +1656,7 @@ offsets = new ArrayList<>((radius * 2 + 1) * (radius * 2 + 1));
                 if (dx * dx + dz * dz <= radius * radius) { offsets.add(new int[]{dx, dz});
                 }
             }
-        } offsets.sort(Comparator.comparingInt(vx -> vx[0] * vx[0] + vx[1] * vx[1]));
+        } offsets.sort(Comparator.comparingInt(v -> v[0] * v[0] + v[1] * v[1]));
         int[] packed = new int[offsets.size()];
         for (int i = 0; i < offsets.size(); i++) {
             int[] v = offsets.get(i);

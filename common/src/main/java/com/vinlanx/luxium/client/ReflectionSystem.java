@@ -1523,8 +1523,8 @@ this.face = f;
             } else {
                 BufferBuilder builder = new BufferBuilder(Math.max(256, count * 128));
                 builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
-                for (ReflectionSystem.MirrorFace facex : plane.faces) {
-                    if (categoryOf(facex) == category) { emitFace(builder, plane, facex);
+                for (ReflectionSystem.MirrorFace face : plane.faces) {
+                    if (categoryOf(face) == category) { emitFace(builder, plane, face);
                     } }
                 VertexBuffer buffer = new VertexBuffer(Usage.STATIC);
                 buffer.bind();

@@ -130,14 +130,14 @@ public final class skyvolumetrigodrays {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             return -1;
-        } else {
+        }
             BlockPos
             cameraPos = BlockPos.containing(minecraft.gameRenderer.getMainCamera().getPosition());
 
             minecraft.level.updateSkyBrightness();
 
             return Mth.clamp(minecraft.level.getMaxLocalRawBrightness(cameraPos), 0, 15);
-        }
+        
     }
 
     private static float updateAutoAdaptation() { boolean enabled = Config.isFeatureEnabled(Config.CLIENT.skyVolumetricGodRaysAutoAdaptation);

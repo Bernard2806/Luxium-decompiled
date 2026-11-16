@@ -143,8 +143,8 @@ shader.clear();
         if (lastFrameNanos < 0L) {
             lastFrameNanos = now;
             return 0.016666668F;
-        } else {
+        }
             float dt = (float)(now - lastFrameNanos) / 1.0E9F;
             lastFrameNanos = now;
-            return Math.max(0.0F, Math.min(dt, 0.05F)); } }
+            return Math.max(0.0F, Math.min(dt, 0.05F));  }
  }

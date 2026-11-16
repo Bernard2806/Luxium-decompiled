@@ -172,7 +172,7 @@ public final class NeoGpuVanillaGpuDebug {
             supportChecked = true;
 
             try { timerSupported = GL.getCapabilities().GL_ARB_timer_query;
-            } catch (Throwable var1) {
+            } catch (Throwable ignored) {
                 timerSupported = false;
             }
             if (enabled() && !timerSupported) {
@@ -185,6 +185,6 @@ public final class NeoGpuVanillaGpuDebug {
 
 
             return Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaDebug) && NeoGpuVanilla.isConfiguredEnabled();
-        } catch (Throwable var1) {
+        } catch (Throwable ignored) {
             return false; } }
     }

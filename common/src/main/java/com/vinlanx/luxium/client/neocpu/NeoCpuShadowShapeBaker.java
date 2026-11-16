@@ -126,12 +126,12 @@ quads = collectModelQuads(model, state);
                     } else {
                         ArrayList<NeoCpuShadowShape.LocalQuadTemplate>
 result = new ArrayList<>(quads.size() * 4);
-                        for (BakedQuad quadx : quads) {
-                            TextureAtlasSprite sprite = quadx.getSprite();
+                        for (BakedQuad quad : quads) {
+                            TextureAtlasSprite sprite = quad.getSprite();
                             if (!(sprite != null)) {
  continue;
  }
-                                NeoCpuShadowShapeBaker.LocalTexturedQuad texturedQuad = NeoCpuShadowShapeBaker.LocalTexturedQuad.from(quadx);
+                                NeoCpuShadowShapeBaker.LocalTexturedQuad texturedQuad = NeoCpuShadowShapeBaker.LocalTexturedQuad.from(quad);
                                 if (!(texturedQuad != null)) {
  continue;
  }
@@ -270,15 +270,15 @@ new NeoCpuShadowShapeBaker.SpriteAlphaMask(new NeoCpuShadowShapeBaker.SpriteRect
                 consumed = new boolean[opaque.length];
                 ArrayList<NeoCpuShadowShapeBaker.SpriteRect> rectangles = new ArrayList<>();
                 for (int pixelY = 0; pixelY < height; pixelY++) {
-                    for (int pixelXx = 0; pixelXx < width; pixelXx++) {
-                        int index = pixelY * width + pixelXx;
+                    for (int pixelX = 0; pixelX < width; pixelX++) {
+                        int index = pixelY * width + pixelX;
                         if (!(opaque[index] && !consumed[index])) {
 continue;
 }
 
                             int rectWidth = 1;
- while (pixelXx + rectWidth < width) {
- int nextIndex = pixelY * width + pixelXx + rectWidth;
+ while (pixelX + rectWidth < width) {
+ int nextIndex = pixelY * width + pixelX + rectWidth;
  if (!opaque[nextIndex] || consumed[nextIndex]) {
  break; }
 
@@ -290,7 +290,7 @@ continue;
                             while (pixelY + rectHeight < height && canGrow) {
                                 int nextRowOffset = (pixelY + rectHeight) * width;
                                 for (int scanX = 0; scanX < rectWidth; scanX++) {
-                                        int nextIndex = nextRowOffset + pixelXx + scanX;
+                                        int nextIndex = nextRowOffset + pixelX + scanX;
                                         if (!opaque[nextIndex] || consumed[nextIndex]) {
                                             canGrow = false;
                                             break; }
@@ -304,11 +304,11 @@ continue;
                             for (int fillY = 0; fillY < rectHeight; fillY++) {
                                 int fillRowOffset = (pixelY + fillY) * width;
                                 for (int fillX = 0; fillX < rectWidth; fillX++) {
-                                    consumed[fillRowOffset + pixelXx + fillX] = true;
+                                    consumed[fillRowOffset + pixelX + fillX] = true;
                                 }
                             }
 
-                            rectangles.add(new NeoCpuShadowShapeBaker.SpriteRect(pixelXx, pixelXx + rectWidth, pixelY, pixelY + rectHeight));
+                            rectangles.add(new NeoCpuShadowShapeBaker.SpriteRect(pixelX, pixelX + rectWidth, pixelY, pixelY + rectHeight));
 
                     } }
 

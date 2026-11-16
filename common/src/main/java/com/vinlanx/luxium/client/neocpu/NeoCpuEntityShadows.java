@@ -359,10 +359,10 @@ continue; }
         Vec3 normal = edgeA.cross(edgeB);
         if (normal.lengthSqr() <= 1.0E-8) {
             return false;
-        } else {
+        }
             Vec3 toSource = source.subtract(quad[0]);
             return normal.dot(toSource) > 1.0E-6;
-        }
+        
     }
     public static record CaptureState(long fingerprint, List<NeoCpuEntityShadows.Caster> casters) { private static final NeoCpuEntityShadows.CaptureState
  EMPTY = new NeoCpuEntityShadows.CaptureState(0L, Collections.emptyList()); public static NeoCpuEntityShadows.CaptureState empty() {

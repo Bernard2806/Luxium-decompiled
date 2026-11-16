@@ -192,24 +192,24 @@ if (!this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, fru
 
             List<NeoShadowsTypes.ShadowPolygon> staging = this.engine.inFlightStaticPolygons;
             if (this.engine.activeStaticOutput == null && !staging.isEmpty() && this.engine.inFlightStaticEpoch == this.engine.buildEpoch) {
-                for (NeoShadowsTypes.ShadowPolygon polygonx : staging) {
-                    if (!this.engine.shouldCullShadowPolygon(polygonx, cameraX, cameraY, cameraZ, frustum)) {
-                        this.engine.emitPolygon(pose, consumer, cameraPos, polygonx);
+                for (NeoShadowsTypes.ShadowPolygon polygon : staging) {
+                    if (!this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
+                        this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
                     }
                 }
             }
 
             if (hasHotPatch) {
-                for (NeoShadowsTypes.ShadowPolygon polygonxx : hotPatch.polygons) {
-                    if (!this.engine.shouldCullShadowPolygon(polygonxx, cameraX, cameraY, cameraZ, frustum)) {
-                        this.engine.emitPolygon(pose, consumer, cameraPos, polygonxx);
+                for (NeoShadowsTypes.ShadowPolygon polygon : hotPatch.polygons) {
+                    if (!this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
+                        this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
                     }
                 }
             }
 
-            for (NeoShadowsTypes.ShadowPolygon polygonxxx : this.engine.activeDynamicPolygons) {
-                if (!this.engine.shouldCullShadowPolygon(polygonxxx, cameraX, cameraY, cameraZ, frustum)) {
-                    this.engine.emitPolygon(pose, consumer, cameraPos, polygonxxx);
+            for (NeoShadowsTypes.ShadowPolygon polygon : this.engine.activeDynamicPolygons) {
+                if (!this.engine.shouldCullShadowPolygon(polygon, cameraX, cameraY, cameraZ, frustum)) {
+                    this.engine.emitPolygon(pose, consumer, cameraPos, polygon);
                 }
             }
 

@@ -1239,11 +1239,11 @@ if (shadowShader != null) {
     private static boolean isOrdinaryTerrainDistanceFog(float fogEnd, FogShape fogShape) {
  if (fogShape != FogShape.CYLINDER) {
             return false;
-        } else {
+        }
             Minecraft mc = Minecraft.getInstance();
             float vanillaTerrainFogEnd = Math.max(mc.gameRenderer.getRenderDistance(), 32.0F);
             return Float.isFinite(fogEnd) && Math.abs(fogEnd - vanillaTerrainFogEnd) <= 0.75F;
-        }
+        
     }
 
     private static void applyLayerDistanceFog(LuxiumCloudRenderer.LayerConfig layer, CloudStatus cloudStatus, double cameraY) { float horizontalRadius = layerGeometryRadiusBlocks(layer, cloudStatus);

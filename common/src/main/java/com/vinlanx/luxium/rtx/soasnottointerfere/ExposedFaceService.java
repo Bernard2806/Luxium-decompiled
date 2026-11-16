@@ -517,21 +517,21 @@ if (SectionPos.x(sectionKey) == chunkX && SectionPos.z(sectionKey) == chunkZ) {
 this.sectionReceivers.remove(sectionKey);
 this.sectionCompleteReceiverSurfaces.remove(sectionKey); }
 
-} for (Long sectionKeyx :
+} for (Long sectionKey :
 this.fullyCapturedSections.keySet()) {
-if (SectionPos.x(sectionKeyx) == chunkX && SectionPos.z(sectionKeyx) == chunkZ) {
- changed |= this.fullyCapturedSections.remove(sectionKeyx) != null; }
+if (SectionPos.x(sectionKey) == chunkX && SectionPos.z(sectionKey) == chunkZ) {
+ changed |= this.fullyCapturedSections.remove(sectionKey) != null; }
 
- } for (Long sectionKeyxx :
+ } for (Long sectionKey :
 this.pendingSectionCaptures.keySet()) {
-if (SectionPos.x(sectionKeyxx) == chunkX && SectionPos.z(sectionKeyxx) == chunkZ) {
- this.pendingSectionCaptures.remove(sectionKeyxx); }
+if (SectionPos.x(sectionKey) == chunkX && SectionPos.z(sectionKey) == chunkZ) {
+ this.pendingSectionCaptures.remove(sectionKey); }
 
-} for (Long sectionKeyxxx :
+} for (Long sectionKey :
 
 this.latestSectionBuildRevision.keySet()) {
-if (SectionPos.x(sectionKeyxxx) == chunkX && SectionPos.z(sectionKeyxxx) == chunkZ) {
- this.latestSectionBuildRevision.remove(sectionKeyxxx); }
+if (SectionPos.x(sectionKey) == chunkX && SectionPos.z(sectionKey) == chunkZ) {
+ this.latestSectionBuildRevision.remove(sectionKey); }
 
 }
 return changed; } private boolean ensureSectionCapturedNow(ClientLevel level, long sectionKey) {
@@ -1448,7 +1448,7 @@ return false; } }
 
 
  if (this.surfaces.length == 0) {
- return 0; } else { byte
+ return 0; } byte
 
 
  mask = 0; MutableBlockPos
@@ -1465,7 +1465,7 @@ if (neighbour == null) {
 
  mask |= (byte)surface.faceMaskBit; }
 
-return mask; } } private void forEachSurface(long blockKey, byte visibleBoundaryMask, ExposedFaceService.ReceiverSurfaceVisitor visitor) { for (ExposedFaceService.ReceiverSurfaceTemplate surface :
+return mask;  } private void forEachSurface(long blockKey, byte visibleBoundaryMask, ExposedFaceService.ReceiverSurfaceVisitor visitor) { for (ExposedFaceService.ReceiverSurfaceTemplate surface :
 
 
 
