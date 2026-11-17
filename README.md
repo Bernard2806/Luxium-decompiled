@@ -12,7 +12,7 @@ This `main` branch holds no code. It describes how the repository is organized a
 
 | Version | Branch | Loaders | Status | Release |
 | --- | --- | --- | --- | --- |
-| 2.8.4-pre-alpha | [`2.8.4-pre-alpha`](https://github.com/Bernard2806/Luxium-decompiled/tree/2.8.4-pre-alpha) | Forge + Fabric (one JAR) | Not started; the branch is empty. | — |
+| 2.8.4-pre-alpha | [`2.8.4-pre-alpha`](https://github.com/Bernard2806/Luxium-decompiled/tree/2.8.4-pre-alpha) | Forge + Fabric (one JAR) | Complete: the build reproduces all 846 `.class` files of the original JAR (421 Forge, 425 Fabric) byte for byte. | [`v2.8.4-pre-alpha`](https://github.com/Bernard2806/Luxium-decompiled/releases/tag/v2.8.4-pre-alpha) |
 | 2.8.0-pre-alpha | [`2.8.0-pre-alpha`](https://github.com/Bernard2806/Luxium-decompiled/tree/2.8.0-pre-alpha) | Forge | Complete: the build reproduces all 395 `.class` files of the original JAR byte for byte. | [`v2.8.0-pre-alpha`](https://github.com/Bernard2806/Luxium-decompiled/releases/tag/v2.8.0-pre-alpha) |
 
 ### 2.8.4-pre-alpha
@@ -27,6 +27,13 @@ Input artifact: `Luxium Let there be light-2.8.4-pre-alpha forge-fabric.jar`. Th
 - Added a fullscreen resolution option to the Fabric version, since Sodium for 1.20.1 does not have this slider.
 - Detector and blocking screen for Iris and Oculus.
 - Fixed/improved the cloud rendering order.
+
+The JAR is a Forgix 1.2.9 merge of a Forge build and a Fabric build, so the branch is a multi-loader project (`common/`, `forge/`, `fabric/`) with Mojang names. Requirements, on Minecraft 1.20.1 with Java 17:
+
+- Forge: Forge 47.1.3 or newer and Embeddium `0.3.31+mc1.20.1` or a later 0.3.x.
+- Fabric: Fabric Loader 0.16.14 or newer, Fabric API `0.92.2+1.20.1` or newer, and Sodium `0.5.13` exactly.
+
+Decompiled with Vineflower 1.10.1, reusing the corrected 2.8.0 sources for unchanged classes. See the branch README for details.
 
 ### 2.8.0-pre-alpha
 
@@ -70,9 +77,21 @@ Each version has exactly one release tag, named `v` + version (for example, `v2.
 └── README.md                          version-specific details
 ```
 
-The original JAR is never committed. Its contents are kept only as `.github/release/original-class-index.txt` (the list of classes) and `.github/release/original-method-index.txt` (a normalized bytecode hash of every method), which is enough to measure how closely a build matches it.
+The original JAR is never committed. Its contents are kept only as `.github/release/original-class-index.txt` (the list of classes) and `.github/release/original-method-index.txt` (a normalized bytecode hash of every method), which is enough to measure how closely a build matches it. Later versions also keep `.github/release/original-class-hashes.txt` (a SHA-256 of every `.class` file).
 
-The layout above is the one of `2.8.0-pre-alpha`. Later versions keep it where they can, but a Forge + Fabric JAR may need a different build (for example, a multi-loader project). Each branch's README is the reference for that version.
+The layout above is the one of `2.8.0-pre-alpha`. `2.8.4-pre-alpha` ships one JAR for Forge and Fabric, so its branch is a multi-loader project instead:
+
+```
+.
+├── common/src/main/{java,resources}/  code and assets shared by both loaders
+├── forge/                             Forge entry point, Embeddium/Forge mixins, mods.toml (ForgeGradle 6)
+├── fabric/                            Fabric entry point, Sodium/Fabric mixins, fabric.mod.json (Loom 1.1.14)
+├── build.gradle                       merges the Forge and Fabric JARs with Forgix 1.2.9
+├── scripts/, .github/                 same role as above
+└── DECOMPILATION_STATUS.md            how the original was built and how the sources were produced
+```
+
+Each branch's README is the reference for that version.
 
 ### Build
 
@@ -81,23 +100,26 @@ Each version branch builds with its own Gradle wrapper:
 ```sh
 git switch 2.8.0-pre-alpha
 ./gradlew build
+
+git switch 2.8.4-pre-alpha
+./gradlew mergeJars
 ```
 
-The decompiled sources use SRG member names; the build remaps them to Minecraft's official mappings before compiling. The JAR is written to `build/libs/`. Java and loader requirements are listed in each branch's README; `2.8.0-pre-alpha` needs Java 17 (17.0.13 or older to reproduce the original bytecode).
+In `2.8.0-pre-alpha` the decompiled sources use SRG member names, and the build remaps them to Minecraft's official mappings before compiling. `2.8.4-pre-alpha` uses Mojang names directly; `mergeJars` builds both loaders and merges them into one JAR. The JAR is written to `build/libs/`. Java and loader requirements are listed in each branch's README; both versions need Java 17 (17.0.13 or older to reproduce the original bytecode).
 
 ### Releases
 
 Pushing a version's tag runs that branch's `.github/workflows/release.yml`, which triggers on that one tag only:
 
-1. Builds the mod with the tag as its version.
-2. Runs `scripts/calculate_decompilation_match.py`, which reports the share of classes with complete sources and the share of methods whose bytecode is identical to the original, and draws the decompilation map.
+1. Builds the mod with the tag as its version (`build` in 2.8.0, `mergeJars` in 2.8.4).
+2. Runs `scripts/calculate_decompilation_match.py`, which reports the share of classes with complete sources and the share of methods whose bytecode is identical to the original (from 2.8.4, also the share of byte-identical `.class` files), and draws the decompilation map.
 3. Creates a GitHub Release with the JAR and the map attached. Tags containing a hyphen are marked as prereleases.
 
 ## License
 
 This repository contains no original work of its own beyond documentation and build tooling, and it does not relicense anything:
 
-- **Luxium code, shaders, assets, and branding:** Copyright © Vinlanx, under the Luxium Custom License. A copy is in `LICENSE.txt`, and each version branch ships the license from its JAR in `src/main/resources/LICENSE.txt`. Note that the license does not allow redistributing Luxium or derivative versions without written permission from Vinlanx; see the takedown section below.
+- **Luxium code, shaders, assets, and branding:** Copyright © Vinlanx, under the Luxium Custom License. A copy is in `LICENSE.txt`, and each version branch ships the license from its JAR (`src/main/resources/LICENSE.txt` in 2.8.0, `common/src/main/resources/LICENSE.txt` in 2.8.4). Note that the license does not allow redistributing Luxium or derivative versions without written permission from Vinlanx; see the takedown section below.
 - **`scripts/decompilation_map.py`:** derived from [AnyPS5](https://github.com/boykopovar/AnyPS5), GPL-2.0-only. It applies to that file only, a build tool that is not part of the mod JAR.
 
 See `NOTICE.md` for the full notice.

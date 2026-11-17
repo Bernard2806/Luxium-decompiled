@@ -6,7 +6,7 @@
 
 Created by **Vinlanx**. Copyright © Vinlanx. All rights reserved.
 
-All original code, shaders, assets, and branding belong to Vinlanx and are governed by the Luxium Custom License. A copy is included in `LICENSE.txt` on this branch, and each version branch includes the license shipped in that version's JAR in `src/main/resources/LICENSE.txt`.
+All original code, shaders, assets, and branding belong to Vinlanx and are governed by the Luxium Custom License. A copy is included in `LICENSE.txt` on this branch, and each version branch includes the license shipped in that version's JAR (`src/main/resources/LICENSE.txt` in 2.8.0, `common/src/main/resources/LICENSE.txt` in 2.8.4).
 
 ## Unofficial decompilation
 
