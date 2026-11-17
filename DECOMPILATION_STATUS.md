@@ -11,21 +11,19 @@ Measured by comparing the merged JAR built by `./gradlew mergeJars` with
 
 | Copy | Byte-identical classes | Identical methods (code + line numbers) |
 |---|---|---|
-| `forge/` | 402 / 421 (95.49 %) | 3843 / 3843 (100 %) |
-| `fabric/` | 409 / 425 (96.24 %) | 3845 / 3845 (100 %) |
-| **Total** | **811 / 846 (95.86 %)** | **7688 / 7688 (100 %)** |
+| `forge/` | 421 / 421 (100 %) | 3843 / 3843 (100 %) |
+| `fabric/` | 425 / 425 (100 %) | 3845 / 3845 (100 %) |
+| **Total** | **846 / 846 (100 %)** | **7688 / 7688 (100 %)** |
 
-- Every method now has the original bytecode and line numbers in both copies.
-- Source files whose classes are all identical: 217 / 234.
-- The other 35 classes differ only outside the code: local variable order in the LocalVariableTable (28 classes), constant pool order (32) and class attributes such as `InnerClasses`/`NestMembers` order (5).
+- Every class of both copies is byte-identical to the original (code, line numbers, local variable tables, constant pool and attributes).
 - All 1086 entries of the original JAR are present, with the same names.
-- 57 resources differ only because of the packaging (see below).
+- 56 non-class entries differ only because of the packaging (see "What is left").
 
-2026-11-16: local variables renamed to their original names, redundant `else` blocks removed where the original LVT order shows it (greedy search, `lvtopt.py`), field order fixed in `Grass` and `NeoShadowsEngine`, and `ModelBlockRendererMixin` split per loader (the fabric copy targets the vanilla `tesselateWithAO`/`tesselateWithoutAO` signatures). Still left: LVT order in 17 methods per copy, constant pool/InnerClasses order in a few classes, and the final repackaging (Forgix rewrites CRLF text resources and drops the 1980 timestamps; the sources already hold the original bytes).
+2026-11-16: local variables renamed to their original names, redundant `else` blocks removed where the original LVT order shows it (greedy search, `lvtopt.py`), field order fixed in `Grass` and `NeoShadowsEngine`, and `ModelBlockRendererMixin` split per loader (the fabric copy targets the vanilla `tesselateWithAO`/`tesselateWithoutAO` signatures).
 
-Latest (2026-11-17): more redundant `else` blocks after `return`/`continue` removed where the original LVT order shows the variables were declared at the outer level (+23 classes).
+Latest (2026-11-17): all 846 classes match. The last fixes: more redundant `else` blocks after `return`/`continue` removed (found with a greedy search that only keeps edits leaving the bytecode unchanged and bringing the LVT closer to the original), two nested `if`s in `LevelRendererMixin` (line table), a diamond on an anonymous `Iterator` (no `Signature` on its constructor), the nested class order of `ExposedFaceService` (`NestMembers`), no `@Mod.EventBusSubscriber` on `ModCommands`/`RainPuddleCommands`, and `EmbeddiumRenderSectionAccessor` targeting the `RenderSection` class literal.
 
-History: 2026-11-03 → 7258 methods (94.41 %), 674 classes. 2026-11-16 → 7628 methods (99.22 %), 742 classes. 2026-11-16 (later) → 7688 methods (100 %), 750 classes, then 788. 2026-11-17 → 811 classes.
+History: 2026-11-03 → 7258 methods (94.41 %), 674 classes. 2026-11-16 → 7628 methods (99.22 %), 742 classes. 2026-11-16 (later) → 7688 methods (100 %), 750 classes, then 788. 2026-11-17 → 811, then 846 classes (100 %).
 
 ## How the original was built
 
@@ -35,7 +33,7 @@ History: 2026-11-03 → 7258 methods (94.41 %), 674 classes. 2026-11-16 → 7628
 - 395 classes come from the same source in both copies: same bytecode and same line numbers once the names are translated. That code lives in `common/`.
 - Forge only: `forge/*`, the `Embeddium*` and `Forge*` mixins. Fabric only: `fabric/*`, the `Sodium*` and `Fabric*` mixins, and `SpriteContentsAccessor`.
 - Same name but different code in each loader (one copy in `forge/` and one in `fabric/`): `ModCommands`, `RainPuddleCommands`, `DynamicShadowMeshCapture`, `LightTextureMixin`, `ItemBlockRenderTypesMixin`.
-- The published JAR was repackaged **after** Forgix: entries with a fixed 1980-02-01 timestamp, a different order, and assets without Forgix's text rewriting (Forgix turns CRLF into LF and adds a trailing newline). That is why 57 resources, the manifest and the refmaps still differ.
+- The published JAR was repackaged **after** Forgix: entries with a fixed 1980-02-01 timestamp, a different order, and assets without Forgix's text rewriting (Forgix turns CRLF into LF and adds a trailing newline). That is why 52 text resources still differ.
 
 ## Project layout (MultiLoader, Mojang names)
 
@@ -66,13 +64,16 @@ JAVA_HOME=/path/to/jdk-17.0.13 ./gradlew mergeJars   # -> build/libs/luxium-2.8.
    - **Other:** inverted ternaries, `x = x + y` → `x += y`, local variables Vineflower had removed (`h = ...; return h;`), pattern-matching `instanceof`, `case` order in a `switch`, method references (`this::addRenderableWidget`) instead of lambdas.
 5. Manual fixes: `(Object)this` casts in mixins, `remap=false` in `GlStateManagerMixin`, imports of protected `RenderStateShard` classes, lambda capture in `NeoShadowsStaticPipeline`, and `@Mod.EventBusSubscriber` removed from `PostProcessStateGuard`.
 
-The tools (Python + Java) live outside the repo, in `~/tools/luxium-decomp-tools/` on the working machine: `verify.py`, `align.py`, `transplant.py`, `flips.py`/`FlipIf.java`, `mappings.py`, `classfile.py`, `mdiff.py`, `todo.py`. The ones from the 2026-11-16 session are in `session-2026-11-16/` (`flipret.py`, `tern.py`, `unelse.py`, `tocont.py`, `splitand.py`, `retvar.py`, `ctx.py`, `hk.py`, and `audit.py`/`audit2.py` to check that no inversion changed the semantics, among others).
+The tools (Python + Java) live outside the repo, in `~/tools/luxium-decomp-tools/` on the working machine: `verify.py`, `align.py`, `transplant.py`, `flips.py`/`FlipIf.java`, `mappings.py`, `classfile.py`, `mdiff.py`, `todo.py`. The ones from the 2026-11-16 session are in `session-2026-11-16/` (`flipret.py`, `tern.py`, `unelse.py`, `tocont.py`, `splitand.py`, `retvar.py`, `ctx.py`, `hk.py`, and `audit.py`/`audit2.py` to check that no inversion changed the semantics, among others). The 2026-11-17 ones are in `session-2026-11-17/`: `lvtopt.py` (greedy `else` removal driven by the original LVT, compiling one file with javac and accepting only edits that keep the bytecode), `lvo.py`/`lvtsum.py` (LVT diffs), `lt.sh` (line table of one method). `verify.py` now also compares the pcs of the line number tables.
 
 ## What is left
 
-- **LocalVariableTable:** local variable names and declaration order. The original names are in the original LVT (it was compiled with `-g`), so most of them can be recovered automatically by matching slot and start pc. Fixing names should also fix most constant pool differences, since names are constant pool entries.
-- **Constant pool / class attributes:** order of constant pool entries, `InnerClasses`/`NestMembers`, and field order in `Grass` and `NeoShadowsEngine`.
-- **Packaging:** reproduce the final repackaging (1980 timestamps, entry order, assets not rewritten).
+All classes match. Only the packaging differs, and it cannot be fully reproduced from a Linux build:
+
+- **Manifest:** `Implementation-Timestamp` is the original build time (`2026-10-13T19:45:15+0300`).
+- **Nested jars** (`META-INF/jars/fabric-core-3.6.6.jar`, `fabric-toml-3.6.6.jar`): same entries and contents, but each entry carries an NTFS extra field with the creation/access times of the author's Windows machine.
+- **`forge-luxium.forge.mixins.refmap.json`:** same mappings, but `MinecraftSkyShadowLifecycleMixin` is in a different position. The mixin AP writes them in the order javac processes the sources, which comes from the file system (NTFS vs ext4).
+- **Repackaging after Forgix:** the published JAR has 1980-02-01 timestamps (Gradle's constant for `preserveFileTimestamps = false`), its own entry order, and the text resources without Forgix's CRLF→LF rewrite (52 files: 49 shaders, `uk_ua.json`, `LICENSE.txt`, `pack.mcmeta`). The sources already hold the original bytes, so a final `Jar` task that copies the resources raw would fix their contents; the exact entry order is still unknown.
 - **Branch:** README, release workflow, `scripts/` and `.github/release/` indexes (as in 2.8.0).
 
 ### Last round of method fixes (2026-11-16)
