@@ -379,7 +379,7 @@ continue;
 
  if (this.addModelShadowPolygons(level, group, hit, state, scratch)) {
  if (scratch.shadowPolygons.size() >= 12288) {
- return; } } else { for (NeoShadowsTypes.Box bounds :
+ return; } continue; } for (NeoShadowsTypes.Box bounds :
 
 
 
@@ -393,7 +393,7 @@ if (!(polygon != null)) {
 
  this.addPlaneShadowPolygons(group, polygon, scratch);
  if (scratch.shadowPolygons.size() >= 12288) {
- return; } } }
+ return; } } 
 
 
  }
@@ -982,10 +982,10 @@ projectedCorners = new NeoShadowsTypes.ProjectionPoint[corners.length];
                             this.appendPlaneShadowPolygon(group, planePolygon, minU, maxU, minV, maxV, cellRect, anchorPos, receiverRect.strength, scratch);
                         }
                     }
-                } else {
+                continue; }
 
                     this.appendPlaneShadowPolygon(group, planePolygon, minU, maxU, minV, maxV, rect, receiverRect.anchorPos, receiverRect.strength, scratch);
-                } }
+                 }
     }
 
     private void appendRectShadowPolygon(

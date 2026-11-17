@@ -97,17 +97,17 @@ receivers = new ArrayList<>(surfaceBoxes.size() * 6);
 
         if (state.getRenderShape() != RenderShape.MODEL) {
             return EMPTY_QUADS;
-        } else {
+        }
             BakedModel model = Minecraft.getInstance
  ().getBlockRenderer().getBlockModel(state);
             if (model == null) {
                 return EMPTY_QUADS;
-            } else {
+            }
                 List<BakedQuad>
 quads = collectModelQuads(model, state);
                 if (quads.isEmpty()) {
                     return EMPTY_QUADS;
-                } else {
+                }
                     boolean
                     needsModelOccluders = !state.isCollisionShapeFullBlock(level, pos);
                     for (BakedQuad quad : quads) {
@@ -123,7 +123,7 @@ quads = collectModelQuads(model, state);
                     }
                     if (!needsModelOccluders) {
                         return EMPTY_QUADS;
-                    } else {
+                    }
                         ArrayList<NeoCpuShadowShape.LocalQuadTemplate>
 result = new ArrayList<>(quads.size() * 4);
                         for (BakedQuad quad : quads) {
@@ -168,10 +168,10 @@ mask.rectangles) {
                         return result.isEmpty() ?
 EMPTY_QUADS : result.toArray
  (EMPTY_QUADS);
-                    }
-                }
-            }
-        } } private static List<AABB> collectRenderSurfaceBoxes(BlockState state, ClientLevel level, BlockPos pos) { VoxelShape
+                    
+                
+            
+         } private static List<AABB> collectRenderSurfaceBoxes(BlockState state, ClientLevel level, BlockPos pos) { VoxelShape
 
  shape = state.getShape((BlockGetter)level, pos);
         if (shape.isEmpty()) {
@@ -256,7 +256,7 @@ boxes = new ArrayList<>();
 
         if (!anyOpaque) {
             return NeoCpuShadowShapeBaker.SpriteAlphaMask.transparentMask();
-        } else {
+        }
             float averageOpacity = opaquePixelCount
  <= 0 ?
  0.0F : Mth.clamp
@@ -265,7 +265,7 @@ boxes = new ArrayList<>();
                 return averageOpacity >= 0.999F
                     ? NeoCpuShadowShapeBaker.SpriteAlphaMask.opaqueMask() :
 new NeoCpuShadowShapeBaker.SpriteAlphaMask(new NeoCpuShadowShapeBaker.SpriteRect[0], true, false, averageOpacity);
-            } else {
+            }
                 boolean[]
                 consumed = new boolean[opaque.length];
                 ArrayList<NeoCpuShadowShapeBaker.SpriteRect> rectangles = new ArrayList<>();
@@ -312,7 +312,7 @@ continue;
 
                     } }
 
-                    return new NeoCpuShadowShapeBaker.SpriteAlphaMask(rectangles.toArray(new NeoCpuShadowShapeBaker.SpriteRect[0]), false, false, averageOpacity); } } } @Nullable private static NeoCpuShadowShapeBaker.SpritePixelBounds computeQuadPixelBounds(NeoCpuShadowShapeBaker.LocalTexturedQuad quad, TextureAtlasSprite sprite) { int
+                    return new NeoCpuShadowShapeBaker.SpriteAlphaMask(rectangles.toArray(new NeoCpuShadowShapeBaker.SpriteRect[0]), false, false, averageOpacity);   } @Nullable private static NeoCpuShadowShapeBaker.SpritePixelBounds computeQuadPixelBounds(NeoCpuShadowShapeBaker.LocalTexturedQuad quad, TextureAtlasSprite sprite) { int
 
 
 
