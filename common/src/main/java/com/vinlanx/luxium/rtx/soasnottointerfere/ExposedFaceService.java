@@ -489,10 +489,10 @@ if (changed) { notifySystemsChanged
 
 
 ()) {
-return ExposedFaceService.SectionFaceSnapshot.empty(); } else { ExposedFaceService.SectionFaceSnapshot
+return ExposedFaceService.SectionFaceSnapshot.empty(); } ExposedFaceService.SectionFaceSnapshot
 
  snapshot = this.sectionFaceSnapshots.get(sectionKey);
-return snapshot != null ? snapshot : ExposedFaceService.SectionFaceSnapshot.empty(); } } public boolean hasSectionFaceSnapshot(long sectionKey) {
+return snapshot != null ? snapshot : ExposedFaceService.SectionFaceSnapshot.empty();  } public boolean hasSectionFaceSnapshot(long sectionKey) {
 
 
 
@@ -642,12 +642,12 @@ return ExposedFaceService.ReceiverShapeTemplate.EMPTY; } ExposedFaceService.Rece
 
  cached = this.receiverShapeCache.get(state);
 if (cached != null) {
- return cached; } else { ExposedFaceService.ReceiverShapeTemplate
+ return cached; } ExposedFaceService.ReceiverShapeTemplate
 
 
  built = buildReceiverShapeTemplate(state, level, pos); ExposedFaceService.ReceiverShapeTemplate
  existing = this.receiverShapeCache.putIfAbsent(state, built);
-return existing != null ? existing : built; } } private static ExposedFaceService.ReceiverShapeTemplate buildReceiverShapeTemplate(BlockState state, BlockGetter level, BlockPos pos) { VoxelShape
+return existing != null ? existing : built;  } private static ExposedFaceService.ReceiverShapeTemplate buildReceiverShapeTemplate(BlockState state, BlockGetter level, BlockPos pos) { VoxelShape
 
 
 

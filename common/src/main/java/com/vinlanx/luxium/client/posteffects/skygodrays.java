@@ -100,7 +100,7 @@ cloudOcclusionTexture != 0 ? cloudOcclusionTexture : depthTexture);
         clip.mul(modelViewMatrix);
         clip.mul(projectionMatrix);
         if (clip.w <= 0.0F) { return null;
-        } else {
+        }
             float ndcX = clip.x / clip.w;
             float ndcY = clip.y / clip.w;
             float screenX = (ndcX + 1.0F) * 0.5F;
@@ -121,7 +121,7 @@ cloudOcclusionTexture != 0 ? cloudOcclusionTexture : depthTexture);
                         fade,
                         look.color,
                         look.rayStrength,
-                        look.haloStrength, look.discStrength, look.haloRadius, look.discRadius, look.centerSuppression, useMoon ); } } private static skygodrays.CelestialLook buildCelestialLook(boolean useMoon, float partialTick) { Minecraft mc = Minecraft.getInstance ();
+                        look.haloStrength, look.discStrength, look.haloRadius, look.discRadius, look.centerSuppression, useMoon );  } private static skygodrays.CelestialLook buildCelestialLook(boolean useMoon, float partialTick) { Minecraft mc = Minecraft.getInstance ();
         CelestialPath.State celestialPath = NeoSkyFrameCache.celestial(mc.level, partialTick);
         float elevation = (float)celestialPath.elevation(useMoon);
         float visible = smoothstep(0.0F, 0.12F, elevation);
@@ -165,7 +165,7 @@ cloudOcclusionTexture != 0 ? cloudOcclusionTexture : depthTexture);
 
             return new skygodrays.CelestialLook(
                 color, visible, rayStrength, haloStrength, discStrength, haloRadius, 0.0067F * discSize * moonSize, centerSuppression );
-        } else {
+        }
             Vector3f
             color = mix(sunHorizonColor, sunDayColor, high);
             color = mix(color, sunHorizonColor, golden * 0.55F);
@@ -179,7 +179,7 @@ cloudOcclusionTexture != 0 ? cloudOcclusionTexture : depthTexture);
             float haloRadius = (0.047F + 0.04F * lowAngle + 0.017F * haze) * haloSize * sunSize;
             return new skygodrays.CelestialLook(
                 color, visible, rayStrength, haloStrength, discStrength, haloRadius, 0.0133F * discSize * sunSize, centerSuppression );
-        }
+        
     }
     private static Vector3f colorFromConfig(int rgb) {
  return new Vector3f((float)(rgb >> 16 & 0xFF) / 255.0F, (float)(rgb >> 8 & 0xFF) / 255.0F, (float)(rgb & 0xFF) / 255.0F);

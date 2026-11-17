@@ -131,7 +131,7 @@ public final class NeoSkyCelestiaLighting {
         float manualShift = Mth.clamp((float)bias / 100.0F, -1.0F, 1.0F) * 0.55F;
         if (amount <= 0.0F && Math.abs(manualShift) <= 1.0E-5F) {
             return new Vector3f(ambient);
-        } else {
+        }
             float
             warmth = (float)(Math.log((double)((directColor.x + 0.05F) / (directColor.z + 0.05F))) / Math.log(5.0));
             warmth = Mth.clamp(warmth, -1.0F, 1.0F);
@@ -149,7 +149,7 @@ public final class NeoSkyCelestiaLighting {
             shifted.y = Mth.clamp(shifted.y, 0.0F, 1.25F);
             shifted.z = Mth.clamp(shifted.z, 0.0F, 1.25F);
             return shifted;
-        }
+        
     }
 
     private static float luminance(Vector3f color) { return Math.max(color.x, 0.0F) * 0.2126F + Math.max

@@ -105,7 +105,7 @@ puddles = this.puddlesFor(level);
     }
     @Nullable public synchronized RainPuddleSurface getActiveSurface(@Nullable ClientLevel level, BlockPos pos) { if (level == null) {
             return null;
-        } else {
+        }
             Long2ObjectOpenHashMap<RainPuddleSurface>
 puddles = this.puddlesByDimension.get(level.dimension());
             if (puddles == null) {
@@ -113,7 +113,7 @@ puddles = this.puddlesByDimension.get(level.dimension());
 
 
  return puddles.get(pos.asLong());
-        }
+        
     }
 
     public synchronized void removeIfUnsupported(@Nullable ClientLevel level, BlockPos pos, BlockState state) { if (level == null) {

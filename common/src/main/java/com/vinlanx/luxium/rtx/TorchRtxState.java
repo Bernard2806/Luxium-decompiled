@@ -1366,7 +1366,7 @@ if (!(section != null && !section.hasOnlyAir())) { return 0; } boolean
                     && shouldScanReflectiveSources()
                     && section.maybeHas(state -> ReflectionMaterialRegistry.find(state) != null);
                 if (!maybeLight && !maybeReflective) { return 0;
-                } else {
+                }
                     int baseX = task.chunk.getPos().getMinBlockX();
                     int baseY = SectionPos.sectionToBlockCoord(task.chunk.getSectionYFromSectionIndex
 (sectionIndex));
@@ -1392,7 +1392,7 @@ if (!(section != null && !section.hasOnlyAir())) { return 0; } boolean
                         }
                     }
                     return 1;
-                }
+                
              } private void applyQueuedChunkUnload(long chunkKey, TorchRtxState.ChunkLifecycleBatch batch) {
 
  this.scannedLightChunks.remove(chunkKey);

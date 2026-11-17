@@ -304,7 +304,7 @@ option = row.option();
                         graphics.drawString(this.font, upper(control.row.header()), labelX, y + 12, -11157, true);
                         graphics.fill(labelX, y + 27, controlRight, y + 29, -11157);
                     }
-                } else {
+                 continue;}
                     boolean
 
                     visible = y + 32 > top && y < bottom;
@@ -334,7 +334,7 @@ option = row.option();
                                 } catch (NumberFormatException var22) {
                                 }
                             }
-                        } } }
+                        }  }
             graphics.disableScissor();
 
             if (this.hoveredOption != null && this.hoveredOption != this.previewOption) {
@@ -563,7 +563,7 @@ this.resetPageButton.visible = true;
             this.sidebarTargetScroll = Mth.clamp(this.sidebarTargetScroll - delta * 28.0, 0.0, (double)Math.max
 (0, contentHeight - viewport));
             return true;
-        } else {
+        }
             int left = this.panelX + this.sidebarWidth;
             int right = this.panelX + this.panelWidth - this.previewWidth;
             if (inside(mouseX, mouseY, left, this.panelY, right - left, this.panelHeight)) {
@@ -575,7 +575,7 @@ this.resetPageButton.visible = true;
             } else {
                 return super.mouseScrolled(mouseX, mouseY, delta);
             }
-        }
+        
     }
 
     @Override public void tick() { if (this.minecraft.level == null) {

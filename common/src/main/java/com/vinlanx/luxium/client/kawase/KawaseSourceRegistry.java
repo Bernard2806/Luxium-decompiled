@@ -100,7 +100,7 @@ public final class KawaseSourceRegistry { private static final KawaseSourceRegis
     public synchronized KawaseSourceRegistry.Snapshot snapshot() {
         if (this.cachedSnapshot.version() == this.version) {
             return this.cachedSnapshot;
-        } else {
+        }
             long[] positions = new long[this.sources.size()];
             byte[] emissions = new byte[this.sources.size()];
             int index = 0;
@@ -111,7 +111,7 @@ public final class KawaseSourceRegistry { private static final KawaseSourceRegis
             }
             this.cachedSnapshot = new KawaseSourceRegistry.Snapshot(this.version, positions, emissions);
             return this.cachedSnapshot;
-        }
+        
     }
 
     public synchronized void reconcileLoadedChunks(ClientLevel level) { if (this.level != level) {

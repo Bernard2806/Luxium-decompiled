@@ -32,11 +32,11 @@ final class NeoShadowsDynamicPipeline { private final NeoShadowsEngine engine; N
     DynamicShadowMeshCapture.Snapshot captureDynamicCasterSnapshot(ClientLevel level, BlockPos center, float partialTick) {
         if (!GpuNeoShadows.entityShadowCastersEnabled()) {
             return DynamicShadowMeshCapture.Snapshot.empty();
-        } else {
+        }
             double
             radius = 70.0;
             return DynamicShadowMeshCapture.capture(level, center, radius, 160, partialTick);
-        }
+        
     }
 
     long scanDynamicSceneFingerprint(ClientLevel level, BlockPos center) { Vec3 centerPos = Vec3.atCenterOf(center);
@@ -260,7 +260,7 @@ polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected, scrat
 
 ()) {
             return Collections.emptyList();
-        } else {
+        }
 
             if (snapshot.level == level && !snapshot.casters.isEmpty()) {
                 List<NeoShadowsTypes.DynamicCaster> casters = new ArrayList<>(Math.min(snapshot.casters.size(), 160));
@@ -302,7 +302,7 @@ continue;
 
             }
             return fallbackCasters;
-        }
+        
     }
 
     static double distanceToAabbSq(Vec3 point, AABB box) { double dx = 0.0;

@@ -600,7 +600,7 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
         signedDist = viewerPos.subtract(plane.planePoint).dot(plane.normal);
         if (signedDist < 0.02) {
             return false;
-        } else {
+        }
             Vec3
             virtualCamPos = reflectPoint(viewerPos, plane.planePoint, plane.normal);
             Vector3f
@@ -636,7 +636,7 @@ new Vector3f(0.0F, 0.0F, 1.0F) :
                 outVirtCam[0] = virtualCamPos;
                 return true;
 
-        }
+        
     }
     public float sampleProbeGloss(BlockPos pos, Vec3 normal) { if (!this.enabled || this.probeCenter == null) { return 0.0f; }
         if (pos.distSqr((Vec3i)this.probeCenter) > 1024.0) { return 0.0f;
@@ -1128,7 +1128,7 @@ buffer.drawWithShader(modelView, projection, shader);
     private static long computePlaneSignature(ReflectionSystem.MirrorPlane plane) {
         if (plane.cachedSignature != Long.MIN_VALUE) {
             return plane.cachedSignature;
-        } else {
+        }
             long h = 31L * (long)plane.face.get3DDataValue() + Double.doubleToLongBits(planeCoordinateValue(plane));
             for (ReflectionSystem.MirrorFace face : plane.faces) {
                 h = h * 31L + face.blockPos.asLong();
@@ -1146,7 +1146,7 @@ buffer.drawWithShader(modelView, projection, shader);
             }
             plane.cachedSignature = h;
             return plane.cachedSignature;
-        }
+        
     }
 
     private static long computePlaneIdentity(ReflectionSystem.MirrorPlane plane) { long coordinate = Double.doubleToLongBits(planeCoordinateValue(plane));
@@ -1520,7 +1520,7 @@ this.face = f;
                 if (categoryOf(face) == category) { count++;
                 } }
             if (count == 0) { return null;
-            } else {
+            }
                 BufferBuilder builder = new BufferBuilder(Math.max(256, count * 128));
                 builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP);
                 for (ReflectionSystem.MirrorFace face : plane.faces) {
@@ -1531,7 +1531,7 @@ this.face = f;
                 buffer.upload(builder.end());
                 VertexBuffer.unbind();
                 return buffer;
-            }
+            
         }
 
         private static void emitFace(BufferBuilder builder, ReflectionSystem.MirrorPlane plane, ReflectionSystem.MirrorFace face) { for (int vertex = 0; vertex < 4; vertex++) {

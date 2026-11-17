@@ -187,7 +187,7 @@ public final class skyvolumetrigodrays {
             if (lastAdaptationUpdateNs == 0L) {
                 lastAdaptationUpdateNs = nowNs;
                 return adaptationSmoothed;
-            } else {
+            }
                 float
                 dt = (float)((double)(nowNs - lastAdaptationUpdateNs) * 1.0E-9);
                 lastAdaptationUpdateNs = nowNs;
@@ -203,7 +203,7 @@ public final class skyvolumetrigodrays {
                 }
 
                 return Mth.clamp(adaptationSmoothed, 0.0F, 1.0F);
-            }
+            
 
     }
     private static void resetAutoAdaptation() { adaptationLevel = null;

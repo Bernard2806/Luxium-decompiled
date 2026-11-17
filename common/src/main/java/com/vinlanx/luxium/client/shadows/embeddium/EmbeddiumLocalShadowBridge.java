@@ -100,7 +100,7 @@ return new EmbeddiumLocalShadowBridge.PreparedCapture(renderer, lists, lightX, l
 
 
     public boolean renderFace(EmbeddiumLocalShadowBridge.PreparedCapture capture, Matrix4f projection, Matrix4f viewRotation) { if (capture == null || capture.renderer == null || capture.lists == null) { return false; } else
- if (capture.lists.regionCount() == 0) { return false; } else { ChunkRenderMatrices
+ if (capture.lists.regionCount() == 0) { return false; } ChunkRenderMatrices
 
  matrices = new ChunkRenderMatrices(projection, viewRotation); CameraTransform
  camera = new CameraTransform(capture.lightX, capture.lightY, capture.lightZ); RenderDevice.enterManagedCode
@@ -129,7 +129,7 @@ capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRend
  GlStateManager._colorMask(true, true, true, true);
  if (commandList != null) { commandList.close(); } RenderDevice.exitManagedCode
  ();
- } } }
+ }  }
 
 
  public static record PreparedCapture(ChunkRenderer renderer, EmbeddiumLocalShadowBridge.LocalRenderLists lists, double lightX, double lightY, double lightZ) { } public static final class LocalRenderLists implements ChunkRenderListIterable { private final List<ChunkRenderList> lists; private LocalRenderLists(List<ChunkRenderList> lists)

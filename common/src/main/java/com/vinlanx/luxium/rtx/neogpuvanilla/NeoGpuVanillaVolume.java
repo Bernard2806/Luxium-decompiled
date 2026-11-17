@@ -185,7 +185,7 @@ final class NeoGpuVanillaVolume {
         if (level == null || sourceCount < 0 || sourceCount > 40 || this.buildAnchorX == Integer.MIN_VALUE) {
             return false;
         } else if (sourceCount > 0 && shadowAtlasTexture <= 0) { return false;
-        } else {
+        }
             ShaderInstance coarseShader = ShaderManager.getNeoGpuVanillaBakeShader();
             ShaderInstance resolveShader = ShaderManager.getNeoGpuVanillaResolveShader();
             boolean fastEnabled = Config.isFeatureEnabled(Config.CLIENT.neoGpuVanillaFastShadowsEnabled);
@@ -350,7 +350,7 @@ if (oldDither) { GL11.glEnable(3024); } else { GL11.glDisable(3024); }
 if (oldFramebufferSrgb) { GL11.glEnable(36281); } else { GL11.glDisable(36281); }
 RenderSystem.setProjectionMatrix(oldProjection, oldSorting);
 GlStateManager._activeTexture(33984);
-} } } float sampleLightFactor(double worldX, double worldY, double worldZ) {
+}  } float sampleLightFactor(double worldX, double worldY, double worldZ) {
 
 
 

@@ -100,7 +100,7 @@ public final class fog {
         } else
         if (uniformSlot1 != null && uniformSlot1.shader == shader) {
             return uniformSlot1;
-        } else {
+        }
             fog.FogUniforms resolved = new fog.FogUniforms(shader);
             if (uniformSlot0 == null) {
                 uniformSlot0 = resolved;
@@ -111,7 +111,7 @@ public final class fog {
                 uniformSlot1 = resolved;
             }
             return resolved;
-        }
+        
     }
 
     private static float lerp(float a, float b, float t) { return Mth.lerp(Mth.clamp(t, 0.0F, 1.0F), a, b);

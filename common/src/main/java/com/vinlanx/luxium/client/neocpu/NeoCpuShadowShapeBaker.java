@@ -42,7 +42,7 @@ private static final double SURFACE_EPSILON = 1.0E-5; private static final doubl
  (state, level, pos);
         if (surfaceBoxes.isEmpty() && occluderBoxes.length == 0 && modelOccluders.length == 0) {
             return NeoCpuShadowShape.EMPTY;
-        } else {
+        }
             ArrayList<NeoCpuShadowShape.ReceiverTemplate>
 receivers = new ArrayList<>(surfaceBoxes.size() * 6);
             for (int boxIndex = 0; boxIndex < surfaceBoxes.size(); boxIndex++) {
@@ -89,7 +89,7 @@ receivers = new ArrayList<>(surfaceBoxes.size() * 6);
 
 
  (new NeoCpuShadowShape.ReceiverTemplate[0]), floodBlocking);
-        }
+        
     }
 
     private NeoCpuShadowShape.LocalQuadTemplate[] collectModelOccluders(BlockState state, ClientLevel level, BlockPos pos) {
@@ -202,7 +202,7 @@ EMPTY_QUADS : result.toArray
         } else
         if (state.isCollisionShapeFullBlock(level, pos)) {
             return new NeoCpuShadowTypes.Box[]{new NeoCpuShadowTypes.Box(0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0L, 1.0F)};
-        } else {
+        }
             ArrayList<NeoCpuShadowTypes.Box>
 
 boxes = new ArrayList<>();
@@ -215,7 +215,7 @@ boxes = new ArrayList<>();
                     boxes.add(new NeoCpuShadowTypes.Box(minX, minY, minZ, maxX, maxY, maxZ, 0L, 1.0F));
             });
             return boxes.isEmpty() ? EMPTY_BOXES : boxes.toArray(EMPTY_BOXES);
-        }
+        
     }
 
     private static List<BakedQuad> collectModelQuads(BakedModel model, BlockState state) { List<BakedQuad> quads = new ArrayList<>();
@@ -391,7 +391,7 @@ continue;
         double denominator = (uvB.v - uvC.v) * (uvA.u - uvC.u) + (uvC.u - uvB.u) * (uvA.v - uvC.v);
         if (Math.abs(denominator) <= 1.0E-6) {
             return null;
-        } else {
+        }
             double
             weightA = ((uvB.v - uvC.v) * (atlasU - uvC.u) + (uvC.u - uvB.u) * (atlasV - uvC.v)) / denominator;
             double weightB = ((uvC.v - uvA.v) * (atlasU - uvC.u) + (uvA.u - uvC.u) * (atlasV - uvC.v)) / denominator;
@@ -409,7 +409,7 @@ continue;
                     vertexA.y * weightA + vertexB.y * weightB + vertexC.y * weightC,
                     vertexA.z * weightA + vertexB.z * weightB + vertexC.z * weightC );
 
-        }
+        
     }
     private static List<NeoCpuShadowShapeBaker.SurfaceRect> subtractSurfaceRectList(List<NeoCpuShadowShapeBaker.SurfaceRect> sourceRects, NeoCpuShadowShapeBaker.SurfaceRect coverRect ) { if (!(coverRect != null && !sourceRects.isEmpty())) {
             return sourceRects;
@@ -528,7 +528,7 @@ return; }
  vertices = quad.getVertices();
             if (vertices.length < 32) {
                 return null;
-            } else {
+            }
                 Vec3[] worldVertices = new Vec3[4];
                 NeoCpuShadowShapeBaker.AtlasUv[] atlasUvs = new NeoCpuShadowShapeBaker.AtlasUv[4];
                 for (int vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
@@ -541,5 +541,5 @@ return; }
                     worldVertices[vertexIndex] = new Vec3(x, y, z);
                     atlasUvs[vertexIndex] = new NeoCpuShadowShapeBaker.AtlasUv(u, v);
                 }
-                return new NeoCpuShadowShapeBaker.LocalTexturedQuad(worldVertices, atlasUvs); } } }
+                return new NeoCpuShadowShapeBaker.LocalTexturedQuad(worldVertices, atlasUvs);  } }
     }

@@ -530,7 +530,7 @@ if (shadowShader != null) {
         CloudStatus cloudStatus, float partialTick, double cameraX, double cameraY, double cameraZ, int ticks, float weather ) { float blockScale = (float)(12.0 * layer.scale);
         if (blockScale <= 0.0F) {
             return null;
-        } else {
+        }
             double
             time = ((double)ticks + (double)partialTick) * 0.03 * layer.speed;
             double radians = Math.toRadians(layer.direction);
@@ -566,7 +566,7 @@ if (shadowShader != null) {
 
             ResourceLocation texture = this.textureForLayer(index, layer, weather);
             return new LuxiumCloudRenderer.LayerFrame(blockScale, fractionX, fractionY, fractionZ, texture);
-        }
+        
     }
 
     private LuxiumCloudRenderer.MaskLayerFrame prepareMaskLayer(
@@ -574,7 +574,7 @@ if (shadowShader != null) {
  blockScale = (float)(12.0 * layer.scale);
         if (blockScale <= 0.0F) {
             return null;
-        } else {
+        }
             double
             time = ((double)ticks + (double)partialTick) * 0.03 * layer.speed;
             double radians = Math.toRadians(layer.direction);
@@ -616,7 +616,7 @@ if (shadowShader != null) {
 
             ResourceLocation texture = this.textureForLayer(index, layer, weather);
             return new LuxiumCloudRenderer.MaskLayerFrame(blockScale, fractionX, relativeY, fractionZ, texture);
-        }
+        
     }
 
     private LuxiumCloudRenderer.MaskLayerFrame prepareVanillaMaskLayer(
@@ -1168,10 +1168,10 @@ if (shadowShader != null) {
         float blockScale = (float)(12.0 * layer.scale);
         if (blockScale <= 0.0F) {
             return 16;
-        } else {
+        }
             int radiusTexels = Mth.ceil((float)layer.renderDistance / blockScale);
             return Math.max(16, Math.min(128, roundUp(radiusTexels, 8)));
-        }
+        
     }
 
     private static float layerGeometryRadiusBlocks(LuxiumCloudRenderer.LayerConfig layer, CloudStatus cloudStatus) { float blockScale = (float)(12.0 * layer.scale);

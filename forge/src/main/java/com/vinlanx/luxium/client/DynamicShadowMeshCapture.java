@@ -130,7 +130,7 @@ continue;
 renderer = dispatcher.getRenderer(entity);
         if (renderer == null) {
             return null;
-        } else {
+        }
             DynamicShadowMeshCapture.QuadCaptureBufferSource
             capture = new DynamicShadowMeshCapture.QuadCaptureBufferSource();
             PoseStack poseStack = new PoseStack();
@@ -143,7 +143,7 @@ renderer = dispatcher.getRenderer(entity);
             float renderYaw = Mth.lerp(partialTick, entity.yRotO, entity.getYRot());
             renderer.render(entity, renderYaw, partialTick, poseStack, capture, packedLight);
             return capture.buildCaster(id, fallbackBounds);
-        }
+        
     }
 
     @Nullable private static DynamicShadowMeshCapture.CapturedCaster captureBlockEntity(

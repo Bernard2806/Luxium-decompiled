@@ -611,12 +611,12 @@ projected = collectProjectedQuadPoints(group.plane, group.source, quadVertices);
         List<NeoShadowsTypes.UvPoint> polygon = NeoShadowsProjection.buildProjectedShadowHullBuffered(projected, scratch);
         if (polygon == null) {
             return false;
-        } else {
+        }
             int
             polygonsBefore = scratch.shadowPolygons.size();
             this.addPlaneShadowPolygons(group, polygon, scratch);
             return scratch.shadowPolygons.size() > polygonsBefore;
-        }
+        
     }
 
     static boolean facesSource(Vec3[] quadVertices, Vec3 source) { if (quadVertices.length < 3) {
@@ -657,7 +657,7 @@ projected = collectProjectedQuadPoints(group.plane, group.source, quadVertices);
         } else
         if (!anyTransparent) {
             return NeoShadowsTypes.SpriteOpaqueMask.fullyOpaque();
-        } else {
+        }
             boolean[]
             consumed = new boolean[opaquePixels.length];
             List<NeoShadowsTypes.SpriteRect> rectangles = new ArrayList<>();
@@ -704,7 +704,7 @@ continue;
 
 
 
- return new NeoShadowsTypes.SpriteOpaqueMask(rectangles.toArray(new NeoShadowsTypes.SpriteRect[0]), false, false); } } @Nullable static NeoShadowsTypes.SpritePixelBounds computeQuadPixelBounds(NeoShadowsTypes.TexturedQuad quad, TextureAtlasSprite sprite) { int
+ return new NeoShadowsTypes.SpriteOpaqueMask(rectangles.toArray(new NeoShadowsTypes.SpriteRect[0]), false, false);  } @Nullable static NeoShadowsTypes.SpritePixelBounds computeQuadPixelBounds(NeoShadowsTypes.TexturedQuad quad, TextureAtlasSprite sprite) { int
 
 
 
@@ -783,7 +783,7 @@ continue;
         double denominator = (uvB.v - uvC.v) * (uvA.u - uvC.u) + (uvC.u - uvB.u) * (uvA.v - uvC.v);
         if (Math.abs(denominator) <= 1.0E-6) {
             return null;
-        } else {
+        }
             double
             weightA = ((uvB.v - uvC.v) * (atlasU - uvC.u) + (uvC.u - uvB.u) * (atlasV - uvC.v)) / denominator;
             double weightB = ((uvC.v - uvA.v) * (atlasU - uvC.u) + (uvA.u - uvC.u) * (atlasV - uvC.v)) / denominator;
@@ -801,16 +801,16 @@ continue;
                     vertexA.y * weightA + vertexB.y * weightB + vertexC.y * weightC,
                     vertexA.z * weightA + vertexB.z * weightB + vertexC.z * weightC );
 
-        }
+        
     }
 
     static boolean isFullBlockOccluder(NeoShadowsTypes.Box[] boxes) { if (boxes.length != 1) {
             return false;
-        } else {
+        }
             NeoShadowsTypes.Box
             box = boxes[0];
             return box.minX <= 1.0E-6 && box.minY <= 1.0E-6 && box.minZ <= 1.0E-6 && box.maxX >= 0.999999 && box.maxY >= 0.999999 && box.maxZ >= 0.999999;
-        }
+        
     }
 
     static List<NeoShadowsTypes.UvPoint> collectProjectedQuadPoints(NeoShadowsTypes.GlobalReceiverPlane plane, Vec3 source, Vec3[] corners) {

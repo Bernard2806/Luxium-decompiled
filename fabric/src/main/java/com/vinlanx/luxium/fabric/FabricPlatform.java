@@ -61,7 +61,7 @@ class FabricPlatform extends LuxiumPlatform {
 
     @Override public AABB blockEntityRenderBounds(BlockEntity entity) { BlockPos pos = entity.getBlockPos();
         if (entity instanceof SignBlockEntity) { return new AABB(pos);
-        } else { BlockState state = entity.getBlockState();
+        } BlockState state = entity.getBlockState();
             Block block = state.getBlock();
             if (block == Blocks.ENCHANTING_TABLE) { return new AABB(pos, pos.offset(1, 1, 1));
             } else if (!(block != Blocks.CHEST && block != Blocks.TRAPPED_CHEST)) { return new AABB(pos.offset(-1, 0, -1), pos.offset(2, 2, 2));
@@ -77,6 +77,6 @@ class FabricPlatform extends LuxiumPlatform {
                     Double.POSITIVE_INFINITY,
                     Double.POSITIVE_INFINITY );
 
-        }
+        
     }
     }

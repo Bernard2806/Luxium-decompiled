@@ -657,7 +657,7 @@ if (entry.dirtyFaceMask == 0) {
 
 
  ();
- if (shader == null) { return false; } else {
+ if (shader == null) { return false; }
 
  GL30.glBindFramebuffer(36160, this.fboId); int
 tileX = entry.tileIndices[face] % this.tileGrid; int
@@ -697,7 +697,7 @@ return true; } finally {
 GL11.glDisable(3089);
 GL11.glEnable(2929);
 GL30.glBindFramebuffer(36160, 0);
-} } } private static float getYawForFace(int face) {
+}  } private static float getYawForFace(int face) {
 
 
 
@@ -783,7 +783,7 @@ this.freeTiles[this.freeTileCount++] = entry.tileIndices[face]; } }
 
 
  if (this.freeTileCount < 6) { return null;
-        } else {
+        }
             GpuShadowCache.Entry entry = new GpuShadowCache.Entry();
             entry.emission = emission;
             entry.radius = (float)LightRtMath.getBlockShadowRadius(emission);
@@ -804,7 +804,7 @@ this.freeTiles[this.freeTileCount++] = entry.tileIndices[face]; } }
             entry.dirtyFaceMask = 63;
             entry.staticDirty = true;
             return entry;
-        }
+        
     }
 
     private static boolean applyGeometry(GpuShadowCache.Entry entry, GpuLocalLightResolver.SourceGeometry geometry) { boolean changed = Double.compare(entry.worldX, geometry.sourceX) != 0
