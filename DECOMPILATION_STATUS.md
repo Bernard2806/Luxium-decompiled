@@ -1,7 +1,7 @@
 # 2.8.4-pre-alpha decompilation status
 
 > Working notes for this branch, updated with every step.
-> Last updated: 2026-11-16.
+> Last updated: 2026-11-17.
 
 ## Match against the original JAR
 
@@ -11,19 +11,21 @@ Measured by comparing the merged JAR built by `./gradlew mergeJars` with
 
 | Copy | Byte-identical classes | Identical methods (code + line numbers) |
 |---|---|---|
-| `forge/` | 391 / 421 (92.87 %) | 3843 / 3843 (100 %) |
-| `fabric/` | 397 / 425 (93.41 %) | 3845 / 3845 (100 %) |
-| **Total** | **788 / 846 (93.14 %)** | **7688 / 7688 (100 %)** |
+| `forge/` | 402 / 421 (95.49 %) | 3843 / 3843 (100 %) |
+| `fabric/` | 409 / 425 (96.24 %) | 3845 / 3845 (100 %) |
+| **Total** | **811 / 846 (95.86 %)** | **7688 / 7688 (100 %)** |
 
 - Every method now has the original bytecode and line numbers in both copies.
-- Source files whose classes are all identical: 181 / 227.
-- The other 96 classes (48 per copy) differ only outside the code: local variable names/order in the LocalVariableTable (84 classes), constant pool order (81), field order (`Grass`, `NeoShadowsEngine`) and class attributes such as `InnerClasses`/`NestMembers` order (16).
+- Source files whose classes are all identical: 217 / 234.
+- The other 35 classes differ only outside the code: local variable order in the LocalVariableTable (28 classes), constant pool order (32) and class attributes such as `InnerClasses`/`NestMembers` order (5).
 - All 1086 entries of the original JAR are present, with the same names.
 - 57 resources differ only because of the packaging (see below).
 
-Latest: local variables renamed to their original names, redundant `else` blocks removed where the original LVT order shows it (greedy search, `lvtopt.py`), field order fixed in `Grass` and `NeoShadowsEngine`, and `ModelBlockRendererMixin` split per loader (the fabric copy targets the vanilla `tesselateWithAO`/`tesselateWithoutAO` signatures). Still left: LVT order in ~49 methods per copy, constant pool/InnerClasses order in a few classes, and the final repackaging (Forgix rewrites CRLF text resources and drops the 1980 timestamps; the sources already hold the original bytes).
+2026-11-16: local variables renamed to their original names, redundant `else` blocks removed where the original LVT order shows it (greedy search, `lvtopt.py`), field order fixed in `Grass` and `NeoShadowsEngine`, and `ModelBlockRendererMixin` split per loader (the fabric copy targets the vanilla `tesselateWithAO`/`tesselateWithoutAO` signatures). Still left: LVT order in 17 methods per copy, constant pool/InnerClasses order in a few classes, and the final repackaging (Forgix rewrites CRLF text resources and drops the 1980 timestamps; the sources already hold the original bytes).
 
-History: 2026-11-03 → 7258 methods (94.41 %), 674 classes. 2026-11-16 → 7628 methods (99.22 %), 742 classes. 2026-11-16 (later) → 7688 methods (100 %), 750 classes.
+Latest (2026-11-17): more redundant `else` blocks after `return`/`continue` removed where the original LVT order shows the variables were declared at the outer level (+23 classes).
+
+History: 2026-11-03 → 7258 methods (94.41 %), 674 classes. 2026-11-16 → 7628 methods (99.22 %), 742 classes. 2026-11-16 (later) → 7688 methods (100 %), 750 classes, then 788. 2026-11-17 → 811 classes.
 
 ## How the original was built
 
