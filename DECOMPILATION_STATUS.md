@@ -23,6 +23,8 @@ Measured by comparing the merged JAR built by `./gradlew mergeJars` with
 
 Latest (2026-11-17): all 846 classes match. The last fixes: more redundant `else` blocks after `return`/`continue` removed (found with a greedy search that only keeps edits leaving the bytecode unchanged and bringing the LVT closer to the original), two nested `if`s in `LevelRendererMixin` (line table), a diamond on an anonymous `Iterator` (no `Signature` on its constructor), the nested class order of `ExposedFaceService` (`NestMembers`), no `@Mod.EventBusSubscriber` on `ModCommands`/`RainPuddleCommands`, and `EmbeddiumRenderSectionAccessor` targeting the `RenderSection` class literal.
 
+Release tooling (2026-11-17): `README.md`, `.github/workflows/release.yml` (tag `v2.8.4-pre-alpha`, builds with `mergeJars`), and `scripts/calculate_decompilation_match.py` adapted to the merged JAR. It measures both loader copies against `.github/release/` (top-level class list, a SHA-256 per `.class` file and a normalized hash per method) and reports 846/846 byte-identical classes and 7549/7549 methods with code (the 7688 above also counts abstract and interface methods).
+
 History: 2026-11-03 → 7258 methods (94.41 %), 674 classes. 2026-11-16 → 7628 methods (99.22 %), 742 classes. 2026-11-16 (later) → 7688 methods (100 %), 750 classes, then 788. 2026-11-17 → 811, then 846 classes (100 %).
 
 ## How the original was built
@@ -74,7 +76,6 @@ All classes match. Only the packaging differs, and it cannot be fully reproduced
 - **Nested jars** (`META-INF/jars/fabric-core-3.6.6.jar`, `fabric-toml-3.6.6.jar`): same entries and contents, but each entry carries an NTFS extra field with the creation/access times of the author's Windows machine.
 - **`forge-luxium.forge.mixins.refmap.json`:** same mappings, but `MinecraftSkyShadowLifecycleMixin` is in a different position. The mixin AP writes them in the order javac processes the sources, which comes from the file system (NTFS vs ext4).
 - **Repackaging after Forgix:** the published JAR has 1980-02-01 timestamps (Gradle's constant for `preserveFileTimestamps = false`), its own entry order, and the text resources without Forgix's CRLF→LF rewrite (52 files: 49 shaders, `uk_ua.json`, `LICENSE.txt`, `pack.mcmeta`). The sources already hold the original bytes, so a final `Jar` task that copies the resources raw would fix their contents; the exact entry order is still unknown.
-- **Branch:** README, release workflow, `scripts/` and `.github/release/` indexes (as in 2.8.0).
 
 ### Last round of method fixes (2026-11-16)
 
