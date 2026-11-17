@@ -653,12 +653,12 @@ return existing != null ? existing : built;  } private static ExposedFaceService
 
  shape = state.getShape(level, pos);
 if (shape.isEmpty()) {
-return ExposedFaceService.ReceiverShapeTemplate.EMPTY; } else { List<AABB>
+return ExposedFaceService.ReceiverShapeTemplate.EMPTY; } List<AABB>
 
 
 boxes = shape.toAabbs();
 if (boxes.isEmpty()) {
-return ExposedFaceService.ReceiverShapeTemplate.EMPTY; } else { List<ExposedFaceService.ReceiverSurfaceTemplate>
+return ExposedFaceService.ReceiverShapeTemplate.EMPTY; } List<ExposedFaceService.ReceiverSurfaceTemplate>
 
 
 surfaces = new ArrayList<>(); for (int
@@ -702,7 +702,7 @@ if (!(!(bounds.width() <= 1.0E-6) && !(bounds.height() <= 1.0E-6))) {
 
 
 
- return surfaces.isEmpty() ? ExposedFaceService.ReceiverShapeTemplate.EMPTY : new ExposedFaceService.ReceiverShapeTemplate(surfaces); } } } private static List<ExposedFaceService.SurfaceRect> subtractSurfaceRectList(List<ExposedFaceService.SurfaceRect> sourceRects, @Nullable ExposedFaceService.SurfaceRect coverRect ) {
+ return surfaces.isEmpty() ? ExposedFaceService.ReceiverShapeTemplate.EMPTY : new ExposedFaceService.ReceiverShapeTemplate(surfaces);   } private static List<ExposedFaceService.SurfaceRect> subtractSurfaceRectList(List<ExposedFaceService.SurfaceRect> sourceRects, @Nullable ExposedFaceService.SurfaceRect coverRect ) {
 
 
 
@@ -1074,7 +1074,7 @@ if (!(changedBlocks != null && !changedBlocks.isEmpty())) { NeoShadowsEngine.mar
  this.faceSnapshot = faceSnapshot;
  this.receiverSnapshot = receiverSnapshot;
  this.fullyCaptured = fullyCaptured;
- } } @FunctionalInterface public interface ReceiverSurfaceVisitor { void visit(Direction var1, double var2, double var4, double var6, double var8, double var10, long var12); } private static final class SectionCapture { private final long sectionKey;
+ } } private static final class SectionCapture { private final long sectionKey;
 
 
 
@@ -1339,7 +1339,7 @@ hash = mixSurfaceKey(hash, Double.doubleToLongBits(bounds.maxV));
  return (hash ^ value) * 1099511628211L; }
 
 
- private static record SurfaceRect(double minU, double maxU, double minV, double maxV) { double width() {
+ @FunctionalInterface public interface ReceiverSurfaceVisitor { void visit(Direction var1, double var2, double var4, double var6, double var8, double var10, long var12); } private static record SurfaceRect(double minU, double maxU, double minV, double maxV) { double width() {
 
  return this.maxU - this.minU; } double height() {
 
@@ -1488,7 +1488,7 @@ if (!(!surface.boundaryFace || (visibleBoundaryMask & surface.faceMaskBit) != 0)
 
 
  if (this.surfaces.length == 0) {
- return ExposedFaceService.EMPTY_RECEIVER_SURFACES; } else { ExposedFaceService.ReceiverSurface[]
+ return ExposedFaceService.EMPTY_RECEIVER_SURFACES; } ExposedFaceService.ReceiverSurface[]
 
 
 resolved = new ExposedFaceService.ReceiverSurface[this.surfaces.length]; int
@@ -1504,12 +1504,12 @@ if (count == 0) {
  return ExposedFaceService.EMPTY_RECEIVER_SURFACES; } else
 
 if (count == resolved.length) {
-return resolved; } else { ExposedFaceService.ReceiverSurface[]
+return resolved; } ExposedFaceService.ReceiverSurface[]
 
 
 compact = new ExposedFaceService.ReceiverSurface[count];
 System.arraycopy(resolved, 0, compact, 0, count);
- return compact; } } } private List<ReceiverSurface> instantiate(long blockKey, byte visibleBoundaryMask) {
+ return compact;   } private List<ReceiverSurface> instantiate(long blockKey, byte visibleBoundaryMask) {
 
 
 

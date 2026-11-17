@@ -75,7 +75,7 @@ public final class NeoCpuEntityShadows {
             boolean captureElapsed = nowMs - lastCaptureMs >= intervalMs;
             if (!levelChanged && !centerChanged && !scanElapsed && !captureElapsed) {
                 return currentState;
-            } else {
+            }
                 long
                 sceneFingerprint = lastSceneFingerprint;
                 boolean sceneChanged = levelChanged || centerChanged;
@@ -90,7 +90,7 @@ public final class NeoCpuEntityShadows {
                     trackedLevel = level;
                     lastCenter = center.immutable();
                     return currentState;
-                } else {
+                }
                     double
                     radius = LightRtMath.getEntityShadowRadius(15) + 30.0 + 4.0;
                     DynamicShadowMeshCapture.Snapshot
@@ -106,8 +106,8 @@ public final class NeoCpuEntityShadows {
                     lastCenter = center.immutable();
                     lastCaptureMs = nowMs;
                     return currentState;
-                }
-            }
+                
+            
 
     } private static long scanDynamicSceneFingerprint(ClientLevel level, BlockPos center) { Vec3 centerPos = Vec3.atCenterOf(center);
         double radius = LightRtMath.getEntityShadowRadius(15) + 30.0 + 4.0;

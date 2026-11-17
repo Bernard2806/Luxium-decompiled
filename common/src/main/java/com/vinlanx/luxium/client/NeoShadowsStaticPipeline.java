@@ -498,17 +498,17 @@ return !blockState.isAir() && blockState.getRenderShape
 
  blockState = level.getBlockState(hit.blockPos);
 if (blockState.getRenderShape() != RenderShape.MODEL) {
-return false; } else { BakedModel model = Minecraft.getInstance
+return false; } BakedModel model = Minecraft.getInstance
 
 
  ().getBlockRenderer().getBlockModel(blockState);
 if (model == null) {
- return false; } else { List<BakedQuad>
+ return false; } List<BakedQuad>
 
 
 quads = collectModelQuads(model, blockState);
 if (quads.isEmpty()) {
-return false; } else { boolean
+return false; } boolean
 
 
  fullBlockOccluder = isFullBlockOccluder(hit.boxes); boolean
@@ -527,7 +527,7 @@ allSpritesOpaque = false;
  }
 
  if (fullBlockOccluder && allSpritesOpaque) {
- return false; } else { int
+ return false; } int
 
 
  polygonsBefore = scratch.shadowPolygons.size(); for (BakedQuad quad :
@@ -584,7 +584,7 @@ maxPixelY = Math.min((double)rect.maxY, usedPixels.maxY);
 
  }
 
- return scratch.shadowPolygons.size() > polygonsBefore; } } } } } private final NeoShadowsEngine engine; private static final ThreadLocal<RandomSource>
+ return scratch.shadowPolygons.size() > polygonsBefore;     } private final NeoShadowsEngine engine; private static final ThreadLocal<RandomSource>
 
 
 RANDOM_SOURCE_TL = ThreadLocal.withInitial

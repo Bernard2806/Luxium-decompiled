@@ -44,13 +44,13 @@ class NeoSkyCelestiaLightLut implements AutoCloseable {
         ();
         if (!(lightTexture instanceof NeoSkyLightTextureExtension extension)) {
             return -1;
-        } else {
+        }
             this.ensureTextures();
             long lightmapRevision = extension.neosky$getLightmapRevision();
             int configHash = lightingConfigHash();
             if (this.matchesKey(lightmapRevision, lighting, shadowsEnabled, sunShadowBlockVisibility)) {
                 return this.textureId();
-            } else {
+            }
                 this.snapshotLightmaps(extension, lightmapRevision);
                 this.pixels.clear();
                 for (int normalCode = 0; normalCode < 7; normalCode++) {
@@ -108,8 +108,8 @@ class NeoSkyCelestiaLightLut implements AutoCloseable {
                 GlStateManager._activeTexture(oldActive);
                 this.rememberKey(lightmapRevision, lighting, shadowsEnabled, sunShadowBlockVisibility, configHash);
                 return this.textureId();
-            }
-        }
+            
+        
     }
     public int textureId() { return this.currentTextureIndex >= 0 ? this.textureIds[this.currentTextureIndex] : 0;
     }

@@ -495,13 +495,13 @@ this.updatePlaneRenderCaches(mc, mainCameraPos);
 
 
  if (plane.face.getAxis() == Axis.Y) {
-return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidth, targetHeight); } else { double
+return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidth, targetHeight); } double
 
 
  planeDistance = Math.abs(cameraPos.subtract(plane.planePoint).dot(plane.normal));
             if (planeDistance < 2.5) {
                 return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidth, targetHeight);
-            } else {
+            }
                 Matrix4f
                 viewProjection = new Matrix4f(projection).mul(view);
                 Vector3f corner = new Vector3f();
@@ -561,7 +561,7 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
                 } else
                 if (crossesNearPlane) {
                     return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidth, targetHeight);
-                } else {
+                }
                     float
                     marginX = Math.max(0.04F, (maxX - minX) * 0.12F);
                     float marginY = Math.max(0.04F, (maxY - minY) * 0.12F);
@@ -575,9 +575,9 @@ return new ReflectionSystem.CropRect(0, 0, targetWidth, targetHeight, targetWidt
                     int right = Math.min(targetWidth, Mth.ceil((maxX * 0.5F + 0.5F) * (float)targetWidth) + 8);
                     int top = Math.min(targetHeight, Mth.ceil((maxY * 0.5F + 0.5F) * (float)targetHeight) + 8);
                     return right > x && top > y ? new ReflectionSystem.CropRect(x, y, right - x, top - y, targetWidth, targetHeight) : null;
-                }
-            }
-        }
+                
+            
+        
     } private static Matrix4f applyProjectionCrop(Matrix4f projection, ReflectionSystem.CropRect crop) { float left = (float)crop.x / (float)crop.targetWidth * 2.0F - 1.0F;
         float right = (float)(crop.x + crop.width) / (float)crop.targetWidth * 2.0F - 1.0F;
         float bottom = (float)crop.y / (float)crop.targetHeight * 2.0F - 1.0F;
@@ -824,11 +824,11 @@ sorted = new ArrayList<>(planes.values());
 sorted.sort((a, b) -> { int
  byFaceCount = Integer.compare(b.faces.size(), a.faces.size());
                         if (byFaceCount != 0) { return byFaceCount;
-                        } else { int byDistance = Double.compare(a.minDistanceSq, b.minDistanceSq);
+                        } int byDistance = Double.compare(a.minDistanceSq, b.minDistanceSq);
                             if (byDistance != 0) { return byDistance;
-                            } else { int byFace = Integer.compare(a.face.get3DDataValue(), b.face.get3DDataValue());
+                            } int byFace = Integer.compare(a.face.get3DDataValue(), b.face.get3DDataValue());
 if (byFace != 0) { return byFace; }
- return Double.compare(planeCoordinateValue(a), planeCoordinateValue(b)); } } });
+ return Double.compare(planeCoordinateValue(a), planeCoordinateValue(b));   });
 
 
  if (sorted.size() > 4) {

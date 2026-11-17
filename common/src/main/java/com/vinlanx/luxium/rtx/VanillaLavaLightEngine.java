@@ -272,7 +272,7 @@ public final class VanillaLavaLightEngine { private static final VanillaLavaLigh
         }
             LevelChunk chunk = level.getChunkSource().getChunkNow(scan.chunkX, scan.chunkZ);
             if (chunk == null) { return true;
-            } else { int sectionIndex = scan.sectionY - level.getMinSection();
+            } int sectionIndex = scan.sectionY - level.getMinSection();
                 LevelChunkSection[] sections = chunk.getSections();
                 if (!(sectionIndex >= 0 && sectionIndex < sections.length)) { return true;
                 }
@@ -286,7 +286,7 @@ public final class VanillaLavaLightEngine { private static final VanillaLavaLigh
                         }
                     }
                     if (scan.noLavaPossible) { return true;
-                    } else {
+                    }
                         int baseX = scan.chunkX << 4;
                         int baseY = scan.sectionY << 4;
                         int baseZ = scan.chunkZ << 4;
@@ -306,9 +306,9 @@ public final class VanillaLavaLightEngine { private static final VanillaLavaLigh
                             }
                         }
                         return true;
-                    }
+                    
 
-            }
+            
     } private void publishCompletedSectionScan(VanillaLavaLightEngine.PendingSectionScan scan) { LongOpenHashSet previous = this.lavaSourcesBySection.remove(scan.sectionKey);
         if (!(!scan.noLavaPossible && !scan.foundSources.isEmpty())) {
 

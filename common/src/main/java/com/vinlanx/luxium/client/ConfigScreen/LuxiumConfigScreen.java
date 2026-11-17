@@ -507,7 +507,7 @@ this.resetPageButton.visible = true;
 
         if (button != 0) {
             return super.mouseClicked(mouseX, mouseY, button);
-        } else {
+        }
             if (this.previewWidth > 0 && this.previewOption != null && ConfigPreviewImages.hasPreview(this.previewOption)) {
                 LuxiumConfigScreen.PreviewImageBounds bounds = this.previewImageBounds();
                 int buttonWidth = Math.min(112, bounds.width());
@@ -528,7 +528,7 @@ this.resetPageButton.visible = true;
             if (inside(mouseX, mouseY, toggleX, footerY + 37, toggleWidth, 20)) {
                 this.dimmingEnabled = mouseX >= (double)toggleX + (double)toggleWidth / 2.0;
                 return true;
-            } else {
+            }
                 int
                 tabHeight = this.sidebarTabHeight();
                 int sidebarTop = this.panelY + 8;
@@ -551,8 +551,8 @@ this.resetPageButton.visible = true;
                     y += tabHeight;
                 }
                 return super.mouseClicked(mouseX, mouseY, button);
-            }
-        }
+            
+        
     }
 
     @Override public boolean mouseScrolled(double mouseX, double mouseY, double delta) { int sidebarTop = this.panelY + 8;

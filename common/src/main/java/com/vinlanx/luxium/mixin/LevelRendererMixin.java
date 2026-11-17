@@ -473,10 +473,10 @@ return;
         at = {@At("HEAD")},
         cancellable = true ) private void luxium$skipShadowCaptureTranslucency(
         RenderType renderType, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f projectionMatrix, CallbackInfo ci ) {
-        if (NeoShadowsEngine.isShadowCapturePass () && (renderType == RenderType.translucent
- () || renderType == RenderType.tripwire())) {
-            ci.cancel();
+        if (NeoShadowsEngine.isShadowCapturePass ()) {
+            if (renderType == RenderType.translucent() || renderType == RenderType.tripwire()) {
+                ci.cancel();
+            }
         }
-
     }
     }

@@ -43,11 +43,11 @@ class EmbeddiumLocalShadowBridge {
 
     public EmbeddiumLocalShadowBridge.PreparedCapture prepare(double lightX, double lightY, double lightZ, float radius) { SodiumWorldRenderer worldRenderer = SodiumWorldRenderer.instanceNullable();
         if (worldRenderer == null) { return null;
-        } else {
+        }
             RenderSectionManager manager = ((SodiumWorldRendererAccessor)worldRenderer).luxium$getRenderSectionManager
 ();
             if (manager == null) { return null;
-            } else {
+            }
                 RenderSectionManagerAccessor accessor = (RenderSectionManagerAccessor)manager; ChunkRenderer
 renderer = accessor.luxium$getChunkRenderer(); Long2ReferenceMap<RenderSection>
 sections = accessor.luxium$getSectionByPosition();
@@ -95,7 +95,7 @@ byRegion.put(region, list); }
 
 
  lists = new EmbeddiumLocalShadowBridge.LocalRenderLists(new ArrayList<>(byRegion.values()));
-return new EmbeddiumLocalShadowBridge.PreparedCapture(renderer, lists, lightX, lightY, lightZ); } } }
+return new EmbeddiumLocalShadowBridge.PreparedCapture(renderer, lists, lightX, lightY, lightZ);   }
 
 
 
@@ -151,7 +151,7 @@ capture.renderer.render(matrices, commandList, capture.lists, DefaultTerrainRend
 
             if (!reverse) { return this.lists.iterator();
             } final ListIterator<ChunkRenderList> iterator = this.lists.listIterator(this.lists.size());
-                return new Iterator<ChunkRenderList>() {
+                return new Iterator<>() {
                     @Override public boolean hasNext() {
 
                         return iterator.hasPrevious();

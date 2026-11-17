@@ -561,21 +561,21 @@ return;
  (), cascade.projectionRadius
  (), mc.options.getCloudsType
 () );
-            } else {
+            }
                 Vec3
                 center = cascade.center();
                 Vec3 toLight = cascade.toLight();
                 if (toLight.y <= 0.0) {
                     return Float.NaN;
-                } else {
+                }
                     double
                     cloudCasterReach = ((double)cloudHeight - center.y) / toLight.y;
                     double
                     receiverFront = (double)cascade.projectionRadius() * (Math.abs
 (toLight.x) + Math.abs(toLight.z));
                     return (float)(cloudCasterReach + receiverFront + 16.0);
-                }
-            }
+                
+            
 
     } private void publishDisabledState(Minecraft mc) { this.ensureFallbackDepthTexture();
         this.frameState = NeoSkyCelestiaFrameState.disabled(this.celestialLightLut.textureId

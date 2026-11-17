@@ -76,19 +76,19 @@ private static final RainPuddleManager INSTANCE = new RainPuddleManager();
         level = mc.level;
         if (level == null) {
             return null;
-        } else {
+        }
 
             this.reloadHeightmaps(mc.getResourceManager());
             if (this.orderedHeightmaps.isEmpty()) {
                 return null;
-            } else {
+            }
                 int
                 clampedSize = Math.max(1, Math.min(10, sizeBlocks));
                 RainHeightmap selected = this.orderedHeightmaps.get(ThreadLocalRandom.current().nextInt(this.orderedHeightmaps.size()));
                 RainPuddleSurface surface = this.buildSurface(mc, level, pos, selected, clampedSize);
                 if (surface == null) {
                     return null;
-                } else {
+                }
                     Long2ObjectOpenHashMap<RainPuddleSurface>
 puddles = this.puddlesFor(level);
                     for (long coveredKey : surface.getCoveredBlockKeys()) {
@@ -99,9 +99,9 @@ puddles = this.puddlesFor(level);
                     }
                     ReflectionSystem.get().forceImmediateUpdate();
                     return surface;
-                }
-            }
-        }
+                
+            
+        
     }
     @Nullable public synchronized RainPuddleSurface getActiveSurface(@Nullable ClientLevel level, BlockPos pos) { if (level == null) {
             return null;

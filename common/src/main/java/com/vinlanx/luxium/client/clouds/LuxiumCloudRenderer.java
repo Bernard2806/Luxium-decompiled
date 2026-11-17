@@ -147,7 +147,7 @@ private final LuxiumCloudRenderer.LayerState vanillaMaskLayer = new LuxiumCloudR
         float projectionRadius,
         Vec3 toLight, float partialTick, double centerX, double centerY, double centerZ, int ticks ) { if (!Config.isFeatureEnabled(Config.CLIENT.cloudsEnabled)) {
             return false;
-        } else {
+        }
             Minecraft mc = Minecraft.getInstance
  ();
             ClientLevel level = mc.level;
@@ -158,7 +158,7 @@ private final LuxiumCloudRenderer.LayerState vanillaMaskLayer = new LuxiumCloudR
                 dimensionCloudHeight = level.effects().getCloudHeight();
                 if (Float.isNaN(dimensionCloudHeight)) {
                     return true;
-                } else {
+                }
                     CloudStatus
                     cloudStatus = mc.options.getCloudsType();
                     LuxiumCloudRenderer.LayerConfig[] config = readConfig();
@@ -219,9 +219,9 @@ private final LuxiumCloudRenderer.LayerState vanillaMaskLayer = new LuxiumCloudR
                     RenderSystem.colorMask(false, false, false, false);
                     RenderSystem.enableCull();
                     return true;
-                }
+                
 
-        }
+        
     }
 
     public float computeCustomShadowCasterFront(Vec3 center, Vec3 toLight, Matrix4f lightViewRotation, float projectionRadius, CloudStatus cloudStatus) {

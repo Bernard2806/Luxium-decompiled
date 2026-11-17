@@ -186,23 +186,23 @@ this.entries.values()) {
 
 
 ()) { return false;
-        } else {
+        }
             long sectionKey = BlockPos.asLong(originX, originY, originZ);
 
             if (!this.expectedRenderedSections.remove(sectionKey)) { return false;
-            } else { if (this.expectedRenderedSections.isEmpty()) { this.expectedRenderedSectionWaitFrames = 0;
+            } if (this.expectedRenderedSections.isEmpty()) { this.expectedRenderedSectionWaitFrames = 0;
                 }
                 if (this.entries.isEmpty()) { return false;
-                } else {
+                }
                     boolean wasEmpty = this.pendingRenderedSections.isEmpty();
                     boolean added = this.pendingRenderedSections.add(sectionKey);
                     if (wasEmpty && added) { this.renderedSectionDeferralFrames = 0;
                     }
                     this.renderedSectionQuietFrames = 0;
                     return added;
-                }
-            }
-        }
+                
+            
+        
     } public boolean usesDirectEmbeddiumCapture() { return NeoGpuVanilla.isConfiguredEnabled() && this.embeddiumLocalShadowBridge.isAvailable();
     }
 
