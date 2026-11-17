@@ -20,10 +20,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
+
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod; @Mod.EventBusSubscriber(modid="luxium", value={Dist.CLIENT}, bus=Mod.EventBusSubscriber.Bus.FORGE) public final class ModCommands { private ModCommands() { }
+ public final class ModCommands { private ModCommands() { }
 
 
     @SubscribeEvent public static void onRegisterClientCommands(RegisterClientCommandsEvent event) { LiteralArgumentBuilder<CommandSourceStack>
